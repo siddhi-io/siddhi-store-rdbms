@@ -82,13 +82,14 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-
+                            com.zaxxer.hikari.*,
                         </Private-Package>
                         <Export-Package>
+                            !com.zaxxer.hikari.*,
                             org.wso2.extension.siddhi.store.rdbms.*
                         </Export-Package>
                         <Import-Package>
-                            !org.wso2.extension.siddhi.store.rdbms,
+                            com.zaxxer.hikari.*,
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
