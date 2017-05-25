@@ -1,27 +1,25 @@
-# Ignore everything in this directory
-target
-.classpath
-.settings
-.project
 *.class
+target/
 
-# Ignore Package Files
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
 *.war
 *.ear
 
-# Ignore Intellij-IDEA files
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+#idea files
+.idea/
 *.iml
-*.ipr
-*.iws
-*.classpath
-*.settings
-*.project
-*.idea
-.DS_Store
 
-# Ignore logs
-*.log
+.classpath
+.project
+.settings/
+.cache-tests
+.cache-main
 
-# Ignore target directories
-target/
-*.*~
+site/
