@@ -1,1 +1,1 @@
-# siddhi-eventtable-rdbms
+# siddhi-store-rdbms
