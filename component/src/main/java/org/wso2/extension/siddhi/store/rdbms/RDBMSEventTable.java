@@ -350,8 +350,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
             throw new RDBMSTableException("Error retrieving records from table '" + this.tableName + "': "
                     + e.getMessage(), e);
-        } finally {
-            RDBMSTableUtils.cleanupConnection(null, stmt, conn);
         }
     }
 
@@ -577,6 +575,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                         insertStmt.addBatch();
                         if (counter % batchSize == (batchSize - 1)) {
                             insertStmt.executeBatch();
+                            conn.commit();
                             insertStmt.clearBatch();
                         }
                     } catch (SQLException e2) {
@@ -589,6 +588,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             }
             if (counter % batchSize > 0) {
                 insertStmt.executeBatch();
+                conn.commit();
             }
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
@@ -627,6 +627,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 if (counter % batchSize == batchSize - 1) {
                     recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
                             (counter - batchSize) - 1));
+                    conn.commit();
                     updateStmt.clearBatch();
                 }
                 counter++;
@@ -634,6 +635,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             if (counter % batchSize > 0) {
                 recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
                         (counter - (counter % batchSize)) - 1));
+                conn.commit();
             }
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
