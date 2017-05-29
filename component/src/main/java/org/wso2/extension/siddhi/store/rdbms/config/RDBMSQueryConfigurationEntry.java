@@ -78,13 +78,13 @@ public class RDBMSQueryConfigurationEntry {
         return category;
     }
 
-    public void setBatchEnable(boolean batchEnable) {
-        this.batchEnable = batchEnable;
+    @XmlElement(name = "batchEnable")
+    public boolean getBatchEnable() {
+        return batchEnable;
     }
 
-    @XmlAttribute(name = "batchEnable")
-    public Boolean getBatchEnable() {
-        return batchEnable;
+    public void setBatchEnable(boolean batchEnable) {
+        this.batchEnable = batchEnable;
     }
 
     public void setCategory(String category) {
