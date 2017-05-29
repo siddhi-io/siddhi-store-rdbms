@@ -53,6 +53,11 @@ public class UpdateOrInsertRDBMSTableTestCase {
 
     @BeforeClass
     public static void startTest() {
+        try {
+            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
+        } catch (SQLException e) {
+            log.info("Test case ignored due to " + e.getMessage());
+        }
         log.info("== RDBMS Table UPDATE/INSERT tests started ==");
     }
 
@@ -65,8 +70,6 @@ public class UpdateOrInsertRDBMSTableTestCase {
     public void updateOrInsertTableTest1() throws InterruptedException, SQLException {
         log.info("updateOrInsertTableTest1");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -97,18 +100,12 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Thread.sleep(500);
 
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'updateOrInsertTableTest1' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
     @Test
     public void updateOrInsertTableTest2() throws InterruptedException, SQLException {
         log.info("updateOrInsertTableTest2");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
@@ -133,18 +130,12 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Thread.sleep(500);
 
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'updateOrInsertTableTest2' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
     @Test
     public void updateOrInsertTableTest3() throws InterruptedException, SQLException {
         log.info("updateOrInsertTableTest3");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
@@ -218,18 +209,12 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'updateOrInsertTableTest3' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
     @Test
     public void updateOrInsertTableTest4() throws InterruptedException, SQLException {
         log.info("updateOrInsertTableTest4");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
@@ -296,10 +281,6 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'updateOrInsertTableTest4' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
     @Ignore
@@ -308,9 +289,6 @@ public class UpdateOrInsertRDBMSTableTestCase {
         log.info("updateOrInsertTableTest5");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
-
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
@@ -359,19 +337,12 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", false, eventArrived);
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'updateOrInsertTableTest5' ignored due to " + e.getMessage());
-            throw e;
-        }
-
     }
 
     @Test
     public void updateOrInsertTableTest6() throws InterruptedException, SQLException {
         log.info("updateOrInsertTableTest6");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
@@ -447,10 +418,6 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'updateOrInsertTableTest5' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
 
@@ -458,8 +425,6 @@ public class UpdateOrInsertRDBMSTableTestCase {
     public void updateOrInsertTableTest7() throws InterruptedException, SQLException {
         log.info("updateOrInsertTableTest7");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long, price float); " +
@@ -531,18 +496,12 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'updateOrInsertTableTest7' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
     @Test
     public void updateOrInsertTableTest8() throws InterruptedException, SQLException {
         log.info("updateOrInsertTableTest8");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long, price float); " +
@@ -608,18 +567,12 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'updateOrInsertTableTest8' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
     @Test
     public void updateOrInsertTableTest9() throws InterruptedException, SQLException {
         log.info("updateOrInsertTableTest9");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long, price float); " +
@@ -693,19 +646,12 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
             executionPlanRuntime.shutdown();
-
-        } catch (SQLException e) {
-            log.info("Test case 'updateOrInsertTableTest9' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
     @Test
     public void updateOrInsertTableTest10() throws InterruptedException, SQLException {
         log.info("updateOrInsertTableTest10");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long, price float); " +
@@ -778,18 +724,12 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'updateOrInsertTableTest10' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
     @Test
     public void insertOverwriteTableTest11() throws InterruptedException, SQLException {
         log.info("insertOverwriteTableTest11");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -822,18 +762,12 @@ public class UpdateOrInsertRDBMSTableTestCase {
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
             Assert.assertEquals("Update failed", 3, totalRowsInTable);
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'insertOverwriteTableTest11' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
     @Test
     public void insertOverwriteTableTest12() throws InterruptedException, SQLException {
         log.info("insertOverwriteTableTest12");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -866,9 +800,5 @@ public class UpdateOrInsertRDBMSTableTestCase {
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
             Assert.assertEquals("Update failed", 4, totalRowsInTable);
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'insertOverwriteTableTest12' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 }
