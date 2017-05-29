@@ -7,9 +7,11 @@
         <recordExistsQuery>SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
-        <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
+        <recordUpdateQuery batchEnabled = "true">UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}}
+            {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <stringSize>254</stringSize>
+        <batchSize>10</batchSize>
         <typeMapping>
             <binaryType>BLOB</binaryType>
             <booleanType>TINYINT(1)</booleanType>
