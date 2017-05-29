@@ -23,6 +23,7 @@ import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfiguration;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -46,7 +47,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.DATABASE_PRODUCT_NAME;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.MAX_VERSION;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.MIN_VERSION;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_CONDITION;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PROPERTY_SEPARATOR;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RDBMS_QUERY_CONFIG_FILE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.SQL_WHERE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.VERSION;
@@ -317,11 +321,11 @@ public class RDBMSTableUtils {
      * @throws CannotLoadConfigurationException if the configuration cannot be loaded.
      */
     public static RDBMSQueryConfigurationEntry lookupCurrentQueryConfigurationEntry(
-            DataSource ds) throws CannotLoadConfigurationException {
+            DataSource ds, ConfigReader configReader) throws CannotLoadConfigurationException {
         Map<String, Object> dbInfo = lookupDatabaseInfo(ds);
         RDBMSConfigurationMapper mapper = loadRDBMSConfigurationMapper();
         RDBMSQueryConfigurationEntry entry = mapper.lookupEntry((String) dbInfo.get(DATABASE_PRODUCT_NAME),
-                (double) dbInfo.get(VERSION));
+                (double) dbInfo.get(VERSION), configReader);
         if (entry != null) {
             return entry;
         } else {
@@ -341,7 +345,7 @@ public class RDBMSTableUtils {
     }
 
     /**
-     * Child class with a method for loading the JAXB configuration mappings
+     * Child class with a method for loading the JAXB configuration mappings.
      */
     private static class RDBMSTableConfigLoader {
 
@@ -382,9 +386,11 @@ public class RDBMSTableUtils {
             }
         }
 
-        private boolean checkVersion(RDBMSQueryConfigurationEntry entry, double version) {
-            double minVersion = entry.getMinVersion();
-            double maxVersion = entry.getMaxVersion();
+        private boolean checkVersion(RDBMSQueryConfigurationEntry entry, double version, ConfigReader configReader) {
+            double minVersion = Double.parseDouble(configReader.readConfig(entry.getDatabaseName() + PROPERTY_SEPARATOR
+                            + MIN_VERSION, String.valueOf(entry.getMinVersion())));
+            double maxVersion = Double.parseDouble(configReader.readConfig(entry.getDatabaseName() + PROPERTY_SEPARATOR
+                    + MAX_VERSION, String.valueOf(entry.getMaxVersion())));
             //Keeping things readable
             if (minVersion != 0 && version < minVersion) {
                 return false;
@@ -405,21 +411,18 @@ public class RDBMSTableUtils {
             return result;
         }
 
-        public RDBMSQueryConfigurationEntry lookupEntry(String dbName, double version) {
+        public RDBMSQueryConfigurationEntry lookupEntry(String dbName, double version, ConfigReader configReader) {
             List<RDBMSQueryConfigurationEntry> dbResults = this.extractMatchingConfigEntries(dbName.toLowerCase());
             if (dbResults.isEmpty()) {
                 return null;
             }
-            List<RDBMSQueryConfigurationEntry> versionResults = new ArrayList<>();
+            RDBMSQueryConfigurationEntry versionResults = null;
             for (RDBMSQueryConfigurationEntry entry : dbResults) {
-                if (this.checkVersion(entry, version)) {
-                    versionResults.add(entry);
+                if (this.checkVersion(entry, version, configReader)) {
+                    versionResults = entry;
                 }
             }
-            if (versionResults.isEmpty()) {
-                return null;
-            }
-            return versionResults.get(0);
+            return versionResults;
         }
     }
 }

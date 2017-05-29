@@ -28,6 +28,7 @@ import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.SystemParameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
@@ -62,8 +63,16 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANN
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_URL;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_USERNAME;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BATCH_SIZE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BINARY_TYPE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BOOLEAN_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.DOUBLE_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.EQUALS;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.FLOAT_TYPE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.INDEX_CREATE_QUERY;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.INTEGER_TYPE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.LONG_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.OPEN_PARENTHESIS;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_VALUES;
@@ -71,10 +80,21 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLA
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_Q;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_TABLE_NAME;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PROPERTY_SEPARATOR;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.QUESTION_MARK;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RECORD_DELETE_QUERY;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RECORD_EXISTS_QUERY;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RECORD_INSERT_QUERY;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RECORD_SELECT_QUERY;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RECORD_UPDATE_QUERY;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.SEPARATOR;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.SQL_NOT_NULL;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.SQL_PRIMARY_KEY_DEF;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.STRING_SIZE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.STRING_TYPE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TABLE_CHECK_QUERY;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TABLE_CREATE_QUERY;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TYPE_MAPPING;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.WHITESPACE;
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
 
@@ -126,6 +146,123 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                                 " specified in the '@Store' annotation. The 'symbol' field will be declared a unique " +
                                 "field, and a DB index will be created for the 'symbol' field."
                 )
+        },
+        systemParameter = {
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.maxVersion",
+                        description = "Supported maximum version of the {{RDBMS-Name}}.",
+                        defaultValue = "0",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.minVersion",
+                        description = "Supported minimum version of the {{RDBMS-Name}}.",
+                        defaultValue = "0",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.tableCheckQuery",
+                        description = "Query for check table in {{RDBMS-Name}}.",
+                        defaultValue = "\"h2: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"," +
+                                "\"mysql: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"," +
+                                "\"oracle: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"," +
+                                "\"Microsoft SQL Server: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"," +
+                                "\"PostgreSQL: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"," +
+                                "\"DB2.*: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.tableCreateQuery",
+                        description = "Query for create table in {{RDBMS-Name}}.",
+                        defaultValue = "\"h2: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1\"," +
+                                "\"mysql: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1\"," +
+                                "\"oracle: SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1\"," +
+                                "\"Microsoft SQL Server: SELECT TOP 1 1 from {{TABLE_NAME}}\"," +
+                                "\"PostgreSQL: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1\"," +
+                                "\"DB2.*: SELECT 1 FROM {{TABLE_NAME}} FETCH FIRST 1 ROWS ONLY\"",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.indexCreateQuery",
+                        description = "Query for create index in {{RDBMS-Name}}.",
+                        defaultValue = "\"h2: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})" +
+                                "\"," +
+                                "\"mysql: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})\"," +
+                                "\"oracle: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})\"," +
+                                "\"Microsoft SQL Server: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} " +
+                                "({{INDEX_COLUMNS}}) {{TABLE_NAME}} ({{INDEX_COLUMNS}})\"," +
+                                "\"PostgreSQL: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} " +
+                                "({{INDEX_COLUMNS}})\"," +
+                                "\"DB2.*: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})\"",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.recordInsertQuery",
+                        description = "Query for insert record in {{RDBMS-Name}}.",
+                        defaultValue = "\"h2: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"," +
+                                "\"mysql: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"," +
+                                "\"oracle: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"," +
+                                "\"Microsoft SQL Server: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"," +
+                                "\"PostgreSQL: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"," +
+                                "\"DB2.*: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.recordUpdateQuery",
+                        description = "Query for update record in {{RDBMS-Name}}.",
+                        defaultValue = "\"h2: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}\"," +
+                                "\"mysql: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}\"," +
+                                "\"oracle: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}\"," +
+                                "\"Microsoft SQL Server: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} " +
+                                "{{CONDITION}}\"," +
+                                "\"PostgreSQL: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}\"," +
+                                "\"DB2.*: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}\"",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.recordSelectQuery",
+                        description = "Query for select record in {{RDBMS-Name}}.",
+                        defaultValue = "\"h2: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"mysql: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"oracle: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"Microsoft SQL Server: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"PostgreSQL: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"DB2.*: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.recordExistsQuery",
+                        description = "Query for check record existence in {{RDBMS-Name}}.",
+                        defaultValue = "\"h2: SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"mysql: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"oracle: SELECT COUNT(1) INTO existence FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"Microsoft SQL Server: SELECT TOP 1 FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"PostgreSQL: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1\"," +
+                                "\"DB2.*: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} FETCH FIRST 1 ROWS ONLY\"",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.recordDeleteQuery",
+                        description = "Query for delete record in {{RDBMS-Name}}.",
+                        defaultValue = "\"h2: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"mysql: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"oracle: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"Microsoft SQL Server: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"PostgreSQL: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"," +
+                                "\"DB2.*: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.stringSize",
+                        description = "Define the string length and can be a StringType field in {{RDBMS-Name}}.",
+                        defaultValue = "\"h2: 254\"," +
+                                "\"mysql: 254\"," +
+                                "\"oracle: 254\"," +
+                                "\"Microsoft SQL Server: 254\"," +
+                                "\"PostgreSQL: 254\"," +
+                                "\"DB2.*: 254\"",
+                        possibleParameters = "N/A"
+                )
         }
 )
 public class RDBMSEventTable extends AbstractRecordTable {
@@ -135,6 +272,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private DataSource dataSource;
     private String tableName;
     private List<Attribute> attributes;
+    private ConfigReader configReader;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -157,11 +295,17 @@ public class RDBMSEventTable extends AbstractRecordTable {
         } else {
             this.initializeDatasource(storeAnnotation);
         }
+        if (null != configReader) {
+            this.configReader = configReader;
+        } else {
+            this.configReader = (name, defaultValue) -> defaultValue;
+        }
         String tableName = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_NAME);
         this.tableName = RDBMSTableUtils.isEmpty(tableName) ? tableDefinition.getId() : tableName;
         try {
             if (this.queryConfigurationEntry == null) {
-                this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource);
+                this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource,
+                        this.configReader);
             }
         } catch (CannotLoadConfigurationException e) {
             throw new RDBMSTableException("Failed to initialize DB Configuration entry for table '" + this.tableName
@@ -186,7 +330,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
     @Override
     protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
                                             CompiledCondition compiledCondition) {
-        String selectQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordSelectQuery());
+        String selectQuery = this.resolveTableName(configReader.readConfig(
+                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_SELECT_QUERY,
+                this.queryConfigurationEntry.getRecordSelectQuery()));
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -204,13 +350,16 @@ public class RDBMSEventTable extends AbstractRecordTable {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
             throw new RDBMSTableException("Error retrieving records from table '" + this.tableName + "': "
                     + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, stmt, conn);
         }
-        //todo finally cleanup connection
     }
 
     @Override
     protected boolean contains(Map<String, Object> containsConditionParameterMap, CompiledCondition compiledCondition) {
-        String containsQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordExistsQuery());
+        String containsQuery = this.resolveTableName(configReader.readConfig(
+                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_EXISTS_QUERY,
+                this.queryConfigurationEntry.getRecordExistsQuery()));
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -234,21 +383,34 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     protected void delete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition compiledCondition) {
-        String deleteQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordDeleteQuery());
+        String deleteQuery = this.resolveTableName(configReader.readConfig(
+                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_DELETE_QUERY,
+                this.queryConfigurationEntry.getRecordDeleteQuery()));
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
+        int batchSize = Integer.parseInt(configReader.readConfig(
+                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
+                String.valueOf(this.queryConfigurationEntry.getBatchSize())));
         try {
             stmt = RDBMSTableUtils.isEmpty(condition) ?
                     conn.prepareStatement(deleteQuery.replace(PLACEHOLDER_CONDITION, "")) :
                     conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(deleteQuery, condition));
+            int counter = 0;
             for (Map<String, Object> deleteConditionParameterMap : deleteConditionParameterMaps) {
                 RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
                         deleteConditionParameterMap, 0);
                 stmt.addBatch();
+                counter++;
+                if (counter == batchSize) {
+                    stmt.executeBatch();
+                    stmt.clearBatch();
+                    counter = 0;
+                }
             }
-            //todo add batching
-            stmt.executeBatch();
+            if (counter > 0) {
+                stmt.executeBatch();
+            }
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing record deletion on table '" + this.tableName
                     + "': " + e.getMessage(), e);
@@ -299,7 +461,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
      * @return the composed SQL query in string form.
      */
     private String composeInsertQuery() {
-        String insertQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordInsertQuery());
+        String insertQuery = this.resolveTableName(configReader.readConfig(
+                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_INSERT_QUERY,
+                this.queryConfigurationEntry.getRecordInsertQuery()));
         StringBuilder params = new StringBuilder();
         int fieldsLeft = this.attributes.size();
         while (fieldsLeft > 0) {
@@ -318,7 +482,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
      * @return the composed SQL query in string form.
      */
     private String composeUpdateQuery(CompiledCondition compiledCondition) {
-        String sql = this.resolveTableName(this.queryConfigurationEntry.getRecordUpdateQuery());
+        String sql = this.resolveTableName(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                PROPERTY_SEPARATOR + RECORD_UPDATE_QUERY, this.queryConfigurationEntry.getRecordUpdateQuery()));
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         StringBuilder columnsValues = new StringBuilder();
         this.attributes.forEach(attribute -> {
@@ -353,6 +518,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
             stmt = conn.prepareStatement(sql);
             Iterator<Map<String, Object>> conditionParamIterator = updateConditionParameterMaps.iterator();
             Iterator<Map<String, Object>> valueIterator = updateValues.iterator();
+            int batchSize = Integer.parseInt(configReader.readConfig(
+                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
+                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
+            int counter = 0;
             while (conditionParamIterator.hasNext() && valueIterator.hasNext()) {
                 Map<String, Object> conditionParameters = conditionParamIterator.next();
                 Map<String, Object> values = valueIterator.next();
@@ -364,36 +533,86 @@ public class RDBMSEventTable extends AbstractRecordTable {
                             attribute.getType(), values.get(attribute.getName()));
                 }
                 stmt.addBatch();
+                counter++;
+                if (counter == batchSize) {
+                    stmt.executeBatch();
+                    stmt.clearBatch();
+                    counter = 0;
+                }
             }
-            stmt.executeBatch();
+            if (counter > 0) {
+                stmt.executeBatch();
+            }
         } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
         }
     }
 
-    /**
-     * Method for performing insert/update operations for a given dataset.
-     *
-     * @param updateConditionParameterMaps update parameters that should be populated for each condition.
-     * @param compiledCondition            the condition that was built during compile time.
-     * @param updateValues                 the values for which the update operation should be done
-     *                                     (i.e. the new values).
-     * @param addingRecords                the records that should be inserted to the DB should the update operation
-     *                                     fail.
-     */
     private void updateOrInsertRecords(List<Map<String, Object>> updateConditionParameterMaps,
                                        CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
                                        List<Object[]> addingRecords) {
+        List<Integer> recordInsertIndexList;
+        if (this.queryConfigurationEntry.getBatchEnable()) {
+            recordInsertIndexList = batchProcessUpdate(updateConditionParameterMaps, compiledCondition, updateValues);
+        } else {
+            recordInsertIndexList = processUpdate(updateConditionParameterMaps, compiledCondition, updateValues);
+        }
+        batchProcessInsert(addingRecords, recordInsertIndexList);
+    }
+
+    private void batchProcessInsert(List<Object[]> addingRecords, List<Integer> recordInsertIndexList) {
+        int counter = 0;
+        Connection conn = this.getConnection(false);
+        PreparedStatement insertStmt = null;
+        try {
+            insertStmt = conn.prepareStatement(this.composeInsertQuery());
+            int batchSize = Integer.parseInt(configReader.readConfig(
+                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
+                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
+            while (counter < recordInsertIndexList.size()) {
+                if (recordInsertIndexList.get(counter) == counter) {
+                    Object[] record = addingRecords.get(counter);
+                    this.populateStatement(record, insertStmt);
+                    try {
+                        insertStmt.addBatch();
+                        if (counter % batchSize == (batchSize - 1)) {
+                            insertStmt.executeBatch();
+                            insertStmt.clearBatch();
+                        }
+                    } catch (SQLException e2) {
+                        RDBMSTableUtils.rollbackConnection(conn);
+                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
+                                + this.tableName + "': " + e2.getMessage(), e2);
+                    }
+                }
+                counter++;
+            }
+            if (counter % batchSize > 0) {
+                insertStmt.executeBatch();
+            }
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
+                    + this.tableName
+                    + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, insertStmt, null);
+        }
+    }
+
+    private List<Integer> batchProcessUpdate(List<Map<String, Object>> updateConditionParameterMaps,
+                                             CompiledCondition compiledCondition,
+                                             List<Map<String, Object>> updateValues) {
         int counter = 0;
         final int seed = this.attributes.size();
         Connection conn = this.getConnection(false);
         PreparedStatement updateStmt = null;
-        PreparedStatement insertStmt = null;
+        List<Integer> recordInsertIndexList = new ArrayList<>();
         try {
             updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
-            insertStmt = conn.prepareStatement(this.composeInsertQuery());
+            int batchSize = Integer.parseInt(configReader.readConfig(
+                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
+                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
             while (counter < updateValues.size()) {
-                int rowsChanged;
                 Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
                 Map<String, Object> values = updateValues.get(counter);
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
@@ -404,21 +623,52 @@ public class RDBMSEventTable extends AbstractRecordTable {
                             this.attributes.indexOf(attribute) + 1, attribute.getType(),
                             values.get(attribute.getName()));
                 }
-                //todo introduce batching
-                //todo oracle 11g - switch batch updates
-                rowsChanged = updateStmt.executeUpdate();
+                updateStmt.addBatch();
+                if (counter % batchSize == batchSize - 1) {
+                    recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
+                            (counter - batchSize) - 1));
+                    updateStmt.clearBatch();
+                }
+                counter++;
+            }
+            if (counter % batchSize > 0) {
+                recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
+                        (counter - (counter % batchSize)) - 1));
+            }
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
+                    + this.tableName
+                    + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, updateStmt, null);
+        }
+        return recordInsertIndexList;
+    }
+
+    private List<Integer> processUpdate(List<Map<String, Object>> updateConditionParameterMaps,
+                                        CompiledCondition compiledCondition, List<Map<String, Object>> updateValues) {
+        int counter = 0;
+        final int seed = this.attributes.size();
+        Connection conn = this.getConnection(false);
+        PreparedStatement updateStmt = null;
+        List<Integer> updateResultList = new ArrayList<>();
+        try {
+            updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
+            while (counter < updateValues.size()) {
+                Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
+                Map<String, Object> values = updateValues.get(counter);
+                //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
+                RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
+                        conditionParameters, seed);
+                for (Attribute attribute : this.attributes) {
+                    RDBMSTableUtils.populateStatementWithSingleElement(updateStmt,
+                            this.attributes.indexOf(attribute) + 1, attribute.getType(),
+                            values.get(attribute.getName()));
+                }
+                int isUpdate = updateStmt.executeUpdate();
                 conn.commit();
-                if (rowsChanged < 1) {
-                    Object[] record = addingRecords.get(counter);
-                    try {
-                        this.populateStatement(record, insertStmt);
-                        insertStmt.executeUpdate();
-                        conn.commit();
-                    } catch (SQLException e2) {
-                        RDBMSTableUtils.rollbackConnection(conn);
-                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
-                                + this.tableName + "': " + e2.getMessage(), e2);
-                    }
+                if (isUpdate < 1) {
+                    updateResultList.add(counter);
                 }
                 counter++;
             }
@@ -428,8 +678,21 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     + "': " + e.getMessage(), e);
         } finally {
             RDBMSTableUtils.cleanupConnection(null, updateStmt, null);
-            RDBMSTableUtils.cleanupConnection(null, insertStmt, conn);
         }
+        return updateResultList;
+    }
+
+    private List<Integer> filterRequiredInsertIndex(int[] updateResultIndex, int lastUpdatedRecordIndex) {
+        List<Integer> list = new ArrayList<Integer>();
+        int currentRecodeIndex = lastUpdatedRecordIndex;
+        for (int i = 0; i < updateResultIndex.length; i++) {
+            //Filter update result index and adding to list.
+            currentRecodeIndex += i;
+            if (updateResultIndex[i] < 1) {
+                list.add(currentRecodeIndex);
+            }
+        }
+        return list;
     }
 
     /**
@@ -518,8 +781,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
         List<Element> primaryKeyList = (primaryKeys == null) ? new ArrayList<>() : primaryKeys.getElements();
         List<Element> indexElementList = (indices == null) ? new ArrayList<>() : indices.getElements();
         List<String> queries = new ArrayList<>();
-        String createQuery = this.resolveTableName(this.queryConfigurationEntry.getTableCreateQuery());
-        String indexQuery = this.resolveTableName(this.queryConfigurationEntry.getIndexCreateQuery());
+        String createQuery = this.resolveTableName(configReader.readConfig(
+                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CREATE_QUERY,
+                this.queryConfigurationEntry.getTableCreateQuery()));
+        String indexQuery = this.resolveTableName(configReader.readConfig(
+                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + INDEX_CREATE_QUERY,
+                this.queryConfigurationEntry.getIndexCreateQuery()));
         Map<String, String> fieldLengths = RDBMSTableUtils.processFieldLengths(storeAnnotation.getElement(
                 ANNOTATION_ELEMENT_FIELD_LENGTHS));
         this.validateFieldLengths(fieldLengths);
@@ -527,32 +794,45 @@ public class RDBMSEventTable extends AbstractRecordTable {
             builder.append(attribute.getName()).append(WHITESPACE);
             switch (attribute.getType()) {
                 case BOOL:
-                    builder.append(typeMapping.getBooleanType());
+                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BOOLEAN_TYPE,
+                            typeMapping.getBooleanType()));
                     break;
                 case DOUBLE:
-                    builder.append(typeMapping.getDoubleType());
+                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + DOUBLE_TYPE,
+                            typeMapping.getDoubleType()));
                     break;
                 case FLOAT:
-                    builder.append(typeMapping.getFloatType());
+                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + FLOAT_TYPE,
+                            typeMapping.getFloatType()));
                     break;
                 case INT:
-                    builder.append(typeMapping.getIntegerType());
+                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + INTEGER_TYPE,
+                            typeMapping.getIntegerType()));
                     break;
                 case LONG:
-                    builder.append(typeMapping.getLongType());
+                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + LONG_TYPE,
+                            typeMapping.getLongType()));
                     break;
                 case OBJECT:
-                    builder.append(typeMapping.getBinaryType());
+                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BINARY_TYPE,
+                            typeMapping.getBinaryType()));
                     break;
                 case STRING:
-                    builder.append(typeMapping.getStringType());
-                    if (this.queryConfigurationEntry.getStringSize() != null) {
+                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + STRING_TYPE,
+                            typeMapping.getStringType()));
+                    String stringSize = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + STRING_SIZE,
+                            this.queryConfigurationEntry.getStringSize());
+                    if (null != stringSize) {
                         builder.append(OPEN_PARENTHESIS);
-                        if (fieldLengths.containsKey(attribute.getName())) {
-                            builder.append(fieldLengths.get(attribute.getName()));
-                        } else {
-                            builder.append(this.queryConfigurationEntry.getStringSize());
-                        }
+                        builder.append(fieldLengths.getOrDefault(attribute.getName(), stringSize));
                         builder.append(CLOSE_PARENTHESIS);
                     }
                     break;
@@ -683,7 +963,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String query = this.resolveTableName(this.queryConfigurationEntry.getTableCheckQuery());
+            String query = this.resolveTableName(configReader.readConfig(
+                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CHECK_QUERY,
+                    this.queryConfigurationEntry.getTableCheckQuery()));
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             return true;
