@@ -26,8 +26,14 @@ import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 public class RDBMSTableTestUtils {
@@ -39,6 +45,7 @@ public class RDBMSTableTestUtils {
     private static final String CONNECTION_URL_ORACLE = "jdbc:oracle:thin:@192.168.122.2:1521/dasdb";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "root";
+    private static final String JNDI_RESOURCE = "java:comp/env/jdbc/TestDB";
     public static String url = CONNECTION_URL_H2;
     private static DataSource dataSource;
 
@@ -112,7 +119,55 @@ public class RDBMSTableTestUtils {
         }
     }
 
+    public static List<List<Object>> getRecordsInTable(String tableName) throws SQLException {
+        PreparedStatement stmt = null;
+        Connection con = null;
+        List recordArray = new ArrayList();
+        try {
+            con = getDataSource().getConnection();
+            stmt = con.prepareStatement("SELECT * FROM " + tableName + "");
+            ResultSet resultSet = stmt.executeQuery();
+            //from result set give metadata
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+
+            //columns count from metadata object
+            int numOfCols = rsmd.getColumnCount();
+            while(resultSet.next()){
+                ArrayList<Object> columnArray = new ArrayList<Object>();
+                for (int i = 1; i <= numOfCols; i++) {
+                    columnArray.add(resultSet.getObject(i));
+                }
+                if(columnArray.size() != 0){
+                    recordArray.add(columnArray);
+                }
+            }
+            return recordArray;
+        } catch (SQLException e) {
+            log.error("Getting rows in DB table failed due to " + e.getMessage(), e);
+            throw e;
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, stmt, con);
+        }
+    }
+
     public enum TestType {
         MySQL, H2, ORACLE, MSSQL, DB2, POSTGRES
+    }
+
+    protected static void setupJNDI(){
+        try {
+            System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
+                    "org.apache.naming.java.javaURLContextFactory");
+            System.setProperty(Context.URL_PKG_PREFIXES,
+                    "org.apache.naming");
+            InitialContext context = new InitialContext();
+            context.createSubcontext("java:");
+            context.createSubcontext("java:comp");
+            context.createSubcontext("java:comp/env");
+            context.createSubcontext("java:comp/env/jdbc");
+            context.bind(JNDI_RESOURCE, RDBMSTableTestUtils.getDataSource());
+        } catch (NamingException e) {
+            log.error("Error while bind the datasource as JNDI resource." + e.getMessage(), e);
+        }
     }
 }

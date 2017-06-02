@@ -19,11 +19,11 @@ package org.wso2.extension.siddhi.store.rdbms;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -46,19 +46,23 @@ public class DeleteFromRDBMSTableTestCase {
         log.info("== RDBMS Table DELETE tests completed ==");
     }
 
-    @Test
-    public void deleteFromRDBMSTableTest1() throws InterruptedException, SQLException {
-        log.info("deleteFromRDBMSTableTest1");
-        SiddhiManager siddhiManager = new SiddhiManager();
+    @BeforeMethod
+    public void init() {
         try {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
+        } catch (SQLException e) {
+            log.info("Test case ignored due to " + e.getMessage());
+        }
+    }
+
+    @Test(description = "deleteFromRDBMSTableTest1")
+    public void deleteFromRDBMSTableTest1() throws InterruptedException, SQLException {
+        SiddhiManager siddhiManager = new SiddhiManager();
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
-                    //"@PrimaryKey(\"symbol\")" +
-                    //"@Index(\"volume\")" +
                     "define table StockTable (symbol string, price float, volume long); ";
             String query = "" +
                     "@info(name = 'query1') " +
@@ -83,13 +87,8 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 0, totalRowsInTable);
-
+            Assert.assertEquals(totalRowsInTable, 0, "Deletion failed");
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'deleteFromRDBMSTableTest1' ignored due to " + e.getMessage());
-            throw e;
-        }
     }
 
 
@@ -130,7 +129,7 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 0, totalRowsInTable);
+            Assert.assertEquals(totalRowsInTable, 0, "Deletion failed");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest2' ignored due to " + e.getMessage());
@@ -175,7 +174,7 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+            Assert.assertEquals(totalRowsInTable, 2, "Deletion failed");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest3' ignored due to " + e.getMessage());
@@ -219,7 +218,7 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+            Assert.assertEquals(totalRowsInTable, 2, "Deletion failed");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest4' ignored due to " + e.getMessage());
@@ -227,8 +226,7 @@ public class DeleteFromRDBMSTableTestCase {
         }
     }
 
-    @Ignore
-    @Test
+    @Test(enabled = false)
     public void deleteFromRDBMSTableTest5() throws InterruptedException, SQLException {
         // TODO VERIFY CORRECTNESS
         log.info("deleteFromRDBMSTableTest5");
@@ -265,7 +263,7 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+            Assert.assertEquals(totalRowsInTable, 2, "Deletion failed");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest5' ignored due to " + e.getMessage());
@@ -274,8 +272,7 @@ public class DeleteFromRDBMSTableTestCase {
 
     }
 
-    @Ignore
-    @Test
+    @Test(enabled = false)
     public void deleteFromRDBMSTableTest6() throws InterruptedException, SQLException {
         // TODO VERIFY CORRECTNESS
         log.info("deleteFromRDBMSTableTest6");
@@ -312,7 +309,7 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+            Assert.assertEquals(totalRowsInTable, 2, "Deletion failed");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest6' ignored due to " + e.getMessage());
@@ -357,7 +354,7 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+            Assert.assertEquals(totalRowsInTable, 2);
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest7' ignored due to " + e.getMessage());
@@ -401,7 +398,7 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 1, totalRowsInTable);
+            Assert.assertEquals(totalRowsInTable, 1, "Deletion failed");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest8' ignored due to " + e.getMessage());
@@ -446,7 +443,7 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+            Assert.assertEquals(totalRowsInTable, 2, "Deletion failed");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest10' ignored due to " + e.getMessage());
@@ -490,7 +487,7 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+            Assert.assertEquals(totalRowsInTable, 2, "Deletion failed");
             Thread.sleep(1000);
 
             stockStream.send(new Object[]{null, 45.5F, 100L});

@@ -17,21 +17,18 @@
  */
 package org.wso2.extension.siddhi.store.rdbms;
 
+import com.zaxxer.hikari.pool.HikariPool;
 import org.apache.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.EventPrinter;
-
+import javax.naming.NamingException;
 import java.sql.SQLException;
 
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NAME;
@@ -39,9 +36,6 @@ import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.url;
 
 public class DefineRDBMSTableTestCase {
     private static final Logger log = Logger.getLogger(DefineRDBMSTableTestCase.class);
-    private int inEventCount;
-    private int removeEventCount;
-    private boolean eventArrived;
 
     @BeforeClass
     public static void startTest() {
@@ -53,25 +47,178 @@ public class DefineRDBMSTableTestCase {
         log.info("== RDBMS Table DEFINITION tests completed ==");
     }
 
-    @Before
+    @BeforeMethod
     public void init() {
-        inEventCount = 0;
-        removeEventCount = 0;
-        eventArrived = false;
+        try {
+            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
+        } catch (SQLException e) {
+            log.info("Test case ignored due to " + e.getMessage());
+        }
     }
 
-    @Test
+    @Test(testName = "rdbmstabledefinitiontest1", description = "Testing table creation.")
     public void rdbmstabledefinitiontest1() throws InterruptedException, SQLException {
         //Testing table creation
         log.info("rdbmstabledefinitiontest1");
         SiddhiManager siddhiManager = new SiddhiManager();
-        try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = RDBMSTableException.class)
+    public void rdbmstabledefinitiontest2() throws InterruptedException, SQLException {
+        //Testing table creation with a invalid primary key (normal insertion.
+        log.info("rdbmstabledefinitiontest2");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
+                "@PrimaryKey(\"testPrimary\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = RDBMSTableException.class)
+    public void rdbmstabledefinitiontest3() throws InterruptedException, SQLException {
+        //Testing Defining a RDBMS table without defining a value for jdbc url field
+        log.info("rdbmstabledefinitiontest3");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = RDBMSTableException.class)
+    public void rdbmstabledefinitiontest4() throws InterruptedException, SQLException {
+        //Testing table creation with no connection URL
+        log.info("rdbmstabledefinitiontest4");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", " +
+                "username=\"root\", password=\"root\", jdbc.url=\"\", field.length=\"symbol:100\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+
+        executionPlanRuntime.shutdown();
+    }
+
+    //todo : check this and update test link
+    @Test(expectedExceptions = RuntimeException.class)
+    public void rdbmstabledefinitiontest5() throws InterruptedException, SQLException {
+        //Testing table creation with invalid connection URL
+        log.info("rdbmstabledefinitiontest5");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", " +
+                "username=\"root\", password=\"root\", jdbc.url=\"eerrrjdbc:h222:repository/database/" +
+                "ANALYTICS_EVENT_STORE\", field.length=\"symbol:100\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = RDBMSTableException.class)
+    public void rdbmstabledefinitiontest6() throws InterruptedException, SQLException {
+        //Testing table creation with no password
+        log.info("rdbmstabledefinitiontest6");
+        SiddhiManager siddhiManager = new SiddhiManager();
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                    "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
-                    "pool.properties=\"driverClassName:org.h2.Driver\")\n" +
+                    "username=\"root\", field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
                     "define table StockTable (symbol string, price float, volume long); ";
@@ -86,21 +233,531 @@ public class DefineRDBMSTableTestCase {
             executionPlanRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
-            stockStream.send(new Object[]{"IBM", 75.6F, 100L});
-            stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
             Thread.sleep(1000);
 
-            long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Definition/Insertion failed", 3, totalRowsInTable);
             executionPlanRuntime.shutdown();
-        } catch (SQLException e) {
-            log.info("Test case 'insertIntoRDBMSTableTest1' ignored due to " + e.getMessage());
-            throw e;
-        }
+    }
+
+    @Test(expectedExceptions = RDBMSTableException.class)
+    public void rdbmstabledefinitiontest7() throws InterruptedException, SQLException {
+        //Defining a RDBMS table without defining a value for password field
+        log.info("rdbmstabledefinitiontest7");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"\", field.length=\"symbol:100\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = HikariPool.PoolInitializationException.class)
+    public void rdbmstabledefinitiontest8() throws InterruptedException, SQLException {
+        //Defining a RDBMS table without defining a value for password field
+        log.info("rdbmstabledefinitiontest8");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root###\", field.length=\"symbol:100\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = RDBMSTableException.class)
+    public void rdbmstabledefinitiontest9() throws InterruptedException, SQLException {
+        //Defining a RDBMS table without having an username field.
+        log.info("rdbmstabledefinitiontest9");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", password=\"root\", " +
+                "field.length=\"symbol:100\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = RDBMSTableException.class)
+    public void rdbmstabledefinitiontest10() throws InterruptedException, SQLException {
+        //Defining a RDBMS table without defining a value for username field.
+        log.info("rdbmstabledefinitiontest10");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"\", password=\"root\", field.length=\"symbol:100\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = HikariPool.PoolInitializationException.class)
+    public void rdbmstabledefinitiontest11() throws InterruptedException, SQLException {
+        //Defining a RDBMS table without defining a value for username field.
+        log.info("rdbmstabledefinitiontest11");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root####\", password=\"root\", field.length=\"symbol:100\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+
+        executionPlanRuntime.shutdown();
     }
 
     @Test
-    public void rdbmstabledefinitiontest2() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest12() throws InterruptedException, SQLException {
+        //Defining a RDBMS table without having a field length field.
+        log.info("rdbmstabledefinitiontest12");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 1, "Update failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = RDBMSTableException.class)
+    public void rdbmstabledefinitiontest13() throws InterruptedException, SQLException {
+        //Defining a RDBMS table with non existing attribute/s to define the field length .
+        log.info("rdbmstabledefinitiontest13");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\",  field.length=\"length:254\", password=\"root\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 1, "Update failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void rdbmstabledefinitiontest14() throws InterruptedException, SQLException, NamingException {
+        //Defining a RDBMS table with jndi.resource.
+        log.info("rdbmstabledefinitiontest14");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        RDBMSTableTestUtils.setupJNDI();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:h2:./target/dasdb###\", " +
+                "username=\"root###\", jndi.resource=\"java:comp/env/jdbc/TestDB\", field.length=\"symbol:100\", " +
+                "password=\"root###\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 1, "Update failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = RDBMSTableException.class)
+    public void rdbmstabledefinitiontest15() throws InterruptedException, SQLException, NamingException {
+        //Defining a RDBMS table with an invalid value for jndi.resource field.
+        log.info("rdbmstabledefinitiontest15");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        RDBMSTableTestUtils.setupJNDI();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:h2:./target/dasdb###\", " +
+                "username=\"root###\", jndi.resource=\"jdbc444/444TestDB\", field.length=\"symbol:100\", " +
+                "password=\"root###\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 1, "Update failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void rdbmstabledefinitiontest16() throws InterruptedException, SQLException {
+        // This testcase verified that defining a RDBMS table by including pool.properties field will be
+        // successfully create the table.
+        log.info("rdbmstabledefinitiontest16");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver, maximumPoolSize:50, maxLifetime:60000\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void rdbmstabledefinitiontest17() throws InterruptedException, SQLException {
+        //  This testcase verified that defining a RDBMS table by including at least one invalid pool.property
+        // field will not successfully create the table.
+        log.info("rdbmstabledefinitiontest17");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver,maximumPoolSize:50,maxWSO2:60000\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void rdbmstabledefinitiontest18() throws InterruptedException, SQLException {
+        //Defining a RDBMS table with an invalid value for a pool.property.
+        log.info("rdbmstabledefinitiontest18");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver, maximumPoolSize:50, maxLifetime:WSO2\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void rdbmstabledefinitiontest19() throws InterruptedException, SQLException {
+        //Defining a RDBMS table with table.name.
+        log.info("rdbmstabledefinitiontest19");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        try {
+            RDBMSTableTestUtils.clearDatabaseTable("FooTable");
+        } catch (SQLException e) {
+            log.info("Test case ignored due to " + e.getMessage());
+        }
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver\",table.name=\"FooTable\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table FooTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into FooTable;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable("FooTable");
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void rdbmstabledefinitiontest20() throws InterruptedException, SQLException {
+        //This testcase verified that defining a RDBMS table without defining a value for table.name
+        // will be successfully create the table.
+        log.info("rdbmstabledefinitiontest20");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver\",table.name=\"\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void rdbmstabledefinitiontest21() throws InterruptedException, SQLException {
+        //Defining a RDBMS table with table.name.
+        log.info("rdbmstabledefinitiontest21");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        try {
+            RDBMSTableTestUtils.clearDatabaseTable("FooTable");
+        } catch (SQLException e) {
+            log.info("Test case ignored due to " + e.getMessage());
+        }
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver\",table.name=\"FooTable\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable("FooTable");
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(enabled = false)
+    public void rdbmstabledefinitiontest22() throws InterruptedException, SQLException {
+        //Defining a RDBMS table with already exist table.name.
+        log.info("rdbmstabledefinitiontest22");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        try {
+            RDBMSTableTestUtils.clearDatabaseTable("FooTable");
+        } catch (SQLException e) {
+            log.info("Test case ignored due to " + e.getMessage());
+        }
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver\",table.name=\"FooTable\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table FooTable (symbol string, price float, length int, name string);";
+
+        String streams2 = "" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver\",table.name=\"FooTable\")\n" +
+                "@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long);";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + streams2 +
+                query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable("FooTable");
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        executionPlanRuntime.shutdown();
+    }
+    /*
+    @Test
+    public void rdbmstabledefinitiontest3() throws InterruptedException, SQLException {
         //Testing table creation with a primary key (normal insertion)
         log.info("rdbmstabledefinitiontest2");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -138,7 +795,7 @@ public class DefineRDBMSTableTestCase {
     }
 
     @Test(expected = RDBMSTableException.class)
-    public void rdbmstabledefinitiontest3() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest4() throws InterruptedException, SQLException {
         //Testing table creation with a primary key (purposeful duplicate insertion)
         log.info("rdbmstabledefinitiontest3");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -174,7 +831,7 @@ public class DefineRDBMSTableTestCase {
     }
 
     @Test
-    public void rdbmstabledefinitiontest4() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest5() throws InterruptedException, SQLException {
         //Testing table creation with a compound primary key (normal insertion)
         log.info("rdbmstabledefinitiontest4");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -213,7 +870,7 @@ public class DefineRDBMSTableTestCase {
     }
 
     @Test
-    public void rdbmstabledefinitiontest5() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest6() throws InterruptedException, SQLException {
         //Testing table creation with index
         log.info("rdbmstabledefinitiontest5");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -249,7 +906,7 @@ public class DefineRDBMSTableTestCase {
     }
 
     @Test(expected = RDBMSTableException.class)
-    public void rdbmstabledefinitiontest6() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest7() throws InterruptedException, SQLException {
         //Testing table creation with no username
         log.info("rdbmstabledefinitiontest6");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -283,7 +940,7 @@ public class DefineRDBMSTableTestCase {
     }
 
     @Test(expected = RDBMSTableException.class)
-    public void rdbmstabledefinitiontest7() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest8() throws InterruptedException, SQLException {
         //Testing table creation with no password
         log.info("rdbmstabledefinitiontest7");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -317,7 +974,7 @@ public class DefineRDBMSTableTestCase {
     }
 
     @Test(expected = RDBMSTableException.class)
-    public void rdbmstabledefinitiontest8() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest9() throws InterruptedException, SQLException {
         //Testing table creation with no connection URL
         log.info("rdbmstabledefinitiontest8");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -530,4 +1187,5 @@ public class DefineRDBMSTableTestCase {
 
         executionPlanRuntime.shutdown();
     }
+    */
 }
