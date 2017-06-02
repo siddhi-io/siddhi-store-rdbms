@@ -46,6 +46,7 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -313,6 +314,30 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
         if (!this.tableExists()) {
             this.createTable(storeAnnotation, primaryKeys, indices);
+            this.validateExistingTable(storeAnnotation, primaryKeys, indices);
+        } else {
+            this.validateExistingTable(storeAnnotation, primaryKeys, indices);
+        }
+    }
+
+    //todo : incomplete
+    private void validateExistingTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices) {
+        Connection conn = this.getConnection();
+        PreparedStatement stmt = null;
+        ResultSet resultSet = null;
+        try {
+            String query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + this.tableName
+                    .toUpperCase() + "';";
+            stmt = conn.prepareStatement(query);
+            resultSet = stmt.executeQuery();
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+        } catch (SQLException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Table '" + this.tableName + "' assumed to not exist since its existence check resulted "
+                        + "in exception " + e.getMessage());
+            }
+        } finally {
+            RDBMSTableUtils.cleanupConnection(resultSet, stmt, conn);
         }
     }
 
@@ -381,6 +406,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     protected void delete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition compiledCondition) {
+        this.batchProcessDelete(deleteConditionParameterMaps, compiledCondition);
+    }
+
+    private void batchProcessDelete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition
+            compiledCondition) {
         String deleteQuery = this.resolveTableName(configReader.readConfig(
                 this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_DELETE_QUERY,
                 this.queryConfigurationEntry.getRecordDeleteQuery()));
@@ -402,12 +432,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 counter++;
                 if (counter == batchSize) {
                     stmt.executeBatch();
+                    conn.commit();
                     stmt.clearBatch();
                     counter = 0;
                 }
             }
             if (counter > 0) {
                 stmt.executeBatch();
+                conn.commit();
             }
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing record deletion on table '" + this.tableName
@@ -421,11 +453,60 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected void update(List<Map<String, Object>> updateConditionParameterMaps, CompiledCondition compiledCondition,
                           List<Map<String, Object>> updateValues) {
         String sql = this.composeUpdateQuery(compiledCondition);
+        this.batchProcessSQLUpdates(sql, updateConditionParameterMaps, compiledCondition, updateValues);
+    }
+
+    /**
+     * Method for processing update operations in a batched manner. This assumes that all update operations will be
+     * accepted by the database.
+     *
+     * @param sql                          the SQL update operation as string.
+     * @param updateConditionParameterMaps the runtime parameters that should be populated to the condition.
+     * @param compiledCondition            the condition that was built during compile time.
+     * @param updateValues                 the runtime parameters that should be populated to the update statement.
+     */
+    private void batchProcessSQLUpdates(String sql, List<Map<String, Object>> updateConditionParameterMaps,
+                                        CompiledCondition compiledCondition,
+                                        List<Map<String, Object>> updateValues) {
+        int counter = 0;
+        final int seed = this.attributes.size();
+        Connection conn = this.getConnection();
+        PreparedStatement stmt = null;
         try {
-            this.batchProcessUpdates(sql, updateConditionParameterMaps, compiledCondition, updateValues);
+            stmt = conn.prepareStatement(sql);
+            Iterator<Map<String, Object>> conditionParamIterator = updateConditionParameterMaps.iterator();
+            Iterator<Map<String, Object>> valueIterator = updateValues.iterator();
+            int batchSize = Integer.parseInt(configReader.readConfig(
+                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
+                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
+            while (conditionParamIterator.hasNext() && valueIterator.hasNext()) {
+                Map<String, Object> conditionParameters = conditionParamIterator.next();
+                Map<String, Object> values = valueIterator.next();
+                //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
+                RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, conditionParameters,
+                        seed);
+                for (Attribute attribute : this.attributes) {
+                    RDBMSTableUtils.populateStatementWithSingleElement(stmt, this.attributes.indexOf(attribute) + 1,
+                            attribute.getType(), values.get(attribute.getName()));
+                }
+                stmt.addBatch();
+                counter++;
+                if (counter == batchSize) {
+                    stmt.executeBatch();
+                    conn.commit();
+                    stmt.clearBatch();
+                    counter = 0;
+                }
+            }
+            if (counter > 0) {
+                stmt.executeBatch();
+                conn.commit();
+            }
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing record update operations on table '" + this.tableName
                     + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, stmt, conn);
         }
     }
 
@@ -433,7 +514,156 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
                                CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
                                List<Object[]> addingRecords) {
-        this.updateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
+        List<Integer> recordInsertIndexList;
+        if (this.queryConfigurationEntry.getBatchEnable()) {
+            recordInsertIndexList = batchProcessUpdate(updateConditionParameterMaps, compiledCondition,
+                    updateValues);
+        } else {
+            recordInsertIndexList = sequentialProcessUpdate(updateConditionParameterMaps, compiledCondition,
+                    updateValues);
+        }
+        batchProcessInsert(addingRecords, recordInsertIndexList);
+    }
+
+    private List<Integer> batchProcessUpdate(List<Map<String, Object>> updateConditionParameterMaps,
+                                             CompiledCondition compiledCondition,
+                                             List<Map<String, Object>> updateValues) {
+        int counter = 0;
+        final int seed = this.attributes.size();
+        Connection conn = this.getConnection(false);
+        PreparedStatement updateStmt = null;
+        List<Integer> recordInsertIndexList = new ArrayList<>();
+        try {
+            updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
+            Iterator<Map<String, Object>> conditionParamIterator = updateConditionParameterMaps.iterator();
+            Iterator<Map<String, Object>> valueIterator = updateValues.iterator();
+            int batchSize = Integer.parseInt(configReader.readConfig(
+                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
+                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
+            while (conditionParamIterator.hasNext() && valueIterator.hasNext()) {
+                Map<String, Object> conditionParameters = conditionParamIterator.next();
+                Map<String, Object> values = valueIterator.next();
+                //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
+                RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
+                        conditionParameters, seed);
+                for (Attribute attribute : this.attributes) {
+                    RDBMSTableUtils.populateStatementWithSingleElement(updateStmt,
+                            this.attributes.indexOf(attribute) + 1, attribute.getType(),
+                            values.get(attribute.getName()));
+                }
+                updateStmt.addBatch();
+                if (counter % batchSize == batchSize - 1) {
+                    recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
+                            (counter - batchSize)));
+                    conn.commit();
+                    updateStmt.clearBatch();
+                }
+                counter++;
+            }
+            if (counter % batchSize > 0) {
+                recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
+                        (counter - (counter % batchSize))));
+                conn.commit();
+            }
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
+                    + this.tableName + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, updateStmt, null);
+        }
+        return recordInsertIndexList;
+    }
+
+    private List<Integer> sequentialProcessUpdate(List<Map<String, Object>> updateConditionParameterMaps,
+                                                  CompiledCondition compiledCondition,
+                                                  List<Map<String, Object>> updateValues) {
+        int counter = 0;
+        final int seed = this.attributes.size();
+        Connection conn = this.getConnection(false);
+        PreparedStatement updateStmt = null;
+        List<Integer> updateResultList = new ArrayList<>();
+        try {
+            updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
+            while (counter < updateValues.size()) {
+                Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
+                Map<String, Object> values = updateValues.get(counter);
+                //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
+                RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
+                        conditionParameters, seed);
+                for (Attribute attribute : this.attributes) {
+                    RDBMSTableUtils.populateStatementWithSingleElement(updateStmt,
+                            this.attributes.indexOf(attribute) + 1, attribute.getType(),
+                            values.get(attribute.getName()));
+                }
+                int isUpdate = updateStmt.executeUpdate();
+                conn.commit();
+                if (isUpdate < 1) {
+                    updateResultList.add(counter);
+                }
+                counter++;
+            }
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
+                    + this.tableName
+                    + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, updateStmt, null);
+        }
+        return updateResultList;
+    }
+
+    private void batchProcessInsert(List<Object[]> addingRecords, List<Integer> recordInsertIndexList) {
+        int counter = 0;
+        Connection conn = this.getConnection(false);
+        PreparedStatement insertStmt = null;
+        try {
+            insertStmt = conn.prepareStatement(this.composeInsertQuery());
+            int batchSize = Integer.parseInt(configReader.readConfig(
+                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
+                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
+            while (counter < recordInsertIndexList.size()) {
+                if (recordInsertIndexList.get(counter) == counter) {
+                    Object[] record = addingRecords.get(counter);
+                    this.populateStatement(record, insertStmt);
+                    try {
+                        insertStmt.addBatch();
+                        if (counter % batchSize == (batchSize - 1)) {
+                            insertStmt.executeBatch();
+                            conn.commit();
+                            insertStmt.clearBatch();
+                        }
+                    } catch (SQLException e2) {
+                        RDBMSTableUtils.rollbackConnection(conn);
+                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
+                                + this.tableName + "': " + e2.getMessage(), e2);
+                    }
+                }
+                counter++;
+            }
+            if (counter % batchSize > 0) {
+                insertStmt.executeBatch();
+                conn.commit();
+            }
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
+                    + this.tableName
+                    + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, insertStmt, null);
+        }
+    }
+
+    private List<Integer> filterRequiredInsertIndex(int[] updateResultIndex, int lastUpdatedRecordIndex) {
+        List<Integer> insertIndexList = new ArrayList<Integer>();
+        int currentRecodeIndex = lastUpdatedRecordIndex;
+        for (int i = 0; i < updateResultIndex.length; i++) {
+            //Filter update result index and adding to list.
+            currentRecodeIndex += i;
+            if (updateResultIndex[i] < 1) {
+                insertIndexList.add(currentRecodeIndex);
+            }
+        }
+        return insertIndexList;
     }
 
     @Override
@@ -494,207 +724,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
         sql = RDBMSTableUtils.isEmpty(condition) ? sql.replace(PLACEHOLDER_CONDITION, "") :
                 RDBMSTableUtils.formatQueryWithCondition(sql, condition);
         return sql;
-    }
-
-    /**
-     * Method for processing update operations in a batched manner. This assumes that all update operations will be
-     * accepted by the database.
-     *
-     * @param sql                          the SQL update operation as string.
-     * @param updateConditionParameterMaps the runtime parameters that should be populated to the condition.
-     * @param compiledCondition            the condition that was built during compile time.
-     * @param updateValues                 the runtime parameters that should be populated to the update statement.
-     * @throws SQLException if the update operation fails.
-     */
-    private void batchProcessUpdates(String sql, List<Map<String, Object>> updateConditionParameterMaps,
-                                     CompiledCondition compiledCondition,
-                                     List<Map<String, Object>> updateValues) throws SQLException {
-        final int seed = this.attributes.size();
-        Connection conn = this.getConnection();
-        PreparedStatement stmt = null;
-        try {
-            stmt = conn.prepareStatement(sql);
-            Iterator<Map<String, Object>> conditionParamIterator = updateConditionParameterMaps.iterator();
-            Iterator<Map<String, Object>> valueIterator = updateValues.iterator();
-            int batchSize = Integer.parseInt(configReader.readConfig(
-                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
-                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
-            int counter = 0;
-            while (conditionParamIterator.hasNext() && valueIterator.hasNext()) {
-                Map<String, Object> conditionParameters = conditionParamIterator.next();
-                Map<String, Object> values = valueIterator.next();
-                //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
-                RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, conditionParameters,
-                        seed);
-                for (Attribute attribute : this.attributes) {
-                    RDBMSTableUtils.populateStatementWithSingleElement(stmt, this.attributes.indexOf(attribute) + 1,
-                            attribute.getType(), values.get(attribute.getName()));
-                }
-                stmt.addBatch();
-                counter++;
-                if (counter == batchSize) {
-                    stmt.executeBatch();
-                    stmt.clearBatch();
-                    counter = 0;
-                }
-            }
-            if (counter > 0) {
-                stmt.executeBatch();
-            }
-        } finally {
-            RDBMSTableUtils.cleanupConnection(null, stmt, conn);
-        }
-    }
-
-    private void updateOrInsertRecords(List<Map<String, Object>> updateConditionParameterMaps,
-                                       CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
-                                       List<Object[]> addingRecords) {
-        List<Integer> recordInsertIndexList;
-        if (this.queryConfigurationEntry.getBatchEnable()) {
-            recordInsertIndexList = batchProcessUpdate(updateConditionParameterMaps, compiledCondition, updateValues);
-        } else {
-            recordInsertIndexList = processUpdate(updateConditionParameterMaps, compiledCondition, updateValues);
-        }
-        batchProcessInsert(addingRecords, recordInsertIndexList);
-    }
-
-    private void batchProcessInsert(List<Object[]> addingRecords, List<Integer> recordInsertIndexList) {
-        int counter = 0;
-        Connection conn = this.getConnection(false);
-        PreparedStatement insertStmt = null;
-        try {
-            insertStmt = conn.prepareStatement(this.composeInsertQuery());
-            int batchSize = Integer.parseInt(configReader.readConfig(
-                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
-                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
-            while (counter < recordInsertIndexList.size()) {
-                if (recordInsertIndexList.get(counter) == counter) {
-                    Object[] record = addingRecords.get(counter);
-                    this.populateStatement(record, insertStmt);
-                    try {
-                        insertStmt.addBatch();
-                        if (counter % batchSize == (batchSize - 1)) {
-                            insertStmt.executeBatch();
-                            conn.commit();
-                            insertStmt.clearBatch();
-                        }
-                    } catch (SQLException e2) {
-                        RDBMSTableUtils.rollbackConnection(conn);
-                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
-                                + this.tableName + "': " + e2.getMessage(), e2);
-                    }
-                }
-                counter++;
-            }
-            if (counter % batchSize > 0) {
-                insertStmt.executeBatch();
-                conn.commit();
-            }
-        } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
-                    + this.tableName
-                    + "': " + e.getMessage(), e);
-        } finally {
-            RDBMSTableUtils.cleanupConnection(null, insertStmt, null);
-        }
-    }
-
-    private List<Integer> batchProcessUpdate(List<Map<String, Object>> updateConditionParameterMaps,
-                                             CompiledCondition compiledCondition,
-                                             List<Map<String, Object>> updateValues) {
-        int counter = 0;
-        final int seed = this.attributes.size();
-        Connection conn = this.getConnection(false);
-        PreparedStatement updateStmt = null;
-        List<Integer> recordInsertIndexList = new ArrayList<>();
-        try {
-            updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
-            int batchSize = Integer.parseInt(configReader.readConfig(
-                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
-                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
-            while (counter < updateValues.size()) {
-                Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
-                Map<String, Object> values = updateValues.get(counter);
-                //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
-                RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
-                        conditionParameters, seed);
-                for (Attribute attribute : this.attributes) {
-                    RDBMSTableUtils.populateStatementWithSingleElement(updateStmt,
-                            this.attributes.indexOf(attribute) + 1, attribute.getType(),
-                            values.get(attribute.getName()));
-                }
-                updateStmt.addBatch();
-                if (counter % batchSize == batchSize - 1) {
-                    recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
-                            (counter - batchSize) - 1));
-                    conn.commit();
-                    updateStmt.clearBatch();
-                }
-                counter++;
-            }
-            if (counter % batchSize > 0) {
-                recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
-                        (counter - (counter % batchSize)) - 1));
-                conn.commit();
-            }
-        } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
-                    + this.tableName
-                    + "': " + e.getMessage(), e);
-        } finally {
-            RDBMSTableUtils.cleanupConnection(null, updateStmt, null);
-        }
-        return recordInsertIndexList;
-    }
-
-    private List<Integer> processUpdate(List<Map<String, Object>> updateConditionParameterMaps,
-                                        CompiledCondition compiledCondition, List<Map<String, Object>> updateValues) {
-        int counter = 0;
-        final int seed = this.attributes.size();
-        Connection conn = this.getConnection(false);
-        PreparedStatement updateStmt = null;
-        List<Integer> updateResultList = new ArrayList<>();
-        try {
-            updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
-            while (counter < updateValues.size()) {
-                Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
-                Map<String, Object> values = updateValues.get(counter);
-                //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
-                RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
-                        conditionParameters, seed);
-                for (Attribute attribute : this.attributes) {
-                    RDBMSTableUtils.populateStatementWithSingleElement(updateStmt,
-                            this.attributes.indexOf(attribute) + 1, attribute.getType(),
-                            values.get(attribute.getName()));
-                }
-                int isUpdate = updateStmt.executeUpdate();
-                conn.commit();
-                if (isUpdate < 1) {
-                    updateResultList.add(counter);
-                }
-                counter++;
-            }
-        } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
-                    + this.tableName
-                    + "': " + e.getMessage(), e);
-        } finally {
-            RDBMSTableUtils.cleanupConnection(null, updateStmt, null);
-        }
-        return updateResultList;
-    }
-
-    private List<Integer> filterRequiredInsertIndex(int[] updateResultIndex, int lastUpdatedRecordIndex) {
-        List<Integer> list = new ArrayList<Integer>();
-        int currentRecodeIndex = lastUpdatedRecordIndex;
-        for (int i = 0; i < updateResultIndex.length; i++) {
-            //Filter update result index and adding to list.
-            currentRecodeIndex += i;
-            if (updateResultIndex[i] < 1) {
-                list.add(currentRecodeIndex);
-            }
-        }
-        return list;
     }
 
     /**
