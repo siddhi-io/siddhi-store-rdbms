@@ -254,7 +254,7 @@ public class RDBMSTableUtils {
                     throw new RDBMSTableException("Property '" + pair[0] + "' does not adhere to the expected " +
                             "format: a property must be a key-value pair separated by a colon (:)");
                 } else {
-                    keyValuePairs.add(pair);
+                    keyValuePairs.add(new String[]{pair[0].trim(), pair[1].trim()});
                 }
             }
         }
