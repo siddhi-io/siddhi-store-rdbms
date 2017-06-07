@@ -19,9 +19,9 @@ package org.wso2.extension.siddhi.store.rdbms;
 
 import org.apache.log4j.Logger;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -42,7 +42,7 @@ public class UpdateRDBMSTableTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @BeforeTest
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -99,14 +99,11 @@ public class UpdateRDBMSTableTestCase {
         Thread.sleep(1000);
 
         List<List<Object>> recordsInTable = RDBMSTableTestUtils.getRecordsInTable(TABLE_NAME);
-        Assert.assertEquals(new Object[]{"WSO2", 55.6, 100L}, recordsInTable.get(0)
-                .toArray(), "Update failed");
-        Assert.assertEquals(new Object[]{"WSO2", 57.6, 100L}, recordsInTable.get(1)
-                .toArray(), "Update failed");
-        Assert.assertEquals(new Object[]{"IBM", 57.6, 100L}, recordsInTable.get(2)
-                .toArray(), "Update failed");
+        Assert.assertEquals(recordsInTable.get(0).toArray(), new Object[]{"WSO2", 55.6, 100L}, "Update failed");
+        Assert.assertEquals(recordsInTable.get(1).toArray(), new Object[]{"WSO2", 57.6, 100L}, "Update failed");
+        Assert.assertEquals(recordsInTable.get(2).toArray(), new Object[]{"IBM", 57.6, 100L}, "Update failed");
         long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-        Assert.assertEquals(3, totalRowsInTable, "Update failed");
+        Assert.assertEquals(totalRowsInTable, 3, "Update failed");
         executionPlanRuntime.shutdown();
     }
 
@@ -147,12 +144,9 @@ public class UpdateRDBMSTableTestCase {
             Thread.sleep(1000);
 
             List<List<Object>> recordsInTable = RDBMSTableTestUtils.getRecordsInTable(TABLE_NAME);
-            Assert.assertEquals(new Object[]{"WSO2", 55.6, 50L}, recordsInTable.get(0)
-                    .toArray(), "Update failed");
-            Assert.assertEquals(new Object[]{"IBM", 75.6, 100L}, recordsInTable.get(1)
-                    .toArray(), "Update failed");
-            Assert.assertEquals(new Object[]{"WSO2", 85.6, 100L}, recordsInTable.get(2)
-                    .toArray(), "Update failed");
+            Assert.assertEquals(recordsInTable.get(0).toArray(), new Object[]{"WSO2", 55.6, 50L}, "Update failed");
+            Assert.assertEquals(recordsInTable.get(1).toArray(), new Object[]{"IBM", 75.6, 100L}, "Update failed");
+            Assert.assertEquals(recordsInTable.get(2).toArray(), new Object[]{"WSO2", 85.6, 100L}, "Update failed");
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
             Assert.assertEquals(3, totalRowsInTable, "Update failed");
             executionPlanRuntime.shutdown();
@@ -212,8 +206,8 @@ public class UpdateRDBMSTableTestCase {
             checkStockStream.send(new Object[]{"IBM", 100L});
             Thread.sleep(1000);
 
-            Assert.assertEquals(2, inEventCount, "Number of success events");
-            Assert.assertEquals(true, eventArrived, "Event arrived");
+            Assert.assertEquals(inEventCount, 2, "Number of success events");
+            Assert.assertEquals(eventArrived, true, "Event arrived");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'updateFromTableTest5' ignored due to " + e.getMessage());
@@ -262,13 +256,13 @@ public class UpdateRDBMSTableTestCase {
                             inEventCount++;
                             switch (inEventCount) {
                                 case 1:
-                                    Assert.assertEquals(new Object[]{"IBM", 150.6f, 100L}, event.getData());
+                                    Assert.assertEquals(event.getData(), new Object[]{"IBM", 150.6f, 100L});
                                     break;
                                 case 2:
-                                    Assert.assertEquals(new Object[]{"IBM", 190.6f, 100L}, event.getData());
+                                    Assert.assertEquals(event.getData(), new Object[]{"IBM", 190.6f, 100L});
                                     break;
                                 default:
-                                    Assert.assertSame(2, inEventCount);
+                                    Assert.assertSame(inEventCount, 2);
                             }
                         }
                         eventArrived = true;
@@ -295,9 +289,9 @@ public class UpdateRDBMSTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 155.6f, 100L});
             Thread.sleep(2000);
 
-            Assert.assertEquals(2, inEventCount, "Number of success events");
-            Assert.assertEquals(0, removeEventCount, "Number of remove events");
-            Assert.assertEquals(true, eventArrived, "Event arrived");
+            Assert.assertEquals(inEventCount, 2, "Number of success events");
+            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+            Assert.assertEquals(eventArrived, true, "Event arrived");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'updateFromTableTest7' ignored due to " + e.getMessage());
@@ -341,7 +335,7 @@ public class UpdateRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals(3, totalRowsInTable, "Update failed");
+            Assert.assertEquals(totalRowsInTable, 3, "Update failed");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'updateFromTableTest8' ignored due to " + e.getMessage());
@@ -387,14 +381,11 @@ public class UpdateRDBMSTableTestCase {
             Thread.sleep(1000);
 
             List<List<Object>> recordsInTable = RDBMSTableTestUtils.getRecordsInTable(TABLE_NAME);
-            Assert.assertEquals(new Object[]{"WSO2", 55.6, 50L}, recordsInTable.get(0)
-                    .toArray(), "Update failed");
-            Assert.assertEquals(new Object[]{"IBM", 75.6, 100L}, recordsInTable.get(1)
-                    .toArray(), "Update failed");
-            Assert.assertEquals(new Object[]{"WSO2", 57.6, 100L}, recordsInTable.get(2)
-                    .toArray(), "Update failed");
+            Assert.assertEquals(recordsInTable.get(0).toArray(), new Object[]{"WSO2", 55.6, 50L}, "Update failed");
+            Assert.assertEquals(recordsInTable.get(1).toArray(), new Object[]{"IBM", 75.6, 100L}, "Update failed");
+            Assert.assertEquals(recordsInTable.get(2).toArray(), new Object[]{"WSO2", 57.6, 100L}, "Update failed");
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals(3, totalRowsInTable, "Update failed");
+            Assert.assertEquals(totalRowsInTable, 3, "Update failed");
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'updateFromTableTest2' ignored due to " + e.getMessage());

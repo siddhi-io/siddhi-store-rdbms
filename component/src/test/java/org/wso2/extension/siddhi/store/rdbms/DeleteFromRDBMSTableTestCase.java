@@ -20,8 +20,8 @@ package org.wso2.extension.siddhi.store.rdbms;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import java.sql.SQLException;
 
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NAME;
+import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.driverClassName;
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.url;
 
 public class DeleteFromRDBMSTableTestCase {
@@ -61,7 +62,7 @@ public class DeleteFromRDBMSTableTestCase {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     "define table StockTable (symbol string, price float, volume long); ";
             String query = "" +
@@ -93,7 +94,7 @@ public class DeleteFromRDBMSTableTestCase {
 
 
     @Test
-    public void deleteFromRDBMSTableTest2() throws InterruptedException, SQLException {
+    public void deleteFromRDBMSTableTest() throws InterruptedException, SQLException {
         log.info("deleteFromRDBMSTableTest2");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
@@ -101,7 +102,7 @@ public class DeleteFromRDBMSTableTestCase {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -147,7 +148,7 @@ public class DeleteFromRDBMSTableTestCase {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -191,7 +192,7 @@ public class DeleteFromRDBMSTableTestCase {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -236,7 +237,7 @@ public class DeleteFromRDBMSTableTestCase {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -282,7 +283,7 @@ public class DeleteFromRDBMSTableTestCase {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -327,7 +328,7 @@ public class DeleteFromRDBMSTableTestCase {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -371,7 +372,7 @@ public class DeleteFromRDBMSTableTestCase {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -416,7 +417,7 @@ public class DeleteFromRDBMSTableTestCase {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -460,7 +461,7 @@ public class DeleteFromRDBMSTableTestCase {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +

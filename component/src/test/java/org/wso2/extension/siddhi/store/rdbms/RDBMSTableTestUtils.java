@@ -43,10 +43,14 @@ public class RDBMSTableTestUtils {
     private static final String CONNECTION_URL_MYSQL = "jdbc:mysql://localhost:3306/dasdb";
     private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
     private static final String CONNECTION_URL_ORACLE = "jdbc:oracle:thin:@192.168.122.2:1521/dasdb";
+    private static final String JDBC_DRIVER_CLASS_NAME_H2 = "org.h2.Driver";
+    private static final String JDBC_DRIVER_CLASS_NAME_MYSQL = "com.mysql.jdbc.Driver";
+    private static final String JDBC_DRIVER_CLASS_NAME_ORACLE = "oracle.jdbc.driver.OracleDriver";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "root";
     private static final String JNDI_RESOURCE = "java:comp/env/jdbc/TestDB";
     public static String url = CONNECTION_URL_H2;
+    public static String driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
     private static DataSource dataSource;
 
     private RDBMSTableTestUtils() {
@@ -69,17 +73,21 @@ public class RDBMSTableTestUtils {
         switch (type) {
             case MySQL:
                 url = CONNECTION_URL_MYSQL;
+                driverClassName = JDBC_DRIVER_CLASS_NAME_MYSQL;
                 break;
             case H2:
                 url = CONNECTION_URL_H2;
+                driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
                 break;
             case ORACLE:
                 url = CONNECTION_URL_ORACLE;
+                driverClassName = JDBC_DRIVER_CLASS_NAME_ORACLE;
                 break;
         }
         connectionProperties.setProperty("jdbcUrl", url);
         connectionProperties.setProperty("dataSource.user", USERNAME);
         connectionProperties.setProperty("dataSource.password", PASSWORD);
+        connectionProperties.setProperty("driverClassName", driverClassName);
         HikariConfig config = new HikariConfig(connectionProperties);
         return new HikariDataSource(config);
     }
@@ -132,12 +140,12 @@ public class RDBMSTableTestUtils {
 
             //columns count from metadata object
             int numOfCols = rsmd.getColumnCount();
-            while(resultSet.next()){
+            while (resultSet.next()) {
                 ArrayList<Object> columnArray = new ArrayList<Object>();
                 for (int i = 1; i <= numOfCols; i++) {
                     columnArray.add(resultSet.getObject(i));
                 }
-                if(columnArray.size() != 0){
+                if (columnArray.size() != 0) {
                     recordArray.add(columnArray);
                 }
             }
@@ -154,7 +162,7 @@ public class RDBMSTableTestUtils {
         MySQL, H2, ORACLE, MSSQL, DB2, POSTGRES
     }
 
-    protected static void setupJNDI(){
+    protected static void setupJNDI() {
         try {
             System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
                     "org.apache.naming.java.javaURLContextFactory");

@@ -20,18 +20,20 @@ package org.wso2.extension.siddhi.store.rdbms;
 import com.zaxxer.hikari.pool.HikariPool;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import javax.naming.NamingException;
+
 import java.sql.SQLException;
+import javax.naming.NamingException;
 
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NAME;
+import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.driverClassName;
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.url;
 
 public class DefineRDBMSTableTestCase {
@@ -63,7 +65,7 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
                 "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
                 "pool.properties=\"driverClassName:org.h2.Driver\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
@@ -96,7 +98,7 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                 "@PrimaryKey(\"testPrimary\")" +
                 //"@Index(\"volume\")" +
@@ -130,7 +132,8 @@ public class DefineRDBMSTableTestCase {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", " +
-                "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
+                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\"," +
+                "field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -159,7 +162,8 @@ public class DefineRDBMSTableTestCase {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", " +
-                "username=\"root\", password=\"root\", jdbc.url=\"\", field.length=\"symbol:100\")\n" +
+                "username=\"root\", password=\"root\", jdbc.url=\"\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -190,7 +194,8 @@ public class DefineRDBMSTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", " +
                 "username=\"root\", password=\"root\", jdbc.url=\"eerrrjdbc:h222:repository/database/" +
-                "ANALYTICS_EVENT_STORE\", field.length=\"symbol:100\")\n" +
+                "ANALYTICS_EVENT_STORE\", jdbc.driver.name=\"" + driverClassName + "\", " +
+                "field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -215,27 +220,27 @@ public class DefineRDBMSTableTestCase {
         //Testing table creation with no password
         log.info("rdbmstabledefinitiontest6");
         SiddhiManager siddhiManager = new SiddhiManager();
-            String streams = "" +
-                    "define stream StockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                    "username=\"root\", field.length=\"symbol:100\")\n" +
-                    //"@PrimaryKey(\"symbol\")" +
-                    //"@Index(\"volume\")" +
-                    "define table StockTable (symbol string, price float, volume long); ";
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
+                "username=\"root\", field.length=\"symbol:100\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
 
-            String query = "" +
-                    "@info(name = 'query1') " +
-                    "from StockStream   " +
-                    "insert into StockTable ;";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
 
-            stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
-            Thread.sleep(1000);
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        Thread.sleep(1000);
 
-            executionPlanRuntime.shutdown();
+        executionPlanRuntime.shutdown();
     }
 
     @Test(expectedExceptions = RDBMSTableException.class)
@@ -245,7 +250,7 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root\", password=\"\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
@@ -273,7 +278,7 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root\", password=\"root###\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
@@ -301,8 +306,8 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", password=\"root\", " +
-                "field.length=\"symbol:100\")\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
+                "password=\"root\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -329,7 +334,7 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"\", password=\"root\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
@@ -357,7 +362,7 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root####\", password=\"root\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
@@ -385,7 +390,7 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root\", password=\"root\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
@@ -414,7 +419,7 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root\",  field.length=\"length:254\", password=\"root\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
@@ -444,7 +449,8 @@ public class DefineRDBMSTableTestCase {
         RDBMSTableTestUtils.setupJNDI();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:h2:./target/dasdb###\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:h2:./target/dasdb###\", jdbc.driver.name=\"" +
+                driverClassName + "\"," +
                 "username=\"root###\", jndi.resource=\"java:comp/env/jdbc/TestDB\", field.length=\"symbol:100\", " +
                 "password=\"root###\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
@@ -475,7 +481,8 @@ public class DefineRDBMSTableTestCase {
         RDBMSTableTestUtils.setupJNDI();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:h2:./target/dasdb###\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:h2:./target/dasdb###\", jdbc.driver.name=\"" +
+                driverClassName + "\"," +
                 "username=\"root###\", jndi.resource=\"jdbc444/444TestDB\", field.length=\"symbol:100\", " +
                 "password=\"root###\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
@@ -506,9 +513,9 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
-                "pool.properties=\"driverClassName:org.h2.Driver, maximumPoolSize:50, maxLifetime:60000\")\n" +
+                "pool.properties=\"maximumPoolSize:50, maxLifetime:60000\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -540,9 +547,9 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
-                "pool.properties=\"driverClassName:org.h2.Driver,maximumPoolSize:50,maxWSO2:60000\")\n" +
+                "pool.properties=\"maximumPoolSize:50,maxWSO2:60000\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -573,9 +580,9 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
-                "pool.properties=\"driverClassName:org.h2.Driver, maximumPoolSize:50, maxLifetime:WSO2\")\n" +
+                "pool.properties=\"maximumPoolSize:50, maxLifetime:WSO2\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -611,9 +618,9 @@ public class DefineRDBMSTableTestCase {
         }
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
-                "pool.properties=\"driverClassName:org.h2.Driver\",table.name=\"FooTable\")\n" +
+                "table.name=\"FooTable\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table FooTable (symbol string, price float, volume long); ";
@@ -645,9 +652,9 @@ public class DefineRDBMSTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
-                "pool.properties=\"driverClassName:org.h2.Driver\",table.name=\"\")\n" +
+                "table.name=\"\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -684,8 +691,8 @@ public class DefineRDBMSTableTestCase {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
-                "pool.properties=\"driverClassName:org.h2.Driver\",table.name=\"FooTable\")\n" +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\",jdbc.driver.name=\"" +
+                driverClassName + "\", table.name=\"FooTable\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -722,8 +729,8 @@ public class DefineRDBMSTableTestCase {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
-                "pool.properties=\"driverClassName:org.h2.Driver\",table.name=\"FooTable\")\n" +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\", jdbc.driver.name=\"" +
+                driverClassName + "\", table.name=\"FooTable\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table FooTable (symbol string, price float, length int, name string);";
@@ -752,6 +759,48 @@ public class DefineRDBMSTableTestCase {
         Thread.sleep(1000);
 
         long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable("FooTable");
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(testName = "rdbmstabledefinitiontest23", description = "Testing table creation.")
+    public void rdbmstabledefinitiontest23() throws InterruptedException, SQLException {
+        //Testing table creation
+        log.info("rdbmstabledefinitiontest23");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String streams2 = "" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
+                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
+                "pool.properties=\"driverClassName:org.h2.Driver\",table.name=\"StockTable\")\n" +
+                //"@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable2 (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + streams2 +
+                query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
         Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
         executionPlanRuntime.shutdown();
     }

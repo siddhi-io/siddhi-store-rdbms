@@ -19,8 +19,8 @@ package org.wso2.extension.siddhi.store.rdbms;
 
 import org.apache.log4j.Logger;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;

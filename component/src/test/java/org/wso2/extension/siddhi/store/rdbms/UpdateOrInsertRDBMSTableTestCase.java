@@ -20,9 +20,9 @@ package org.wso2.extension.siddhi.store.rdbms;
 
 import org.apache.log4j.Logger;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -43,7 +43,7 @@ public class UpdateOrInsertRDBMSTableTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @BeforeTest
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -204,9 +204,9 @@ public class UpdateOrInsertRDBMSTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 100L});
             Thread.sleep(500);
 
-            Assert.assertEquals(3, inEventCount, "Number of success events");
-            Assert.assertEquals(0, removeEventCount, "Number of remove events");
-            Assert.assertEquals(true, eventArrived, "Event arrived");
+            Assert.assertEquals(inEventCount, 3, "Number of success events");
+            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+            Assert.assertEquals(eventArrived, true, "Event arrived");
             executionPlanRuntime.shutdown();
     }
 
@@ -276,9 +276,9 @@ public class UpdateOrInsertRDBMSTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 100L});
             Thread.sleep(500);
 
-            Assert.assertEquals(3, inEventCount, "Number of success events");
-            Assert.assertEquals(0, removeEventCount, "Number of remove events");
-            Assert.assertEquals(true, eventArrived, "Event arrived");
+            Assert.assertEquals(inEventCount, 3, "Number of success events");
+            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+            Assert.assertEquals(eventArrived, true, "Event arrived");
             executionPlanRuntime.shutdown();
     }
 
@@ -331,9 +331,9 @@ public class UpdateOrInsertRDBMSTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 100L});
             Thread.sleep(500);
 
-            Assert.assertEquals(0, inEventCount, "Number of success events");
-            Assert.assertEquals(0, removeEventCount, "Number of remove events");
-            Assert.assertEquals(false, eventArrived, "Event arrived");
+            Assert.assertEquals(inEventCount, 0, "Number of success events");
+            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+            Assert.assertEquals(eventArrived, false, "Event arrived");
             executionPlanRuntime.shutdown();
     }
 
@@ -412,9 +412,9 @@ public class UpdateOrInsertRDBMSTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 100L});
             Thread.sleep(500);
 
-            Assert.assertEquals(3, inEventCount, "Number of success events");
-            Assert.assertEquals(0, removeEventCount, "Number of remove events");
-            Assert.assertEquals(true, eventArrived, "Event arrived");
+            Assert.assertEquals(inEventCount, 3, "Number of success events");
+            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+            Assert.assertEquals(eventArrived, true, "Event arrived");
             executionPlanRuntime.shutdown();
     }
 
@@ -490,9 +490,9 @@ public class UpdateOrInsertRDBMSTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
             Thread.sleep(2000);
 
-            Assert.assertEquals(2, inEventCount, "Number of success events");
-            Assert.assertEquals(0, removeEventCount, "Number of remove events");
-            Assert.assertEquals(true, eventArrived, "Event arrived");
+            Assert.assertEquals(inEventCount, 2, "Number of success events");
+            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+            Assert.assertEquals(eventArrived, true, "Event arrived");
             executionPlanRuntime.shutdown();
     }
 
@@ -561,9 +561,9 @@ public class UpdateOrInsertRDBMSTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
             Thread.sleep(500);
 
-            Assert.assertEquals(2, inEventCount, "Number of success events");
-            Assert.assertEquals(0, removeEventCount, "Number of remove events");
-            Assert.assertEquals(true, eventArrived, "Event arrived");
+            Assert.assertEquals(inEventCount, 2, "Number of success events");
+            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+            Assert.assertEquals(eventArrived, true, "Event arrived");
             executionPlanRuntime.shutdown();
     }
 
@@ -640,9 +640,9 @@ public class UpdateOrInsertRDBMSTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
             Thread.sleep(1000);
 
-            Assert.assertEquals(2, inEventCount, "Number of success events");
-            Assert.assertEquals(0, removeEventCount, "Number of remove events");
-            Assert.assertEquals(true, eventArrived, "Event arrived");
+            Assert.assertEquals(inEventCount, 2, "Number of success events");
+            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+            Assert.assertEquals(eventArrived, true, "Event arrived");
             executionPlanRuntime.shutdown();
     }
 
@@ -718,9 +718,9 @@ public class UpdateOrInsertRDBMSTableTestCase {
             checkStockStream.send(new Object[]{"WSO2", 300L, 4.6f});
             Thread.sleep(1000);
 
-            Assert.assertEquals(2, inEventCount, "Number of success events");
-            Assert.assertEquals(0, removeEventCount, "Number of remove events");
-            Assert.assertEquals(true, eventArrived, "Event arrived");
+            Assert.assertEquals(inEventCount, 2, "Number of success events");
+            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+            Assert.assertEquals(eventArrived, true, "Event arrived");
             executionPlanRuntime.shutdown();
     }
 
@@ -758,7 +758,7 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Thread.sleep(500);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals(3, totalRowsInTable, "Update failed");
+            Assert.assertEquals(totalRowsInTable, 3, "Update failed");
             executionPlanRuntime.shutdown();
     }
 
@@ -796,7 +796,7 @@ public class UpdateOrInsertRDBMSTableTestCase {
             Thread.sleep(500);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals(4, totalRowsInTable, "Update failed");
+            Assert.assertEquals(totalRowsInTable, 4, "Update failed");
             executionPlanRuntime.shutdown();
     }
 }
