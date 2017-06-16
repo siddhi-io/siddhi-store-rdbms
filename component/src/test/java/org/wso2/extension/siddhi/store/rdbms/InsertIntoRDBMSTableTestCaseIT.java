@@ -31,10 +31,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NAME;
+import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.driverClassName;
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.url;
 
-public class InsertIntoRDBMSTableTestCase {
-    private static final Logger log = Logger.getLogger(InsertIntoRDBMSTableTestCase.class);
+public class InsertIntoRDBMSTableTestCaseIT {
+    private static final Logger log = Logger.getLogger(InsertIntoRDBMSTableTestCaseIT.class);
 
     @BeforeClass
     public static void startTest() {
@@ -49,7 +50,8 @@ public class InsertIntoRDBMSTableTestCase {
     @BeforeMethod
     public void init() {
         try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
+            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME, RDBMSTableTestUtils.TestType.valueOf(System.getenv
+                    ("DATABASE_TYPE")));
         } catch (SQLException e) {
             log.info("Test case ignored due to " + e.getMessage());
         }
@@ -63,8 +65,8 @@ public class InsertIntoRDBMSTableTestCase {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\",field.length=\"symbol:100\"," +
-                "pool.properties=\"driverClassName:org.h2.Driver\")\n" +
+                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
+                ".length=\"symbol:100\")\n" +
                 "@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, volume long); ";
@@ -83,20 +85,21 @@ public class InsertIntoRDBMSTableTestCase {
         Thread.sleep(1000);
 
         List<List<Object>> recordsInTable = RDBMSTableTestUtils.getRecordsInTable(TABLE_NAME);
-        Assert.assertEquals(recordsInTable.get(0).toArray(), new Object[]{"WSO2", 100L}, "Insertion failed");
-        Assert.assertEquals(recordsInTable.get(1).toArray(), new Object[]{"IBM", 100L}, "Insertion failed");
+        Assert.assertEquals(recordsInTable.get(1).toArray(), new Object[]{"WSO2", 100L}, "Insertion failed");
+        Assert.assertEquals(recordsInTable.get(0).toArray(), new Object[]{"IBM", 100L}, "Insertion failed");
         executionPlanRuntime.shutdown();
     }
 
     @Test
     public void insertIntoRDBMSTableTest2() throws InterruptedException, SQLException {
         //Testing table creation with a compound primary key (normal insertion)
-        log.info("rdbmstabledefinitiontest2");
+        log.info("insertIntoRDBMSTableTest2");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
+                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
+                ".length=\"symbol:100\")\n" +
                 "@PrimaryKey(\"symbol, price\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";

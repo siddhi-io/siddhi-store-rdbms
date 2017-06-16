@@ -34,8 +34,8 @@ import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NA
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.driverClassName;
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.url;
 
-public class DeleteFromRDBMSTableTestCase {
-    private static final Log log = LogFactory.getLog(DeleteFromRDBMSTableTestCase.class);
+public class DeleteFromRDBMSTableTestCaseIT {
+    private static final Log log = LogFactory.getLog(DeleteFromRDBMSTableTestCaseIT.class);
 
     @BeforeClass
     public static void startTest() {
@@ -50,7 +50,8 @@ public class DeleteFromRDBMSTableTestCase {
     @BeforeMethod
     public void init() {
         try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
+            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME, RDBMSTableTestUtils.TestType.valueOf(System.getenv
+                    ("DATABASE_TYPE")));
         } catch (SQLException e) {
             log.info("Test case ignored due to " + e.getMessage());
         }

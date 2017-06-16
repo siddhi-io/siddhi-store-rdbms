@@ -37,6 +37,7 @@ import org.wso2.siddhi.core.table.record.RecordIterator;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -46,7 +47,6 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -55,8 +55,8 @@ import java.util.Map;
 import java.util.Properties;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.sql.DataSource;
 
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_DRIVER_CLASS_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_FIELD_LENGTHS;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_JNDI_RESOURCE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_PASSWORD;
@@ -266,17 +266,18 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 )
         }
 )
-public class RDBMSEventTable extends AbstractRecordTable {
+public class RDBMSEventTable extends AbstractRecordTable implements EternalReferencedHolder {
 
     private static final Log log = LogFactory.getLog(RDBMSEventTable.class);
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
     private String tableName;
     private List<Attribute> attributes;
     private ConfigReader configReader;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
+        log.info("RDBMS Table Initialization start");
         this.attributes = tableDefinition.getAttributeList();
         Annotation storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
         Annotation primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
@@ -309,35 +310,13 @@ public class RDBMSEventTable extends AbstractRecordTable {
                         this.configReader);
             }
         } catch (CannotLoadConfigurationException e) {
+            this.stop();
             throw new RDBMSTableException("Failed to initialize DB Configuration entry for table '" + this.tableName
                     + "': " + e.getMessage(), e);
         }
         if (!this.tableExists()) {
+            log.info("A table: " + this.tableName + " is created with the provided information.");
             this.createTable(storeAnnotation, primaryKeys, indices);
-            this.validateExistingTable(storeAnnotation, primaryKeys, indices);
-        } else {
-            this.validateExistingTable(storeAnnotation, primaryKeys, indices);
-        }
-    }
-
-    //todo : incomplete
-    private void validateExistingTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices) {
-        Connection conn = this.getConnection();
-        PreparedStatement stmt = null;
-        ResultSet resultSet = null;
-        try {
-            String query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + this.tableName
-                    .toUpperCase() + "';";
-            stmt = conn.prepareStatement(query);
-            resultSet = stmt.executeQuery();
-            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-        } catch (SQLException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Table '" + this.tableName + "' assumed to not exist since its existence check resulted "
-                        + "in exception " + e.getMessage());
-            }
-        } finally {
-            RDBMSTableUtils.cleanupConnection(resultSet, stmt, conn);
         }
     }
 
@@ -394,8 +373,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
                     containsConditionParameterMap, 0);
             rs = stmt.executeQuery();
-            //todo rs.next() only?
-            return rs.next() && !rs.isBeforeFirst();
+            return rs.next();
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing a contains check on table '" + this.tableName
                     + "': " + e.getMessage(), e);
@@ -415,7 +393,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_DELETE_QUERY,
                 this.queryConfigurationEntry.getRecordDeleteQuery()));
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
-        Connection conn = this.getConnection();
+        Connection conn = this.getConnection(false);
         PreparedStatement stmt = null;
         int batchSize = Integer.parseInt(configReader.readConfig(
                 this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
@@ -737,6 +715,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         String url = storeAnnotation.getElement(ANNOTATION_ELEMENT_URL);
         String username = storeAnnotation.getElement(ANNOTATION_ELEMENT_USERNAME);
         String password = storeAnnotation.getElement(ANNOTATION_ELEMENT_PASSWORD);
+        String driverClassName = storeAnnotation.getElement(ANNOTATION_DRIVER_CLASS_NAME);
         if (RDBMSTableUtils.isEmpty(url)) {
             throw new RDBMSTableException("Required parameter '" + ANNOTATION_ELEMENT_URL + "' for DB " +
                     "connectivity cannot be empty.");
@@ -749,9 +728,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
             throw new RDBMSTableException("Required parameter '" + ANNOTATION_ELEMENT_PASSWORD + "' for DB " +
                     "connectivity cannot be empty.");
         }
+        if (RDBMSTableUtils.isEmpty(password)) {
+            throw new RDBMSTableException("Required parameter '" + ANNOTATION_DRIVER_CLASS_NAME + "' for DB " +
+                    "connectivity cannot be empty.");
+        }
         connectionProperties.setProperty("jdbcUrl", url);
         connectionProperties.setProperty("dataSource.user", username);
         connectionProperties.setProperty("dataSource.password", password);
+        connectionProperties.setProperty("driverClassName", driverClassName);
         if (poolPropertyString != null) {
             List<String[]> poolProps = RDBMSTableUtils.processKeyValuePairs(poolPropertyString);
             poolProps.forEach(pair -> connectionProperties.setProperty(pair[0], pair[1]));
@@ -1033,6 +1017,25 @@ public class RDBMSEventTable extends AbstractRecordTable {
         } catch (SQLException e) {
             throw new RDBMSTableException("Dropping event since value for attribute name " + attribute.getName() +
                     "cannot be set: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+        if (dataSource != null) {
+//            HikariPoolMXBean poolBean = dataSource.getHikariPoolMXBean();
+//            long startTime = System.currentTimeMillis(); //fetch starting time
+//            while (poolBean.getActiveConnections() > 0 && (System.currentTimeMillis() - startTime) < 10000) {
+//                poolBean.softEvictConnections();
+//            }
+            dataSource.close();
+            if (log.isDebugEnabled()) {
+                log.debug("Closing the pool name: " + dataSource.getPoolName());
+            }
         }
     }
 }

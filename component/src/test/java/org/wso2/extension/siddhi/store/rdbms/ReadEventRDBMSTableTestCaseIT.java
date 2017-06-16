@@ -34,10 +34,11 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import java.sql.SQLException;
 
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NAME;
+import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.driverClassName;
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.url;
 
-public class ReadEventRDBMSTableTestCase {
-    private static final Logger log = Logger.getLogger(ReadEventRDBMSTableTestCase.class);
+public class ReadEventRDBMSTableTestCaseIT {
+    private static final Logger log = Logger.getLogger(ReadEventRDBMSTableTestCaseIT.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
@@ -58,7 +59,8 @@ public class ReadEventRDBMSTableTestCase {
         removeEventCount = 0;
         eventArrived = false;
         try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
+            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME, RDBMSTableTestUtils.TestType.valueOf(System.getenv
+                    ("DATABASE_TYPE")));
         } catch (SQLException e) {
             log.info("Test case ignored due to " + e.getMessage());
         }
@@ -67,14 +69,15 @@ public class ReadEventRDBMSTableTestCase {
     @Test
     public void readEventRDBMSTableTestCase1() throws InterruptedException, SQLException {
         //Read events from a RDBMS table successfully
-        log.info("rdbmstabledefinitiontest1");
+        log.info("readEventRDBMSTableTestCase1");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream FooStream (name string, category string, volume long);\n" +
                 "define stream StockStream (itemId string, type string, volume long);\n" +
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume long);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\",field.length=\"itemId:100\")\n" +
+                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
+                ".length=\"itemId:100\")\n" +
                 "@PrimaryKey(\"itemId\")\n" +
                 "define table StockTable (itemId string, type string, volume long);\n";
 
@@ -138,14 +141,15 @@ public class ReadEventRDBMSTableTestCase {
     @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void readEventRDBMSTableTestCase2() throws InterruptedException, SQLException {
         //Read events from a non existing RDBMS table unsuccessfully
-        log.info("rdbmstabledefinitiontest2");
+        log.info("readEventRDBMSTableTestCase2");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream FooStream (name string, category string, volume long);\n" +
                 "define stream StockStream (itemId string, type string, volume long);\n" +
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume long);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\",field.length=\"itemId:100\")\n" +
+                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
+                ".length=\"itemId:100\")\n" +
                 "@PrimaryKey(\"itemId\")\n" +
                 "define table FooTable (itemId string, type string, volume long);\n";
 
@@ -168,13 +172,14 @@ public class ReadEventRDBMSTableTestCase {
     @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void readEventRDBMSTableTestCase3() throws InterruptedException, SQLException {
         //Read events from a RDBMS table through a non existing stream unsuccessfully
-        log.info("rdbmstabledefinitiontest3");
+        log.info("readEventRDBMSTableTestCase3");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (itemId string, type string, volume long);\n" +
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume long);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\",field.length=\"itemId:100\")\n" +
+                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
+                ".length=\"itemId:100\")\n" +
                 "@PrimaryKey(\"itemId\")\n" +
                 "define table StockTable (itemId string, type string, volume long);\n";
 
@@ -205,14 +210,15 @@ public class ReadEventRDBMSTableTestCase {
     @Test
     public void readEventRDBMSTableTestCase6() throws InterruptedException, SQLException {
         //Read multiple events from a RDBMS table successfully with windows.length.
-        log.info("rdbmstabledefinitiontest6");
+        log.info("readEventRDBMSTableTestCase6");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream FooStream (name string, category string, volume long);\n" +
                 "define stream StockStream (itemId string, type string, volume long);\n" +
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume long);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\",field.length=\"itemId:100\")\n" +
+                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
+                ".length=\"itemId:100\")\n" +
                 "@PrimaryKey(\"itemId\")\n" +
                 "define table StockTable (itemId string, type string, volume long);\n";
 
@@ -290,14 +296,15 @@ public class ReadEventRDBMSTableTestCase {
     @Test
     public void readEventRDBMSTableTestCase8() throws InterruptedException, SQLException {
         //Read multiple events from a RDBMS table successfully with windows.length.
-        log.info("rdbmstabledefinitiontest8");
+        log.info("readEventRDBMSTableTestCase8");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream FooStream (name string, category string, volume long);\n" +
                 "define stream StockStream (itemId string, type string, volume long);\n" +
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume long);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\",field.length=\"itemId:100\")\n" +
+                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
+                ".length=\"itemId:100\")\n" +
                 "@PrimaryKey(\"itemId\")\n" +
                 "define table StockTable (itemId string, type string, volume long);\n";
 
@@ -368,14 +375,15 @@ public class ReadEventRDBMSTableTestCase {
     @Test
     public void readEventRDBMSTableTestCase11() throws InterruptedException, SQLException {
         //Read events from a RDBMS table successfully with aggregate function.
-        log.info("rdbmstabledefinitiontest11");
+        log.info("readEventRDBMSTableTestCase11");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream FooStream (name string, category string, volume long);\n" +
                 "define stream StockStream (name string, type string, volume long);\n" +
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume double);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\",field.length=\"name:100\")\n" +
+                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
+                ".length=\"name:100\")\n" +
 //                "@PrimaryKey(\"itemId\")\n" +
                 "define table StockTable (name string, type string, volume long);\n";
 
