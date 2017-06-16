@@ -19,12 +19,11 @@ package org.wso2.extension.siddhi.store.rdbms;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
@@ -70,10 +69,10 @@ public class DeleteFromRDBMSTableTestCase {
                     "delete StockTable " +
                     "   on StockTable.symbol == symbol ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -83,9 +82,9 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 0, totalRowsInTable);
+            AssertJUnit.assertEquals("Deletion failed", 0, totalRowsInTable);
 
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest1' ignored due to " + e.getMessage());
             throw e;
@@ -117,10 +116,10 @@ public class DeleteFromRDBMSTableTestCase {
                     "delete StockTable " +
                     "   on symbol == StockTable.symbol ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -130,8 +129,8 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 0, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Deletion failed", 0, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest2' ignored due to " + e.getMessage());
             throw e;
@@ -163,10 +162,10 @@ public class DeleteFromRDBMSTableTestCase {
                     "delete StockTable " +
                     "   on StockTable.symbol == 'IBM'  ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -175,8 +174,8 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Deletion failed", 2, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest3' ignored due to " + e.getMessage());
             throw e;
@@ -207,10 +206,10 @@ public class DeleteFromRDBMSTableTestCase {
                     "delete StockTable " +
                     "   on 'IBM' == StockTable.symbol  ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -219,16 +218,15 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Deletion failed", 2, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest4' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
-    @Ignore
-    @Test
+    @Test(enabled = false)
     public void deleteFromRDBMSTableTest5() throws InterruptedException, SQLException {
         // TODO VERIFY CORRECTNESS
         log.info("deleteFromRDBMSTableTest5");
@@ -253,10 +251,10 @@ public class DeleteFromRDBMSTableTestCase {
                     "delete StockTable " +
                     "   on 'IBM' == symbol  ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -265,8 +263,8 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Deletion failed", 2, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest5' ignored due to " + e.getMessage());
             throw e;
@@ -274,8 +272,7 @@ public class DeleteFromRDBMSTableTestCase {
 
     }
 
-    @Ignore
-    @Test
+    @Test(enabled = false)
     public void deleteFromRDBMSTableTest6() throws InterruptedException, SQLException {
         // TODO VERIFY CORRECTNESS
         log.info("deleteFromRDBMSTableTest6");
@@ -300,10 +297,10 @@ public class DeleteFromRDBMSTableTestCase {
                     "delete StockTable " +
                     "   on symbol == 'IBM'  ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -312,8 +309,8 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Deletion failed", 2, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest6' ignored due to " + e.getMessage());
             throw e;
@@ -345,10 +342,10 @@ public class DeleteFromRDBMSTableTestCase {
                     "delete StockTable " +
                     "   on StockTable.symbol==symbol and StockTable.price > price and  StockTable.volume == volume  ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -357,8 +354,8 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Deletion failed", 2, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest7' ignored due to " + e.getMessage());
             throw e;
@@ -389,10 +386,10 @@ public class DeleteFromRDBMSTableTestCase {
                     "delete StockTable " +
                     "   on StockTable.symbol=='IBM' and StockTable.price > 50 and  StockTable.volume == volume  ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -401,8 +398,8 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 1, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Deletion failed", 1, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest8' ignored due to " + e.getMessage());
             throw e;
@@ -434,10 +431,10 @@ public class DeleteFromRDBMSTableTestCase {
                     "delete StockTable " +
                     "   on StockTable.symbol == symbol ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -446,8 +443,8 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Deletion failed", 2, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest10' ignored due to " + e.getMessage());
             throw e;
@@ -478,10 +475,10 @@ public class DeleteFromRDBMSTableTestCase {
                     "delete StockTable " +
                     "   on StockTable.symbol == symbol ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -490,16 +487,16 @@ public class DeleteFromRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+            AssertJUnit.assertEquals("Deletion failed", 2, totalRowsInTable);
             Thread.sleep(1000);
 
             stockStream.send(new Object[]{null, 45.5F, 100L});
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
             Thread.sleep(1000);
             try {
-                siddhiManager.createExecutionPlanRuntime(streams + query);
+                siddhiManager.createSiddhiAppRuntime(streams + query);
             } catch (NullPointerException ex) {
-                Assert.fail("Cannot Process null values in bloom filter");
+                AssertJUnit.fail("Cannot Process null values in bloom filter");
             }
         } catch (SQLException e) {
             log.info("Test case 'deleteFromRDBMSTableTest11' ignored due to " + e.getMessage());

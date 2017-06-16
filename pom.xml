@@ -41,19 +41,20 @@
             </activation>
             <modules>
                 <module>component</module>
-                <!--<module>feature</module>-->
             </modules>
         </profile>
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-SNAPSHOT</siddhi.version>
+        <siddhi.version>4.0.0-M7-SNAPSHOT</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
-        <junit.version>4.12</junit.version>
+        <testng.version>6.8</testng.version>
         <hikari.version>2.6.1</hikari.version>
         <commons.logging.version>1.1.1</commons.logging.version>
         <mysql.connector.version>5.1.6</mysql.connector.version>
         <h2.connector.version>1.4.187</h2.connector.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
     </properties>
 
     <scm>
@@ -110,9 +111,9 @@
                 <version>${commons.logging.version}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

@@ -18,14 +18,13 @@
 package org.wso2.extension.siddhi.store.rdbms;
 
 import org.apache.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -53,7 +52,7 @@ public class DefineRDBMSTableTestCase {
         log.info("== RDBMS Table DEFINITION tests completed ==");
     }
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -81,9 +80,9 @@ public class DefineRDBMSTableTestCase {
                     "from StockStream   " +
                     "insert into StockTable ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -91,8 +90,8 @@ public class DefineRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Definition/Insertion failed", 3, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Definition/Insertion failed", 3, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'insertIntoRDBMSTableTest1' ignored due to " + e.getMessage());
             throw e;
@@ -119,9 +118,9 @@ public class DefineRDBMSTableTestCase {
                     "from StockStream   " +
                     "insert into StockTable ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -129,15 +128,15 @@ public class DefineRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Definition/Insertion failed", 3, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Definition/Insertion failed", 3, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'rdbmstabledefinitiontest2' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
-    @Test(expected = RDBMSTableException.class)
+    @Test(expectedExceptions = RDBMSTableException.class)
     public void rdbmstabledefinitiontest3() throws InterruptedException, SQLException {
         //Testing table creation with a primary key (purposeful duplicate insertion)
         log.info("rdbmstabledefinitiontest3");
@@ -157,16 +156,16 @@ public class DefineRDBMSTableTestCase {
                     "from StockStream   " +
                     "insert into StockTable ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
             stockStream.send(new Object[]{"WSO2", 57.1F, 100L});
             Thread.sleep(1000);
 
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'rdbmstabledefinitiontest3' ignored due to " + e.getMessage());
             throw e;
@@ -193,9 +192,9 @@ public class DefineRDBMSTableTestCase {
                     "from StockStream   " +
                     "insert into StockTable ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -204,8 +203,8 @@ public class DefineRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Definition/Insertion failed", 4, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Definition/Insertion failed", 4, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'rdbmstabledefinitiontest4' ignored due to " + e.getMessage());
             throw e;
@@ -232,23 +231,23 @@ public class DefineRDBMSTableTestCase {
                     "from StockStream   " +
                     "insert into StockTable ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Definition/Insertion failed", 2, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Definition/Insertion failed", 2, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'rdbmstabledefinitiontest5' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
-    @Test(expected = RDBMSTableException.class)
+    @Test(expectedExceptions = RDBMSTableException.class)
     public void rdbmstabledefinitiontest6() throws InterruptedException, SQLException {
         //Testing table creation with no username
         log.info("rdbmstabledefinitiontest6");
@@ -268,21 +267,21 @@ public class DefineRDBMSTableTestCase {
                     "from StockStream   " +
                     "insert into StockTable ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             Thread.sleep(1000);
 
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'rdbmstabledefinitiontest6' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
-    @Test(expected = RDBMSTableException.class)
+    @Test(expectedExceptions = RDBMSTableException.class)
     public void rdbmstabledefinitiontest7() throws InterruptedException, SQLException {
         //Testing table creation with no password
         log.info("rdbmstabledefinitiontest7");
@@ -302,21 +301,21 @@ public class DefineRDBMSTableTestCase {
                     "from StockStream   " +
                     "insert into StockTable ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             Thread.sleep(1000);
 
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'rdbmstabledefinitiontest7' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
-    @Test(expected = RDBMSTableException.class)
+    @Test(expectedExceptions = RDBMSTableException.class)
     public void rdbmstabledefinitiontest8() throws InterruptedException, SQLException {
         //Testing table creation with no connection URL
         log.info("rdbmstabledefinitiontest8");
@@ -336,22 +335,21 @@ public class DefineRDBMSTableTestCase {
                     "from StockStream   " +
                     "insert into StockTable ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             Thread.sleep(1000);
 
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'rdbmstabledefinitiontest8' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
-    @Ignore
-    @Test
+    @Test(enabled = false)
     public void deleteRDBMSTableTest1() throws InterruptedException {
         log.info("deleteTableTest1");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -367,18 +365,17 @@ public class DefineRDBMSTableTestCase {
                 "delete StockTable " +
                 "   on StockTable.symbol == deleteSymbol ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
-        executionPlanRuntime.start();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
+        siddhiAppRuntime.start();
 
         deleteStockStream.send(new Object[]{"IBM"});
         deleteStockStream.send(new Object[]{"WSO2"});
         Thread.sleep(1000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
-    @Ignore
-    @Test
+    @Test(enabled = false)
     public void updateRDBMSTableTest1() throws InterruptedException {
         log.info("updateTableTest1");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -402,12 +399,12 @@ public class DefineRDBMSTableTestCase {
                 "update StockTable " +
                 "   on StockTable.symbol == symbol;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -415,12 +412,11 @@ public class DefineRDBMSTableTestCase {
         updateStockStream.send(new Object[]{"IBM", 56.6F, 100L});
 
         Thread.sleep(1000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
-    @Ignore
-    @Test
+    @Test(enabled = false)
     public void updateOrInsertRDBMSTableTest1() throws InterruptedException {
         log.info("updateOrInsertTableTest1");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -444,12 +440,12 @@ public class DefineRDBMSTableTestCase {
                 "UPDATE OR INSERT INTO StockTable " +
                 "   on StockTable.symbol == symbol;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -458,12 +454,11 @@ public class DefineRDBMSTableTestCase {
         updateStockStream.send(new Object[]{"MSFT", 47.1F, 100L});
 
         Thread.sleep(1000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
-    @Ignore
-    @Test
+    @Test(enabled = false)
     public void testTableJoinQuery1() throws InterruptedException {
         log.info("testTableJoinQuery1 - OUT 2");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -485,8 +480,8 @@ public class DefineRDBMSTableTestCase {
                 "volume " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -495,13 +490,13 @@ public class DefineRDBMSTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"WSO3", "WSO3", 100L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO3", "WSO3", 100L}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO3", "MSFT", 10L}, event.getData());
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO3", "MSFT", 10L}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                AssertJUnit.assertSame(2, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -513,10 +508,10 @@ public class DefineRDBMSTableTestCase {
             }
         });
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO3", 55.6F, 100L});
         stockStream.send(new Object[]{"MSFT", 75.6F, 10L});
@@ -524,10 +519,10 @@ public class DefineRDBMSTableTestCase {
 
         Thread.sleep(1000);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

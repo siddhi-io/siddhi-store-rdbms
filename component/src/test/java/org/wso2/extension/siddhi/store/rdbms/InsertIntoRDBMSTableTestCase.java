@@ -18,11 +18,11 @@
 package org.wso2.extension.siddhi.store.rdbms;
 
 import org.apache.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
@@ -62,9 +62,9 @@ public class InsertIntoRDBMSTableTestCase {
                     "from StockStream   " +
                     "insert into StockTable ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
             stockStream.send(new Object[]{"IBM", 75.6f, 100L});
@@ -72,8 +72,8 @@ public class InsertIntoRDBMSTableTestCase {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals("Insertion failed", 3, totalRowsInTable);
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Insertion failed", 3, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'insertIntoRDBMSTableTest1' ignored due to " + e.getMessage());
             throw e;
