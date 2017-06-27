@@ -18,12 +18,12 @@
 package org.wso2.extension.siddhi.store.rdbms;
 
 import org.apache.log4j.Logger;
-import org.testng.Assert;
+import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -90,10 +90,10 @@ public class UpdateRDBMSTableTestCaseIT {
                 "update StockTable\n" +
                 "on (StockTable.symbol == symbol);";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-        executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6, 100L});
         stockStream.send(new Object[]{"IBM", 75.6, 100L});
@@ -101,13 +101,9 @@ public class UpdateRDBMSTableTestCaseIT {
         updateStockStream.send(new Object[]{"IBM", 57.6, 100L});
         Thread.sleep(1000);
 
-        List<List<Object>> recordsInTable = RDBMSTableTestUtils.getRecordsInTable(TABLE_NAME);
-        Assert.assertEquals(recordsInTable.get(0).toArray(), new Object[]{"WSO2", 55.6, 100L}, "Update failed");
-        Assert.assertEquals(recordsInTable.get(1).toArray(), new Object[]{"WSO2", 57.6, 100L}, "Update failed");
-        Assert.assertEquals(recordsInTable.get(2).toArray(), new Object[]{"IBM", 57.6, 100L}, "Update failed");
-        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-        Assert.assertEquals(totalRowsInTable, 3, "Update failed");
-        executionPlanRuntime.shutdown();
+            long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+            AssertJUnit.assertEquals("Update failed", 3, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -136,10 +132,10 @@ public class UpdateRDBMSTableTestCaseIT {
                     "update StockTable " +
                     "   on (StockTable.symbol == symbol and StockTable.volume > volume) ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6, 50L});
             stockStream.send(new Object[]{"IBM", 75.6, 100L});
@@ -147,13 +143,9 @@ public class UpdateRDBMSTableTestCaseIT {
             updateStockStream.send(new Object[]{"WSO2", 85.6, 100L});
             Thread.sleep(1000);
 
-            List<List<Object>> recordsInTable = RDBMSTableTestUtils.getRecordsInTable(TABLE_NAME);
-            Assert.assertEquals(recordsInTable.get(0).toArray(), new Object[]{"WSO2", 55.6, 50L}, "Update failed");
-            Assert.assertEquals(recordsInTable.get(1).toArray(), new Object[]{"IBM", 75.6, 100L}, "Update failed");
-            Assert.assertEquals(recordsInTable.get(2).toArray(), new Object[]{"WSO2", 85.6, 100L}, "Update failed");
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals(3, totalRowsInTable, "Update failed");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Update failed", 3, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'updateFromTableTest2' ignored due to " + e.getMessage());
             throw e;
@@ -184,8 +176,8 @@ public class UpdateRDBMSTableTestCaseIT {
                     "from CheckStockStream[(StockTable.symbol==symbol) in StockTable] " +
                     "insert into OutStream;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            executionPlanRuntime.addCallback("query2", new QueryCallback() {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -200,22 +192,22 @@ public class UpdateRDBMSTableTestCaseIT {
 
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
             stockStream.send(new Object[]{"IBM", 55.6f, 100L});
-            checkStockStream.send(new Object[]{"BSD", 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
             checkStockStream.send(new Object[]{"WSO2", 100L});
             checkStockStream.send(new Object[]{"IBM", 100L});
             Thread.sleep(1000);
 
-            Assert.assertEquals(inEventCount, 2, "Number of success events");
-            Assert.assertEquals(eventArrived, true, "Event arrived");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
-            log.info("Test case 'updateFromTableTest5' ignored due to " + e.getMessage());
+            log.info("Test case 'updateFromTableTest3' ignored due to " + e.getMessage());
             throw e;
         }
     }
@@ -228,11 +220,189 @@ public class UpdateRDBMSTableTestCaseIT {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
+                    "define stream CheckStockStream (symbol string, volume long); " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
+                    //"@PrimaryKey(\"symbol\")" +
+                    //"@Index(\"volume\")" +
+                    "define table StockTable (symbol string, price float, volume long); ";
+            String query = "" +
+                    "@info(name = 'query1') " +
+                    "from StockStream " +
+                    "insert into StockTable ;" +
+                    "" +
+                    "@info(name = 'query2') " +
+                    "from CheckStockStream[(StockTable.symbol==symbol) in StockTable] " +
+                    "insert into OutStream;";
+
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        for (Event event : inEvents) {
+                            inEventCount++;
+                        }
+                        eventArrived = true;
+                    }
+
+                }
+
+            });
+
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            siddhiAppRuntime.start();
+
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            Thread.sleep(1000);
+
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
+        } catch (SQLException e) {
+            log.info("Test case 'updateFromTableTest4' ignored due to " + e.getMessage());
+            throw e;
+        }
+    }
+
+
+    @Test
+    public void updateFromTableTest5() throws InterruptedException, SQLException {
+        log.info("updateFromTableTest5");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        try {
+            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
+            String streams = "" +
+                    "define stream StockStream (symbol string, price float, volume long); " +
+                    "define stream CheckStockStream (symbol string, volume long); " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
+                    //"@PrimaryKey(\"symbol\")" +
+                    //"@Index(\"volume\")" +
+                    "define table StockTable (symbol string, price float, volume long); ";
+            String query = "" +
+                    "@info(name = 'query1') " +
+                    "from StockStream " +
+                    "insert into StockTable ;" +
+                    "" +
+                    "@info(name = 'query2') " +
+                    "from CheckStockStream[(StockTable.symbol==symbol) in StockTable] " +
+                    "insert into OutStream;";
+
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        for (Event event : inEvents) {
+                            inEventCount++;
+                        }
+                        eventArrived = true;
+                    }
+
+                }
+
+            });
+
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            siddhiAppRuntime.start();
+
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"BSD", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            Thread.sleep(1000);
+
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
+        } catch (SQLException e) {
+            log.info("Test case 'updateFromTableTest5' ignored due to " + e.getMessage());
+            throw e;
+        }
+    }
+
+    @Test
+    public void updateFromTableTest6() throws InterruptedException, SQLException {
+        log.info("updateFromTableTest6");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        try {
+            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
+            String streams = "" +
+                    "define stream StockStream (symbol string, price float, volume long); " +
+                    "define stream CheckStockStream (symbol string, volume long); " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                    "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
+                    //"@PrimaryKey(\"symbol\")" +
+                    //"@Index(\"volume\")" +
+                    "define table StockTable (symbol string, price float, volume long); ";
+            String query = "" +
+                    "@info(name = 'query1') " +
+                    "from StockStream " +
+                    "insert into StockTable ;" +
+                    "" +
+                    "@info(name = 'query2') " +
+                    "from CheckStockStream[(StockTable.symbol==symbol) in StockTable] " +
+                    "insert into OutStream;";
+
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        for (Event event : inEvents) {
+                            inEventCount++;
+                        }
+                        eventArrived = true;
+                    }
+
+                }
+
+            });
+
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            siddhiAppRuntime.start();
+
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            Thread.sleep(1000);
+
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
+        } catch (SQLException e) {
+            log.info("Test case 'updateFromTableTest6' ignored due to " + e.getMessage());
+            throw e;
+        }
+    }
+
+
+    @Test
+    public void updateFromTableTest7() throws InterruptedException, SQLException {
+        log.info("updateFromTableTest7");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        try {
+            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
+            String streams = "" +
+                    "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (comp string, prc float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                    "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                    ".length=\"symbol:100\")\n" +
+                    "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
                     "define table StockTable (symbol string, price float, volume long); ";
@@ -243,17 +413,18 @@ public class UpdateRDBMSTableTestCaseIT {
                     "" +
                     "@info(name = 'query2') " +
                     "from UpdateStockStream " +
+                    //TODO verify the case if only some fields are selected (e.g. no volume)
                     "select comp as symbol, prc as price, volume " +
                     "update StockTable " +
-                    "on StockTable.symbol==symbol; " +
+                    "   on StockTable.symbol==symbol;" +
                     "" +
                     "@info(name = 'query3') " +
                     "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume " +
                     "and price<StockTable.price) in StockTable] " +
                     "insert into OutStream;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -262,13 +433,13 @@ public class UpdateRDBMSTableTestCaseIT {
                             inEventCount++;
                             switch (inEventCount) {
                                 case 1:
-                                    Assert.assertEquals(event.getData(), new Object[]{"IBM", 150.6f, 100L});
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 150.6f, 100L}, event.getData());
                                     break;
                                 case 2:
-                                    Assert.assertEquals(event.getData(), new Object[]{"IBM", 190.6f, 100L});
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 190.6f, 100L}, event.getData());
                                     break;
                                 default:
-                                    Assert.assertSame(inEventCount, 2);
+                                    AssertJUnit.assertSame(2, inEventCount);
                             }
                         }
                         eventArrived = true;
@@ -281,10 +452,10 @@ public class UpdateRDBMSTableTestCaseIT {
 
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
             stockStream.send(new Object[]{"IBM", 185.6f, 100L});
@@ -295,10 +466,10 @@ public class UpdateRDBMSTableTestCaseIT {
             checkStockStream.send(new Object[]{"WSO2", 155.6f, 100L});
             Thread.sleep(2000);
 
-            Assert.assertEquals(inEventCount, 2, "Number of success events");
-            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
-            Assert.assertEquals(eventArrived, true, "Event arrived");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'updateFromTableTest7' ignored due to " + e.getMessage());
             throw e;
@@ -306,8 +477,8 @@ public class UpdateRDBMSTableTestCaseIT {
     }
 
     @Test
-    public void updateFromTableTest5() throws InterruptedException, SQLException {
-        log.info("updateFromTableTest5");
+    public void updateFromTableTest8() throws InterruptedException, SQLException {
+        log.info("updateFromTableTest8");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
@@ -328,12 +499,12 @@ public class UpdateRDBMSTableTestCaseIT {
                     "@info(name = 'query2') " +
                     "from UpdateStockStream " +
                     "update StockTable " +
-                    "   on StockTable.volume == 100 ;";
+                    "   on StockTable.volume == volume ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
             stockStream.send(new Object[]{"IBM", 75.6f, 100L});
@@ -342,18 +513,17 @@ public class UpdateRDBMSTableTestCaseIT {
             Thread.sleep(1000);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals(totalRowsInTable, 3, "Update failed");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Update failed", 3, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
             log.info("Test case 'updateFromTableTest8' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
-    @Test(enabled = false)
-    public void updateFromTableTest6() throws InterruptedException, SQLException {
-        //Check for update event data in RDBMS table when multiple conditions are true.
-        log.info("updateFromTableTest6");
+    @Test
+    public void updateFromTableTest9() throws InterruptedException, SQLException {
+        log.info("updateFromTableTest9");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
@@ -377,10 +547,10 @@ public class UpdateRDBMSTableTestCaseIT {
                     "update StockTable " +
                     "   on (StockTable.symbol == symbol and StockTable.volume > volume) ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6, 50L});
             stockStream.send(new Object[]{"IBM", 75.6, 100L});
@@ -388,15 +558,11 @@ public class UpdateRDBMSTableTestCaseIT {
             updateStockStream.send(new Object[]{"WSO2", 85.6, 100L});
             Thread.sleep(1000);
 
-            List<List<Object>> recordsInTable = RDBMSTableTestUtils.getRecordsInTable(TABLE_NAME);
-            Assert.assertEquals(recordsInTable.get(0).toArray(), new Object[]{"WSO2", 55.6, 50L}, "Update failed");
-            Assert.assertEquals(recordsInTable.get(1).toArray(), new Object[]{"IBM", 75.6, 100L}, "Update failed");
-            Assert.assertEquals(recordsInTable.get(2).toArray(), new Object[]{"WSO2", 57.6, 100L}, "Update failed");
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals(totalRowsInTable, 3, "Update failed");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Update failed", 3, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
         } catch (SQLException e) {
-            log.info("Test case 'updateFromTableTest2' ignored due to " + e.getMessage());
+            log.info("Test case 'updateFromTableTest8' ignored due to " + e.getMessage());
             throw e;
         }
     }

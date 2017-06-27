@@ -19,12 +19,12 @@
 package org.wso2.extension.siddhi.store.rdbms;
 
 import org.apache.log4j.Logger;
-import org.testng.Assert;
+import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -90,10 +90,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "update or insert into StockTable " +
                     "   on StockTable.symbol=='IBM' and StockTable.symbol=='GOOG';";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -101,7 +101,7 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             updateStockStream.send(new Object[]{"GOOG", 10.6F, 100L});
             Thread.sleep(3000);
 
-            executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -122,9 +122,9 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "update or insert into StockTable " +
                     "   on StockTable.symbol==symbol ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -132,7 +132,7 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             stockStream.send(new Object[]{"WSO2", 10F, 100L});
             Thread.sleep(500);
 
-            executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -163,8 +163,8 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
                     "insert into OutStream;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -173,16 +173,16 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                             inEventCount++;
                             switch (inEventCount) {
                                 case 1:
-                                    Assert.assertEquals(new Object[]{"IBM", 100L}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
                                     break;
                                 case 2:
-                                    Assert.assertEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                     break;
                                 case 3:
-                                    Assert.assertEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                     break;
                                 default:
-                                    Assert.assertSame(3, inEventCount);
+                                    AssertJUnit.assertSame(3, inEventCount);
                             }
                         }
                         eventArrived = true;
@@ -195,10 +195,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
 
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 55.6F, 100L});
@@ -209,10 +209,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             checkStockStream.send(new Object[]{"WSO2", 100L});
             Thread.sleep(500);
 
-            Assert.assertEquals(inEventCount, 3, "Number of success events");
-            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
-            Assert.assertEquals(eventArrived, true, "Event arrived");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -238,8 +238,8 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
                     "insert into OutStream;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -248,16 +248,16 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                             inEventCount++;
                             switch (inEventCount) {
                                 case 1:
-                                    Assert.assertEquals(new Object[]{"IBM", 100L}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
                                     break;
                                 case 2:
-                                    Assert.assertEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                     break;
                                 case 3:
-                                    Assert.assertEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                     break;
                                 default:
-                                    Assert.assertSame(3, inEventCount);
+                                    AssertJUnit.assertSame(3, inEventCount);
                             }
                         }
                         eventArrived = true;
@@ -269,9 +269,9 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                 }
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 55.6F, 100L});
@@ -282,10 +282,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             checkStockStream.send(new Object[]{"WSO2", 100L});
             Thread.sleep(500);
 
-            Assert.assertEquals(inEventCount, 3, "Number of success events");
-            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
-            Assert.assertEquals(eventArrived, true, "Event arrived");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
     }
 
     @Test(expectedExceptions = DuplicateDefinitionException.class, enabled = false)
@@ -314,9 +314,9 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "update or insert into StockTable " +
                     "   on StockTable.symbol==symbol;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -324,10 +324,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                 }
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 55.6F, 100L});
@@ -338,10 +338,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             checkStockStream.send(new Object[]{"WSO2", 100L});
             Thread.sleep(500);
 
-            Assert.assertEquals(inEventCount, 0, "Number of success events");
-            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
-            Assert.assertEquals(eventArrived, false, "Event arrived");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", false, eventArrived);
+            siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -374,8 +374,8 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
                     "insert into OutStream;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -384,16 +384,16 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                             inEventCount++;
                             switch (inEventCount) {
                                 case 1:
-                                    Assert.assertEquals(new Object[]{"IBM", 100L}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
                                     break;
                                 case 2:
-                                    Assert.assertEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                     break;
                                 case 3:
-                                    Assert.assertEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                     break;
                                 default:
-                                    Assert.assertSame(3, inEventCount);
+                                    AssertJUnit.assertSame(3, inEventCount);
                             }
                         }
                         eventArrived = true;
@@ -405,10 +405,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                 }
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 55.6F, 100L});
@@ -420,10 +420,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             checkStockStream.send(new Object[]{"WSO2", 100L});
             Thread.sleep(500);
 
-            Assert.assertEquals(inEventCount, 3, "Number of success events");
-            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
-            Assert.assertEquals(eventArrived, true, "Event arrived");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
     }
 
 
@@ -457,8 +457,8 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "< StockTable.price) in StockTable] " +
                     "insert into OutStream;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -467,13 +467,13 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                             inEventCount++;
                             switch (inEventCount) {
                                 case 1:
-                                    Assert.assertEquals(new Object[]{"IBM", 100L, 56.6f}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L, 56.6f}, event.getData());
                                     break;
                                 case 2:
-                                    Assert.assertEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
                                     break;
                                 default:
-                                    Assert.assertSame(2, inEventCount);
+                                    AssertJUnit.assertSame(2, inEventCount);
                             }
                         }
                         eventArrived = true;
@@ -485,10 +485,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                 }
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 155.6F, 100L});
@@ -499,10 +499,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
             Thread.sleep(2000);
 
-            Assert.assertEquals(inEventCount, 2, "Number of success events");
-            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
-            Assert.assertEquals(eventArrived, true, "Event arrived");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -530,37 +530,37 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "< StockTable.price) in StockTable] " +
                     "insert into OutStream;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-//            executionPlanRuntime.addCallback("query3", new QueryCallback() {
-//                @Override
-//                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-//                    EventPrinter.print(timeStamp, inEvents, removeEvents);
-//                    if (inEvents != null) {
-//                        for (Event event : inEvents) {
-//                            inEventCount++;
-//                            switch (inEventCount) {
-//                                case 1:
-//                                    Assert.assertEquals(new Object[]{"IBM", 100L, 55.6f}, event.getData());
-//                                    break;
-//                                case 2:
-//                                    Assert.assertEquals(new Object[]{"IBM", 200L, 55.6f}, event.getData());
-//                                    break;
-//                                default:
-//                                    Assert.assertSame(2, inEventCount);
-//                            }
-//                        }
-//                        eventArrived = true;
-//                    }
-//                    if (removeEvents != null) {
-//                        removeEventCount = removeEventCount + removeEvents.length;
-//                    }
-//                    eventArrived = true;
-//                }
-//            });
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        for (Event event : inEvents) {
+                            inEventCount++;
+                            switch (inEventCount) {
+                                case 1:
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L, 55.6f}, event.getData());
+                                    break;
+                                case 2:
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 200L, 55.6f}, event.getData());
+                                    break;
+                                default:
+                                    AssertJUnit.assertSame(2, inEventCount);
+                            }
+                        }
+                        eventArrived = true;
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount = removeEventCount + removeEvents.length;
+                    }
+                    eventArrived = true;
+                }
+            });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 155.6F, 100L});
@@ -571,10 +571,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
             Thread.sleep(500);
 
-            Assert.assertEquals(inEventCount, 2, "Number of success events");
-            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
-            Assert.assertEquals(eventArrived, true, "Event arrived");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -609,8 +609,8 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "CheckStockStream.price < StockTable.price) in StockTable] " +
                     "insert into OutStream;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -619,13 +619,13 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                             inEventCount++;
                             switch (inEventCount) {
                                 case 1:
-                                    Assert.assertEquals(new Object[]{"IBM", 100L, 55.6f}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L, 55.6f}, event.getData());
                                     break;
                                 case 2:
-                                    Assert.assertEquals(new Object[]{"IBM", 200L, 55.6f}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 200L, 55.6f}, event.getData());
                                     break;
                                 default:
-                                    Assert.assertSame(2, inEventCount);
+                                    AssertJUnit.assertSame(2, inEventCount);
                             }
                         }
                         eventArrived = true;
@@ -637,10 +637,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                 }
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 155.6F, 100L});
@@ -651,10 +651,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
             Thread.sleep(1000);
 
-            Assert.assertEquals(inEventCount, 2, "Number of success events");
-            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
-            Assert.assertEquals(eventArrived, true, "Event arrived");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -688,8 +688,8 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "price < StockTable.price) in StockTable] " +
                     "insert into OutStream;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -698,13 +698,13 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                             inEventCount++;
                             switch (inEventCount) {
                                 case 1:
-                                    Assert.assertEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
                                     break;
                                 case 2:
-                                    Assert.assertEquals(new Object[]{"WSO2", 300L, 4.6f}, event.getData());
+                                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 300L, 4.6f}, event.getData());
                                     break;
                                 default:
-                                    Assert.assertSame(2, inEventCount);
+                                    AssertJUnit.assertSame(2, inEventCount);
                             }
                         }
                         eventArrived = true;
@@ -716,10 +716,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                 }
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             checkStockStream.send(new Object[]{"IBM", 100L, 155.6f});
@@ -730,10 +730,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             checkStockStream.send(new Object[]{"WSO2", 300L, 4.6f});
             Thread.sleep(1000);
 
-            Assert.assertEquals(inEventCount, 2, "Number of success events");
-            Assert.assertEquals(removeEventCount, 0, "Number of remove events");
-            Assert.assertEquals(eventArrived, true, "Event arrived");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+            siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -759,10 +759,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "update or insert into StockTable " +
                     "   on StockTable.volume==volume ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -771,8 +771,8 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             Thread.sleep(500);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals(totalRowsInTable, 3, "Update failed");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Update failed", 3, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -798,10 +798,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                     "update or insert into StockTable " +
                     "   on StockTable.volume == volume ;";
 
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
-            executionPlanRuntime.start();
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+            siddhiAppRuntime.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
             stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -810,7 +810,7 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             Thread.sleep(500);
 
             long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-            Assert.assertEquals(totalRowsInTable, 4, "Update failed");
-            executionPlanRuntime.shutdown();
+            AssertJUnit.assertEquals("Update failed", 4, totalRowsInTable);
+            siddhiAppRuntime.shutdown();
     }
 }
