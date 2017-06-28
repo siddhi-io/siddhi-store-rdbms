@@ -31,7 +31,6 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.SystemParameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
 import org.wso2.siddhi.core.table.record.ConditionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
@@ -471,14 +470,12 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
                 counter++;
                 if (counter == batchSize) {
                     stmt.executeBatch();
-//                    conn.commit();
                     stmt.clearBatch();
                     counter = 0;
                 }
             }
             if (counter > 0) {
                 stmt.executeBatch();
-//                conn.commit();
             }
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing record update operations on table '" + this.tableName
@@ -649,21 +646,6 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
         RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
         conditionBuilder.build(visitor);
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters());
-    }
-
-    @Override
-    public void connect() throws ConnectionUnavailableException {
-
-    }
-
-    @Override
-    public void disconnect() {
-
-    }
-
-    @Override
-    public void destroy() {
-
     }
 
     /**
