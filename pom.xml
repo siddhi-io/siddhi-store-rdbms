@@ -28,7 +28,7 @@
 
     <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
     <artifactId>siddhi-store-rdbms-parent</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.0-M2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Siddhi Store Extension - RDBMS Aggregator Pom</name>
     <url>http://wso2.org</url>
@@ -46,7 +46,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-M10-SNAPSHOT</siddhi.version>
+        <siddhi.version>4.0.0-M11-SNAPSHOT</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <testng.version>6.9.10</testng.version>
         <hikari.version>2.6.1</hikari.version>
@@ -54,6 +54,10 @@
         <mysql.connector.version>5.1.6</mysql.connector.version>
         <h2.connector.version>1.4.187</h2.connector.version>
         <postgresql.version>RELEASE</postgresql.version>
+        <tomcat.catalina.version>8.0.15</tomcat.catalina.version>
+        <commons.lang3.version>3.3.2</commons.lang3.version>
+        <ojdbc6.version>12.1.0.1-atlassian-hosted</ojdbc6.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <scm>
@@ -64,6 +68,7 @@
         <tag>HEAD</tag>
     </scm>
 
+    <dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.wso2.siddhi</groupId>
@@ -111,18 +116,20 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <scope>test</scope>
             <version>${testng.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.connector.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.connector.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>postgresql</groupId>
@@ -130,7 +137,26 @@
             <version>${postgresql.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina</artifactId>
+            <version>${tomcat.catalina.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>${ojdbc6.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+    </dependencyManagement>
 
     <build>
         <extensions>
@@ -140,7 +166,6 @@
                 <version>2.1</version>
             </extension>
         </extensions>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -301,6 +326,15 @@
             <releases>
                 <enabled>false</enabled>
             </releases>
+        </repository>
+        <repository>
+            <id>central</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

@@ -31,6 +31,7 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.SystemParameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
 import org.wso2.siddhi.core.table.record.ConditionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
@@ -648,6 +649,21 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters());
     }
 
+    @Override
+    public void connect() throws ConnectionUnavailableException {
+
+    }
+
+    @Override
+    public void disconnect() {
+
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+
     /**
      * Method for looking up a datasource instance through JNDI.
      *
@@ -936,7 +952,6 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
             throws SQLException {
         PreparedStatement stmt = null;
         boolean committed = autocommit;
-        //TODO check if autocommit needs to be false (e.g. for Postgres case)
         Connection conn = this.getConnection(autocommit);
         try {
             stmt = conn.prepareStatement(query);
