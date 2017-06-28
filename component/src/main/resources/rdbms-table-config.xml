@@ -7,7 +7,7 @@
         <recordExistsQuery>SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
-        <recordUpdateQuery batchEnabled = "true">UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}}
+        <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}}
             {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <stringSize>254</stringSize>
@@ -33,6 +33,8 @@
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <stringSize>254</stringSize>
+        <batchEnable>true</batchEnable>
+        <batchSize>1000</batchSize>
         <typeMapping>
             <binaryType>BLOB</binaryType>
             <booleanType>TINYINT(1)</booleanType>
@@ -54,6 +56,8 @@
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <stringSize>254</stringSize>
+        <batchEnable>true</batchEnable>
+        <batchSize>1000</batchSize>
         <typeMapping>
             <binaryType>BLOB</binaryType>
             <booleanType>NUMBER(1)</booleanType>
@@ -75,6 +79,8 @@
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <stringSize>254</stringSize>
+        <batchEnable>true</batchEnable>
+        <batchSize>1000</batchSize>
         <typeMapping>
             <binaryType>VARBINARY(max)</binaryType>
             <booleanType>BIT</booleanType>
@@ -86,16 +92,17 @@
         </typeMapping>
     </database>
     <database name="PostgreSQL">
-        <!-- TODO test -->
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
-        <!--verify--><recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1</recordExistsQuery>
+        <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <stringSize>254</stringSize>
+        <batchEnable>true</batchEnable>
+        <batchSize>1000</batchSize>
         <typeMapping>
             <binaryType>BYTEA</binaryType>
             <booleanType>BOOLEAN</booleanType>

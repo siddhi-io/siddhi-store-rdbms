@@ -22,13 +22,13 @@
 <suite name="Generic Integration test suite">
     <test name="org.wso2.das">
         <classes>
-            <!--<class name="org.wso2.extension.siddhi.store.rdbms.DefineRDBMSTableTestCaseIT" />-->
-            <!--<class name="org.wso2.extension.siddhi.store.rdbms.DeleteFromRDBMSTableTestCaseIT" />-->
-            <!--<class name="org.wso2.extension.siddhi.store.rdbms.InsertIntoRDBMSTableTestCaseIT" />-->
-            <!--<class name="org.wso2.extension.siddhi.store.rdbms.JoinRDBMSTableTestCaseIT" />-->
+            <class name="org.wso2.extension.siddhi.store.rdbms.DefineRDBMSTableTestCaseIT" />
+            <class name="org.wso2.extension.siddhi.store.rdbms.DeleteFromRDBMSTableTestCaseIT" />
+            <class name="org.wso2.extension.siddhi.store.rdbms.InsertIntoRDBMSTableTestCaseIT" />
+            <class name="org.wso2.extension.siddhi.store.rdbms.JoinRDBMSTableTestCaseIT" />
             <class name="org.wso2.extension.siddhi.store.rdbms.ReadEventRDBMSTableTestCaseIT" />
             <class name="org.wso2.extension.siddhi.store.rdbms.UpdateOrInsertRDBMSTableTestCaseIT" />
-            <!--<class name="org.wso2.extension.siddhi.store.rdbms.UpdateRDBMSTableTestCaseIT" />-->
+            <class name="org.wso2.extension.siddhi.store.rdbms.UpdateRDBMSTableTestCaseIT" />
         </classes>
     </test>
 </suite>

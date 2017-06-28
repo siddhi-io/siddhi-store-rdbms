@@ -29,10 +29,7 @@ import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -43,12 +40,16 @@ public class RDBMSTableTestUtils {
 
     public static final String TABLE_NAME = "StockTable";
     private static final Logger log = Logger.getLogger(RDBMSTableTestUtils.class);
-    private static String connectionUrlMysql = "jdbc:mysql://{{das-mysql.port}}:3306/dasdb";
+    private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:3306/dasdb";
+    private static String connectionUrlPostgress = "jdbc:postgresql://{{container.ip}}:5432/dasdb";
+    private static final String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:1521/dasdb";
+    private static final String connectionUrlMsSQL = "jdbc:sqlserver//{{container.ip}}:1433/dasdb";
     private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
-    private static final String CONNECTION_URL_ORACLE = "jdbc:oracle:thin:@192.168.122.2:1521/dasdb";
     private static final String JDBC_DRIVER_CLASS_NAME_H2 = "org.h2.Driver";
     private static final String JDBC_DRIVER_CLASS_NAME_MYSQL = "com.mysql.jdbc.Driver";
     private static final String JDBC_DRIVER_CLASS_NAME_ORACLE = "oracle.jdbc.driver.OracleDriver";
+    private static final String JDBC_DRIVER_CLASS_POSTGRES = "org.postgresql.Driver";
+    private static final String JDBC_DRIVER_CLASS_MSSQL = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "root";
     private static final String JNDI_RESOURCE = "java:comp/env/jdbc/TestDB";
@@ -75,19 +76,28 @@ public class RDBMSTableTestUtils {
         Properties connectionProperties = new Properties();
         switch (type) {
             case MySQL:
-                url = connectionUrlMysql.replace("{{das-mysql.port}}", getIpAddressOfContainer());
+                url = connectionUrlMysql.replace("{{container.ip}}", getIpAddressOfContainer());
                 driverClassName = JDBC_DRIVER_CLASS_NAME_MYSQL;
                 break;
             case H2:
                 url = CONNECTION_URL_H2;
                 driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
                 break;
+            case POSTGRES:
+                url = connectionUrlPostgress.replace("{{container.ip}}", getIpAddressOfContainer());
+                driverClassName = JDBC_DRIVER_CLASS_POSTGRES;
+                break;
             case ORACLE:
-                url = CONNECTION_URL_ORACLE;
+                url = connectionUrlOracle.replace("{{container.ip}}", getIpAddressOfContainer());
                 driverClassName = JDBC_DRIVER_CLASS_NAME_ORACLE;
+                break;
+            case MSSQL:
+                url = connectionUrlMsSQL.replace("{{container.ip}}", getIpAddressOfContainer());
+                driverClassName = JDBC_DRIVER_CLASS_MSSQL;
                 break;
         }
         connectionProperties.setProperty("jdbcUrl", url);
+        connectionProperties.setProperty("driverClassName", driverClassName);
         connectionProperties.setProperty("dataSource.user", USERNAME);
         connectionProperties.setProperty("dataSource.password", PASSWORD);
         connectionProperties.setProperty("poolName", "Test_Pool");
@@ -146,37 +156,6 @@ public class RDBMSTableTestUtils {
         }
     }
 
-    public static List<List<Object>> getRecordsInTable(String tableName) throws SQLException {
-        PreparedStatement stmt = null;
-        Connection con = null;
-        List recordArray = new ArrayList();
-        try {
-            con = getTestDataSource().getConnection();
-            stmt = con.prepareStatement("SELECT * FROM " + tableName + "");
-            ResultSet resultSet = stmt.executeQuery();
-            //from result set give metadata
-            ResultSetMetaData rsmd = resultSet.getMetaData();
-
-            //columns count from metadata object
-            int numOfCols = rsmd.getColumnCount();
-            while (resultSet.next()) {
-                ArrayList<Object> columnArray = new ArrayList<Object>();
-                for (int i = 1; i <= numOfCols; i++) {
-                    columnArray.add(resultSet.getObject(i));
-                }
-                if (columnArray.size() != 0) {
-                    recordArray.add(columnArray);
-                }
-            }
-            return recordArray;
-        } catch (SQLException e) {
-            log.error("Getting rows in DB table failed due to " + e.getMessage(), e);
-            throw e;
-        } finally {
-            RDBMSTableUtils.cleanupConnection(null, stmt, con);
-        }
-    }
-
     public enum TestType {
         MySQL, H2, ORACLE, MSSQL, DB2, POSTGRES
     }
@@ -213,7 +192,7 @@ public class RDBMSTableTestUtils {
      * @throws URISyntaxException if docker Host url is malformed this will throw
      */
     public static String getIpAddressOfContainer() {
-        String ip = "172.17.0.2";
+        String ip = System.getenv("DOCKER_HOST_IP");
         String dockerHost = System.getenv("DOCKER_HOST");
         if (!StringUtils.isEmpty(dockerHost)) {
             try {

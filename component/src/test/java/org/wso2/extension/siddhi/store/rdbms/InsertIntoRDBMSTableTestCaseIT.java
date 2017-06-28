@@ -23,12 +23,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.driverClassName;
@@ -76,18 +75,17 @@ public class InsertIntoRDBMSTableTestCaseIT {
                 "from StockStream\n" +
                 "select symbol, volume\n" +
                 "insert into StockTable ;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query1);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query1);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         Thread.sleep(1000);
 
-        List<List<Object>> recordsInTable = RDBMSTableTestUtils.getRecordsInTable(TABLE_NAME);
-        Assert.assertEquals(recordsInTable.get(1).toArray(), new Object[]{"WSO2", 100L}, "Insertion failed");
-        Assert.assertEquals(recordsInTable.get(0).toArray(), new Object[]{"IBM", 100L}, "Insertion failed");
-        executionPlanRuntime.shutdown();
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 2, "Definition/Insertion failed");
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -109,9 +107,9 @@ public class InsertIntoRDBMSTableTestCaseIT {
                 "from StockStream   " +
                 "insert into StockTable ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         stockStream.send(new Object[]{"IBM", 75.6F, 100L});
@@ -121,6 +119,6 @@ public class InsertIntoRDBMSTableTestCaseIT {
 
         long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
         Assert.assertEquals(totalRowsInTable, 4, "Definition/Insertion failed");
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

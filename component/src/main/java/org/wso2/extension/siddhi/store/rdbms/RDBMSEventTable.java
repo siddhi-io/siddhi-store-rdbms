@@ -31,6 +31,7 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.SystemParameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
 import org.wso2.siddhi.core.table.record.ConditionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
@@ -277,7 +278,6 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
-        log.info("RDBMS Table Initialization start");
         this.attributes = tableDefinition.getAttributeList();
         Annotation storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
         Annotation primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
@@ -471,14 +471,14 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
                 counter++;
                 if (counter == batchSize) {
                     stmt.executeBatch();
-                    conn.commit();
+//                    conn.commit();
                     stmt.clearBatch();
                     counter = 0;
                 }
             }
             if (counter > 0) {
                 stmt.executeBatch();
-                conn.commit();
+//                conn.commit();
             }
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing record update operations on table '" + this.tableName
@@ -651,6 +651,21 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters());
     }
 
+    @Override
+    public void connect() throws ConnectionUnavailableException {
+
+    }
+
+    @Override
+    public void disconnect() {
+
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+
     /**
      * Method for looking up a datasource instance through JNDI.
      *
@@ -728,7 +743,7 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
             throw new RDBMSTableException("Required parameter '" + ANNOTATION_ELEMENT_PASSWORD + "' for DB " +
                     "connectivity cannot be empty.");
         }
-        if (RDBMSTableUtils.isEmpty(password)) {
+        if (RDBMSTableUtils.isEmpty(driverClassName)) {
             throw new RDBMSTableException("Required parameter '" + ANNOTATION_DRIVER_CLASS_NAME + "' for DB " +
                     "connectivity cannot be empty.");
         }
@@ -1027,11 +1042,6 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
     @Override
     public void stop() {
         if (dataSource != null) {
-//            HikariPoolMXBean poolBean = dataSource.getHikariPoolMXBean();
-//            long startTime = System.currentTimeMillis(); //fetch starting time
-//            while (poolBean.getActiveConnections() > 0 && (System.currentTimeMillis() - startTime) < 10000) {
-//                poolBean.softEvictConnections();
-//            }
             dataSource.close();
             if (log.isDebugEnabled()) {
                 log.debug("Closing the pool name: " + dataSource.getPoolName());

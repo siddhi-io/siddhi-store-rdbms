@@ -23,13 +23,13 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.sql.SQLException;
 
@@ -92,10 +92,10 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "StockTable.volume as checkVolume\n" +
                 "insert into OutputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler fooStream = siddhiAppRuntime.getInputHandler("FooStream");
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -122,7 +122,7 @@ public class ReadEventRDBMSTableTestCaseIT {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", "type1", 100L});
         stockStream.send(new Object[]{"CSC", "type2", 10L});
@@ -135,10 +135,10 @@ public class ReadEventRDBMSTableTestCaseIT {
         Assert.assertEquals(inEventCount, 2, "Number of success events");
         Assert.assertEquals(removeEventCount, 0, "Number of remove events");
         Assert.assertEquals(eventArrived, true, "Event arrived");
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void readEventRDBMSTableTestCase2() throws InterruptedException, SQLException {
         //Read events from a non existing RDBMS table unsuccessfully
         log.info("readEventRDBMSTableTestCase2");
@@ -160,16 +160,16 @@ public class ReadEventRDBMSTableTestCaseIT {
                         "StockTable.volume as checkVolume\n" +
                         "insert into OutputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
-        executionPlanRuntime.start();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler fooStream = siddhiAppRuntime.getInputHandler("FooStream");
+        siddhiAppRuntime.start();
         fooStream.send(new Object[]{"WSO2"});
         fooStream.send(new Object[]{"IBM"});
         Thread.sleep(1000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void readEventRDBMSTableTestCase3() throws InterruptedException, SQLException {
         //Read events from a RDBMS table through a non existing stream unsuccessfully
         log.info("readEventRDBMSTableTestCase3");
@@ -194,17 +194,17 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "StockTable.volume as checkVolume\n" +
                 "insert into OutputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler fooStream = siddhiAppRuntime.getInputHandler("FooStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", "type1", 100L});
         stockStream.send(new Object[]{"CSC", "type2", 10L});
         stockStream.send(new Object[]{"IBM", "type3", 10L});
         fooStream.send(new Object[]{"WSO2"});
         fooStream.send(new Object[]{"IBM"});
         Thread.sleep(1000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -233,10 +233,10 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "StockTable.volume as checkVolume\n" +
                 "insert into OutputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler fooStream = siddhiAppRuntime.getInputHandler("FooStream");
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -272,7 +272,7 @@ public class ReadEventRDBMSTableTestCaseIT {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", "type1", 100L});
         stockStream.send(new Object[]{"CSC", "type2", 10L});
@@ -290,7 +290,7 @@ public class ReadEventRDBMSTableTestCaseIT {
         Assert.assertEquals(inEventCount, 5, "Number of success events");
         Assert.assertEquals(removeEventCount, 0, "Number of remove events");
         Assert.assertEquals(eventArrived, true, "Event arrived");
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -319,10 +319,10 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "StockTable.volume as checkVolume\n" +
                 "insert into OutputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler fooStream = siddhiAppRuntime.getInputHandler("FooStream");
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -352,7 +352,7 @@ public class ReadEventRDBMSTableTestCaseIT {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", "type1", 100L});
         stockStream.send(new Object[]{"CSC", "type2", 10L});
@@ -369,7 +369,8 @@ public class ReadEventRDBMSTableTestCaseIT {
         Assert.assertEquals(inEventCount, 3, "Number of success events");
         Assert.assertEquals(removeEventCount, 0, "Number of remove events");
         Assert.assertEquals(eventArrived, true, "Event arrived");
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
+        siddhiManager.shutdown();
     }
 
     @Test
@@ -399,10 +400,10 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "group by StockTable.name having checkVolume>50 \n" +
                 "insert into OutputStream;\n";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler fooStream = siddhiAppRuntime.getInputHandler("FooStream");
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -426,7 +427,7 @@ public class ReadEventRDBMSTableTestCaseIT {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", "type1", 100L});
         stockStream.send(new Object[]{"WSO2", "type1", 200L});
@@ -437,6 +438,6 @@ public class ReadEventRDBMSTableTestCaseIT {
         Assert.assertEquals(inEventCount, 1, "Number of success events");
         Assert.assertEquals(removeEventCount, 0, "Number of remove events");
         Assert.assertEquals(eventArrived, true, "Event arrived");
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }
