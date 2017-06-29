@@ -41,9 +41,9 @@ public class RDBMSTableTestUtils {
     public static final String TABLE_NAME = "StockTable";
     private static final Logger log = Logger.getLogger(RDBMSTableTestUtils.class);
     private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:3306/dasdb";
-    private static String connectionUrlPostgress = "jdbc:postgresql://{{container.ip}}:5432/dasdb";
-    private static final String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:1521/dasdb";
-    private static final String connectionUrlMsSQL = "jdbc:sqlserver//{{container.ip}}:1433/dasdb";
+    private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:5432/dasdb";
+    private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:1521/XE";
+    private static String connectionUrlMsSQL = "jdbc:sqlserver//{{container.ip}}:1433/dasdb";
     private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
     private static final String JDBC_DRIVER_CLASS_NAME_H2 = "org.h2.Driver";
     private static final String JDBC_DRIVER_CLASS_NAME_MYSQL = "com.mysql.jdbc.Driver";
@@ -55,6 +55,8 @@ public class RDBMSTableTestUtils {
     private static final String JNDI_RESOURCE = "java:comp/env/jdbc/TestDB";
     public static String url = CONNECTION_URL_H2;
     public static String driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
+    public static String user = USERNAME;
+    public static String password = PASSWORD;
     private static DataSource testDataSource;
 
     private RDBMSTableTestUtils() {
@@ -62,17 +64,20 @@ public class RDBMSTableTestUtils {
     }
 
     public static DataSource getTestDataSource()  {
-        return getDataSource(TestType.H2);
+        return getDataSource();
     }
 
-    public static DataSource getDataSource(TestType type) {
+    public static DataSource getDataSource() {
         if (testDataSource == null) {
-            testDataSource = initDataSource(type);
+            testDataSource = initDataSource();
         }
         return testDataSource;
     }
 
-    private static DataSource initDataSource(TestType type) {
+    private static DataSource initDataSource() {
+        TestType type = RDBMSTableTestUtils.TestType.valueOf(System.getenv("DATABASE_TYPE"));
+        user = System.getenv("DATABASE_USER");
+        password = System.getenv("DATABASE_PASSWORD");
         Properties connectionProperties = new Properties();
         switch (type) {
             case MySQL:
@@ -84,7 +89,7 @@ public class RDBMSTableTestUtils {
                 driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
                 break;
             case POSTGRES:
-                url = connectionUrlPostgress.replace("{{container.ip}}", getIpAddressOfContainer());
+                url = connectionUrlPostgres.replace("{{container.ip}}", getIpAddressOfContainer());
                 driverClassName = JDBC_DRIVER_CLASS_POSTGRES;
                 break;
             case ORACLE:
@@ -98,14 +103,14 @@ public class RDBMSTableTestUtils {
         }
         connectionProperties.setProperty("jdbcUrl", url);
         connectionProperties.setProperty("driverClassName", driverClassName);
-        connectionProperties.setProperty("dataSource.user", USERNAME);
-        connectionProperties.setProperty("dataSource.password", PASSWORD);
+        connectionProperties.setProperty("dataSource.user", user);
+        connectionProperties.setProperty("dataSource.password", password);
         connectionProperties.setProperty("poolName", "Test_Pool");
         HikariConfig config = new HikariConfig(connectionProperties);
         return new HikariDataSource(config);
     }
 
-    public static void clearDatabaseTable(String tableName) throws SQLException {
+    public static void initDatabaseTable(String tableName) throws SQLException {
         PreparedStatement stmt = null;
         Connection con = null;
         try {
@@ -121,11 +126,12 @@ public class RDBMSTableTestUtils {
         }
     }
 
-    public static void clearDatabaseTable(String tableName, TestType testType) throws SQLException {
+    public static void initDatabaseTable(String tableName, TestType testType, String user, String password)
+            throws SQLException {
         PreparedStatement stmt = null;
         Connection con = null;
         try {
-            con = getDataSource(testType).getConnection();
+            con = getDataSource().getConnection();
             con.setAutoCommit(false);
             stmt = con.prepareStatement("DROP TABLE " + tableName);
             stmt.execute();
@@ -173,8 +179,8 @@ public class RDBMSTableTestUtils {
             context.createSubcontext("java:comp/env/jdbc");
             Properties connectionProperties = new Properties();
             connectionProperties.setProperty("jdbcUrl", url);
-            connectionProperties.setProperty("dataSource.user", USERNAME);
-            connectionProperties.setProperty("dataSource.password", PASSWORD);
+            connectionProperties.setProperty("dataSource.user", user);
+            connectionProperties.setProperty("dataSource.password", password);
             connectionProperties.setProperty("driverClassName", driverClassName);
             connectionProperties.setProperty("poolName", "JNDI_Pool");
             HikariConfig config = new HikariConfig(connectionProperties);

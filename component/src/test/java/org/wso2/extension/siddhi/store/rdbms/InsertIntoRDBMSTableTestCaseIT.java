@@ -31,7 +31,9 @@ import java.sql.SQLException;
 
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.driverClassName;
+import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.password;
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.url;
+import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.user;
 
 public class InsertIntoRDBMSTableTestCaseIT {
     private static final Logger log = Logger.getLogger(InsertIntoRDBMSTableTestCaseIT.class);
@@ -49,8 +51,7 @@ public class InsertIntoRDBMSTableTestCaseIT {
     @BeforeMethod
     public void init() {
         try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME, RDBMSTableTestUtils.TestType.valueOf(System.getenv
-                    ("DATABASE_TYPE")));
+            RDBMSTableTestUtils.initDatabaseTable(TABLE_NAME);
         } catch (SQLException e) {
             log.info("Test case ignored due to " + e.getMessage());
         }
@@ -64,8 +65,8 @@ public class InsertIntoRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
+                + "\", field.length=\"symbol:100\")\n" +
                 "@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, volume long); ";
@@ -96,8 +97,8 @@ public class InsertIntoRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 "@PrimaryKey(\"symbol, price\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";

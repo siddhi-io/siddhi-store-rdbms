@@ -320,6 +320,8 @@
                         <configuration>
                             <environmentVariables>
                                 <DATABASE_TYPE>MySQL</DATABASE_TYPE>
+                                <DATABASE_USER>root</DATABASE_USER>
+                                <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
                                 <PORT>${das-mysql.port}</PORT>
                                 <DOCKER_HOST_IP>${docker.container.das-mysql.ip}</DOCKER_HOST_IP>
                             </environmentVariables>
@@ -406,6 +408,8 @@
                         <configuration>
                             <environmentVariables>
                                 <DATABASE_TYPE>POSTGRES</DATABASE_TYPE>
+                                <DATABASE_USER>root</DATABASE_USER>
+                                <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
                                 <PORT>${das-postgres.port}</PORT>
                                 <DOCKER_HOST_IP>${docker.container.das-postgres.ip}</DOCKER_HOST_IP>
                             </environmentVariables>
@@ -488,6 +492,8 @@
                         <configuration>
                             <environmentVariables>
                                 <DATABASE_TYPE>MSSQL</DATABASE_TYPE>
+                                <DATABASE_USER>root</DATABASE_USER>
+                                <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
                                 <PORT>${das-mssql.port}</PORT>
                                 <DOCKER_HOST_IP>${docker.container.das-mssql.ip}</DOCKER_HOST_IP>
                             </environmentVariables>
@@ -527,13 +533,11 @@
                             <images>
                                 <image>
                                     <alias>das-oracle</alias>
-                                    <name>oracle/database:11.2.0.2</name>
+                                    <name>oracle/database:11.2.0.2-xe</name>
                                     <run>
                                         <namingStrategy>alias</namingStrategy>
                                         <env>
-                                            <ORACLE_PDB>dasdb</ORACLE_PDB>
                                             <ORACLE_PWD>root</ORACLE_PWD>
-                                            <ORACLE_SID>root</ORACLE_SID>
                                         </env>
                                         <ports>
                                             <port>${das-oracle.port}:1521</port>
@@ -571,6 +575,8 @@
                         <configuration>
                             <environmentVariables>
                                 <DATABASE_TYPE>ORACLE</DATABASE_TYPE>
+                                <DATABASE_USER>system</DATABASE_USER>
+                                <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
                                 <PORT>${das-oracle.port}</PORT>
                                 <DOCKER_HOST_IP>${docker.container.das-oracle.ip}</DOCKER_HOST_IP>
                             </environmentVariables>

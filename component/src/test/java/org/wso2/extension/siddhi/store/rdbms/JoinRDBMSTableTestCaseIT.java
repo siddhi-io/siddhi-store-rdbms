@@ -35,6 +35,9 @@ import java.sql.SQLException;
 
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.driverClassName;
+import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.password;
+import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.url;
+import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.user;
 
 public class JoinRDBMSTableTestCaseIT {
     private static final Logger log = Logger.getLogger(JoinRDBMSTableTestCaseIT.class);
@@ -48,8 +51,7 @@ public class JoinRDBMSTableTestCaseIT {
         removeEventCount = 0;
         eventArrived = false;
         try {
-            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME, RDBMSTableTestUtils.TestType.valueOf(System.getenv
-                    ("DATABASE_TYPE")));
+            RDBMSTableTestUtils.initDatabaseTable(TABLE_NAME);
         } catch (SQLException e) {
             log.info("Test case ignored due to " + e.getMessage());
         }
@@ -72,9 +74,9 @@ public class JoinRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + RDBMSTableTestUtils.url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -99,13 +101,13 @@ public class JoinRDBMSTableTestCaseIT {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertEquals(new Object[]{"WSO2", "WSO2", 100L}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "WSO2", 100L});
                                 break;
                             case 2:
-                                Assert.assertEquals(new Object[]{"WSO2", "IBM", 10L}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "IBM", 10L});
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                Assert.assertSame(inEventCount, 2);
                         }
                     }
                     eventArrived = true;
@@ -140,9 +142,9 @@ public class JoinRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + RDBMSTableTestUtils.url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -168,10 +170,10 @@ public class JoinRDBMSTableTestCaseIT {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertEquals(new Object[]{"WSO2", "WSO2", 100L}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "WSO2", 100L});
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(inEventCount, 1);
                         }
                     }
                     eventArrived = true;
@@ -207,9 +209,9 @@ public class JoinRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol1 string); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + RDBMSTableTestUtils.url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -234,10 +236,10 @@ public class JoinRDBMSTableTestCaseIT {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertEquals(new Object[]{"WSO2", "WSO2", 100L}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "WSO2", 100L});
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(inEventCount, 1);
                         }
                     }
                     eventArrived = true;
@@ -273,9 +275,9 @@ public class JoinRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + RDBMSTableTestUtils.url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -300,10 +302,10 @@ public class JoinRDBMSTableTestCaseIT {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertEquals(new Object[]{"WSO2", "WSO2", 100L}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "WSO2", 100L});
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(inEventCount, 1);
                         }
                     }
                     eventArrived = true;
@@ -338,9 +340,9 @@ public class JoinRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + RDBMSTableTestUtils.url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -365,10 +367,10 @@ public class JoinRDBMSTableTestCaseIT {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertEquals(new Object[]{"WSO2", "WSO2", 100L}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "WSO2", 100L});
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(inEventCount, 1);
                         }
                     }
                     eventArrived = true;
@@ -403,9 +405,9 @@ public class JoinRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + RDBMSTableTestUtils.url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -430,10 +432,10 @@ public class JoinRDBMSTableTestCaseIT {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertEquals(new Object[]{"WSO2", "WSO2", 100L}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "WSO2", 100L});
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(inEventCount, 1);
                         }
                     }
                     eventArrived = true;
@@ -468,9 +470,9 @@ public class JoinRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + RDBMSTableTestUtils.url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -496,10 +498,10 @@ public class JoinRDBMSTableTestCaseIT {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertEquals(new Object[]{"WSO2", "WSO2", 100L}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "WSO2", 100L});
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(inEventCount, 1);
                         }
                     }
                     eventArrived = true;
@@ -535,9 +537,9 @@ public class JoinRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + RDBMSTableTestUtils.url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float); ";
@@ -562,10 +564,10 @@ public class JoinRDBMSTableTestCaseIT {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertEquals(new Object[]{"WSO2", "WSO2"}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "WSO2"});
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(inEventCount, 1);
                         }
                     }
                     eventArrived = true;
@@ -600,9 +602,9 @@ public class JoinRDBMSTableTestCaseIT {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + RDBMSTableTestUtils.url + "\", " +
-                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\", field" +
-                ".length=\"symbol:100\")\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "@connection(maxWait = '4000')" +
@@ -628,13 +630,13 @@ public class JoinRDBMSTableTestCaseIT {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertEquals(new Object[]{"WSO2", "WSO2", 100L}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "WSO2", 100L});
                                 break;
                             case 2:
-                                Assert.assertEquals(new Object[]{"WSO2", "IBM", 10L}, event.getData());
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", "IBM", 10L});
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                Assert.assertSame(inEventCount, 2);
                         }
                     }
                     eventArrived = true;
