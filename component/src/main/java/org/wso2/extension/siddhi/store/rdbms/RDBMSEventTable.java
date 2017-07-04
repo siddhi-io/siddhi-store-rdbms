@@ -392,7 +392,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_DELETE_QUERY,
                 this.queryConfigurationEntry.getRecordDeleteQuery()));
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
-        Connection conn = this.getConnection(false);
+        Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         int batchSize = Integer.parseInt(configReader.readConfig(
                 this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
@@ -409,14 +409,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 counter++;
                 if (counter == batchSize) {
                     stmt.executeBatch();
-                    conn.commit();
                     stmt.clearBatch();
                     counter = 0;
                 }
             }
             if (counter > 0) {
                 stmt.executeBatch();
-                conn.commit();
             }
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing record deletion on table '" + this.tableName
