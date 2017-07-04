@@ -70,6 +70,30 @@ public class RDBMSTableConstants {
     public static final String ANNOTATION_ELEMENT_FIELD_LENGTHS = "field.length";
     public static final String ANNOTATION_ELEMENT_POOL_PROPERTIES = "pool.properties";
     public static final String ANNOTATION_ELEMENT_JNDI_RESOURCE = "jndi.resource";
+    public static final String ANNOTATION_DRIVER_CLASS_NAME = "jdbc.driver.name";
+
+    //Configurable System Parameters
+    public static final String PROPERTY_SEPARATOR = ".";
+    public static final String MIN_VERSION = "minVersion";
+    public static final String MAX_VERSION = "maxVersion";
+    public static final String TABLE_CHECK_QUERY = "tableCheckQuery";
+    public static final String TABLE_CREATE_QUERY = "tableCreateQuery";
+    public static final String INDEX_CREATE_QUERY = "indexCreateQuery";
+    public static final String RECORD_INSERT_QUERY = "recordInsertQuery";
+    public static final String RECORD_UPDATE_QUERY = "recordUpdateQuery";
+    public static final String RECORD_SELECT_QUERY = "recordSelectQuery";
+    public static final String RECORD_EXISTS_QUERY = "recordExistsQuery";
+    public static final String RECORD_DELETE_QUERY = "recordDeleteQuery";
+    public static final String STRING_SIZE = "stringSize";
+    public static final String TYPE_MAPPING = "typeMapping";
+    public static final String BINARY_TYPE = "binaryType";
+    public static final String BOOLEAN_TYPE = "booleanType";
+    public static final String DOUBLE_TYPE = "doubleType";
+    public static final String FLOAT_TYPE = "floatType";
+    public static final String INTEGER_TYPE = "integerType";
+    public static final String LONG_TYPE = "longType";
+    public static final String STRING_TYPE = "stringType";
+    public static final String BATCH_SIZE = "batchSize";
 
     private RDBMSTableConstants() {
         //preventing initialization

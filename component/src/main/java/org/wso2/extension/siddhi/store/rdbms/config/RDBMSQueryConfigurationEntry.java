@@ -43,6 +43,8 @@ public class RDBMSQueryConfigurationEntry {
     private boolean keyExplicitNotNull = false;
     private String stringSize;
     private RDBMSTypeMapping rdbmsTypeMapping;
+    private int batchSize;
+    private boolean batchEnable = false;
 
     @XmlAttribute(name = "name", required = true)
     public String getDatabaseName() {
@@ -74,6 +76,15 @@ public class RDBMSQueryConfigurationEntry {
     @XmlAttribute(name = "category")
     public String getCategory() {
         return category;
+    }
+
+    @XmlElement(name = "batchEnable")
+    public boolean getBatchEnable() {
+        return batchEnable;
+    }
+
+    public void setBatchEnable(boolean batchEnable) {
+        this.batchEnable = batchEnable;
     }
 
     public void setCategory(String category) {
@@ -175,6 +186,15 @@ public class RDBMSQueryConfigurationEntry {
 
     public void setRdbmsTypeMapping(RDBMSTypeMapping rdbmsTypeMapping) {
         this.rdbmsTypeMapping = rdbmsTypeMapping;
+    }
+
+    @XmlElement(name = "batchSize")
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
     }
 
 }
