@@ -139,20 +139,12 @@ public class ReadEventRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "readEventRDBMSTableTestCase1")
     public void readEventRDBMSTableTestCase2() throws InterruptedException, SQLException {
         //Read events from a non existing RDBMS table unsuccessfully
         log.info("readEventRDBMSTableTestCase2");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String streams = "" +
-                "define stream FooStream (name string, category string, volume long);\n" +
-                "define stream StockStream (itemId string, type string, volume long);\n" +
-                "define stream OutputStream (checkName string, checkCategory string, checkVolume long);\n" +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"itemId:100\")\n" +
-                "@PrimaryKey(\"itemId\")\n" +
-                "define table FooTable (itemId string, type string, volume long);\n";
+        String streams = "define stream FooStream (name string, category string, volume long);\n";
 
         String query =
                 "@info(name = 'query1')\n" +
@@ -170,7 +162,7 @@ public class ReadEventRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "readEventRDBMSTableTestCase2")
     public void readEventRDBMSTableTestCase3() throws InterruptedException, SQLException {
         //Read events from a RDBMS table through a non existing stream unsuccessfully
         log.info("readEventRDBMSTableTestCase3");
@@ -208,10 +200,10 @@ public class ReadEventRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
-    public void readEventRDBMSTableTestCase6() throws InterruptedException, SQLException {
+    @Test(dependsOnMethods = "readEventRDBMSTableTestCase3")
+    public void readEventRDBMSTableTestCase4() throws InterruptedException, SQLException {
         //Read multiple events from a RDBMS table successfully with windows.length.
-        log.info("readEventRDBMSTableTestCase6");
+        log.info("readEventRDBMSTableTestCase4");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream FooStream (name string, category string, volume long);\n" +
@@ -294,10 +286,10 @@ public class ReadEventRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
-    public void readEventRDBMSTableTestCase8() throws InterruptedException, SQLException {
+    @Test(dependsOnMethods = "readEventRDBMSTableTestCase4")
+    public void readEventRDBMSTableTestCase5() throws InterruptedException, SQLException {
         //Read multiple events from a RDBMS table successfully with windows.length.
-        log.info("readEventRDBMSTableTestCase8");
+        log.info("readEventRDBMSTableTestCase5");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream FooStream (name string, category string, volume long);\n" +
@@ -374,10 +366,10 @@ public class ReadEventRDBMSTableTestCaseIT {
         siddhiManager.shutdown();
     }
 
-    @Test
-    public void readEventRDBMSTableTestCase11() throws InterruptedException, SQLException {
+    @Test(dependsOnMethods = "readEventRDBMSTableTestCase5", enabled = false)
+    public void readEventRDBMSTableTestCase6() throws InterruptedException, SQLException {
         //Read events from a RDBMS table successfully with aggregate function.
-        log.info("readEventRDBMSTableTestCase11");
+        log.info("readEventRDBMSTableTestCase6");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream FooStream (name string, category string, volume long);\n" +

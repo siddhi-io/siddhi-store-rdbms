@@ -87,6 +87,8 @@ public class RDBMSTableTestUtils {
             case H2:
                 url = CONNECTION_URL_H2;
                 driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
+                user = USERNAME;
+                password = PASSWORD;
                 break;
             case POSTGRES:
                 url = connectionUrlPostgres.replace("{{container.ip}}", getIpAddressOfContainer());

@@ -38,7 +38,6 @@ import org.wso2.siddhi.core.table.record.RecordIterator;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -267,7 +266,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 )
         }
 )
-public class RDBMSEventTable extends AbstractRecordTable implements EternalReferencedHolder {
+public class RDBMSEventTable extends AbstractRecordTable {
 
     private static final Log log = LogFactory.getLog(RDBMSEventTable.class);
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
@@ -310,7 +309,7 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
                         this.configReader);
             }
         } catch (CannotLoadConfigurationException e) {
-            this.stop();
+            this.destroy();
             throw new RDBMSTableException("Failed to initialize DB Configuration entry for table '" + this.tableName
                     + "': " + e.getMessage(), e);
         }
@@ -661,7 +660,12 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
 
     @Override
     public void destroy() {
-
+        if (dataSource != null) {
+            dataSource.close();
+            if (log.isDebugEnabled()) {
+                log.debug("Closing the pool name: " + dataSource.getPoolName());
+            }
+        }
     }
 
     /**
@@ -1029,20 +1033,6 @@ public class RDBMSEventTable extends AbstractRecordTable implements EternalRefer
         } catch (SQLException e) {
             throw new RDBMSTableException("Dropping event since value for attribute name " + attribute.getName() +
                     "cannot be set: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void start() {
-    }
-
-    @Override
-    public void stop() {
-        if (dataSource != null) {
-            dataSource.close();
-            if (log.isDebugEnabled()) {
-                log.debug("Closing the pool name: " + dataSource.getPoolName());
-            }
         }
     }
 }

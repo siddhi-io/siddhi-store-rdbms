@@ -106,7 +106,7 @@ public class UpdateRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "updateFromTableTest1")
     public void updateFromTableTest2() throws InterruptedException, SQLException {
         //Check for update event data in RDBMS table when multiple conditions are true.
         log.info("updateFromTableTest2");
@@ -146,7 +146,7 @@ public class UpdateRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "updateFromTableTest2")
     public void updateFromTableTest3() throws InterruptedException, SQLException {
         log.info("updateFromTableTest3");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -200,7 +200,7 @@ public class UpdateRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "updateFromTableTest3")
     public void updateFromTableTest4() throws InterruptedException, SQLException {
         log.info("updateFromTableTest4");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -255,7 +255,7 @@ public class UpdateRDBMSTableTestCaseIT {
     }
 
 
-    @Test
+    @Test(dependsOnMethods = "updateFromTableTest4")
     public void updateFromTableTest5() throws InterruptedException, SQLException {
         log.info("updateFromTableTest5");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -309,7 +309,7 @@ public class UpdateRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "updateFromTableTest5")
     public void updateFromTableTest6() throws InterruptedException, SQLException {
         log.info("updateFromTableTest6");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -364,7 +364,7 @@ public class UpdateRDBMSTableTestCaseIT {
     }
 
 
-    @Test
+    @Test(dependsOnMethods = "updateFromTableTest6")
     public void updateFromTableTest7() throws InterruptedException, SQLException {
         log.info("updateFromTableTest7");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -444,7 +444,7 @@ public class UpdateRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "updateFromTableTest7")
     public void updateFromTableTest8() throws InterruptedException, SQLException {
         log.info("updateFromTableTest8");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -483,7 +483,7 @@ public class UpdateRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "updateFromTableTest8")
     public void updateFromTableTest9() throws InterruptedException, SQLException {
         log.info("updateFromTableTest9");
         SiddhiManager siddhiManager = new SiddhiManager();

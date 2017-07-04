@@ -313,7 +313,11 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                 "from UpdateStockStream " +
                 "select comp as symbol, vol as volume " +
                 "update or insert into StockTable " +
-                "   on StockTable.symbol==symbol;";
+                "   on StockTable.symbol==symbol;" +
+                "" +
+                "@info(name = 'query3') " +
+                "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
+                "insert into OutStream;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
@@ -321,6 +325,31 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        switch (inEventCount) {
+                            case 1:
+                                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
+                                break;
+                            case 2:
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                break;
+                            case 3:
+                                AssertJUnit.assertArrayEquals(new Object[]{"FB", 300L}, event.getData());
+                                break;
+                            case 4:
+                                AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
+                                break;
+                            default:
+                                AssertJUnit.assertSame(4, inEventCount);
+                        }
+                    }
+                    eventArrived = true;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
                 eventArrived = true;
             }
         });
@@ -339,7 +368,7 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
         checkStockStream.send(new Object[]{"WSO2", 100L});
         Thread.sleep(500);
 
-        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of success events", 4, inEventCount);
         AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
         AssertJUnit.assertEquals("Event arrived", false, eventArrived);
         siddhiAppRuntime.shutdown();
