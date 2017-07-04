@@ -63,7 +63,7 @@ public class RDBMSTableTestUtils {
 
     }
 
-    public static DataSource getTestDataSource()  {
+    public static DataSource getTestDataSource() {
         return getDataSource();
     }
 
@@ -202,6 +202,9 @@ public class RDBMSTableTestUtils {
     public static String getIpAddressOfContainer() {
         String ip = System.getenv("DOCKER_HOST_IP");
         String dockerHost = System.getenv("DOCKER_HOST");
+        if (!StringUtils.isEmpty(ip)) {
+            return ip;
+        }
         if (!StringUtils.isEmpty(dockerHost)) {
             try {
                 URI uri = new URI(dockerHost);
