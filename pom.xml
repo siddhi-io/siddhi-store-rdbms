@@ -58,6 +58,7 @@
         <commons.lang3.version>3.3.2</commons.lang3.version>
         <ojdbc6.version>12.1.0.1-atlassian-hosted</ojdbc6.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <io.fabric8.version>0.20.0</io.fabric8.version>
     </properties>
 
     <scm>
@@ -253,7 +254,7 @@
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.20.0</version>
+                    <version>${io.fabric8.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -326,15 +327,6 @@
             <releases>
                 <enabled>false</enabled>
             </releases>
-        </repository>
-        <repository>
-            <id>central</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
     </repositories>
 
