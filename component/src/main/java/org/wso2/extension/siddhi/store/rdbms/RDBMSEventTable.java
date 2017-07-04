@@ -503,7 +503,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                                              List<Map<String, Object>> updateValues) {
         int counter = 0;
         final int seed = this.attributes.size();
-        Connection conn = this.getConnection(false);
+        Connection conn = this.getConnection();
         PreparedStatement updateStmt = null;
         List<Integer> recordInsertIndexList = new ArrayList<>();
         try {
@@ -528,7 +528,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 if (counter % batchSize == batchSize - 1) {
                     recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
                             (counter - batchSize)));
-                    conn.commit();
                     updateStmt.clearBatch();
                 }
                 counter++;
@@ -536,7 +535,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
             if (counter % batchSize > 0) {
                 recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
                         (counter - (counter % batchSize))));
-                conn.commit();
             }
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
