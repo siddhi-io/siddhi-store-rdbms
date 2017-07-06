@@ -117,22 +117,33 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 @Parameter(name = "password",
                         description = "The password for accessing the data store.",
                         type = {DataType.STRING}),
+                @Parameter(name = "jdbc.driver.name",
+                        description = "The driver class name for connecting the RDBMS data store.",
+                        type = {DataType.STRING}),
                 @Parameter(name = "pool.properties",
                         description = "Any pool properties for the DB connection, specified as key-value pairs.",
-                        type = {DataType.STRING}),
+                        type = {DataType.STRING},
+                        optional = true,
+                        defaultValue = "empty"),
                 @Parameter(name = "jndi.resource",
-                        description = "Optional. The name of the JNDI resource (if any). If found, the connection " +
+                        description = "The name of the JNDI resource (if any). If found, the connection " +
                                 "parameters are not taken into account, and the connection will be attempted through "
                                 + "JNDI lookup instead.",
-                        type = {DataType.STRING}),
+                        type = {DataType.STRING},
+                        optional = true,
+                        defaultValue = "empty"),
                 @Parameter(name = "table.name",
-                        description = "Optional. The name of the table in the store this Event Table should be " +
+                        description = "The name of the table in the store this Event Table should be " +
                                 "persisted as. If not specified, the table name will be the same as the Siddhi table.",
-                        type = {DataType.STRING}),
+                        type = {DataType.STRING},
+                        optional = true,
+                        defaultValue = "Defined table name in siddhi App query."),
                 @Parameter(name = "field.length",
-                        description = "Optional. The length of any String fields the table definition contains. If not "
+                        description = "The length of any String fields the table definition contains. If not "
                                 + "specified, the vendor-specific DB default will be chosen.",
-                        type = {DataType.STRING}),
+                        type = {DataType.STRING},
+                        optional = true,
+                        defaultValue = "empty")
         },
         examples = {
                 @Example(
