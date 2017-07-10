@@ -103,6 +103,7 @@ public class RDBMSTableTestUtils {
                 driverClassName = JDBC_DRIVER_CLASS_MSSQL;
                 break;
         }
+        log.info("URL : " + url);
         connectionProperties.setProperty("jdbcUrl", url);
         connectionProperties.setProperty("driverClassName", driverClassName);
         connectionProperties.setProperty("dataSource.user", user);
