@@ -78,7 +78,7 @@ public class RDBMSTableTestUtils {
         TestType type = RDBMSTableTestUtils.TestType.valueOf(System.getenv("DATABASE_TYPE"));
         user = System.getenv("DATABASE_USER");
         password = System.getenv("DATABASE_PASSWORD");
-        String port  = System.getenv("PORT");
+        String port = System.getenv("PORT");
         Properties connectionProperties = new Properties();
         switch (type) {
             case MySQL:
