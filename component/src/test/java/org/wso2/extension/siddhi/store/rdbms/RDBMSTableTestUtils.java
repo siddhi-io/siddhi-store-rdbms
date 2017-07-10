@@ -40,7 +40,7 @@ public class RDBMSTableTestUtils {
 
     public static final String TABLE_NAME = "StockTable";
     private static final Logger log = Logger.getLogger(RDBMSTableTestUtils.class);
-    private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:3306/dasdb";
+    private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/dasdb";
     private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:5432/dasdb";
     private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:1521/XE";
     private static String connectionUrlMsSQL = "jdbc:sqlserver//{{container.ip}}:1433/dasdb";
@@ -78,10 +78,12 @@ public class RDBMSTableTestUtils {
         TestType type = RDBMSTableTestUtils.TestType.valueOf(System.getenv("DATABASE_TYPE"));
         user = System.getenv("DATABASE_USER");
         password = System.getenv("DATABASE_PASSWORD");
+        String port  = System.getenv("PORT");
         Properties connectionProperties = new Properties();
         switch (type) {
             case MySQL:
-                url = connectionUrlMysql.replace("{{container.ip}}", getIpAddressOfContainer());
+                url = connectionUrlMysql.replace("{{container.ip}}", getIpAddressOfContainer()).
+                        replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_NAME_MYSQL;
                 break;
             case H2:
