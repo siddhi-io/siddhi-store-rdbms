@@ -40,10 +40,10 @@ public class RDBMSTableTestUtils {
 
     public static final String TABLE_NAME = "StockTable";
     private static final Logger log = Logger.getLogger(RDBMSTableTestUtils.class);
-    private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:3306/dasdb";
-    private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:5432/dasdb";
-    private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:1521/XE";
-    private static String connectionUrlMsSQL = "jdbc:sqlserver//{{container.ip}}:1433/dasdb";
+    private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/dasdb";
+    private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:{{container.port}}/dasdb";
+    private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:{{container.port}}/XE";
+    private static String connectionUrlMsSQL = "jdbc:sqlserver//{{container.ip}}:{{container.port}}/dasdb";
     private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
     private static final String JDBC_DRIVER_CLASS_NAME_H2 = "org.h2.Driver";
     private static final String JDBC_DRIVER_CLASS_NAME_MYSQL = "com.mysql.jdbc.Driver";
@@ -78,10 +78,12 @@ public class RDBMSTableTestUtils {
         TestType type = RDBMSTableTestUtils.TestType.valueOf(System.getenv("DATABASE_TYPE"));
         user = System.getenv("DATABASE_USER");
         password = System.getenv("DATABASE_PASSWORD");
+        String port = System.getenv("PORT");
         Properties connectionProperties = new Properties();
         switch (type) {
             case MySQL:
-                url = connectionUrlMysql.replace("{{container.ip}}", getIpAddressOfContainer());
+                url = connectionUrlMysql.replace("{{container.ip}}", getIpAddressOfContainer()).
+                        replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_NAME_MYSQL;
                 break;
             case H2:
@@ -91,15 +93,18 @@ public class RDBMSTableTestUtils {
                 password = PASSWORD;
                 break;
             case POSTGRES:
-                url = connectionUrlPostgres.replace("{{container.ip}}", getIpAddressOfContainer());
+                url = connectionUrlPostgres.replace("{{container.ip}}", getIpAddressOfContainer()).
+                        replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_POSTGRES;
                 break;
             case ORACLE:
-                url = connectionUrlOracle.replace("{{container.ip}}", getIpAddressOfContainer());
+                url = connectionUrlOracle.replace("{{container.ip}}", getIpAddressOfContainer()).
+                        replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_NAME_ORACLE;
                 break;
             case MSSQL:
-                url = connectionUrlMsSQL.replace("{{container.ip}}", getIpAddressOfContainer());
+                url = connectionUrlMsSQL.replace("{{container.ip}}", getIpAddressOfContainer()).
+                        replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_MSSQL;
                 break;
         }
@@ -202,9 +207,6 @@ public class RDBMSTableTestUtils {
     public static String getIpAddressOfContainer() {
         String ip = System.getenv("DOCKER_HOST_IP");
         String dockerHost = System.getenv("DOCKER_HOST");
-        if (!StringUtils.isEmpty(ip)) {
-            return ip;
-        }
         if (!StringUtils.isEmpty(dockerHost)) {
             try {
                 URI uri = new URI(dockerHost);
