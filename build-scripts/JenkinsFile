@@ -1,0 +1,64 @@
+#!groovy
+def mvnHome = env.MVN_HOME;
+String dockerHost = env.DOCKER_HOST;
+String nodeLabel = env.NODE_LABEL;
+String repositoryName = 'siddhi-store-rdbms';
+String user = env.GIT_USER;
+String gitCredentialsID = env.GIT_CREDENTIALS_ID;
+String gitEmail = env.GIT_EMAIL;
+node("${nodeLabel}") {
+    try{
+        stage('Preparation') {
+            withCredentials(
+                     [[$class          : 'UsernamePasswordMultiBinding',
+                      credentialsId   : gitCredentialsID,
+                      usernameVariable: 'GIT_USERNAME',
+                      passwordVariable: 'GIT_PASSWORD']]) {
+                checkout([
+                        $class                           : 'GitSCM',
+                        branches                         : [[name: '*/master']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions                       : [[$class: 'LocalBranch', localBranch: 'master'],
+                                                            [$class: 'RelativeTargetDirectory', relativeTargetDir: repositoryName]],
+                        submoduleCfg                     : [],
+                        userRemoteConfigs                :
+                                [[credentialsId: gitCredentialsID,
+                                  url          : "https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${user}/${repositoryName}.git"]]]);
+                dir(repositoryName) {
+                    withCredentials(
+                            [[$class          : 'UsernamePasswordMultiBinding',
+                              credentialsId   : gitCredentialsID,
+                              usernameVariable: 'GIT_USERNAME',
+                              passwordVariable: 'GIT_PASSWORD']]) {
+                        sh("git config user.name ${GIT_USERNAME}");
+                        sh("git config user.email ${gitEmail}");
+                    }
+                }
+            }
+        }
+        stage('Running Test on H2 database') {
+            withEnv(["PATH+MAVEN=${mvnHome}/bin:${env.JAVA_HOME}/bin",
+                    "DOCKER_HOST=${dockerHost}"]) {
+                sh "mvn verify -P local-h2 -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true"
+            }
+        }
+        stage('Running Test on Mysql database') {
+            withEnv(["PATH+MAVEN=${mvnHome}/bin:${env.JAVA_HOME}/bin",
+                    "DOCKER_HOST=${dockerHost}"]) {
+                sh "mvn verify -P local-mysql -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true"
+            }
+        }
+        stage('Running Test on PostgreSql database') {
+            withEnv(["PATH+MAVEN=${mvnHome}/bin:${env.JAVA_HOME}/bin",
+                    "DOCKER_HOST=${dockerHost}"]) {
+                sh "mvn verify -P local-postgres -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true"
+            }
+        }
+        currentBuild.result = 'SUCCESS'
+    } catch (any) {
+        currentBuild.result = 'FAILURE'
+        throw any //rethrow exception to prevent the build from proceeding
+    }finally{
+        step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: '', sendToIndividuals: true])
+    }
+}
