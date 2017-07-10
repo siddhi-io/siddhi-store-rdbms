@@ -41,9 +41,9 @@ public class RDBMSTableTestUtils {
     public static final String TABLE_NAME = "StockTable";
     private static final Logger log = Logger.getLogger(RDBMSTableTestUtils.class);
     private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/dasdb";
-    private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:5432/dasdb";
-    private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:1521/XE";
-    private static String connectionUrlMsSQL = "jdbc:sqlserver//{{container.ip}}:1433/dasdb";
+    private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:{{container.port}}/dasdb";
+    private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:{{container.port}}/XE";
+    private static String connectionUrlMsSQL = "jdbc:sqlserver//{{container.ip}}:{{container.port}}/dasdb";
     private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
     private static final String JDBC_DRIVER_CLASS_NAME_H2 = "org.h2.Driver";
     private static final String JDBC_DRIVER_CLASS_NAME_MYSQL = "com.mysql.jdbc.Driver";
@@ -93,19 +93,21 @@ public class RDBMSTableTestUtils {
                 password = PASSWORD;
                 break;
             case POSTGRES:
-                url = connectionUrlPostgres.replace("{{container.ip}}", getIpAddressOfContainer());
+                url = connectionUrlPostgres.replace("{{container.ip}}", getIpAddressOfContainer()).
+                        replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_POSTGRES;
                 break;
             case ORACLE:
-                url = connectionUrlOracle.replace("{{container.ip}}", getIpAddressOfContainer());
+                url = connectionUrlOracle.replace("{{container.ip}}", getIpAddressOfContainer()).
+                        replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_NAME_ORACLE;
                 break;
             case MSSQL:
-                url = connectionUrlMsSQL.replace("{{container.ip}}", getIpAddressOfContainer());
+                url = connectionUrlMsSQL.replace("{{container.ip}}", getIpAddressOfContainer()).
+                        replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_MSSQL;
                 break;
         }
-        log.info("URL : " + url);
         connectionProperties.setProperty("jdbcUrl", url);
         connectionProperties.setProperty("driverClassName", driverClassName);
         connectionProperties.setProperty("dataSource.user", user);
