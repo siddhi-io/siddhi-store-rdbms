@@ -79,3 +79,7 @@ Siddhi developers can be contacted via the mailing lists:
 ### We welcome your feedback and contribution.
 
 Siddhi DAS Team
+
+## API Docs:
+
+1. <a href="./api/4.0.0-M3-SNAPSHOT.md">4.0.0-M3-SNAPSHOT</a>

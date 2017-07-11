@@ -64,6 +64,7 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANN
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_URL;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_USERNAME;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BATCH_ENABLE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BATCH_SIZE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BINARY_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BOOLEAN_TYPE;
@@ -124,14 +125,14 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                         description = "Any pool properties for the DB connection, specified as key-value pairs.",
                         type = {DataType.STRING},
                         optional = true,
-                        defaultValue = "empty"),
+                        defaultValue = "null"),
                 @Parameter(name = "jndi.resource",
                         description = "The name of the JNDI resource (if any). If found, the connection " +
                                 "parameters are not taken into account, and the connection will be attempted through "
                                 + "JNDI lookup instead.",
                         type = {DataType.STRING},
                         optional = true,
-                        defaultValue = "empty"),
+                        defaultValue = "null"),
                 @Parameter(name = "table.name",
                         description = "The name of the table in the store this Event Table should be " +
                                 "persisted as. If not specified, the table name will be the same as the Siddhi table.",
@@ -143,19 +144,20 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                                 + "specified, the vendor-specific DB default will be chosen.",
                         type = {DataType.STRING},
                         optional = true,
-                        defaultValue = "empty")
+                        defaultValue = "null")
         },
         examples = {
                 @Example(
                         syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
-                                "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
+                                "username=\"root\", password=\"root\" , jdbc.driver.name=\"org.h2.Driver\"," +
+                                "field.length=\"symbol:100\")\n" +
                                 "@PrimaryKey(\"symbol\")" +
                                 "@Index(\"volume\")" +
                                 "define table StockTable (symbol string, price float, volume long);",
                         description = "The above example will create an Event Table named 'StockTable' on the DB if " +
-                                "it doesn't already exist (with 3 fields 'symbol', 'price', and 'volume' with types" +
-                                "string, float and long respectively). The connection parameters will be as" +
-                                " specified in the '@Store' annotation. The 'symbol' field will be declared a unique " +
+                                "it doesn't already exist (with 3 fields 'symbol', 'price', and 'volume' with types " +
+                                "string, float and long respectively). The connection parameters will be as " +
+                                "specified in the '@Store' annotation. The 'symbol' field will be declared a unique " +
                                 "field, and a DB index will be created for the 'symbol' field."
                 )
         },
@@ -174,105 +176,132 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.tableCheckQuery",
-                        description = "Query for check table in {{RDBMS-Name}}.",
-                        defaultValue = "\"h2: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"," +
-                                "\"mysql: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"," +
-                                "\"oracle: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"," +
-                                "\"Microsoft SQL Server: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"," +
-                                "\"PostgreSQL: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"," +
-                                "\"DB2.*: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})\"",
+                        description = "Template query for check table in {{RDBMS-Name}}.",
+                        defaultValue = "<b>H2</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br>" +
+                                "<b>MySQL</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br>" +
+                                "<b>Oracle</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br>" +
+                                "<b>Microsoft SQL Server</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, " +
+                                "PRIMARY_KEYS}})<br>" +
+                                "<b>PostgreSQL</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br>" +
+                                "<b>DB2.*</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})",
                         possibleParameters = "N/A"
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.tableCreateQuery",
-                        description = "Query for create table in {{RDBMS-Name}}.",
-                        defaultValue = "\"h2: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1\"," +
-                                "\"mysql: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1\"," +
-                                "\"oracle: SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1\"," +
-                                "\"Microsoft SQL Server: SELECT TOP 1 1 from {{TABLE_NAME}}\"," +
-                                "\"PostgreSQL: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1\"," +
-                                "\"DB2.*: SELECT 1 FROM {{TABLE_NAME}} FETCH FIRST 1 ROWS ONLY\"",
+                        description = "Template query for create table in {{RDBMS-Name}}.",
+                        defaultValue = "<b>H2</b>: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1<br>" +
+                                "<b>MySQL</b>: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1<br>" +
+                                "<b>Oracle</b>: SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1<br>" +
+                                "<b>Microsoft SQL Server</b>: SELECT TOP 1 1 from {{TABLE_NAME}}<br>" +
+                                "<b>PostgreSQL</b>: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1<br>" +
+                                "<b>DB2.*</b>: SELECT 1 FROM {{TABLE_NAME}} FETCH FIRST 1 ROWS ONLY",
                         possibleParameters = "N/A"
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.indexCreateQuery",
-                        description = "Query for create index in {{RDBMS-Name}}.",
-                        defaultValue = "\"h2: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})" +
-                                "\"," +
-                                "\"mysql: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})\"," +
-                                "\"oracle: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})\"," +
-                                "\"Microsoft SQL Server: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} " +
-                                "({{INDEX_COLUMNS}}) {{TABLE_NAME}} ({{INDEX_COLUMNS}})\"," +
-                                "\"PostgreSQL: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} " +
-                                "({{INDEX_COLUMNS}})\"," +
-                                "\"DB2.*: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})\"",
+                        description = "Template query for create index in {{RDBMS-Name}}.",
+                        defaultValue = "<b>H2</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} " +
+                                "({{INDEX_COLUMNS}})" +
+                                "<br>" +
+                                "<b>MySQL</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} " +
+                                "({{INDEX_COLUMNS}})<br>" +
+                                "<b>Oracle</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} " +
+                                "({{INDEX_COLUMNS}})<br>" +
+                                "<b>Microsoft SQL Server</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} " +
+                                "({{INDEX_COLUMNS}}) {{TABLE_NAME}} ({{INDEX_COLUMNS}})<br>" +
+                                "<b>PostgreSQL</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} " +
+                                "({{INDEX_COLUMNS}})<br>" +
+                                "<b>DB2.*</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})",
                         possibleParameters = "N/A"
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordInsertQuery",
-                        description = "Query for insert record in {{RDBMS-Name}}.",
-                        defaultValue = "\"h2: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"," +
-                                "\"mysql: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"," +
-                                "\"oracle: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"," +
-                                "\"Microsoft SQL Server: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"," +
-                                "\"PostgreSQL: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"," +
-                                "\"DB2.*: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})\"",
+                        description = "Template query for insert record in {{RDBMS-Name}}.",
+                        defaultValue = "<b>H2</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br>" +
+                                "<b>MySQL</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br>" +
+                                "<b>Oracle</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br>" +
+                                "<b>Microsoft SQL Server</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br>" +
+                                "<b>PostgreSQL</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br>" +
+                                "<b>DB2.*</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})",
                         possibleParameters = "N/A"
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordUpdateQuery",
-                        description = "Query for update record in {{RDBMS-Name}}.",
-                        defaultValue = "\"h2: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}\"," +
-                                "\"mysql: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}\"," +
-                                "\"oracle: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}\"," +
-                                "\"Microsoft SQL Server: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} " +
-                                "{{CONDITION}}\"," +
-                                "\"PostgreSQL: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}\"," +
-                                "\"DB2.*: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}\"",
+                        description = "Template query for update record in {{RDBMS-Name}}.",
+                        defaultValue = "<b>H2</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br>" +
+                                "<b>MySQL</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br>" +
+                                "<b>Oracle</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br>" +
+                                "<b>Microsoft SQL Server</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} " +
+                                "{{CONDITION}}<br>" +
+                                "<b>PostgreSQL</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} " +
+                                "{{CONDITION}}<br>" +
+                                "<b>DB2.*</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}",
                         possibleParameters = "N/A"
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordSelectQuery",
-                        description = "Query for select record in {{RDBMS-Name}}.",
-                        defaultValue = "\"h2: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"mysql: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"oracle: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"Microsoft SQL Server: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"PostgreSQL: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"DB2.*: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}\"",
+                        description = "Template query for select record in {{RDBMS-Name}}.",
+                        defaultValue = "<b>H2</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>MySQL</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>Oracle</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>Microsoft SQL Server</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>PostgreSQL</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>DB2.*</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}",
                         possibleParameters = "N/A"
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordExistsQuery",
-                        description = "Query for check record existence in {{RDBMS-Name}}.",
-                        defaultValue = "\"h2: SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"mysql: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"oracle: SELECT COUNT(1) INTO existence FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"Microsoft SQL Server: SELECT TOP 1 FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"PostgreSQL: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1\"," +
-                                "\"DB2.*: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} FETCH FIRST 1 ROWS ONLY\"",
+                        description = "Template query for check record existence in {{RDBMS-Name}}.",
+                        defaultValue = "<b>H2</b>: SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>MySQL</b>: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>Oracle</b>: SELECT COUNT(1) INTO existence FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>Microsoft SQL Server</b>: SELECT TOP 1 FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>PostgreSQL</b>: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1<br>" +
+                                "<b>DB2.*</b>: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} FETCH FIRST 1 ROWS ONLY",
                         possibleParameters = "N/A"
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordDeleteQuery",
                         description = "Query for delete record in {{RDBMS-Name}}.",
-                        defaultValue = "\"h2: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"mysql: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"oracle: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"Microsoft SQL Server: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"PostgreSQL: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"," +
-                                "\"DB2.*: DELETE FROM {{TABLE_NAME}} {{CONDITION}}\"",
+                        defaultValue = "<b>H2</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>MySQL</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>Oracle</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>Microsoft SQL Server</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>PostgreSQL</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
+                                "<b>DB2.*</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}",
                         possibleParameters = "N/A"
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.stringSize",
-                        description = "Define the string length and can be a StringType field in {{RDBMS-Name}}.",
-                        defaultValue = "\"h2: 254\"," +
-                                "\"mysql: 254\"," +
-                                "\"oracle: 254\"," +
-                                "\"Microsoft SQL Server: 254\"," +
-                                "\"PostgreSQL: 254\"," +
-                                "\"DB2.*: 254\"",
+                        description = "Define length for the string fields in {{RDBMS-Name}}.",
+                        defaultValue = "<b>H2</b>: 254<br>" +
+                                "<b>MySQL</b>: 254<br>" +
+                                "<b>Oracle</b>: 254<br>" +
+                                "<b>Microsoft SQL Server</b>: 254<br>" +
+                                "<b>PostgreSQL</b>: 254<br>" +
+                                "<b>DB2.*</b>: 254",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.batchSize",
+                        description = "Define batch size for the batching operations.",
+                        defaultValue = "<b>H2</b>: 1000<br>" +
+                                "<b>MySQL</b>: 1000<br>" +
+                                "<b>Oracle</b>: 1000<br>" +
+                                "<b>Microsoft SQL Server</b>: 1000<br>" +
+                                "<b>PostgreSQL</b>: 1000<br>" +
+                                "<b>DB2.*</b>: 1000",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.batchEnable",
+                        description = "Enable or Disable batching process for 'Update Or Insert' operation.",
+                        defaultValue = "<b>H2</b>: true<br>" +
+                                "<b>MySQL</b>: true<br>" +
+                                "<b>Oracle</b>: true<br>" +
+                                "<b>Microsoft SQL Server</b>: true<br>" +
+                                "<b>PostgreSQL</b>: true<br>" +
+                                "<b>DB2.*</b>: true",
                         possibleParameters = "N/A"
                 )
         }
@@ -499,7 +528,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
                                CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
                                List<Object[]> addingRecords) {
         List<Integer> recordInsertIndexList;
-        if (this.queryConfigurationEntry.getBatchEnable()) {
+        if (Boolean.parseBoolean(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                PROPERTY_SEPARATOR + BATCH_ENABLE, String.valueOf(
+                this.queryConfigurationEntry.getBatchEnable())))) {
             recordInsertIndexList = batchProcessUpdate(updateConditionParameterMaps, compiledCondition,
                     updateValues);
         } else {

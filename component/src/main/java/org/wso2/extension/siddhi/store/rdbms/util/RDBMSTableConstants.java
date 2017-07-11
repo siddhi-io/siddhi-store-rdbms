@@ -94,6 +94,7 @@ public class RDBMSTableConstants {
     public static final String LONG_TYPE = "longType";
     public static final String STRING_TYPE = "stringType";
     public static final String BATCH_SIZE = "batchSize";
+    public static final String BATCH_ENABLE = "batchEnable";
 
     private RDBMSTableConstants() {
         //preventing initialization
