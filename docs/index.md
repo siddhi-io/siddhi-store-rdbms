@@ -19,7 +19,7 @@ Features Supported
 #### Prerequisites for using the feature
  - A RDBMS server instance should be started.
  - User should have the necessary privileges and access rights to connect to the RDBMS data store of choice.
- - Deployment yaml file has to be inserted in the following manner (properties set are optional), if the user wishes to configure all RDBMS connections made from the extension.
+ - Deployment yaml file has to be inserted in the following manner (properties set are optional), if the user wishes to overwrite default RDBMS configuration in the extension.
  <pre>
 siddhi: 
   extensions: 
@@ -82,4 +82,4 @@ Siddhi DAS Team
 
 ## API Docs:
 
-1. <a href="./api/4.0.0-M3-SNAPSHOT.md">4.0.0-M3-SNAPSHOT</a>
+1. <a href="./api/4.0.0-M3-SNAPSHOT">4.0.0-M3-SNAPSHOT</a>
