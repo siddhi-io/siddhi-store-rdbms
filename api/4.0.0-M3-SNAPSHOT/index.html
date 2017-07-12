@@ -16,7 +16,7 @@
     
     
       
-        <title>4.0.0-M3-SNAPSHOT - Siddhi-Store-RDBMS</title>
+        <title>4.0.0-M3-SNAPSHOT - SIDDHI-STORE-RDBMS</title>
       
     
     
@@ -64,7 +64,7 @@
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
         
-          <a href="../.." title="Siddhi-Store-RDBMS" class="md-logo md-header-nav__button">
+          <a href="../.." title="SIDDHI-STORE-RDBMS" class="md-logo md-header-nav__button">
             <img src="../../images/siddhi-logo-w.svg" width="24" height="24">
           </a>
         
@@ -134,7 +134,7 @@
         <img src="../../images/siddhi-logo-w.svg">
       </i>
     
-    Siddhi-Store-RDBMS
+    SIDDHI-STORE-RDBMS
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -219,8 +219,6 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
-      
-    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         4.0.0-M3-SNAPSHOT
@@ -234,13 +232,19 @@
 <nav class="md-nav md-nav--secondary">
   
   
-    
-  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#store" title="Store" class="md-nav__link">
+    Store
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#rdbms-store" title="rdbms (Store)" class="md-nav__link">
     rdbms (Store)
   </a>
@@ -287,6 +291,11 @@
   <a href="#example-1" title="Example 1" class="md-nav__link">
     Example 1
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -328,13 +337,19 @@
 <nav class="md-nav md-nav--secondary">
   
   
-    
-  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#store" title="Store" class="md-nav__link">
+    Store
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#rdbms-store" title="rdbms (Store)" class="md-nav__link">
     rdbms (Store)
   </a>
@@ -393,6 +408,11 @@
     </nav>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
       
       
@@ -409,17 +429,19 @@
               
                 
                 
-                <h1 id="store">Store</h1>
-<h2 id="rdbms-store">rdbms <em>(Store)</em></h2>
+                  <h1>4.0.0-M3-SNAPSHOT</h1>
+                
+                <h2 id="store">Store</h2>
+<h3 id="rdbms-store">rdbms <em>(Store)</em></h3>
 <p style="word-wrap: break-word">Using this extension the data source or the connection instructions can be assigned to the event table.</p>
 
-<h3 id="syntax">Syntax</h3>
+<h4 id="syntax">Syntax</h4>
 <pre><code>@Store(type=&quot;rdbms&quot;, jdbc.url=&quot;&lt;STRING&gt;&quot;, username=&quot;&lt;STRING&gt;&quot;, password=&quot;&lt;STRING&gt;&quot;, jdbc.driver.name=&quot;&lt;STRING&gt;&quot;, pool.properties=&quot;&lt;STRING&gt;&quot;, jndi.resource=&quot;&lt;STRING&gt;&quot;, table.name=&quot;&lt;STRING&gt;&quot;, field.length=&quot;&lt;STRING&gt;&quot;)
 @PrimaryKey(&quot;PRIMARY_KEY&quot;)
 @Index(&quot;INDEX&quot;)
 </code></pre>
 
-<h4 id="query-parameters">Query Parameters</h4>
+<h5 id="query-parameters">Query Parameters</h5>
 <table>
     <tr>
         <th>Name</th>
@@ -495,7 +517,7 @@
     </tr>
 </table>
 
-<h3 id="system-parameters">System Parameters</h3>
+<h4 id="system-parameters">System Parameters</h4>
 <table>
     <tr>
         <th>Name</th>
@@ -577,14 +599,14 @@
     </tr>
     <tr>
         <td valign="top">{{RDBMS-Name}}.batchEnable</td>
-        <td valign="top"><p style="word-wrap: break-word">Enable or Disable batching process for 'Update Or Insert' operation. Some databases doesn't support batching operation for Update or Insert.</p></td>
+        <td valign="top"><p style="word-wrap: break-word">Enable or Disable batching process for 'Update Or Insert' operation.</p></td>
         <td valign="top"><b>H2</b>: true<br><b>MySQL</b>: true<br><b>Oracle</b>: true<br><b>Microsoft SQL Server</b>: true<br><b>PostgreSQL</b>: true<br><b>DB2.*</b>: true</td>
         <td valign="top">N/A</td>
     </tr>
 </table>
 
-<h3 id="examples">Examples</h3>
-<h4 id="example-1">Example 1</h4>
+<h4 id="examples">Examples</h4>
+<h5 id="example-1">Example 1</h5>
 <pre><code>@Store(type=&quot;rdbms&quot;, jdbc.url=&quot;jdbc:mysql://localhost:3306/das&quot;, username=&quot;root&quot;, password=&quot;root&quot; , jdbc.driver.name=&quot;org.h2.Driver&quot;,field.length=&quot;symbol:100&quot;)
 @PrimaryKey(&quot;symbol&quot;)@Index(&quot;volume&quot;)define table StockTable (symbol string, price float, volume long);
 </code></pre>
