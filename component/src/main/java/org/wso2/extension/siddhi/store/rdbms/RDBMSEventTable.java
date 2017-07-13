@@ -19,6 +19,7 @@ package org.wso2.extension.siddhi.store.rdbms;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfigurationEntry;
@@ -314,28 +315,40 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private String tableName;
     private List<Attribute> attributes;
     private ConfigReader configReader;
+    private String jndiResourceName;
+    private Annotation storeAnnotation;
+    private Annotation primaryKeys;
+    private Annotation indices;
+    private String selectQuery;
+    private String containsQuery;
+    private String deleteQuery;
+    private String insertQuery;
+    private String recordUpdateQuery;
+    private String tableCheckQuery;
+    private String createQuery;
+    private String indexQuery;
+    private int batchSize;
+    private boolean batchEnable;
+    private String binaryType;
+    private String booleanType;
+    private String doubleType;
+    private String floatType;
+    private String integerType;
+    private String longType;
+    private String stringType;
+    private String stringSize;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
-        this.attributes = tableDefinition.getAttributeList();
-        Annotation storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
-        Annotation primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
+        attributes = tableDefinition.getAttributeList();
+        storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
+        primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
-        Annotation indices = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX,
+        indices = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX,
                 tableDefinition.getAnnotations());
         RDBMSTableUtils.validateAnnotation(primaryKeys);
         RDBMSTableUtils.validateAnnotation(indices);
-        String jndiResourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_JNDI_RESOURCE);
-        if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
-            try {
-                this.lookupDatasource(jndiResourceName);
-            } catch (NamingException e) {
-                throw new RDBMSTableException("Failed to lookup datasource with provided JNDI resource name '"
-                        + jndiResourceName + "': " + e.getMessage(), e);
-            }
-        } else {
-            this.initializeDatasource(storeAnnotation);
-        }
+        jndiResourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_JNDI_RESOURCE);
         if (null != configReader) {
             this.configReader = configReader;
         } else {
@@ -343,20 +356,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
         String tableName = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_NAME);
         this.tableName = RDBMSTableUtils.isEmpty(tableName) ? tableDefinition.getId() : tableName;
-        try {
-            if (this.queryConfigurationEntry == null) {
-                this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource,
-                        this.configReader);
-            }
-        } catch (CannotLoadConfigurationException e) {
-            this.destroy();
-            throw new RDBMSTableException("Failed to initialize DB Configuration entry for table '" + this.tableName
-                    + "': " + e.getMessage(), e);
-        }
-        if (!this.tableExists()) {
-            log.info("A table: " + this.tableName + " is created with the provided information.");
-            this.createTable(storeAnnotation, primaryKeys, indices);
-        }
     }
 
     @Override
@@ -373,9 +372,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
     @Override
     protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
                                             CompiledCondition compiledCondition) {
-        String selectQuery = this.resolveTableName(configReader.readConfig(
-                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_SELECT_QUERY,
-                this.queryConfigurationEntry.getRecordSelectQuery()));
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -398,9 +394,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     protected boolean contains(Map<String, Object> containsConditionParameterMap, CompiledCondition compiledCondition) {
-        String containsQuery = this.resolveTableName(configReader.readConfig(
-                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_EXISTS_QUERY,
-                this.queryConfigurationEntry.getRecordExistsQuery()));
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -428,15 +421,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     private void batchProcessDelete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition
             compiledCondition) {
-        String deleteQuery = this.resolveTableName(configReader.readConfig(
-                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_DELETE_QUERY,
-                this.queryConfigurationEntry.getRecordDeleteQuery()));
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
-        int batchSize = Integer.parseInt(configReader.readConfig(
-                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
-                String.valueOf(this.queryConfigurationEntry.getBatchSize())));
         try {
             stmt = RDBMSTableUtils.isEmpty(condition) ?
                     conn.prepareStatement(deleteQuery.replace(PLACEHOLDER_CONDITION, "")) :
@@ -491,9 +478,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
             stmt = conn.prepareStatement(sql);
             Iterator<Map<String, Object>> conditionParamIterator = updateConditionParameterMaps.iterator();
             Iterator<Map<String, Object>> valueIterator = updateValues.iterator();
-            int batchSize = Integer.parseInt(configReader.readConfig(
-                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
-                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
             while (conditionParamIterator.hasNext() && valueIterator.hasNext()) {
                 Map<String, Object> conditionParameters = conditionParamIterator.next();
                 Map<String, Object> values = valueIterator.next();
@@ -528,9 +512,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                                CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
                                List<Object[]> addingRecords) {
         List<Integer> recordInsertIndexList;
-        if (Boolean.parseBoolean(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                PROPERTY_SEPARATOR + BATCH_ENABLE, String.valueOf(
-                this.queryConfigurationEntry.getBatchEnable())))) {
+        if (batchEnable) {
             recordInsertIndexList = batchProcessUpdate(updateConditionParameterMaps, compiledCondition,
                     updateValues);
         } else {
@@ -552,9 +534,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
             updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
             Iterator<Map<String, Object>> conditionParamIterator = updateConditionParameterMaps.iterator();
             Iterator<Map<String, Object>> valueIterator = updateValues.iterator();
-            int batchSize = Integer.parseInt(configReader.readConfig(
-                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
-                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
             while (conditionParamIterator.hasNext() && valueIterator.hasNext()) {
                 Map<String, Object> conditionParameters = conditionParamIterator.next();
                 Map<String, Object> values = valueIterator.next();
@@ -631,9 +610,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
         PreparedStatement insertStmt = null;
         try {
             insertStmt = conn.prepareStatement(this.composeInsertQuery());
-            int batchSize = Integer.parseInt(configReader.readConfig(
-                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
-                    String.valueOf(this.queryConfigurationEntry.getBatchSize())));
             while (counter < recordInsertIndexList.size()) {
                 if (recordInsertIndexList.get(counter) == counter) {
                     Object[] record = addingRecords.get(counter);
@@ -688,7 +664,83 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     public void connect() throws ConnectionUnavailableException {
-
+        try {
+            if (dataSource == null) {
+                if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
+                    this.lookupDatasource(jndiResourceName);
+                } else {
+                    this.initializeDatasource(storeAnnotation);
+                }
+                if (this.queryConfigurationEntry == null) {
+                    this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource,
+                            this.configReader);
+                    selectQuery = this.resolveTableName(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_SELECT_QUERY,
+                            this.queryConfigurationEntry.getRecordSelectQuery()));
+                    containsQuery = this.resolveTableName(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_EXISTS_QUERY,
+                            this.queryConfigurationEntry.getRecordExistsQuery()));
+                    deleteQuery = this.resolveTableName(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_DELETE_QUERY,
+                            this.queryConfigurationEntry.getRecordDeleteQuery()));
+                    batchSize = Integer.parseInt(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
+                            String.valueOf(this.queryConfigurationEntry.getBatchSize())));
+                    insertQuery = this.resolveTableName(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_INSERT_QUERY,
+                            this.queryConfigurationEntry.getRecordInsertQuery()));
+                    recordUpdateQuery = this.resolveTableName(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_UPDATE_QUERY,
+                            this.queryConfigurationEntry.getRecordUpdateQuery()));
+                    tableCheckQuery = this.resolveTableName(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CHECK_QUERY,
+                            this.queryConfigurationEntry.getTableCheckQuery()));
+                    createQuery = this.resolveTableName(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CREATE_QUERY,
+                            this.queryConfigurationEntry.getTableCreateQuery()));
+                    indexQuery = this.resolveTableName(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + INDEX_CREATE_QUERY,
+                            this.queryConfigurationEntry.getIndexCreateQuery()));
+                    batchEnable = Boolean.parseBoolean(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
+                                    BATCH_ENABLE, String.valueOf(this.queryConfigurationEntry.getBatchEnable())));
+                    RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRdbmsTypeMapping();
+                    booleanType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BOOLEAN_TYPE,
+                            typeMapping.getBooleanType());
+                    doubleType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + DOUBLE_TYPE,
+                            typeMapping.getDoubleType());
+                    floatType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + FLOAT_TYPE,
+                            typeMapping.getFloatType());
+                    integerType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + INTEGER_TYPE,
+                            typeMapping.getIntegerType());
+                    longType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + LONG_TYPE,
+                            typeMapping.getLongType());
+                    binaryType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BINARY_TYPE,
+                            typeMapping.getBinaryType());
+                    stringType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + STRING_TYPE,
+                            typeMapping.getStringType());
+                    stringSize = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + STRING_SIZE,
+                            this.queryConfigurationEntry.getStringSize());
+                }
+            }
+            if (!this.tableExists()) {
+                this.createTable(storeAnnotation, primaryKeys, indices);
+                log.info("A table: " + this.tableName + " is created with the provided information.");
+            }
+        } catch (CannotLoadConfigurationException | NamingException | HikariPool.PoolInitializationException |
+                RDBMSTableException e) {
+            this.destroy();
+            throw new ConnectionUnavailableException("Failed to initialize store for table name '" +
+                    this.tableName + "': " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -722,9 +774,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
      * @return the composed SQL query in string form.
      */
     private String composeInsertQuery() {
-        String insertQuery = this.resolveTableName(configReader.readConfig(
-                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_INSERT_QUERY,
-                this.queryConfigurationEntry.getRecordInsertQuery()));
         StringBuilder params = new StringBuilder();
         int fieldsLeft = this.attributes.size();
         while (fieldsLeft > 0) {
@@ -743,8 +792,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
      * @return the composed SQL query in string form.
      */
     private String composeUpdateQuery(CompiledCondition compiledCondition) {
-        String sql = this.resolveTableName(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                PROPERTY_SEPARATOR + RECORD_UPDATE_QUERY, this.queryConfigurationEntry.getRecordUpdateQuery()));
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         StringBuilder columnsValues = new StringBuilder();
         this.attributes.forEach(attribute -> {
@@ -753,10 +800,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 columnsValues.append(SEPARATOR);
             }
         });
-        sql = sql.replace(PLACEHOLDER_COLUMNS_VALUES, columnsValues.toString());
-        sql = RDBMSTableUtils.isEmpty(condition) ? sql.replace(PLACEHOLDER_CONDITION, "") :
-                RDBMSTableUtils.formatQueryWithCondition(sql, condition);
-        return sql;
+        recordUpdateQuery = recordUpdateQuery.replace(PLACEHOLDER_COLUMNS_VALUES, columnsValues.toString());
+        recordUpdateQuery = RDBMSTableUtils.isEmpty(condition) ? recordUpdateQuery.replace(PLACEHOLDER_CONDITION, "") :
+                RDBMSTableUtils.formatQueryWithCondition(recordUpdateQuery, condition);
+        return recordUpdateQuery;
     }
 
     /**
@@ -846,17 +893,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
      * @param indices         the DB indices that should be set for the table.
      */
     private void createTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices) {
-        RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRdbmsTypeMapping();
         StringBuilder builder = new StringBuilder();
         List<Element> primaryKeyList = (primaryKeys == null) ? new ArrayList<>() : primaryKeys.getElements();
         List<Element> indexElementList = (indices == null) ? new ArrayList<>() : indices.getElements();
         List<String> queries = new ArrayList<>();
-        String createQuery = this.resolveTableName(configReader.readConfig(
-                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CREATE_QUERY,
-                this.queryConfigurationEntry.getTableCreateQuery()));
-        String indexQuery = this.resolveTableName(configReader.readConfig(
-                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + INDEX_CREATE_QUERY,
-                this.queryConfigurationEntry.getIndexCreateQuery()));
         Map<String, String> fieldLengths = RDBMSTableUtils.processFieldLengths(storeAnnotation.getElement(
                 ANNOTATION_ELEMENT_FIELD_LENGTHS));
         this.validateFieldLengths(fieldLengths);
@@ -864,42 +904,25 @@ public class RDBMSEventTable extends AbstractRecordTable {
             builder.append(attribute.getName()).append(WHITESPACE);
             switch (attribute.getType()) {
                 case BOOL:
-                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BOOLEAN_TYPE,
-                            typeMapping.getBooleanType()));
+                    builder.append(booleanType);
                     break;
                 case DOUBLE:
-                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + DOUBLE_TYPE,
-                            typeMapping.getDoubleType()));
+                    builder.append(doubleType);
                     break;
                 case FLOAT:
-                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + FLOAT_TYPE,
-                            typeMapping.getFloatType()));
+                    builder.append(floatType);
                     break;
                 case INT:
-                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + INTEGER_TYPE,
-                            typeMapping.getIntegerType()));
+                    builder.append(integerType);
                     break;
                 case LONG:
-                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + LONG_TYPE,
-                            typeMapping.getLongType()));
+                    builder.append(longType);
                     break;
                 case OBJECT:
-                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BINARY_TYPE,
-                            typeMapping.getBinaryType()));
+                    builder.append(binaryType);
                     break;
                 case STRING:
-                    builder.append(configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + STRING_TYPE,
-                            typeMapping.getStringType()));
-                    String stringSize = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + STRING_SIZE,
-                            this.queryConfigurationEntry.getStringSize());
+                    builder.append(stringType);
                     if (null != stringSize) {
                         builder.append(OPEN_PARENTHESIS);
                         builder.append(fieldLengths.getOrDefault(attribute.getName(), stringSize));
@@ -1032,10 +1055,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String query = this.resolveTableName(configReader.readConfig(
-                    this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CHECK_QUERY,
-                    this.queryConfigurationEntry.getTableCheckQuery()));
-            stmt = conn.prepareStatement(query);
+            stmt = conn.prepareStatement(tableCheckQuery);
             rs = stmt.executeQuery();
             return true;
         } catch (SQLException e) {

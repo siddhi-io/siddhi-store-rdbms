@@ -17,14 +17,15 @@
  */
 package org.wso2.extension.siddhi.store.rdbms;
 
-import com.zaxxer.hikari.pool.HikariPool;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
+import org.wso2.extension.siddhi.store.rdbms.util.LoggerAppender;
+import org.wso2.extension.siddhi.store.rdbms.util.LoggerCallBack;
+import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -32,14 +33,16 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import java.sql.SQLException;
 import javax.naming.NamingException;
 
-import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NAME;
-import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.driverClassName;
-import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.password;
-import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.url;
-import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.user;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.TABLE_NAME;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.driverClassName;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.password;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.url;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class DefineRDBMSTableTestCaseIT {
     private static final Logger log = Logger.getLogger(DefineRDBMSTableTestCaseIT.class);
+    private boolean isLogEventArrived;
+    private static String regexPattern = "will retry in '5 sec'";
 
     @BeforeClass
     public static void startTest() {
@@ -56,6 +59,7 @@ public class DefineRDBMSTableTestCaseIT {
         try {
             RDBMSTableTestUtils.initDatabaseTable(TABLE_NAME);
             log.info("Test init with url: " + url + " and driverClass: " + driverClassName);
+            isLogEventArrived = false;
         } catch (SQLException e) {
             log.info("Test case ignored due to " + e.getMessage());
         }
@@ -95,9 +99,9 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RDBMSTableException.class)
+    @Test
     public void rdbmstabledefinitiontest2() throws InterruptedException, SQLException {
-        //Testing table creation with a invalid primary key (normal insertion.
+        //Testing table creation with a invalid primary key normal insertion.
         log.info("rdbmstabledefinitiontest2");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
@@ -114,20 +118,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
-        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
-        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
         Thread.sleep(1000);
-
-        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RDBMSTableException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest2")
     public void rdbmstabledefinitiontest3() throws InterruptedException, SQLException {
         //Testing Defining a RDBMS table without defining a value for jdbc url field
         log.info("rdbmstabledefinitiontest3");
@@ -148,16 +154,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RDBMSTableException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest3")
     public void rdbmstabledefinitiontest4() throws InterruptedException, SQLException {
         //Testing table creation with no connection URL
         log.info("rdbmstabledefinitiontest4");
@@ -178,17 +190,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    //todo : check this and update test link
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest4")
     public void rdbmstabledefinitiontest5() throws InterruptedException, SQLException {
         //Testing table creation with invalid connection URL
         log.info("rdbmstabledefinitiontest5");
@@ -211,16 +228,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RDBMSTableException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest5")
     public void rdbmstabledefinitiontest6() throws InterruptedException, SQLException {
         //Testing table creation with no password
         log.info("rdbmstabledefinitiontest6");
@@ -239,16 +262,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RDBMSTableException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest6")
     public void rdbmstabledefinitiontest7() throws InterruptedException, SQLException {
         //Defining a RDBMS table without defining a value for password field
         log.info("rdbmstabledefinitiontest7");
@@ -267,16 +296,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = HikariPool.PoolInitializationException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest7")
     public void rdbmstabledefinitiontest8() throws InterruptedException, SQLException {
         //Defining a RDBMS table without defining a value for password field
         log.info("rdbmstabledefinitiontest8");
@@ -295,16 +330,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RDBMSTableException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest8")
     public void rdbmstabledefinitiontest9() throws InterruptedException, SQLException {
         //Defining a RDBMS table without having an username field.
         log.info("rdbmstabledefinitiontest9");
@@ -323,16 +364,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RDBMSTableException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest9")
     public void rdbmstabledefinitiontest10() throws InterruptedException, SQLException {
         //Defining a RDBMS table without defining a value for username field.
         log.info("rdbmstabledefinitiontest10");
@@ -351,16 +398,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = HikariPool.PoolInitializationException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest10")
     public void rdbmstabledefinitiontest11() throws InterruptedException, SQLException {
         //Defining a RDBMS table without defining a value for username field.
         log.info("rdbmstabledefinitiontest11");
@@ -379,16 +432,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest11")
     public void rdbmstabledefinitiontest12() throws InterruptedException, SQLException {
         //Defining a RDBMS table without having a field length field.
         log.info("rdbmstabledefinitiontest12");
@@ -417,7 +476,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RDBMSTableException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest12")
     public void rdbmstabledefinitiontest13() throws InterruptedException, SQLException {
         //Defining a RDBMS table with non existing attribute/s to define the field length .
         log.info("rdbmstabledefinitiontest13");
@@ -436,17 +495,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-        Assert.assertEquals(totalRowsInTable, 1, "Update failed");
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest13")
     public void rdbmstabledefinitiontest14() throws InterruptedException, SQLException, NamingException {
         //Defining a RDBMS table with jndi.resource.
         log.info("rdbmstabledefinitiontest14");
@@ -475,10 +539,11 @@ public class DefineRDBMSTableTestCaseIT {
         Thread.sleep(1000);
         long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
         Assert.assertEquals(totalRowsInTable, 1, "Update failed");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RDBMSTableException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest14")
     public void rdbmstabledefinitiontest15() throws InterruptedException, SQLException, NamingException {
         //Defining a RDBMS table with an invalid value for jndi.resource field.
         log.info("rdbmstabledefinitiontest15");
@@ -500,17 +565,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
         Thread.sleep(1000);
-        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-        Assert.assertEquals(totalRowsInTable, 1, "Update failed");
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest15")
     public void rdbmstabledefinitiontest16() throws InterruptedException, SQLException {
         // This testcase verified that defining a RDBMS table by including pool.properties field will be
         // successfully create the table.
@@ -544,7 +614,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest16")
     public void rdbmstabledefinitiontest17() throws InterruptedException, SQLException {
         //  This testcase verified that defining a RDBMS table by including at least one invalid pool.property
         // field will not successfully create the table.
@@ -565,20 +635,22 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
-        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
-        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
         Thread.sleep(1000);
-
-        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest17")
     public void rdbmstabledefinitiontest18() throws InterruptedException, SQLException {
         //Defining a RDBMS table with an invalid value for a pool.property.
         log.info("rdbmstabledefinitiontest18");
@@ -598,16 +670,18 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+            @Override
+            public void receive(String logEventMessage) {
+                isLogEventArrived = true;
+            }
+        };
+        LoggerAppender.setLoggerCallBack(loggerCallBack);
         siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
-        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
-        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
         Thread.sleep(1000);
-
-        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        Assert.assertEquals(isLogEventArrived, true,
+                "Matching log event not found for pattern: '" + regexPattern + "'");
+        LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 

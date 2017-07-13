@@ -16,13 +16,12 @@
  * under the License.
  */
 
-package org.wso2.extension.siddhi.store.rdbms;
+package org.wso2.extension.siddhi.store.rdbms.util;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -173,7 +172,7 @@ public class RDBMSTableTestUtils {
         MySQL, H2, ORACLE, MSSQL, DB2, POSTGRES
     }
 
-    protected static void setupJNDIDatasource(String url, String driverClassName) {
+    public static void setupJNDIDatasource(String url, String driverClassName) {
         try {
             System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
                     "org.apache.naming.java.javaURLContextFactory");

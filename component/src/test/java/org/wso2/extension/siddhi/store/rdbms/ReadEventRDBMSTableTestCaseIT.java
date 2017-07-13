@@ -23,6 +23,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -33,11 +34,11 @@ import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.sql.SQLException;
 
-import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.TABLE_NAME;
-import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.driverClassName;
-import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.password;
-import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.url;
-import static org.wso2.extension.siddhi.store.rdbms.RDBMSTableTestUtils.user;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.TABLE_NAME;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.driverClassName;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.password;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.url;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class ReadEventRDBMSTableTestCaseIT {
     private static final Logger log = Logger.getLogger(ReadEventRDBMSTableTestCaseIT.class);
