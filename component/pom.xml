@@ -189,6 +189,20 @@
                                     </arguments>
                                 </configuration>
                             </execution>
+                            <execution>
+                                <id>run-oracle</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>mvn</executable>
+                                    <arguments>
+                                        <argument>verify</argument>
+                                        <argument>-P local-oracle</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
@@ -438,7 +452,7 @@
                                         <namingStrategy>alias</namingStrategy>
                                         <env>
                                             <ACCEPT_EULA>Y</ACCEPT_EULA>
-                                            <SA_PASSWORD>root</SA_PASSWORD>
+                                            <SA_PASSWORD>wso2das123#</SA_PASSWORD>
                                             <MSSQL_DB>dasdb</MSSQL_DB>
                                         </env>
                                         <ports>
@@ -477,7 +491,7 @@
                             <environmentVariables>
                                 <DATABASE_TYPE>MSSQL</DATABASE_TYPE>
                                 <DATABASE_USER>root</DATABASE_USER>
-                                <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
+                                <DATABASE_PASSWORD>wso2das123#</DATABASE_PASSWORD>
                                 <PORT>${das-mssql.port}</PORT>
                                 <DOCKER_HOST_IP>${docker.container.das-mssql.ip}</DOCKER_HOST_IP>
                             </environmentVariables>
@@ -517,7 +531,7 @@
                             <images>
                                 <image>
                                     <alias>das-oracle</alias>
-                                    <name>oracle/database:11.2.0.2-xe</name>
+                                    <name>dockerhub.private.wso2.com/sajithd-oracle-database:11.2.0.2-xe</name>
                                     <run>
                                         <namingStrategy>alias</namingStrategy>
                                         <env>
