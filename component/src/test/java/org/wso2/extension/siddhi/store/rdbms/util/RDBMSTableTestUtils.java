@@ -42,7 +42,8 @@ public class RDBMSTableTestUtils {
     private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/dasdb";
     private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:{{container.port}}/dasdb";
     private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:{{container.port}}/XE";
-    private static String connectionUrlMsSQL = "jdbc:sqlserver//{{container.ip}}:{{container.port}}/dasdb";
+    private static String connectionUrlMsSQL = "jdbc:sqlserver://{{container.ip}}:{{container.port}};" +
+            "databaseName=tempdb";
     private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
     private static final String JDBC_DRIVER_CLASS_NAME_H2 = "org.h2.Driver";
     private static final String JDBC_DRIVER_CLASS_NAME_MYSQL = "com.mysql.jdbc.Driver";

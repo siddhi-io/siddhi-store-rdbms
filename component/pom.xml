@@ -87,6 +87,11 @@
             <artifactId>ojdbc6</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>sqljdbc4</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -200,6 +205,20 @@
                                     <arguments>
                                         <argument>verify</argument>
                                         <argument>-P local-oracle</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>run-oracle</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>mvn</executable>
+                                    <arguments>
+                                        <argument>verify</argument>
+                                        <argument>-P local-mssql</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -453,13 +472,12 @@
                                         <env>
                                             <ACCEPT_EULA>Y</ACCEPT_EULA>
                                             <SA_PASSWORD>wso2das123#</SA_PASSWORD>
-                                            <MSSQL_DB>dasdb</MSSQL_DB>
                                         </env>
                                         <ports>
                                             <port>${das-mssql.port}:1433</port>
                                         </ports>
                                         <wait>
-                                            <log>MSSQL SERVER SUCCESSFULLY STARTED</log>
+                                            <log>Recovery is complete. This is an informational message only. No user action is required.</log>
                                             <time>60000</time>
                                         </wait>
                                     </run>
@@ -490,7 +508,7 @@
                         <configuration>
                             <environmentVariables>
                                 <DATABASE_TYPE>MSSQL</DATABASE_TYPE>
-                                <DATABASE_USER>root</DATABASE_USER>
+                                <DATABASE_USER>sa</DATABASE_USER>
                                 <DATABASE_PASSWORD>wso2das123#</DATABASE_PASSWORD>
                                 <PORT>${das-mssql.port}</PORT>
                                 <DOCKER_HOST_IP>${docker.container.das-mssql.ip}</DOCKER_HOST_IP>
