@@ -373,15 +373,29 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
                                             CompiledCondition compiledCondition) {
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
+        //Some databases does not support single condition on where clause.
+        //(atomic condition on where clause: SELECT * FROM TABLE WHERE true)
+        //If the compile condition is resolved for '?', atomicCondition boolean value
+        // will be used for ignore condition resolver.
+        boolean atomicCondition = false;
+        if (condition.equals(QUESTION_MARK)) {
+            atomicCondition = true;
+            if (log.isDebugEnabled()) {
+                log.debug("Ignore the condition resolver in 'find()' method for compile " +
+                        "condition: '" + QUESTION_MARK + "'");
+            }
+        }
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs;
         try {
-            stmt = RDBMSTableUtils.isEmpty(condition) ?
+            stmt = RDBMSTableUtils.isEmpty(condition) | atomicCondition ?
                     conn.prepareStatement(selectQuery.replace(PLACEHOLDER_CONDITION, "")) :
                     conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(selectQuery, condition));
-            RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
-                    findConditionParameterMap, 0);
+            if (!atomicCondition) {
+                RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
+                        findConditionParameterMap, 0);
+            }
             rs = stmt.executeQuery();
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
             return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);

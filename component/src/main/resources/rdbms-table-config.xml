@@ -45,8 +45,29 @@
             <stringType>VARCHAR</stringType>
         </typeMapping>
     </database>
-    <database name="oracle">
-        <!-- TODO test -->
+    <database name="oracle" maxVersion = "12.0">
+        <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
+        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1</tableCheckQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
+        <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
+        <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
+        <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
+        <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
+        <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
+        <stringSize>254</stringSize>
+        <batchEnable>false</batchEnable>
+        <batchSize>1000</batchSize>
+        <typeMapping>
+            <binaryType>BLOB</binaryType>
+            <booleanType>NUMBER(1)</booleanType>
+            <doubleType>NUMBER(19,4)</doubleType>
+            <floatType>NUMBER(19,4)</floatType>
+            <integerType>NUMBER(10)</integerType>
+            <longType>NUMBER(19)</longType>
+            <stringType>VARCHAR</stringType>
+        </typeMapping>
+    </database>
+    <database name="oracle" minVersion = "12.1">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1</tableCheckQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
