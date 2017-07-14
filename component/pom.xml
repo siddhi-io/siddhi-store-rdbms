@@ -209,7 +209,7 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>run-oracle</id>
+                                <id>run-mssql</id>
                                 <phase>integration-test</phase>
                                 <goals>
                                     <goal>exec</goal>
