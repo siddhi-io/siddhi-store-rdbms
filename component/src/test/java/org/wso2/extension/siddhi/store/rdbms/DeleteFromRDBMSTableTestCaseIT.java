@@ -97,8 +97,8 @@ public class DeleteFromRDBMSTableTestCaseIT {
     }
 
 
-    @Test
-    public void deleteFromRDBMSTableTest() throws InterruptedException, SQLException {
+    @Test(dependsOnMethods = "deleteFromRDBMSTableTest1")
+    public void deleteFromRDBMSTableTest2() throws InterruptedException, SQLException {
         log.info("deleteFromRDBMSTableTest2");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
@@ -137,7 +137,7 @@ public class DeleteFromRDBMSTableTestCaseIT {
     }
 
 
-    @Test
+    @Test(dependsOnMethods = "deleteFromRDBMSTableTest2")
     public void deleteFromRDBMSTableTest3() throws InterruptedException, SQLException {
         log.info("deleteFromRDBMSTableTest3");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -175,7 +175,7 @@ public class DeleteFromRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "deleteFromRDBMSTableTest3")
     public void deleteFromRDBMSTableTest4() throws InterruptedException, SQLException {
         log.info("deleteFromRDBMSTableTest4");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -213,88 +213,10 @@ public class DeleteFromRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(enabled = false)
+
+    @Test(dependsOnMethods = "deleteFromRDBMSTableTest4")
     public void deleteFromRDBMSTableTest5() throws InterruptedException, SQLException {
-        // TODO VERIFY CORRECTNESS
         log.info("deleteFromRDBMSTableTest5");
-        SiddhiManager siddhiManager = new SiddhiManager();
-        String streams = "" +
-                "define stream StockStream (symbol string, price float, volume long); " +
-                "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
-                "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\")\n" +
-                //"@PrimaryKey(\"symbol\")" +
-                //"@Index(\"volume\")" +
-                "define table StockTable (symbol string, price float, volume long); ";
-        String query = "" +
-                "@info(name = 'query1') " +
-                "from StockStream " +
-                "insert into StockTable ;" +
-                "" +
-                "@info(name = 'query2') " +
-                "from DeleteStockStream " +
-                "delete StockTable " +
-                "   on 'IBM' == symbol  ;";
-
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
-        InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
-        siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
-        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
-        stockStream.send(new Object[]{"WSO2", 57.6F, 100L});
-        deleteStockStream.send(new Object[]{"WSO2", 57.6F, 100L});
-        Thread.sleep(1000);
-
-        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-        AssertJUnit.assertEquals("Deletion failed", 2, totalRowsInTable);
-        siddhiAppRuntime.shutdown();
-    }
-
-    @Test(enabled = false)
-    public void deleteFromRDBMSTableTest6() throws InterruptedException, SQLException {
-        // TODO VERIFY CORRECTNESS
-        log.info("deleteFromRDBMSTableTest6");
-        SiddhiManager siddhiManager = new SiddhiManager();
-        String streams = "" +
-                "define stream StockStream (symbol string, price float, volume long); " +
-                "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
-                "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\")\n" +
-                //"@PrimaryKey(\"symbol\")" +
-                //"@Index(\"volume\")" +
-                "define table StockTable (symbol string, price float, volume long); ";
-        String query = "" +
-                "@info(name = 'query1') " +
-                "from StockStream " +
-                "insert into StockTable ;" +
-                "" +
-                "@info(name = 'query2') " +
-                "from DeleteStockStream " +
-                "delete StockTable " +
-                "   on symbol == 'IBM'  ;";
-
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
-        InputHandler deleteStockStream = siddhiAppRuntime.getInputHandler("DeleteStockStream");
-        siddhiAppRuntime.start();
-
-        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
-        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
-        stockStream.send(new Object[]{"WSO2", 57.6F, 100L});
-        deleteStockStream.send(new Object[]{"IBM", 57.6F, 100L});
-        Thread.sleep(1000);
-
-        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-        AssertJUnit.assertEquals("Deletion failed", 2, totalRowsInTable);
-        siddhiAppRuntime.shutdown();
-    }
-
-
-    @Test
-    public void deleteFromRDBMSTableTest7() throws InterruptedException, SQLException {
-        log.info("deleteFromRDBMSTableTest7");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
@@ -330,9 +252,9 @@ public class DeleteFromRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
-    public void deleteFromRDBMSTableTest8() throws InterruptedException, SQLException {
-        log.info("deleteFromRDBMSTableTest8");
+    @Test(dependsOnMethods = "deleteFromRDBMSTableTest5")
+    public void deleteFromRDBMSTableTest6() throws InterruptedException, SQLException {
+        log.info("deleteFromRDBMSTableTest6");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
@@ -369,9 +291,9 @@ public class DeleteFromRDBMSTableTestCaseIT {
     }
 
 
-    @Test
-    public void deleteFromRDBMSTableTest10() throws InterruptedException, SQLException {
-        log.info("deleteFromRDBMSTableTest10");
+    @Test(dependsOnMethods = "deleteFromRDBMSTableTest6")
+    public void deleteFromRDBMSTableTest7() throws InterruptedException, SQLException {
+        log.info("deleteFromRDBMSTableTest7");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
@@ -407,9 +329,9 @@ public class DeleteFromRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
-    public void deleteFromRDBMSTableTest11() throws InterruptedException, SQLException {
-        log.info("deleteFromRDBMSTableTest11");
+    @Test(dependsOnMethods = "deleteFromRDBMSTableTest7")
+    public void deleteFromRDBMSTableTest8() throws InterruptedException, SQLException {
+        log.info("deleteFromRDBMSTableTest8");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
@@ -442,15 +364,6 @@ public class DeleteFromRDBMSTableTestCaseIT {
 
         long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
         AssertJUnit.assertEquals("Deletion failed", 2, totalRowsInTable);
-        Thread.sleep(1000);
-
-        stockStream.send(new Object[]{null, 45.5F, 100L});
         siddhiAppRuntime.shutdown();
-        Thread.sleep(1000);
-        try {
-            siddhiManager.createSiddhiAppRuntime(streams + query);
-        } catch (NullPointerException ex) {
-            AssertJUnit.fail("Cannot Process null values in bloom filter");
-        }
     }
 }

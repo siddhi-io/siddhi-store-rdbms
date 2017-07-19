@@ -45,13 +45,13 @@ node("${nodeLabel}") {
         stage('Running Test on MySQL database') {
             withEnv(["PATH+MAVEN=${mvnHome}/bin:${env.JAVA_HOME}/bin",
                     "DOCKER_HOST=${dockerHost}"]) {
-                sh "mvn verify -P local-mysql -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true"
+                sh "mvn verify -P local-mysql -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true -Ddocker.removeVolumes=true"
             }
         }
         stage('Running Test on PostgreSQL database') {
             withEnv(["PATH+MAVEN=${mvnHome}/bin:${env.JAVA_HOME}/bin",
                     "DOCKER_HOST=${dockerHost}"]) {
-                sh "mvn verify -P local-postgres -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true"
+                sh "mvn verify -P local-postgres -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true -Ddocker.removeVolumes=true"
             }
         }
         stage('Running Test on Oracle database') {
