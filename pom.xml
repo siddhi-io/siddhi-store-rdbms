@@ -59,7 +59,6 @@
         <sqljdbc4.version>4.0</sqljdbc4.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <io.fabric8.version>0.20.0</io.fabric8.version>
-        <db2jcc.version>1.4.2</db2jcc.version>
     </properties>
 
     <scm>
@@ -161,12 +160,6 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>sqljdbc4</artifactId>
             <version>${sqljdbc4.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>cn.guoyukun.jdbc</groupId>
-            <artifactId>db2jcc</artifactId>
-            <version>${db2jcc.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
