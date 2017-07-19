@@ -44,12 +44,14 @@ public class RDBMSTableTestUtils {
     private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:{{container.port}}/XE";
     private static String connectionUrlMsSQL = "jdbc:sqlserver://{{container.ip}}:{{container.port}};" +
             "databaseName=tempdb";
+    private static String connectionUrlDB2 = "jdbc:db2://{{container.ip}}:{{container.port}}/SAMPLE";
     private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
     private static final String JDBC_DRIVER_CLASS_NAME_H2 = "org.h2.Driver";
     private static final String JDBC_DRIVER_CLASS_NAME_MYSQL = "com.mysql.jdbc.Driver";
     private static final String JDBC_DRIVER_CLASS_NAME_ORACLE = "oracle.jdbc.driver.OracleDriver";
     private static final String JDBC_DRIVER_CLASS_POSTGRES = "org.postgresql.Driver";
     private static final String JDBC_DRIVER_CLASS_MSSQL = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+    private static final String JDBC_DRIVER_CLASS_DB2 = "com.ibm.db2.jcc.DB2Driver";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "root";
     private static final String JNDI_RESOURCE = "java:comp/env/jdbc/TestDB";
@@ -106,6 +108,11 @@ public class RDBMSTableTestUtils {
                 url = connectionUrlMsSQL.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_MSSQL;
+                break;
+            case DB2:
+                url = connectionUrlDB2.replace("{{container.ip}}", getIpAddressOfContainer()).
+                        replace("{{container.port}}", port);
+                driverClassName = JDBC_DRIVER_CLASS_DB2;
                 break;
         }
         connectionProperties.setProperty("jdbcUrl", url);

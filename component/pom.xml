@@ -18,7 +18,8 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
         <artifactId>siddhi-store-rdbms-parent</artifactId>
@@ -92,6 +93,12 @@
             <artifactId>sqljdbc4</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.ibm.db2</groupId>-->
+            <!--<artifactId>db2jcc</artifactId>-->
+            <!--<scope>test</scope>-->
+            <!--<version>4.19.26</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -222,6 +229,20 @@
                                     </arguments>
                                 </configuration>
                             </execution>
+                            <!--<execution>-->
+                                <!--<id>run-db2</id>-->
+                                <!--<phase>integration-test</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>exec</goal>-->
+                                <!--</goals>-->
+                                <!--<configuration>-->
+                                    <!--<executable>mvn</executable>-->
+                                    <!--<arguments>-->
+                                        <!--<argument>verify</argument>-->
+                                        <!--<argument>-P local-db2</argument>-->
+                                    <!--</arguments>-->
+                                <!--</configuration>-->
+                            <!--</execution>-->
                         </executions>
                     </plugin>
                 </plugins>
@@ -477,7 +498,9 @@
                                             <port>${das-mssql.port}:1433</port>
                                         </ports>
                                         <wait>
-                                            <log>Recovery is complete. This is an informational message only. No user action is required.</log>
+                                            <log>Recovery is complete. This is an informational message only. No user
+                                                action is required.
+                                            </log>
                                             <time>60000</time>
                                         </wait>
                                     </run>
@@ -574,14 +597,14 @@
                         <version>2.19.1</version>
                         <executions>
                             <execution>
-                                <id>integration-test-for-postgres</id>
+                                <id>integration-test-for-oracle</id>
                                 <phase>integration-test</phase>
                                 <goals>
                                     <goal>integration-test</goal>
                                 </goals>
                             </execution>
                             <execution>
-                                <id>verify-for-postgres</id>
+                                <id>verify-for-oracle</id>
                                 <phase>verify</phase>
                                 <goals>
                                     <goal>verify</goal>
@@ -597,6 +620,93 @@
                                 <DOCKER_HOST_IP>${docker.container.das-oracle.ip}</DOCKER_HOST_IP>
                             </environmentVariables>
                             <argLine>-Duser.timezone=GMT</argLine>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>local-db2</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>start-docker-for-db2</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-docker-for-db2</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                    <goal>remove</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <alias>das-db2</alias>
+                                    <name>dockerhub.private.wso2.com/sajithd-db2-database:latest</name>
+                                    <run>
+                                        <namingStrategy>alias</namingStrategy>
+                                        <env>
+                                            <DB2INST1_PASSWORD>db2inst1-pwd</DB2INST1_PASSWORD>
+                                            <LICENSE>accept</LICENSE>
+                                        </env>
+                                        <cmd>
+                                            <shell>su - db2inst1</shell>
+                                            <shell>db2start</shell>
+                                        </cmd>
+                                        <ports>
+                                            <port>${das-db2.port}:50000</port>
+                                        </ports>
+                                        <wait>
+                                            <log>SQL1063N DB2START processing was successful.</log>
+                                            <time>10000</time>
+                                        </wait>
+                                    </run>
+                                </image>
+                            </images>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <executions>
+                            <execution>
+                                <id>integration-test-for-db2</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>verify-for-db2</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <environmentVariables>
+                                <DATABASE_TYPE>DB2</DATABASE_TYPE>
+                                <DATABASE_USER>db2inst1</DATABASE_USER>
+                                <DATABASE_PASSWORD>db2inst1-pwd</DATABASE_PASSWORD>
+                                <PORT>${das-db2.port}</PORT>
+                                <DOCKER_HOST_IP>${docker.container.das-db2.ip}</DOCKER_HOST_IP>
+                            </environmentVariables>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                             </suiteXmlFiles>

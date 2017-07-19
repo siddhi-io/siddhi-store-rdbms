@@ -188,7 +188,7 @@ public class RDBMSQueryConfigurationEntry {
         this.rdbmsTypeMapping = rdbmsTypeMapping;
     }
 
-    @XmlElement(name = "batchSize")
+    @XmlElement(name = "batchSize", required = true)
     public int getBatchSize() {
         return batchSize;
     }
