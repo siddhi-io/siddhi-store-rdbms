@@ -124,14 +124,14 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                         type = {DataType.STRING}),
                 @Parameter(name = "pool.properties",
                         description = "Any pool parameters for the database connection must be specified as key value" +
-                                " pairs..",
+                                " pairs.",
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = "null"),
                 @Parameter(name = "jndi.resource",
                         description = "The name of the JNDI resource through which the connection is attempted. " +
                                 "If this is found, the pool properties described above are not taken into account, " +
-                                "and the connection is attempted via the JNDI lookup instead.",
+                                "and the connection is attempted via JNDI lookup instead.",
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = "null"),
