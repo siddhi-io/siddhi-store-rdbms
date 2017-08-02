@@ -3,7 +3,7 @@ def mvnHome = env.MVN_HOME;
 String dockerHost = env.DOCKER_HOST;
 String nodeLabel = env.NODE_LABEL;
 String repositoryName = 'siddhi-store-rdbms';
-String user = env.GIT_USER;
+String user = env.GIT_ORG;
 String gitCredentialsID = env.GIT_CREDENTIALS_ID;
 String gitEmail = env.GIT_EMAIL;
 node("${nodeLabel}") {
