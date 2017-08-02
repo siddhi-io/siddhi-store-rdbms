@@ -498,9 +498,7 @@
                                             <port>${das-mssql.port}:1433</port>
                                         </ports>
                                         <wait>
-                                            <log>Recovery is complete. This is an informational message only. No user
-                                                action is required.
-                                            </log>
+                                            <log>Recovery is complete. This is an informational message only. No user action is required.</log>
                                             <time>60000</time>
                                         </wait>
                                     </run>
