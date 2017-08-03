@@ -29,6 +29,8 @@
             <class name="org.wso2.extension.siddhi.store.rdbms.ReadEventRDBMSTableTestCaseIT" />
             <class name="org.wso2.extension.siddhi.store.rdbms.UpdateOrInsertRDBMSTableTestCaseIT" />
             <class name="org.wso2.extension.siddhi.store.rdbms.UpdateRDBMSTableTestCaseIT" />
+            <class name="org.wso2.extension.siddhi.store.rdbms.set.SetUpdateOrInsertRDBMSTableTestCaseIT" />
+            <class name="org.wso2.extension.siddhi.store.rdbms.set.SetUpdateRDBMSTableTestCaseIT" />
         </classes>
     </test>
 </suite>
