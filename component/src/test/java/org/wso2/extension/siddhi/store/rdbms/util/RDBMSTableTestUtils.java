@@ -77,7 +77,11 @@ public class RDBMSTableTestUtils {
     }
 
     private static DataSource initDataSource() {
-        TestType type = RDBMSTableTestUtils.TestType.valueOf(System.getenv("DATABASE_TYPE"));
+        String databaseType = System.getenv("DATABASE_TYPE");
+        if (databaseType == null) {
+            databaseType = TestType.H2.toString();
+        }
+        TestType type = RDBMSTableTestUtils.TestType.valueOf(databaseType);
         user = System.getenv("DATABASE_USER");
         password = System.getenv("DATABASE_PASSWORD");
         String port = System.getenv("PORT");
