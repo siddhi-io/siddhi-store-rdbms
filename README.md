@@ -2,7 +2,7 @@
 
 ======================================
 ---
-##### Latest Released Version v4.0.0-M2.
+##### Latest Released Version v4.0.0-M3.
 
 This is an extension for siddhi RDBMS event table implementation. This extension can be used to persist events to a RDBMS instance of the users choice.
 
