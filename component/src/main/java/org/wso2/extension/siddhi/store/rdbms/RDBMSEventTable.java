@@ -37,7 +37,6 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
 import org.wso2.siddhi.core.table.record.ExpressionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
-import org.wso2.siddhi.core.table.record.RecordTableCompiledUpdateSet;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
@@ -53,6 +52,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -361,7 +361,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         if (null != configReader) {
             this.configReader = configReader;
         } else {
-            this.configReader = (name, defaultValue) -> defaultValue;
+            this.configReader = new DefaultConfigReader();
         }
         String tableName = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_NAME);
         this.tableName = RDBMSTableUtils.isEmpty(tableName) ? tableDefinition.getId() : tableName;
@@ -478,26 +478,27 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     protected void update(CompiledCondition compiledCondition, List<Map<String, Object>> updateConditionParameterMaps,
-                          RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
-                          List<Map<String, Object>> updateValues) throws ConnectionUnavailableException {
-        String sql = this.composeUpdateQuery(compiledCondition, recordTableCompiledUpdateSet);
+                          Map<String, CompiledExpression> updateSetExpressions,
+                          List<Map<String, Object>> updateValues)
+            throws ConnectionUnavailableException {
+        String sql = this.composeUpdateQuery(compiledCondition, updateSetExpressions);
         this.batchProcessSQLUpdates(sql, updateConditionParameterMaps, compiledCondition,
-                recordTableCompiledUpdateSet, updateValues);
+                updateSetExpressions, updateValues);
     }
 
 
     /**
      * Method for processing update operations in a batched manner. This assumes that all update operations will be
      * accepted by the database.
-     *
-     * @param sql                          the SQL update operation as string.
+     *  @param sql                          the SQL update operation as string.
      * @param updateConditionParameterMaps the runtime parameters that should be populated to the condition.
-     * @param compiledCondition           the condition that was built during compile time.
-     * @param updateSetParameterMaps      the runtime parameters that should be populated to the update statement.
+     * @param compiledCondition            the condition that was built during compile time.
+     * @param updateSetExpressions
+     * @param updateSetParameterMaps       the runtime parameters that should be populated to the update statement.
      */
     private void batchProcessSQLUpdates(String sql, List<Map<String, Object>> updateConditionParameterMaps,
                                         CompiledCondition compiledCondition,
-                                        RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
+                                        Map<String, CompiledExpression> updateSetExpressions,
                                         List<Map<String, Object>> updateSetParameterMaps) {
         int counter = 0;
         Connection conn = this.getConnection();
@@ -511,7 +512,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 Map<String, Object> updateSetMap = updateSetParameterMapsIterator.next();
                 int ordinal = 1;
                 for (Map.Entry<String, CompiledExpression> assignmentEntry :
-                        recordTableCompiledUpdateSet.getUpdateSetMap().entrySet()) {
+                        updateSetExpressions.entrySet()) {
                     for (Map.Entry<Integer, Object> parameterEntry :
                             ((RDBMSCompiledCondition) assignmentEntry.getValue()).getParameters().entrySet()) {
                         Object parameter = parameterEntry.getValue();
@@ -553,23 +554,23 @@ public class RDBMSEventTable extends AbstractRecordTable {
     @Override
     protected void updateOrAdd(CompiledCondition compiledCondition,
                                List<Map<String, Object>> updateConditionParameterMaps,
-                               RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
+                               Map<String, CompiledExpression> updateSetExpressions,
                                List<Map<String, Object>> updateSetParameterMaps, List<Object[]> addingRecords)
             throws ConnectionUnavailableException {
         List<Integer> recordInsertIndexList;
         if (batchEnable) {
             recordInsertIndexList = batchProcessUpdate(updateConditionParameterMaps, compiledCondition,
-                    recordTableCompiledUpdateSet, updateSetParameterMaps);
+                    updateSetExpressions, updateSetParameterMaps);
         } else {
             recordInsertIndexList = sequentialProcessUpdate(updateConditionParameterMaps, compiledCondition,
-                    recordTableCompiledUpdateSet, updateSetParameterMaps);
+                    updateSetExpressions, updateSetParameterMaps);
         }
         batchProcessInsert(addingRecords, recordInsertIndexList);
     }
 
     private List<Integer> batchProcessUpdate(List<Map<String, Object>> updateConditionParameterMaps,
                                              CompiledCondition compiledCondition,
-                                             RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
+                                             Map<String, CompiledExpression> updateSetExpressions,
                                              List<Map<String, Object>> updateSetParameterMaps) {
         int counter = 0;
         Connection conn = this.getConnection();
@@ -577,7 +578,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         List<Integer> recordInsertIndexList = new ArrayList<>();
         try {
             updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition,
-                    recordTableCompiledUpdateSet));
+                    updateSetExpressions));
             Iterator<Map<String, Object>> conditionParamIterator = updateConditionParameterMaps.iterator();
             Iterator<Map<String, Object>> updateSetMapIterator = updateSetParameterMaps.iterator();
             while (conditionParamIterator.hasNext() && updateSetMapIterator.hasNext()) {
@@ -586,7 +587,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
                 int ordinal = 1;
                 for (Map.Entry<String, CompiledExpression> assignmentEntry :
-                        recordTableCompiledUpdateSet.getUpdateSetMap().entrySet()) {
+                        updateSetExpressions.entrySet()) {
                     for (Map.Entry<Integer, Object> parameterEntry :
                             ((RDBMSCompiledCondition) assignmentEntry.getValue()).getParameters().entrySet()) {
                         Object parameter = parameterEntry.getValue();
@@ -629,7 +630,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     private List<Integer> sequentialProcessUpdate(List<Map<String, Object>> updateConditionParameterMaps,
                                                   CompiledCondition compiledCondition,
-                                                  RecordTableCompiledUpdateSet recordTableCompiledUpdateSet,
+                                                  Map<String, CompiledExpression> updateSetExpressions,
                                                   List<Map<String, Object>> updateSetParameterMaps) {
         int counter = 0;
         final int seed = this.attributes.size();
@@ -638,14 +639,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
         List<Integer> updateResultList = new ArrayList<>();
         try {
             updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition,
-                    recordTableCompiledUpdateSet));
+                    updateSetExpressions));
             while (counter < updateSetParameterMaps.size()) {
                 Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
                 Map<String, Object> updateSetParameterMap = updateSetParameterMaps.get(counter);
 
                 int ordinal = 1;
                 for (Map.Entry<String, CompiledExpression> assignmentEntry :
-                        recordTableCompiledUpdateSet.getUpdateSetMap().entrySet()) {
+                        updateSetExpressions.entrySet()) {
                     for (Map.Entry<Integer, Object> parameterEntry :
                             ((RDBMSCompiledCondition) assignmentEntry.getValue()).getParameters().entrySet()) {
                         Object parameter = parameterEntry.getValue();
@@ -876,9 +877,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
      * @return the composed SQL query in string form.
      */
     private String composeUpdateQuery(CompiledCondition compiledCondition,
-                                      RecordTableCompiledUpdateSet recordTableCompiledUpdateSet) {
+                                      Map<String, CompiledExpression> updateSetExpressions) {
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
-        String result = recordTableCompiledUpdateSet.getUpdateSetMap().entrySet().stream().map(e -> e.getKey()
+        String result = updateSetExpressions.entrySet().stream().map(e -> e.getKey()
                 + " = " + ((RDBMSCompiledCondition) e.getValue()).getCompiledQuery())
                 .collect(Collectors.joining(", "));
         recordUpdateQuery = recordUpdateQuery.replace(PLACEHOLDER_COLUMNS_VALUES, result);
@@ -1173,6 +1174,18 @@ public class RDBMSEventTable extends AbstractRecordTable {
         } catch (SQLException e) {
             throw new RDBMSTableException("Dropping event since value for attribute name " + attribute.getName() +
                     "cannot be set: " + e.getMessage(), e);
+        }
+    }
+
+    private static class DefaultConfigReader implements ConfigReader {
+        @Override
+        public String readConfig(String name, String defaultValue) {
+            return defaultValue;
+        }
+
+        @Override
+        public Map<String, String> getAllConfigs() {
+            return new HashMap<>();
         }
     }
 }

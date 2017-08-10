@@ -21,7 +21,7 @@ import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
 import org.wso2.extension.siddhi.store.rdbms.util.Constant;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils;
-import org.wso2.siddhi.core.table.record.BaseConditionVisitor;
+import org.wso2.siddhi.core.table.record.BaseExpressionVisitor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
@@ -35,7 +35,7 @@ import java.util.TreeMap;
  * Class which is used by the Siddhi runtime for instructions on converting the SiddhiQL condition to the condition
  * format understood by the underlying RDBMS data store.
  */
-public class RDBMSConditionVisitor extends BaseConditionVisitor {
+public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     private StringBuilder condition;
     private String finalCompiledCondition;
