@@ -63,7 +63,6 @@ public class SetUpdateRDBMSTableTestCaseIT {
         log.info("setUpdateRDBMSTableTestCase1: setting all columns");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
-//            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -110,7 +109,6 @@ public class SetUpdateRDBMSTableTestCaseIT {
         log.info("setUpdateRDBMSTableTestCase2: setting a subset of columns");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
-//            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -157,7 +155,6 @@ public class SetUpdateRDBMSTableTestCaseIT {
         log.info("setUpdateRDBMSTableTestCase3: using a constant value as the assigment expression.");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
-//            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -206,7 +203,6 @@ public class SetUpdateRDBMSTableTestCaseIT {
                 "select clause as the assignment expression.");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
-//            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -256,7 +252,6 @@ public class SetUpdateRDBMSTableTestCaseIT {
                 "with a basic arithmatic operation.");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
-//            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -304,7 +299,6 @@ public class SetUpdateRDBMSTableTestCaseIT {
         log.info("setUpdateRDBMSTableTestCase6: Omitting table name from the LHS of set assignment.");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
-//            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -351,7 +345,6 @@ public class SetUpdateRDBMSTableTestCaseIT {
         log.info("setUpdateRDBMSTableTestCase7: Set clause should be optional.");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
-//            RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
