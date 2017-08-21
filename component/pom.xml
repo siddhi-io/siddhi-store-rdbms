@@ -53,6 +53,10 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.datasources</groupId>
+            <artifactId>org.wso2.carbon.datasource.core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
@@ -111,7 +115,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            com.zaxxer.hikari.*,
+                            !com.zaxxer.hikari.*,
                         </Private-Package>
                         <Export-Package>
                             !com.zaxxer.hikari.*,

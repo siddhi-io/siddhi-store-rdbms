@@ -48,7 +48,7 @@
         <siddhi.version>4.0.0-M36</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <testng.version>6.9.10</testng.version>
-        <hikari.version>2.6.1</hikari.version>
+        <hikari.version>2.4.1</hikari.version>
         <commons.logging.version>1.1.1</commons.logging.version>
         <mysql.connector.version>5.1.6</mysql.connector.version>
         <h2.connector.version>1.4.187</h2.connector.version>
@@ -59,6 +59,7 @@
         <sqljdbc4.version>4.0</sqljdbc4.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <io.fabric8.version>0.20.0</io.fabric8.version>
+        <carbon.datasources.version>1.1.0</carbon.datasources.version>
     </properties>
 
     <scm>
@@ -113,6 +114,11 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>${commons.logging.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.datasources</groupId>
+            <artifactId>org.wso2.carbon.datasource.core</artifactId>
+            <version>${carbon.datasources.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>

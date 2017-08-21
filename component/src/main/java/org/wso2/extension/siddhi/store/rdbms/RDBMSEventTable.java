@@ -19,9 +19,14 @@ package org.wso2.extension.siddhi.store.rdbms;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.pool.HikariPool;
+import com.zaxxer.hikari.pool.PoolInitializationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.wso2.carbon.datasource.core.api.DataSourceService;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSTypeMapping;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
@@ -62,6 +67,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_DRIVER_CLASS_NAME;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_DATASOURCE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_FIELD_LENGTHS;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_JNDI_RESOURCE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_PASSWORD;
@@ -321,6 +327,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private static final Log log = LogFactory.getLog(RDBMSEventTable.class);
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
     private HikariDataSource dataSource;
+    private String dataSourceName;
     private String tableName;
     private List<Attribute> attributes;
     private ConfigReader configReader;
@@ -358,6 +365,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         RDBMSTableUtils.validateAnnotation(primaryKeys);
         RDBMSTableUtils.validateAnnotation(indices);
         jndiResourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_JNDI_RESOURCE);
+        dataSourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_DATASOURCE);
         if (null != configReader) {
             this.configReader = configReader;
         } else {
@@ -490,7 +498,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
     /**
      * Method for processing update operations in a batched manner. This assumes that all update operations will be
      * accepted by the database.
-     *  @param sql                          the SQL update operation as string.
+     *
+     * @param sql                          the SQL update operation as string.
      * @param updateConditionParameterMaps the runtime parameters that should be populated to the condition.
      * @param compiledCondition            the condition that was built during compile time.
      * @param updateSetExpressions
@@ -751,10 +760,23 @@ public class RDBMSEventTable extends AbstractRecordTable {
     public void connect() throws ConnectionUnavailableException {
         try {
             if (dataSource == null) {
-                if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
-                    this.lookupDatasource(jndiResourceName);
+                if (!RDBMSTableUtils.isEmpty(dataSourceName)) {
+                    try {
+                        BundleContext bundleContext = FrameworkUtil.getBundle(DataSourceService.class)
+                                .getBundleContext();
+                        ServiceReference serviceRef = bundleContext.getServiceReference(DataSourceService.class
+                                .getName());
+                        DataSourceService dataSourceService = (DataSourceService) bundleContext.getService(serviceRef);
+                        this.dataSource = (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
+                    } catch (DataSourceException e) {
+                        throw new RDBMSTableException("Datasource '" + dataSourceName + "' cannot be connected.", e);
+                    }
                 } else {
-                    this.initializeDatasource(storeAnnotation);
+                    if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
+                        this.lookupDatasource(jndiResourceName);
+                    } else {
+                        this.initializeDatasource(storeAnnotation);
+                    }
                 }
                 if (this.queryConfigurationEntry == null) {
                     this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource,
@@ -820,7 +842,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 this.createTable(storeAnnotation, primaryKeys, indices);
                 log.info("A table: " + this.tableName + " is created with the provided information.");
             }
-        } catch (CannotLoadConfigurationException | NamingException | HikariPool.PoolInitializationException |
+        } catch (CannotLoadConfigurationException | NamingException | PoolInitializationException |
                 RDBMSTableException e) {
             this.destroy();
             throw new ConnectionUnavailableException("Failed to initialize store for table name '" +
