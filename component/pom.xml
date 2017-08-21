@@ -111,7 +111,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            com.zaxxer.hikari.*,
+                            !com.zaxxer.hikari.*,
                         </Private-Package>
                         <Export-Package>
                             !com.zaxxer.hikari.*,
