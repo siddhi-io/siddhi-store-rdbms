@@ -59,6 +59,7 @@
         <sqljdbc4.version>4.0</sqljdbc4.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <io.fabric8.version>0.20.0</io.fabric8.version>
+        <carbon.datasources.version>1.1.0</carbon.datasources.version>
     </properties>
 
     <scm>
@@ -113,6 +114,11 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>${commons.logging.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.datasources</groupId>
+            <artifactId>org.wso2.carbon.datasource.core</artifactId>
+            <version>${carbon.datasources.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
