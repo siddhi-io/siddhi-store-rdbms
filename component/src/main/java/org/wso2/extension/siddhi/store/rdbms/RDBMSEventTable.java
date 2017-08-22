@@ -766,8 +766,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
                                 .getBundleContext();
                         ServiceReference serviceRef = bundleContext.getServiceReference(DataSourceService.class
                                 .getName());
-                        DataSourceService dataSourceService = (DataSourceService) bundleContext.getService(serviceRef);
-                        this.dataSource = (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
+                        if (serviceRef == null) {
+                            throw new RDBMSTableException("Datasource '" + dataSourceName + "' service cannot be " +
+                                    "found. Please check the data source configuration.");
+                        } else {
+                            DataSourceService dataSourceService = (DataSourceService) bundleContext
+                                    .getService(serviceRef);
+                            this.dataSource = (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
+                        }
                     } catch (DataSourceException e) {
                         throw new RDBMSTableException("Datasource '" + dataSourceName + "' cannot be connected.", e);
                     }

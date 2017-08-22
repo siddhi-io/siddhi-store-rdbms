@@ -1,0 +1,10 @@
+@App:name('SiddhiApp1')
+
+@source(type='inMemory', @map(type='passThrough'))
+define stream FooStream (symbol string, price float, volume float);
+
+@Store(type='rdbms', datasource='WSO2_CARBON_DS_1')
+define table FooTable (symbol string, price float, volume float);
+
+from FooStream
+insert into FooTable;
