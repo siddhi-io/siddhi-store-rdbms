@@ -1,0 +1,15 @@
+<datasources-configuration>
+    <datasources>
+        <datasource>
+            <name>WSO2_CARBON_DS_2</name>
+            <description>The datasource used for registry and user manager</description>
+            <definition type="RDBMS">
+                <configuration>
+                    <url>jdbc:mysql://${docker.container.ip}/WSO2_ANALYTICS_DB</url>
+                    <username>root</username>
+                    <password>root</password>
+                </configuration>
+            </definition>
+        </datasource>
+    </datasources>
+</datasources-configuration>
