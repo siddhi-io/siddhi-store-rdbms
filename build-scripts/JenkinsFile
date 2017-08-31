@@ -39,31 +39,31 @@ node("${nodeLabel}") {
         stage('Running Test on H2 database') {
             withEnv(["PATH+MAVEN=${mvnHome}/bin:${env.JAVA_HOME}/bin",
                     "DOCKER_HOST=${dockerHost}"]) {
-                sh "mvn verify -P local-h2 -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true"
+                sh "mvn verify -P local-h2 -f siddhi-store-rdbms/component/pom.xml -Dskip.surefire.test=true"
             }
         }
         stage('Running Test on MySQL database') {
             withEnv(["PATH+MAVEN=${mvnHome}/bin:${env.JAVA_HOME}/bin",
                     "DOCKER_HOST=${dockerHost}"]) {
-                sh "mvn verify -P local-mysql -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true -Ddocker.removeVolumes=true"
+                sh "mvn verify -P local-mysql -f siddhi-store-rdbms/component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true"
             }
         }
         stage('Running Test on PostgreSQL database') {
             withEnv(["PATH+MAVEN=${mvnHome}/bin:${env.JAVA_HOME}/bin",
                     "DOCKER_HOST=${dockerHost}"]) {
-                sh "mvn verify -P local-postgres -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true -Ddocker.removeVolumes=true"
+                sh "mvn verify -P local-postgres -f siddhi-store-rdbms/component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true"
             }
         }
         stage('Running Test on Oracle database') {
             withEnv(["PATH+MAVEN=${mvnHome}/bin:${env.JAVA_HOME}/bin",
                     "DOCKER_HOST=${dockerHost}"]) {
-                sh "mvn verify -P local-oracle -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true"
+                sh "mvn verify -P local-oracle -f siddhi-store-rdbms/component/pom.xml -Dskip.surefire.test=true"
             }
         }
         stage('Running Test on MicrosoftSQL database') {
             withEnv(["PATH+MAVEN=${mvnHome}/bin:${env.JAVA_HOME}/bin",
                     "DOCKER_HOST=${dockerHost}"]) {
-                sh "mvn verify -P local-mssql -f siddhi-store-rdbms/component/pom.xml -Dmaven.test.failure.ignore -Dskip.surefire.test=true"
+                sh "mvn verify -P local-mssql -f siddhi-store-rdbms/component/pom.xml -Dskip.surefire.test=true"
             }
         }
         currentBuild.result = 'SUCCESS'
