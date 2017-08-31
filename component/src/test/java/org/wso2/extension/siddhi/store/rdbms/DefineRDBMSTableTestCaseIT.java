@@ -205,7 +205,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(dependsOnMethods = "rdbmstabledefinitiontest4")
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest4", expectedExceptions = RuntimeException.class)
     public void rdbmstabledefinitiontest5() throws InterruptedException, SQLException {
         //Testing table creation with invalid connection URL
         log.info("rdbmstabledefinitiontest5");
@@ -614,7 +614,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(dependsOnMethods = "rdbmstabledefinitiontest16")
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest16", expectedExceptions = RuntimeException.class)
     public void rdbmstabledefinitiontest17() throws InterruptedException, SQLException {
         //  This testcase verified that defining a RDBMS table by including at least one invalid pool.property
         // field will not successfully create the table.
@@ -650,7 +650,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(dependsOnMethods = "rdbmstabledefinitiontest17")
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest17", expectedExceptions = RuntimeException.class)
     public void rdbmstabledefinitiontest18() throws InterruptedException, SQLException {
         //Defining a RDBMS table with an invalid value for a pool.property.
         log.info("rdbmstabledefinitiontest18");
