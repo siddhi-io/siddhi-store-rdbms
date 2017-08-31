@@ -36,7 +36,6 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import javax.inject.Inject;
 
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
 
 /**
@@ -54,8 +53,6 @@ public class CarbonDSReferenceTest {
     @Configuration
     public Option[] createConfiguration() {
         return new Option[]{
-                systemProperty("docker.container.ip")
-                        .value(System.getenv("DOCKER_HOST_IP")),
                 copyCarbonDSConfigFile(),
                 copySiddhiApp()
         };

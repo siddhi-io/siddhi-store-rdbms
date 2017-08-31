@@ -172,55 +172,6 @@
                         </configuration>
                     </plugin>
                     <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>start-docker-for-mysql</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>start</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>stop-docker-for-mysql</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                    <goal>remove</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <verbose>true</verbose>
-                            <images>
-                                <image>
-                                    <alias>sp-mysql</alias>
-                                    <name>mysql:5.7</name>
-                                    <run>
-                                        <namingStrategy>alias</namingStrategy>
-                                        <env>
-                                            <MYSQL_DATABASE>WSO2_ANALYTICS_DB</MYSQL_DATABASE>
-                                            <MYSQL_ROOT_PASSWORD>root</MYSQL_ROOT_PASSWORD>
-                                        </env>
-                                        <ports>
-                                            <port>${sp-mysql.port}:3306</port>
-                                        </ports>
-                                        <wait>
-                                            <tcp>
-                                                <ports>
-                                                    <port>3306</port>
-                                                </ports>
-                                            </tcp>
-                                            <log>mysqld: ready for connections</log>
-                                            <time>60000</time>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
-                    </plugin>
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <executions>
@@ -251,11 +202,7 @@
                                 </org.ops4j.pax.logging.DefaultServiceLog.level>
                             </systemPropertyVariables>
                             <environmentVariables>
-                                <DATABASE_TYPE>MySQL</DATABASE_TYPE>
-                                <DATABASE_USER>root</DATABASE_USER>
-                                <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
-                                <PORT>${sp-mysql.port}</PORT>
-                                <DOCKER_HOST_IP>${docker.container.sp-mysql.ip}</DOCKER_HOST_IP>
+                                <DATABASE_TYPE>H2</DATABASE_TYPE>
                                 <JAVA_OPTS>${jcoverage.command}</JAVA_OPTS>
                             </environmentVariables>
                             <suiteXmlFiles>
