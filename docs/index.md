@@ -1,85 +1,74 @@
-# siddhi-store-rdbms
-
+siddhi-store-rdbms
 ======================================
+
+The **siddhi-store-rdbms extension** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a> that  can be used to persist events to a RDBMS instance of the users choice.
+Find some useful links below:
+
+* <a target="_blank" href="https://github.com/wso2-extensions/siddhi-store-rdbms">Source code</a>
+* <a target="_blank" href="https://github.com/wso2-extensions/siddhi-store-rdbms/releases">Releases</a>
+* <a target="_blank" href="https://github.com/wso2-extensions/siddhi-store-rdbms/issues">Issue tracker</a>
+
+## Latest API Docs 
+
+Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.0-M5-SNAPSHOT">4.0.0-M5-SNAPSHOT</a>.
+
+## Prerequisites
+
+ * A RDBMS server instance should be started.
+ * User should have the necessary privileges and access rights to connect to the RDBMS data store of choice.
+
+## How to use 
+
+**Using the extension in <a target="_blank" href="https://github.com/wso2/product-sp">WSO2 Stream Processor</a>**
+
+* You can use this extension in the latest <a target="_blank" href="https://github.com/wso2/product-sp/releases">WSO2 Stream Processor</a> that is a part of <a target="_blank" href="http://wso2.com/analytics?utm_source=gitanalytics&utm_campaign=gitanalytics_Jul17">WSO2 Analytics</a> offering, with editor, debugger and simulation support. 
+
+* This extension is shipped by default with WSO2 Stream Processor, if you wish to use an alternative version of this extension you can replace the component <a target="_blank" href="https://github.com/wso2-extensions/siddhi-store-rdbms/releases">jar</a> that can be found in the `<STREAM_PROCESSOR_HOME>/lib` directory.
+
+**Using the extension as a <a target="_blank" href="https://wso2.github.io/siddhi/documentation/running-as-a-java-library">java library</a>**
+
+* This extension can be added as a maven dependency along with other Siddhi dependencies to your project.
+
+```
+     <dependency>
+        <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
+        <artifactId>siddhi-store-rdbms</artifactId>
+        <version>x.x.x</version>
+     </dependency>
+```
+
+## Jenkins Build Status
+
 ---
-##### Latest Released Version v4.0.0-M2.
 
-This is an extension for siddhi RDBMS event table implementation. This extension can be used to persist events to a RDBMS instance of the users choice.
+|  Branch | Build Status |
+| :------ |:------------ | 
+| master  | [![Build Status](https://wso2.org/jenkins/job/siddhi/job/siddhi-store-rdbms/badge/icon)](https://wso2.org/jenkins/job/siddhi/job/siddhi-store-rdbms/) |
 
-Features Supported
-------------------
- - Defining an Event Table
- - Inserting Events
- - Retrieving Events
- - Deleting Events
- - Updating persisted events
- - Filtering Events
- - Insert or Update Events
-      
-#### Prerequisites for using the feature
- - A RDBMS server instance should be started.
- - User should have the necessary privileges and access rights to connect to the RDBMS data store of choice.
- - Deployment yaml file has to be inserted in the following manner (properties set are optional), if the user wishes to overwrite default RDBMS configuration in the extension.
- <pre>
-siddhi: 
-  extensions: 
-    extension: 
-      name: store
-      namespace: rdbms
-      properties: 
-        mysql.batchEnable: true
-        mysql.batchSize: 1000
-        mysql.indexCreateQuery: "CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})"
-        mysql.maxVersion: ~
-        mysql.minVersion: ~
-        mysql.recordDeleteQuery: "DELETE FROM {{TABLE_NAME}} {{CONDITION}}"
-        mysql.recordExistsQuery: "SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1"
-        mysql.recordInsertQuery: "INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})"
-        mysql.recordSelectQuery: "SELECT * FROM {{TABLE_NAME}} {{CONDITION}}"
-        mysql.recordUpdateQuery: "UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}"
-        mysql.stringSize: 254
-        mysql.tableCheckQuery: "CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})"
-        mysql.tableCreateQuery: "CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})"
-        mysql.typeMapping.binaryType: BLOB
-        mysql.typeMapping.booleanType: TINYINT(1)
-        mysql.typeMapping.doubleType: DOUBLE
-        mysql.typeMapping.floatType: FLOAT
-        mysql.typeMapping.integerType: INTEGER
-        mysql.typeMapping.longType: BIGINT
-        mysql.typeMapping.stringType: VARCHAR
- </pre>
+---
 
- 
-#### Deploying the feature
- Feature can be deploy as a OSGI bundle by putting jar file of the component to DAS_HOME/lib directory of DAS 4.0.0 pack. 
- 
-##### Example Siddhi Queries
-###### Defining an Event Table
- <pre>
- @Store(type="rdbms", jdbc.url="jdbc:mysql://localhost:3306/das",
- username="root", password="root" , jdbc.driver.name="org.h2.Driver",
- field.length="symbol:100")
- @PrimaryKey("symbol")
- @Index("volume")
- define table StockTable (symbol string, price float, volume long);
- </pre>
+## Features
 
-#### Documentation 
-* [https://docs.wso2.com/display/DAS400/Configuring+Event+Tables+to+Store+Data](https://docs.wso2.com/display/DAS400/Configuring+Event+Tables+to+Store+Data)
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.0-M5-SNAPSHOT/#rdbms-store">rdbms</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stores">Store</a>)*<br><div style="padding-left: 1em;"><p>This extension assigns data sources and connection instructions to event tables. It also implements read write operations on connected datasources</p></div>
 
 ## How to Contribute
-* Please report issues at [Siddhi Github Issue Tacker](https://github.com/wso2-extensions/siddhi-store-rdbms/issues)
-* Send your bug fixes pull requests to [master branch](https://github.com/wso2-extensions/siddhi-store-rdbms/tree/master) 
-
+ 
+  * Please report issues at <a target="_blank" href="https://github.com/wso2-extensions/siddhi-store-rdbms/issues">GitHub Issue Tracker</a>.
+  
+  * Send your contributions as pull requests to <a target="_blank" href="https://github.com/wso2-extensions/siddhi-store-rdbms/tree/master">master branch</a>. 
+ 
 ## Contact us 
-Siddhi developers can be contacted via the mailing lists:
-  * Carbon Developers List : dev@wso2.org
-  * Carbon Architecture List : architecture@wso2.org
 
-### We welcome your feedback and contribution.
+ * Post your questions with the <a target="_blank" href="http://stackoverflow.com/search?q=siddhi">"Siddhi"</a> tag in <a target="_blank" href="http://stackoverflow.com/search?q=siddhi">Stackoverflow</a>. 
+ 
+ * Siddhi developers can be contacted via the mailing lists:
+ 
+    Developers List   : [dev@wso2.org](mailto:dev@wso2.org)
+    
+    Architecture List : [architecture@wso2.org](mailto:architecture@wso2.org)
+ 
+## Support 
 
-Siddhi DAS Team
+* We are committed to ensuring support for this extension in production. Our unique approach ensures that all support leverages our open development methodology and is provided by the very same engineers who build the technology. 
 
-## API Docs:
-
-1. <a href="./api/4.0.0-M3-SNAPSHOT">4.0.0-M3-SNAPSHOT</a>
+* For more details and to take advantage of this unique opportunity contact us via <a target="_blank" href="http://wso2.com/support?utm_source=gitanalytics&utm_campaign=gitanalytics_Jul17">http://wso2.com/support/</a>. 
