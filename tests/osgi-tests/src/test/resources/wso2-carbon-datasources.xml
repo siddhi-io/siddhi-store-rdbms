@@ -8,7 +8,7 @@
                     <url>jdbc:h2:./target/dasdb</url>
                     <username>root</username>
                     <password>root</password>
-                    <driverClassName>jdbc:h2:./target/dasdb</driverClassName>
+                    <driverClassName>org.h2.Driver</driverClassName>
                 </configuration>
             </definition>
         </datasource>
