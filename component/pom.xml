@@ -253,8 +253,34 @@
         </profile>
         <profile>
             <id>local-h2</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>jacoco-initialize</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <configuration>
+                                    <destFile>${basedir}/target/jacoco.exec</destFile>
+                                    <propertyName>jcoverage.command</propertyName>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
@@ -276,6 +302,7 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <argLine>${jcoverage.command}</argLine>
                             <environmentVariables>
                                 <DATABASE_TYPE>H2</DATABASE_TYPE>
                             </environmentVariables>
