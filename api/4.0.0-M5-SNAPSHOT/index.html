@@ -1,0 +1,583 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <link rel="shortcut icon" href="../../images/favicon.ico">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.4">
+    
+    
+      
+        <title>4.0.0-M5-SNAPSHOT - Siddhi-Store-RDBMS</title>
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr-1df76c4e58.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application-769c285a91.css">
+      
+        <link rel="stylesheet" href="../../assets/stylesheets/application-02c2a4388f.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="../.." title="Siddhi-Store-RDBMS" class="md-logo md-header-nav__button">
+            <img src="../../images/siddhi-logo-w.svg" width="24" height="24">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+                <span class="md-header-nav__parent">
+                  API Docs
+                </span>
+              
+            
+            4.0.0-M5-SNAPSHOT
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result" data-md-lang-search="">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    
+      <i class="md-logo md-nav__button">
+        <img src="../../images/siddhi-logo-w.svg">
+      </i>
+    
+    Siddhi-Store-RDBMS
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Welcome to WSO2 Siddhi Store RDBMS" class="md-nav__link">
+      Welcome to WSO2 Siddhi Store RDBMS
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
+    
+    <label class="md-nav__link" for="nav-2">
+      API Docs
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        API Docs
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        4.0.0-M5-SNAPSHOT
+      </label>
+    
+    <a href="./" title="4.0.0-M5-SNAPSHOT" class="md-nav__link md-nav__link--active">
+      4.0.0-M5-SNAPSHOT
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#store" title="Store" class="md-nav__link">
+    Store
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rdbms-store" title="rdbms (Store" class="md-nav__link">
+    rdbms (Store
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../4.0.0-M6-SNAPSHOT/" title="4.0.0-M6-SNAPSHOT" class="md-nav__link">
+      4.0.0-M6-SNAPSHOT
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../license/" title="License" class="md-nav__link">
+      License
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#store" title="Store" class="md-nav__link">
+    Store
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rdbms-store" title="rdbms (Store" class="md-nav__link">
+    rdbms (Store
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="api-docs">API Docs</h1>
+<h2 id="store">Store</h2>
+<h3 id="rdbms-store">rdbms <em>(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stores">Store</a>)</em></h3>
+<p style="word-wrap: break-word">This extension assigns data sources and connection instructions to event tables. It also implements read write operations on connected datasources</p>
+
+<p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
+<pre><code>@Store(type=&quot;rdbms&quot;, jdbc.url=&quot;&lt;STRING&gt;&quot;, username=&quot;&lt;STRING&gt;&quot;, password=&quot;&lt;STRING&gt;&quot;, jdbc.driver.name=&quot;&lt;STRING&gt;&quot;, pool.properties=&quot;&lt;STRING&gt;&quot;, jndi.resource=&quot;&lt;STRING&gt;&quot;, table.name=&quot;&lt;STRING&gt;&quot;, field.length=&quot;&lt;STRING&gt;&quot;)
+@PrimaryKey(&quot;PRIMARY_KEY&quot;)
+@Index(&quot;INDEX&quot;)
+</code></pre>
+
+<p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Default Value</th>
+        <th>Possible Data Types</th>
+        <th>Optional</th>
+        <th>Dynamic</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">jdbc.url</td>
+        <td style="vertical-align: top; word-wrap: break-word">The JDBC URL via which the RDBMS data store is accessed.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">username</td>
+        <td style="vertical-align: top; word-wrap: break-word">The username to be used to access the RDBMS data store.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">password</td>
+        <td style="vertical-align: top; word-wrap: break-word">The password to be used to access the RDBMS data store.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">jdbc.driver.name</td>
+        <td style="vertical-align: top; word-wrap: break-word">The driver class name for connecting the RDBMS data store.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">pool.properties</td>
+        <td style="vertical-align: top; word-wrap: break-word">Any pool parameters for the database connection must be specified as key value pairs.</td>
+        <td style="vertical-align: top">null</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">jndi.resource</td>
+        <td style="vertical-align: top; word-wrap: break-word">The name of the JNDI resource through which the connection is attempted. If this is found, the pool properties described above are not taken into account, and the connection is attempted via JNDI lookup instead.</td>
+        <td style="vertical-align: top">null</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">table.name</td>
+        <td style="vertical-align: top; word-wrap: break-word">The name with which the event table should be persisted in the store. If no name is specified via this parameter, the event table is persisted with the same name as the Siddhi table.</td>
+        <td style="vertical-align: top">The table name defined in the Siddhi App query.</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">field.length</td>
+        <td style="vertical-align: top; word-wrap: break-word">The number of characters that the values for fields of the <code>STRING</code> type in the table definition must contain. If this is not specified, the default number of characters specific to the database type is considered.</td>
+        <td style="vertical-align: top">null</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+</table></p>
+<p><span id="system-parameters" class="md-typeset" style="display: block; font-weight: bold;">System Parameters</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Default Value</th>
+        <th>Possible Parameters</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.maxVersion</td>
+        <td style="vertical-align: top; word-wrap: break-word">The latest version supported for {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top">0</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.minVersion</td>
+        <td style="vertical-align: top; word-wrap: break-word">The earliest version supported for {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top">0</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.tableCheckQuery</td>
+        <td style="vertical-align: top; word-wrap: break-word">The template query for the <code>check table</code> operation in {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top"><b>H2</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br><b>MySQL</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br><b>Oracle</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br><b>Microsoft SQL Server</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br><b>PostgreSQL</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br><b>DB2.<em></b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.tableCreateQuery</td>
+        <td style="vertical-align: top; word-wrap: break-word">The template query for the <code>create table</code> operation in {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top"><b>H2</b>: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1<br><b>MySQL</b>: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1<br><b>Oracle</b>: SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1<br><b>Microsoft SQL Server</b>: SELECT TOP 1 1 from {{TABLE_NAME}}<br><b>PostgreSQL</b>: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1<br><b>DB2.</em></b>: SELECT 1 FROM {{TABLE_NAME}} FETCH FIRST 1 ROWS ONLY</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.indexCreateQuery</td>
+        <td style="vertical-align: top; word-wrap: break-word">The template query for the <code>create index</code> operation in {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top"><b>H2</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})<br><b>MySQL</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})<br><b>Oracle</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})<br><b>Microsoft SQL Server</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}}) {{TABLE_NAME}} ({{INDEX_COLUMNS}})<br><b>PostgreSQL</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})<br><b>DB2.<em></b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.recordInsertQuery</td>
+        <td style="vertical-align: top; word-wrap: break-word">The template query for the <code>insert record</code> operation in {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top"><b>H2</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>MySQL</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>Oracle</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>Microsoft SQL Server</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>PostgreSQL</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>DB2.</em></b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.recordUpdateQuery</td>
+        <td style="vertical-align: top; word-wrap: break-word">The template query for the <code>update record</code> operation in {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top"><b>H2</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br><b>MySQL</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br><b>Oracle</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br><b>Microsoft SQL Server</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br><b>PostgreSQL</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br><b>DB2.<em></b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.recordSelectQuery</td>
+        <td style="vertical-align: top; word-wrap: break-word">The template query for the <code>select record</code> operation in {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top"><b>H2</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br><b>MySQL</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br><b>Oracle</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br><b>Microsoft SQL Server</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br><b>PostgreSQL</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br><b>DB2.</em></b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.recordExistsQuery</td>
+        <td style="vertical-align: top; word-wrap: break-word">The template query for the <code>check record existence</code> operation in {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top"><b>H2</b>: SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}<br><b>MySQL</b>: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}}<br><b>Oracle</b>: SELECT COUNT(1) INTO existence FROM {{TABLE_NAME}} {{CONDITION}}<br><b>Microsoft SQL Server</b>: SELECT TOP 1 FROM {{TABLE_NAME}} {{CONDITION}}<br><b>PostgreSQL</b>: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1<br><b>DB2.<em></b>: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} FETCH FIRST 1 ROWS ONLY</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.recordDeleteQuery</td>
+        <td style="vertical-align: top; word-wrap: break-word">The query for the <code>delete record</code> operation in {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top"><b>H2</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br><b>MySQL</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br><b>Oracle</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br><b>Microsoft SQL Server</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br><b>PostgreSQL</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br><b>DB2.</em></b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.stringSize</td>
+        <td style="vertical-align: top; word-wrap: break-word">This defines the length for the string fields in {{RDBMS-Name}}.</td>
+        <td style="vertical-align: top"><b>H2</b>: 254<br><b>MySQL</b>: 254<br><b>Oracle</b>: 254<br><b>Microsoft SQL Server</b>: 254<br><b>PostgreSQL</b>: 254<br><b>DB2.<em></b>: 254</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.batchSize</td>
+        <td style="vertical-align: top; word-wrap: break-word">This defines the batch size when operations are performed for batches of events.</td>
+        <td style="vertical-align: top"><b>H2</b>: 1000<br><b>MySQL</b>: 1000<br><b>Oracle</b>: 1000<br><b>Microsoft SQL Server</b>: 1000<br><b>PostgreSQL</b>: 1000<br><b>DB2.</em></b>: 1000</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.batchEnable</td>
+        <td style="vertical-align: top; word-wrap: break-word">This specifies whether <code>Update</code> and <code>Insert</code> operations can be performed for batches of events or not.</td>
+        <td style="vertical-align: top"><b>H2</b>: true<br><b>MySQL</b>: true<br><b>Oracle</b>: true<br><b>Microsoft SQL Server</b>: true<br><b>PostgreSQL</b>: true<br><b>DB2.*</b>: true</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+</table></p>
+<p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
+<span id="example1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE1</span></p>
+<pre><code>@Store(type=&quot;rdbms&quot;, jdbc.url=&quot;jdbc:mysql://localhost:3306/das&quot;, username=&quot;root&quot;, password=&quot;root&quot; , jdbc.driver.name=&quot;org.h2.Driver&quot;,field.length=&quot;symbol:100&quot;)
+@PrimaryKey(&quot;symbol&quot;)@Index(&quot;volume&quot;)define table StockTable (symbol string, price float, volume long);
+</code></pre>
+
+<p style="word-wrap: break-word">The above example creates an event table named <code>StockTable</code> on the DB if it does not already exist (with 3 attributes named <code>symbol</code>, <code>price</code>, and <code>volume</code> of the types types <code>string</code>, <code>float</code> and <code>long</code> respectively). The connection is made as specified by the parameters configured for the '@Store' annotation. The <code>symbol</code> attribute is considered a unique field, and a DB index is created for it.</p>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../.." title="Welcome to WSO2 Siddhi Store RDBMS" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Welcome to WSO2 Siddhi Store RDBMS
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../4.0.0-M6-SNAPSHOT/" title="4.0.0-M6-SNAPSHOT" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                4.0.0-M6-SNAPSHOT
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application-c35428f87f.js"></script>
+      
+      
+      <script>app.initialize({url:{base:"../.."}})</script>
+      
+        <script src="../../javascripts/extra.js"></script>
+      
+    
+    
+      
+      <script>!function(e,t,a,n,o,c,i){e.GoogleAnalyticsObject=o,e[o]=e[o]||function(){(e[o].q=e[o].q||[]).push(arguments)},e[o].l=1*new Date,c=t.createElement(a),i=t.getElementsByTagName(a)[0],c.async=1,c.src=n,i.parentNode.insertBefore(c,i)}(window,document,"script","https://www.google-analytics.com/analytics.js","ga"),ga("create","UA-103065-28","auto"),ga("set","anonymizeIp",!0),ga("send","pageview");var links=document.getElementsByTagName("a");Array.prototype.map.call(links,function(e){e.host!=document.location.host&&e.addEventListener("click",function(){var t=e.getAttribute("data-md-action")||"follow";ga("send","event","outbound",t,e.href)})});var query=document.forms.search.query;query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})</script>
+      
+    
+  </body>
+</html>
