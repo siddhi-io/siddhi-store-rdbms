@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
+        <artifactId>siddhi-store-rdbms-parent</artifactId>
+        <version>4.0.0-M6-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>coverage-reports</artifactId>
+    <name>Siddhi-Store-Rdbms Tests Coverage Report Aggregation</name>
+    <packaging>pom</packaging>
+
+    <profiles>
+        <profile>
+            <id>Test-Coverage-Report-Aggregation</id>
+            <activation>
+                <file>
+                    <exists>../component/target/coverage-reports</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-jacoco-dependencies</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <includeTypes>jar</includeTypes>
+                                    <includeArtifactIds>org.jacoco.ant</includeArtifactIds>
+                                    <stripVersion>true</stripVersion>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target xmlns:jacoco="antlib:org.jacoco.ant">
+                                        <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+                                            <classpath path="${project.build.directory}"/>
+                                        </taskdef>
+                                        <jacoco:merge destfile="${project.build.directory}/merged.exec">
+                                            <fileset dir="${component.basedir}/target/coverage-reports"
+                                                     includes="*.exec"/>
+                                            <fileset dir="${osgi.tests.basedir}/target/coverage-reports"
+                                                     includes="*.exec"/>
+                                        </jacoco:merge>
+                                        <jacoco:report>
+                                            <executiondata>
+                                                <file file="${project.build.directory}/merged.exec"/>
+                                            </executiondata>
+                                            <structure name="Siddhi-store-mongodb Tests">
+                                                <classfiles>
+                                                    <fileset dir="${component.basedir}/target/classes">
+                                                        <exclude name="**/*Constants.class"/>
+                                                        <exclude name="**/*Exception.class"/>
+                                                    </fileset>
+                                                </classfiles>
+                                                <sourcefiles encoding="UTF-8">
+                                                    <fileset dir="${component.basedir}/src/main/java"/>
+                                                </sourcefiles>
+                                            </structure>
+                                            <html destdir="${project.build.directory}/coverage-reports"/>
+                                        </jacoco:report>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.jacoco</groupId>
+                                <artifactId>org.jacoco.ant</artifactId>
+                                <version>${org.jacoco.ant.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <properties>
+        <component.basedir>../component</component.basedir>
+        <osgi.tests.basedir>../tests/osgi-tests</osgi.tests.basedir>
+    </properties>
+</project>
