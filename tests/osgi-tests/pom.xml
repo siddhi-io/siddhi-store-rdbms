@@ -223,12 +223,12 @@
                                 <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
                                     <classpath path="${project.build.directory}"/>
                                 </taskdef>
-                                <jacoco:merge destfile="${project.build.directory}/merged.exec">
+                                <jacoco:merge destfile="${project.build.directory}/coverage-reports/jacoco.exec">
                                     <fileset dir="${project.build.directory}" includes="*.exec"/>
                                 </jacoco:merge>
                                 <jacoco:report>
                                     <executiondata>
-                                        <file file="${project.build.directory}/merged.exec"/>
+                                        <file file="${project.build.directory}/coverage-reports/jacoco.exec"/>
                                     </executiondata>
                                     <structure name="Siddhi-store-rdbms OSGi Tests">
                                         <classfiles>
@@ -255,7 +255,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-
             <plugin>
                 <groupId>org.ops4j.pax.exam</groupId>
                 <artifactId>maven-paxexam-plugin</artifactId>
