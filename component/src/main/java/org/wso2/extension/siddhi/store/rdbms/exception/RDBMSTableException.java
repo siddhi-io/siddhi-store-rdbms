@@ -25,10 +25,6 @@ import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
  */
 public class RDBMSTableException extends SiddhiAppCreationException {
 
-    public RDBMSTableException() {
-        super();
-    }
-
     public RDBMSTableException(String message) {
         super(message);
     }
