@@ -17,10 +17,10 @@
 */
 package org.wso2.extension.siddhi.store.rdbms;
 
-import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
 import org.wso2.extension.siddhi.store.rdbms.util.Constant;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.table.record.BaseExpressionVisitor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
@@ -273,8 +273,9 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         if (RDBMSTableUtils.isEmpty(namespace)) {
             condition.append(functionName).append(RDBMSTableConstants.OPEN_PARENTHESIS);
         } else {
-            throw new RDBMSTableException("The RDBMS Event table does not support function namespaces, but namespace '"
-                    + namespace + "' was specified. Please use functions supported by the defined RDBMS data store.");
+            throw new OperationNotSupportedException("The RDBMS Event table does not support function namespaces, " +
+                    "but namespace '" + namespace + "' was specified. Please use functions supported by the " +
+                    "defined RDBMS data store.");
         }
     }
 
@@ -283,8 +284,9 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         if (RDBMSTableUtils.isEmpty(namespace)) {
             condition.append(RDBMSTableConstants.OPEN_PARENTHESIS).append(RDBMSTableConstants.WHITESPACE);
         } else {
-            throw new RDBMSTableException("The RDBMS Event table does not support function namespaces, but namespace '"
-                    + namespace + "' was specified. Please use functions supported by the defined RDBMS data store.");
+            throw new OperationNotSupportedException("The RDBMS Event table does not support function namespaces, " +
+                    "but namespace '" + namespace + "' was specified. Please use functions supported by the " +
+                    "defined RDBMS data store.");
         }
     }
 

@@ -731,7 +731,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     }
 
     private List<Integer> filterRequiredInsertIndex(int[] updateResultIndex, int lastUpdatedRecordIndex) {
-        List<Integer> insertIndexList = new ArrayList<Integer>();
+        List<Integer> insertIndexList = new ArrayList<>();
         int currentRecodeIndex = lastUpdatedRecordIndex;
         for (int i = 0; i < updateResultIndex.length; i++) {
             //Filter update result index and adding to list.
@@ -773,6 +773,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
                             DataSourceService dataSourceService = (DataSourceService) bundleContext
                                     .getService(serviceRef);
                             this.dataSource = (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
+                            if (log.isDebugEnabled()) {
+                                log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
+                                        "DataSource Service lookup.");
+                            }
                         }
                     } catch (DataSourceException e) {
                         throw new RDBMSTableException("Datasource '" + dataSourceName + "' cannot be connected.", e);
@@ -846,7 +850,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
             }
             if (!this.tableExists()) {
                 this.createTable(storeAnnotation, primaryKeys, indices);
-                log.info("A table: " + this.tableName + " is created with the provided information.");
+                if (log.isDebugEnabled()) {
+                    log.debug("A table: " + this.tableName + " is created with the provided information.");
+                }
             }
         } catch (CannotLoadConfigurationException | NamingException | PoolInitializationException |
                 RDBMSTableException e) {
@@ -879,6 +885,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
      */
     private void lookupDatasource(String resourceName) throws NamingException {
         this.dataSource = InitialContext.doLookup(resourceName);
+        if (log.isDebugEnabled()) {
+            log.debug("Lookup for resource '" + resourceName + "' completed through " +
+                    "JNDI lookup.");
+        }
     }
 
     /**
@@ -955,6 +965,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
         HikariConfig config = new HikariConfig(connectionProperties);
         this.dataSource = new HikariDataSource(config);
+        if (log.isDebugEnabled()) {
+            log.debug("Database connection for '" + this.tableName + "' created through connection" +
+                    " parameters specified in the query.");
+        }
     }
 
     /**
@@ -1061,6 +1075,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
         try {
             this.executeDDQueries(queries, false);
+            if (log.isDebugEnabled()) {
+                log.debug("Table '" + this.tableName + "' created.");
+            }
         } catch (SQLException e) {
             throw new RDBMSTableException("Unable to initialize table '" + this.tableName + "': " + e.getMessage(), e);
         }
