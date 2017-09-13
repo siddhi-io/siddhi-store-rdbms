@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -227,10 +228,8 @@ public class RDBMSTableUtils {
      * @return a map of fields and their specified sizes.
      */
     public static Map<String, String> processFieldLengths(String fieldInfo) {
-        Map<String, String> fieldLengths = new HashMap<>();
-        List<String[]> processedLengths = processKeyValuePairs(fieldInfo);
-        processedLengths.forEach(field -> fieldLengths.put(field[0], field[1]));
-        return fieldLengths;
+        return processKeyValuePairs(fieldInfo).stream()
+                .collect(Collectors.toMap(name -> name[0], value -> value[1]));
     }
 
     /**
@@ -388,7 +387,7 @@ public class RDBMSTableUtils {
 
         private boolean checkVersion(RDBMSQueryConfigurationEntry entry, double version, ConfigReader configReader) {
             double minVersion = Double.parseDouble(configReader.readConfig(entry.getDatabaseName() + PROPERTY_SEPARATOR
-                            + MIN_VERSION, String.valueOf(entry.getMinVersion())));
+                    + MIN_VERSION, String.valueOf(entry.getMinVersion())));
             double maxVersion = Double.parseDouble(configReader.readConfig(entry.getDatabaseName() + PROPERTY_SEPARATOR
                     + MAX_VERSION, String.valueOf(entry.getMaxVersion())));
             //Keeping things readable
