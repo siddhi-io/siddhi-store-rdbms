@@ -26,7 +26,7 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.container.CarbonContainerFactory;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.kernel.CarbonServerInfo;
 import org.wso2.extension.siddhi.store.rdbms.test.osgi.util.HTTPResponseMessage;
 import org.wso2.extension.siddhi.store.rdbms.test.osgi.util.TestUtil;
 
@@ -74,8 +74,8 @@ public class CarbonDSReferenceTest {
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
-        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "wso2-carbon-datasources.xml");
-        return copyFile(carbonYmlFilePath, Paths.get("conf", "datasources", "wso2-carbon-datasources.xml"));
+        carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "deployment1.yaml");
+        return copyFile(carbonYmlFilePath, Paths.get("conf", "default", "deployment.yaml"));
     }
 
     /*
