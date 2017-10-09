@@ -17,6 +17,11 @@
 */
 package org.wso2.extension.siddhi.store.rdbms.util;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import com.google.common.collect.Maps;
 import org.wso2.extension.siddhi.store.rdbms.RDBMSCompiledCondition;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfiguration;
@@ -28,6 +33,7 @@ import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -43,9 +49,6 @@ import java.util.SortedMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.DATABASE_PRODUCT_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.MAX_VERSION;
@@ -355,20 +358,29 @@ public class RDBMSTableUtils {
          * @throws CannotLoadConfigurationException if the config cannot me loaded.
          */
         private RDBMSQueryConfiguration loadConfiguration() throws CannotLoadConfigurationException {
+
+                /*JAXBContext ctx = JAXBContext.newInstance(RDBMSQueryConfiguration.class);
+                Unmarshaller unmarshaller = ctx.createUnmarshaller();*/
+            ClassLoader classLoader = getClass().getClassLoader();
+            InputStream inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
+            if (inputStream == null) {
+                throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE
+                        + " is not found in the classpath");
+            }
+
+            JacksonXmlModule module = new JacksonXmlModule();
+            module.setDefaultUseWrapper(false);
+            ObjectMapper xmlMapper = new XmlMapper(module);
+            JaxbAnnotationModule annotationModule = new JaxbAnnotationModule();
+            xmlMapper.registerModule(annotationModule);
+
             try {
-                JAXBContext ctx = JAXBContext.newInstance(RDBMSQueryConfiguration.class);
-                Unmarshaller unmarshaller = ctx.createUnmarshaller();
-                ClassLoader classLoader = getClass().getClassLoader();
-                InputStream inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
-                if (inputStream == null) {
-                    throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE
-                            + " is not found in the classpath");
-                }
-                return (RDBMSQueryConfiguration) unmarshaller.unmarshal(inputStream);
-            } catch (JAXBException e) {
+                return (RDBMSQueryConfiguration) xmlMapper.readValue(inputStream, RDBMSQueryConfiguration.class);
+            } catch (IOException e) {
                 throw new CannotLoadConfigurationException(
                         "Error in processing RDBMS query configuration: " + e.getMessage(), e);
             }
+
         }
     }
 
