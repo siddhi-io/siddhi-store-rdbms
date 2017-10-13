@@ -16,5 +16,9 @@ pages:
 - Welcome to WSO2 Siddhi Store RDBMS: index.md
 - API Docs:
   - 4.0.0-M5-SNAPSHOT: api/4.0.0-M5-SNAPSHOT.md
+  - 4.0.0-M6-SNAPSHOT: api/4.0.0-M6-SNAPSHOT.md
+  - 4.0.0-M7-SNAPSHOT: api/4.0.0-M7-SNAPSHOT.md
+  - 4.0.0-M8-SNAPSHOT: api/4.0.0-M8-SNAPSHOT.md
+  - 4.0.0-M9-SNAPSHOT: api/4.0.0-M9-SNAPSHOT.md
 - License: license.md
 theme: material
