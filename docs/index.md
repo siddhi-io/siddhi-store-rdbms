@@ -10,7 +10,7 @@ Find some useful links below:
 
 ## Latest API Docs 
 
-Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.0-M5-SNAPSHOT">4.0.0-M5-SNAPSHOT</a>.
+Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.0-M9-SNAPSHOT">4.0.0-M9-SNAPSHOT</a>.
 
 ## Prerequisites
 
@@ -49,7 +49,7 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
 
 ## Features
 
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.0-M5-SNAPSHOT/#rdbms-store">rdbms</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stores">Store</a>)*<br><div style="padding-left: 1em;"><p>This extension assigns data sources and connection instructions to event tables. It also implements read write operations on connected datasources</p></div>
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.0-M9-SNAPSHOT/#rdbms-store">rdbms</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stores">Store</a>)*<br><div style="padding-left: 1em;"><p>This extension assigns data sources and connection instructions to event tables. It also implements read write operations on connected datasources</p></div>
 
 ## How to Contribute
  
