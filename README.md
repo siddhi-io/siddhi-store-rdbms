@@ -37,6 +37,71 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
      </dependency>
 ```
 
+## Running Integration tests in docker containers(Optional)
+
+1. Install and run docker in daemon mode.
+
+    *  How to install docker on Linux
+    ```    
+    wget -qO- https://get.docker.com/ | sh
+    sudo service dockerd stop
+    export DOCKER_HOST=tcp://172.17.0.1:4326
+    docker daemon -H tcp://172.17.0.1:4326
+    ```
+    *  How to install docker on Mac 
+   https://docs.docker.com/docker-for-mac/
+
+    *  How to install docker on Windows
+   https://docs.docker.com/docker-for-windows/
+2. Go inside to the siddhi-store-rdbms directory
+3. Run integration test by giving following commands
+
+    * H2 default:
+    ```
+      mvn clean install
+      Note: h2 is the default activated profile as it is not used docker.
+    ```
+    * MySQL 5.7:
+    ```
+      mvn verify -P local-mysql -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+    ```
+    * Postgres 9.6:
+    ```
+      mvn verify -P local-postgres -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+    ```
+    * MSSQL CTP 2.0:
+     ```
+      mvn verify -P local-mssql -f /component/pom.xml -Dskip.surefire.test=true
+     ```
+    * Oracle 11.2.0.2 Express Edition:
+     ```
+      mvn verify -P local-oracle -f /component/pom.xml -Dskip.surefire.test=true
+     ```
+4. Run integration test with DB2 using following commands
+    * Download DB2 driver version 4.19.26 <a target="_blank" href="http://www.ibm.com/eserver/support/fixes/fixcentral/swg/quickorder?brandid=1&productid=IBM+Data+Server+Client+Packages&vrmf=10.5.*&fixes=*jdbc*FP005">db2jcc4.jar</a>
+    * Run the following command to install the jar file as mvn plugin:
+        ```
+        mvn install:install-file -Dfile=/tmp/db2jcc4.jar -DgroupId=com.ibm.db2 -DartifactId=db2jcc -Dversion=4.19.26 -Dpackaging=jar
+        ```
+    * Uncomment the following test dependency in /component/pom.xml:
+        ```
+         <!--<dependency>-->
+                     <!--<groupId>com.ibm.db2</groupId>-->
+                     <!--<artifactId>db2jcc</artifactId>-->
+                     <!--<scope>test</scope>-->
+                     <!--<version>4.19.26</version>-->
+         <!--</dependency>-->
+        ```
+    * Run integration test by giving following commands:
+         ```
+          mvn verify -P local-db2 -f /component/pom.xml -Dskip.surefire.test=true
+         ```
+
+## Start integration tests in debug mode
+```
+mvn -P local-mysql -Dmaven.failsafe.debug verify
+Note: local-mysql is the profile. Use other profiles accordingly.
+```
 ## Jenkins Build Status
 
 ---
