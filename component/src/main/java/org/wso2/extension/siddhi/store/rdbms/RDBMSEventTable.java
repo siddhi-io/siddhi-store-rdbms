@@ -642,7 +642,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
                                                   Map<String, CompiledExpression> updateSetExpressions,
                                                   List<Map<String, Object>> updateSetParameterMaps) {
         int counter = 0;
-        final int seed = this.attributes.size();
         Connection conn = this.getConnection(false);
         PreparedStatement updateStmt = null;
         List<Integer> updateResultList = new ArrayList<>();
@@ -674,7 +673,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
                 RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
-                        conditionParameters, seed);
+                        conditionParameters, ordinal - 1);
                 int isUpdate = updateStmt.executeUpdate();
                 conn.commit();
                 if (isUpdate < 1) {
