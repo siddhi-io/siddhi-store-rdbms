@@ -194,6 +194,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#running-integration-tests-in-docker-containersoptional" title="Running Integration tests in docker containers(Optional)" class="md-nav__link">
+    Running Integration tests in docker containers(Optional)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#jenkins-build-status" title="Jenkins Build Status" class="md-nav__link">
     Jenkins Build Status
   </a>
@@ -303,6 +310,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#running-integration-tests-in-docker-containersoptional" title="Running Integration tests in docker containers(Optional)" class="md-nav__link">
+    Running Integration tests in docker containers(Optional)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#jenkins-build-status" title="Jenkins Build Status" class="md-nav__link">
     Jenkins Build Status
   </a>
@@ -361,7 +375,7 @@ Find some useful links below:</p>
 <li><a target="_blank" href="https://github.com/wso2-extensions/siddhi-store-rdbms/issues">Issue tracker</a></li>
 </ul>
 <h2 id="latest-api-docs">Latest API Docs</h2>
-<p>Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.0-M11">4.0.0-M11</a>.</p>
+<p>Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.0-M12">4.0.0-M12</a>.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
 <li>A RDBMS server instance should be started.</li>
@@ -386,6 +400,65 @@ Find some useful links below:</p>
         &lt;artifactId&gt;siddhi-store-rdbms&lt;/artifactId&gt;
         &lt;version&gt;x.x.x&lt;/version&gt;
      &lt;/dependency&gt;
+</code></pre>
+
+<h2 id="running-integration-tests-in-docker-containersoptional">Running Integration tests in docker containers(Optional)</h2>
+<p>The RDBMS functionality are tested with the docker base integration test framework, except the H2 default 
+embedded database is not uses external docker container. The test framework initialize the docker container for each 
+database according to the given profile before execute the test suit.</p>
+<ol>
+<li>
+<p>Install and run docker in daemon mode.</p>
+<ul>
+<li>How to install docker on Linux</li>
+</ul>
+<p><code>Note: These commands retrieve content from get.docker.com web in a quiet output-document mode and install.
+      Then we need to stop docker service as it needs to restart docker in daemon mode. After that, we need to
+      export docker daemon host.
+wget -qO- https://get.docker.com/ | sh
+sudo service dockerd stop
+export DOCKER_HOST=tcp://172.17.0.1:4326
+docker daemon -H tcp://172.17.0.1:4326</code>
+*  How to install docker on Mac 
+   https://docs.docker.com/docker-for-mac/</p>
+<ul>
+<li>How to install docker on Windows
+   https://docs.docker.com/docker-for-windows/</li>
+<li>
+<p>To run the integration test, navigate to the siddhi-store-rdbms/ directory and issue the following commands.</p>
+</li>
+<li>
+<p>H2 default:
+<code>mvn clean install
+Note: h2 is the default activated profile as it is not used docker.</code></p>
+</li>
+<li>MySQL 5.7:
+<code>mvn verify -P local-mysql -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true</code></li>
+<li>Postgres 9.6:
+<code>mvn verify -P local-postgres -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true</code></li>
+<li>MSSQL CTP 2.0:
+ <code>mvn verify -P local-mssql -f /component/pom.xml -Dskip.surefire.test=true</code></li>
+<li>Oracle 11.2.0.2 Express Edition:
+ <code>mvn verify -P local-oracle -f /component/pom.xml -Dskip.surefire.test=true</code></li>
+<li>To run the integration test with DB2, issue the following commands:</li>
+<li>Download DB2 driver version 4.19.26 <a target="_blank" href="http://www.ibm.com/eserver/support/fixes/fixcentral/swg/quickorder?brandid=1&productid=IBM+Data+Server+Client+Packages&vrmf=10.5.*&fixes=*jdbc*FP005">db2jcc4.jar</a></li>
+<li>To install the JAR file as a Maven plugin, issue the following command:
+    <code>mvn install:install-file -Dfile=/tmp/db2jcc4.jar -DgroupId=com.ibm.db2 -DartifactId=db2jcc -Dversion=4.19.26 -Dpackaging=jar</code></li>
+<li>Uncomment the following test dependency in the /component/pom.xml file as shown below:
+    <code>&lt;dependency&gt;
+         &lt;groupId&gt;com.ibm.db2&lt;/groupId&gt;
+         &lt;artifactId&gt;db2jcc&lt;/artifactId&gt;
+         &lt;scope&gt;test&lt;/scope&gt;
+         &lt;version&gt;4.19.26&lt;/version&gt;
+     &lt;/dependency&gt;</code></li>
+<li>To run the integration test, navigate to siddhi-store-rdbms/ directory and issue the following commands:
+     <code>mvn verify -P local-db2 -f /component/pom.xml -Dskip.surefire.test=true</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>Start integration tests in debug mode</strong></p>
+<pre><code>mvn -P local-mysql -Dmaven.failsafe.debug verify
+Note: local-mysql is the profile. Use other profiles accordingly.
 </code></pre>
 
 <h2 id="jenkins-build-status">Jenkins Build Status</h2>
