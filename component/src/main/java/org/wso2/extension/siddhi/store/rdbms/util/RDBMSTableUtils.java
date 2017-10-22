@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.DATABASE_PRODUCT_NAME;
@@ -215,12 +214,12 @@ public class RDBMSTableUtils {
      */
     public static String flattenAnnotatedElements(List<Element> elements) {
         StringBuilder sb = new StringBuilder();
-        elements.forEach(elem -> {
+        for (Element elem : elements) {
             sb.append(elem.getValue());
             if (elements.indexOf(elem) != elements.size() - 1) {
                 sb.append(RDBMSTableConstants.SEPARATOR);
             }
-        });
+        }
         return sb.toString();
     }
 
@@ -231,8 +230,12 @@ public class RDBMSTableUtils {
      * @return a map of fields and their specified sizes.
      */
     public static Map<String, String> processFieldLengths(String fieldInfo) {
-        return processKeyValuePairs(fieldInfo).stream()
-                .collect(Collectors.toMap(name -> name[0], value -> value[1]));
+        Map<String, String> processFieldLengthsMap = new HashMap<>();
+        List<String[]> keyValuePairs = processKeyValuePairs(fieldInfo);
+        for (String[] keyValuePair : keyValuePairs) {
+            processFieldLengthsMap.put(keyValuePair[0], keyValuePair[1]);
+        }
+        return processFieldLengthsMap;
     }
 
     /**
@@ -414,11 +417,11 @@ public class RDBMSTableUtils {
 
         private List<RDBMSQueryConfigurationEntry> extractMatchingConfigEntries(String dbName) {
             List<RDBMSQueryConfigurationEntry> result = new ArrayList<>();
-            this.entries.forEach(entry -> {
+            for (Map.Entry<Pattern, RDBMSQueryConfigurationEntry> entry : this.entries) {
                 if (entry.getKey().matcher(dbName).find()) {
                     result.add(entry.getValue());
                 }
-            });
+            }
             return result;
         }
 
