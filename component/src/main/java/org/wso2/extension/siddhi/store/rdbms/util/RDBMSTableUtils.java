@@ -362,8 +362,6 @@ public class RDBMSTableUtils {
          */
         private RDBMSQueryConfiguration loadConfiguration() throws CannotLoadConfigurationException {
 
-                /*JAXBContext ctx = JAXBContext.newInstance(RDBMSQueryConfiguration.class);
-                Unmarshaller unmarshaller = ctx.createUnmarshaller();*/
             ClassLoader classLoader = getClass().getClassLoader();
             InputStream inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
             if (inputStream == null) {
