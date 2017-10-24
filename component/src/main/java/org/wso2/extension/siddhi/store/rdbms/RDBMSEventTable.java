@@ -1025,7 +1025,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         Map<String, String> fieldLengths = RDBMSTableUtils.processFieldLengths(storeAnnotation.getElement(
                 ANNOTATION_ELEMENT_FIELD_LENGTHS));
         this.validateFieldLengths(fieldLengths);
-        this.attributes.forEach(attribute -> {
+        for (Attribute attribute : attributes) {
             builder.append(attribute.getName()).append(WHITESPACE);
             switch (attribute.getType()) {
                 case BOOL:
@@ -1050,7 +1050,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     builder.append(stringType);
                     if (null != stringSize) {
                         builder.append(OPEN_PARENTHESIS);
-                        builder.append(fieldLengths.getOrDefault(attribute.getName(), stringSize));
+                        if (fieldLengths.get(attribute.getName()) != null) {
+                            builder.append(fieldLengths.get(attribute.getName()));
+                        } else {
+                            builder.append(stringSize);
+                        }
                         builder.append(CLOSE_PARENTHESIS);
                     }
                     break;
@@ -1061,7 +1065,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
             if (this.attributes.indexOf(attribute) != this.attributes.size() - 1 || !primaryKeyList.isEmpty()) {
                 builder.append(SEPARATOR);
             }
-        });
+        }
+        ;
         if (primaryKeyList != null && !primaryKeyList.isEmpty()) {
             builder.append(SQL_PRIMARY_KEY_DEF)
                     .append(OPEN_PARENTHESIS)
@@ -1090,13 +1095,16 @@ public class RDBMSEventTable extends AbstractRecordTable {
      */
     private void validateFieldLengths(Map<String, String> fieldLengths) {
         List<String> attributeNames = new ArrayList<>();
-        this.attributes.forEach(attribute -> attributeNames.add(attribute.getName()));
-        fieldLengths.keySet().forEach(field -> {
-            if (!attributeNames.contains(field)) {
-                throw new RDBMSTableException("Field '" + field + "' (for which a size of " + fieldLengths.get(field)
+        for (Attribute attribute : attributes) {
+            attributeNames.add(attribute.getName());
+        }
+        for (Map.Entry<String, String> fieldEntry : fieldLengths.entrySet()) {
+            if (!attributeNames.contains(fieldEntry.getKey())) {
+                throw new RDBMSTableException("Field '" + fieldEntry.getKey() + "' (for which a size of " +
+                        fieldLengths.get(fieldEntry.getKey())
                         + " has been specified) does not exist in the table's list of fields.");
             }
-        });
+        }
     }
 
     /**
