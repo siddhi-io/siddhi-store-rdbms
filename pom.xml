@@ -67,7 +67,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-M106</siddhi.version>
+        <siddhi.version>4.0.0-M115</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <testng.version>6.9.10</testng.version>
         <hikari.version>2.4.1</hikari.version>
@@ -81,22 +81,22 @@
         <sqljdbc4.version>4.0</sqljdbc4.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <io.fabric8.version>0.20.0</io.fabric8.version>
-        <carbon.datasources.version>1.1.2</carbon.datasources.version>
+        <carbon.datasources.version>1.1.3</carbon.datasources.version>
 
         <carbon.kernel.version>5.2.0-alpha</carbon.kernel.version>
         <carbon.utils.version>2.0.2</carbon.utils.version>
-        <org.wso2.carbon.transport.http.netty.version>5.0.0-m1</org.wso2.carbon.transport.http.netty.version>
-        <org.wso2.carbon.transport.version>5.0.0-m1</org.wso2.carbon.transport.version>
-        <carbon.messaging.version>3.0.0</carbon.messaging.version>
-        <carbon.jndi.version>1.0.3</carbon.jndi.version>
+        <org.wso2.carbon.transport.http.netty.version>5.0.1</org.wso2.carbon.transport.http.netty.version>
+        <org.wso2.carbon.transport.version>5.0.1</org.wso2.carbon.transport.version>
+        <carbon.messaging.version>3.0.1</carbon.messaging.version>
+        <carbon.jndi.version>1.0.4</carbon.jndi.version>
         <carbon.cache.version>1.1.3</carbon.cache.version>
-        <carbon.metrics.version>2.3.1</carbon.metrics.version>
-        <msf4j.version>2.4.0-m1</msf4j.version>
-        <carbon.deployment.version>5.1.4</carbon.deployment.version>
+        <carbon.metrics.version>2.3.2</carbon.metrics.version>
+        <msf4j.version>2.4.1</msf4j.version>
+        <carbon.deployment.version>5.1.5</carbon.deployment.version>
         <carbon.touchpoint.version>1.1.0</carbon.touchpoint.version>
         <carbon.config.version>2.0.5</carbon.config.version>
         <carbon.securevault.version>5.0.8</carbon.securevault.version>
-        <carbon.analytics.version>2.0.82</carbon.analytics.version>
+        <carbon.analytics.version>2.0.105</carbon.analytics.version>
         <carbon.feature.plugin.version>3.1.3</carbon.feature.plugin.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
@@ -111,6 +111,8 @@
         <commons.io.version>1.3.2</commons.io.version>
         <osgi.test.util.version>5.1.1</osgi.test.util.version>
         <slf4j.version>1.7.12</slf4j.version>
+
+        <carbon.coordination.version>2.0.5</carbon.coordination.version>
     </properties>
 
     <scm>
@@ -346,6 +348,19 @@
             <type>zip</type>
         </dependency>
 
+        <!-- Clustering -->
+        <dependency>
+            <groupId>org.wso2.carbon.coordination</groupId>
+            <artifactId>org.wso2.carbon.cluster.coordinator.service.feature</artifactId>
+            <version>${carbon.coordination.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.coordination</groupId>
+            <artifactId>org.wso2.carbon.cluster.coordinator.commons.feature</artifactId>
+            <version>${carbon.coordination.version}</version>
+            <type>zip</type>
+        </dependency>
 
         <!-- Stream Processor related Features-->
         <dependency>
