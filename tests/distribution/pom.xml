@@ -562,11 +562,11 @@
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.cluster.coordinator.service.feature</id>
+                                    <id>org.wso2.carbon.cluster.coordinator.service.feature.group</id>
                                     <version>${carbon.coordination.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.cluster.coordinator.commons.feature</id>
+                                    <id>org.wso2.carbon.cluster.coordinator.commons.feature.group</id>
                                     <version>${carbon.coordination.version}</version>
                                 </feature>
                             </features>
