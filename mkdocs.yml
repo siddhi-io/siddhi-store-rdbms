@@ -14,6 +14,8 @@ google_analytics:
 - auto
 pages:
 - Welcome to WSO2 Siddhi Store RDBMS: index.md
-- API Docs: []
+- API Docs:
+  - 4.0.1: api/4.0.1.md
+  - latest: api/latest.md
 - License: license.md
 theme: material
