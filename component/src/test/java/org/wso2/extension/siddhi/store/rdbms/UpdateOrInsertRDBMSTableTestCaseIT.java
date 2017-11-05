@@ -132,6 +132,10 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
         stockStream.send(new Object[]{"IBM", 75.6F, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6F, 100L});
         stockStream.send(new Object[]{"WSO2", 10F, 100L});
+        stockStream.send(new Object[]{"WSO2", 101F, 100L});
+        stockStream.send(new Object[]{"WSO2", 102F, 100L});
+        stockStream.send(new Object[]{"WSO2", 103F, 100L});
+        stockStream.send(new Object[]{"WSO2", 104F, 100L});
         Thread.sleep(500);
 
         siddhiAppRuntime.shutdown();
