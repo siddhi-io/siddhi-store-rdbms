@@ -1113,7 +1113,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             for (String query : queries) {
                 stmt = conn.prepareStatement(query);
                 stmt.execute();
-                RDBMSTableUtils.cleanupConnection(null, stmt, conn);
+                RDBMSTableUtils.cleanupConnection(null, stmt, null);
             }
             if (!autocommit) {
                 conn.commit();
