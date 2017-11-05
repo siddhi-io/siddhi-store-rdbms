@@ -632,7 +632,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
                     + this.tableName + "': " + e.getMessage(), e);
         } finally {
-            RDBMSTableUtils.cleanupConnection(null, updateStmt, null);
+            RDBMSTableUtils.cleanupConnection(null, updateStmt, conn);
         }
         return recordInsertIndexList;
     }
@@ -686,7 +686,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     + this.tableName
                     + "': " + e.getMessage(), e);
         } finally {
-            RDBMSTableUtils.cleanupConnection(null, updateStmt, null);
+            RDBMSTableUtils.cleanupConnection(null, updateStmt, conn);
         }
         return updateResultList;
     }
@@ -725,7 +725,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     + this.tableName
                     + "': " + e.getMessage(), e);
         } finally {
-            RDBMSTableUtils.cleanupConnection(null, insertStmt, null);
+            RDBMSTableUtils.cleanupConnection(null, insertStmt, conn);
         }
     }
 
@@ -1113,7 +1113,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             for (String query : queries) {
                 stmt = conn.prepareStatement(query);
                 stmt.execute();
-                RDBMSTableUtils.cleanupConnection(null, stmt, null);
+                RDBMSTableUtils.cleanupConnection(null, stmt, conn);
             }
             if (!autocommit) {
                 conn.commit();
