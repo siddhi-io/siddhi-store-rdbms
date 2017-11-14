@@ -119,6 +119,7 @@ public class RDBMSTableTestUtils {
                 driverClassName = JDBC_DRIVER_CLASS_DB2;
                 break;
         }
+        log.info("URL of docker instance: " + url);
         connectionProperties.setProperty("jdbcUrl", url);
         connectionProperties.setProperty("driverClassName", driverClassName);
         connectionProperties.setProperty("dataSource.user", user);
