@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
         <artifactId>siddhi-store-rdbms-parent</artifactId>
-        <version>4.0.3-SNAPSHOT</version>
+        <version>4.0.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -565,7 +565,7 @@
                                         </ports>
                                         <wait>
                                             <log>Service Broker manager has started.</log>
-                                            <time>180000</time>
+                                            <time>120000</time>
                                         </wait>
                                     </run>
                                 </image>
