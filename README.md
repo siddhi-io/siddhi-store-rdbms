@@ -1,7 +1,7 @@
 siddhi-store-rdbms
 ======================================
 
-The **siddhi-store-rdbms extension** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a> that  can be used to persist events to a RDBMS instance of the users choice.
+The **siddhi-store-rdbms extension** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a> that  can be used to persist events to an RDBMS instance of the user's choice.
 Find some useful links below:
 
 * <a target="_blank" href="https://github.com/wso2-extensions/siddhi-store-rdbms">Source code</a>
@@ -15,7 +15,7 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
 ## Prerequisites
 
  * A RDBMS server instance should be started.
- * User should have the necessary privileges and access rights to connect to the RDBMS data store of choice.
+ * The user should have the necessary privileges and access rights to connect to the RDBMS data store of choice.
 
 ## How to use 
 
