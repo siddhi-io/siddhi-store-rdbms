@@ -45,6 +45,7 @@ public class RDBMSQueryConfigurationEntry {
     private RDBMSTypeMapping rdbmsTypeMapping;
     private int batchSize;
     private boolean batchEnable = false;
+    private boolean transactionSupported = true;
 
     @XmlAttribute(name = "name", required = true)
     public String getDatabaseName() {
@@ -177,6 +178,14 @@ public class RDBMSQueryConfigurationEntry {
 
     public void setStringSize(String stringSize) {
         this.stringSize = stringSize;
+    }
+
+    public boolean isTransactionSupported() {
+        return transactionSupported;
+    }
+
+    public void setTransactionSupported(boolean transactionSupported) {
+        this.transactionSupported = transactionSupported;
     }
 
     @XmlElement(name = "typeMapping", required = true)

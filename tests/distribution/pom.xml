@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>siddhi-store-rdbms-tests-distribution</artifactId>
     <packaging>pom</packaging>
-    <name>Siddhi Store Rdbms - Test Distribution</name>
+    <name>Siddhi Store RDBMS - Test Distribution</name>
     <description>
         This module generates the product distribution (zip) by installing sample in-memory user store and
         carbon-security feature on top of kernel core and runtime features and finally assembles product specific

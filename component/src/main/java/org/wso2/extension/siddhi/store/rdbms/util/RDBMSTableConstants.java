@@ -96,6 +96,7 @@ public class RDBMSTableConstants {
     public static final String STRING_TYPE = "stringType";
     public static final String BATCH_SIZE = "batchSize";
     public static final String BATCH_ENABLE = "batchEnable";
+    public static final String TRANSACTION_SUPPORTED = "transactionSupported";
 
     private RDBMSTableConstants() {
         //preventing initialization
