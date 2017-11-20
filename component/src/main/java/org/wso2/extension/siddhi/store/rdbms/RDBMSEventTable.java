@@ -106,6 +106,7 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.STR
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.STRING_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TABLE_CHECK_QUERY;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TABLE_CREATE_QUERY;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TRANSACTION_SUPPORTED;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TYPE_MAPPING;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.WHITESPACE;
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
@@ -314,6 +315,19 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                                 " batches of events or not.",
                         defaultValue = "<b>H2</b>: true<br>" +
                                 "<b>MySQL</b>: true<br>" +
+                                "<b>Oracle (versions 12.0 and less)</b>: false<br>" +
+                                "<b>Oracle (versions 12.1 and above)</b>: true<br>" +
+                                "<b>Microsoft SQL Server</b>: true<br>" +
+                                "<b>PostgreSQL</b>: true<br>" +
+                                "<b>DB2.*</b>: true",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.transactionSupported",
+                        description = "This is used to specify whether or not the JDBC connection that is used " +
+                                "supports JDBC transactions.",
+                        defaultValue = "<b>H2</b>: true<br>" +
+                                "<b>MySQL</b>: true<br>" +
                                 "<b>Oracle</b>: true<br>" +
                                 "<b>Microsoft SQL Server</b>: true<br>" +
                                 "<b>PostgreSQL</b>: true<br>" +
@@ -345,6 +359,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private String indexQuery;
     private int batchSize;
     private boolean batchEnable;
+    private boolean transactionSupported;
     private String binaryType;
     private String booleanType;
     private String doubleType;
@@ -379,7 +394,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected void add(List<Object[]> records) {
         String sql = this.composeInsertQuery();
         try {
-            this.batchExecuteQueriesWithRecords(sql, records, false);
+            // Setting autocommit to true if the JDBC connection does not support transactions.
+            this.batchExecuteQueriesWithRecords(sql, records, !this.transactionSupported);
         } catch (SQLException e) {
             throw new RDBMSTableException("Error in adding events to '" + this.tableName + "' store: "
                     + e.getMessage(), e);
@@ -820,6 +836,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     batchEnable = Boolean.parseBoolean(configReader.readConfig(
                             this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
                                     BATCH_ENABLE, String.valueOf(this.queryConfigurationEntry.getBatchEnable())));
+                    transactionSupported = Boolean.parseBoolean(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
+                                    TRANSACTION_SUPPORTED, String.valueOf(
+                                    this.queryConfigurationEntry.isTransactionSupported())));
                     RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRdbmsTypeMapping();
                     booleanType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BOOLEAN_TYPE,
@@ -1073,7 +1093,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     RDBMSTableUtils.flattenAnnotatedElements(indexElementList)));
         }
         try {
-            this.executeDDQueries(queries, false);
+            // Setting autocommit to true if the JDBC connection does not support transactions.
+            this.executeDDQueries(queries, !this.transactionSupported);
             if (log.isDebugEnabled()) {
                 log.debug("Table '" + this.tableName + "' created.");
             }
