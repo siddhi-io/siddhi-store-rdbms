@@ -29,7 +29,7 @@
     <packaging>bundle</packaging>
 
     <artifactId>siddhi-store-rdbms</artifactId>
-    <name>Siddhi Extension - RDBMS Store Implementation</name>
+    <name>Siddhi Store RDBMS - Implementation</name>
 
     <dependencies>
         <dependency>

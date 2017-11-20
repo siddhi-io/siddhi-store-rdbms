@@ -26,7 +26,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>siddhi-store-rdbms-osgi-tests</artifactId>
-    <name>Siddhi Store Rdbms - OSGi Tests</name>
+    <name>Siddhi Store RDBMS - OSGi Tests</name>
     <description>OSGi Tests for Siddhi-store-rdbms Extension</description>
 
     <dependencies>

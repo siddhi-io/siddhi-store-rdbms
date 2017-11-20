@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>coverage-reports</artifactId>
-    <name>Siddhi-Store-Rdbms Tests Coverage Report Aggregation</name>
+    <name>Siddhi Store RDBMS - Tests Coverage Report Aggregation</name>
     <packaging>pom</packaging>
 
     <profiles>
