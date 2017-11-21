@@ -228,7 +228,7 @@ wso2.datasources:
           validationTimeout: 30000
           isAutoCommit: false
 
-    - name: WSO2_ANALYTICS_DB_2
+    - name: WSO2_CARBON_DS_2
       description: The datasource used for Siddhi App RDBMS lookup
       definition:
         type: RDBMS
