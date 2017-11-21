@@ -36,7 +36,7 @@
             <id>Test-Coverage-Report-Aggregation</id>
             <activation>
                 <file>
-                    <exists>../component/target/coverage-reports</exists>
+                    <exists>../component/target/coverage-reports/jacoco.exec</exists>
                 </file>
             </activation>
             <build>
