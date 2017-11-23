@@ -145,6 +145,14 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = "null"),
+                @Parameter(name = "datasource",
+                        description = "The name of the Carbon datasource which should be used for creating the " +
+                                "connection with the database. If this is found, neither the pool properties nor the " +
+                                "JNDI resource name described above are not taken into account, and the connection " +
+                                "is attempted via Carbon datasources instead. ",
+                        type = {DataType.STRING},
+                        optional = true,
+                        defaultValue = "null"),
                 @Parameter(name = "table.name",
                         description = "The name with which the event table should be persisted in the store. If no " +
                                 "name is specified via this parameter, the event table is persisted with the same " +
@@ -518,7 +526,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
      * @param sql                          the SQL update operation as string.
      * @param updateConditionParameterMaps the runtime parameters that should be populated to the condition.
      * @param compiledCondition            the condition that was built during compile time.
-     * @param updateSetExpressions
+     * @param updateSetExpressions         the expressions that are used in the SET operation
      * @param updateSetParameterMaps       the runtime parameters that should be populated to the update statement.
      */
     private void batchProcessSQLUpdates(String sql, List<Map<String, Object>> updateConditionParameterMaps,
