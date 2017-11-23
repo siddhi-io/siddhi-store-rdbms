@@ -77,14 +77,15 @@ public class InvalidCarbonDSReferenceTest {
         return copyFile(carbonYmlFilePath, Paths.get("conf", "default", "deployment.yaml"));
     }
 
-    @Test
+    @Test(enabled = false)
     public void testInvalidDataSourceReference() throws SQLException {
+        // TODO: 11/21/17 To be enabled after solving https://github.com/wso2-extensions/siddhi-store-rdbms/issues/34
         URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 9090));
         String path = "/simulation/single";
         String contentType = "text/plain";
         String method = "POST";
         String body = "{\n" +
-                "  \"siddhiAppName\": \"SiddhiApp1\",\n" +
+                "  \"siddhiAppName\": \"SiddhiApp2\",\n" +
                 "  \"streamName\": \"FooStream\",\n" +
                 "  \"timestamp\": null,\n" +
                 "  \"data\": [\n" +
