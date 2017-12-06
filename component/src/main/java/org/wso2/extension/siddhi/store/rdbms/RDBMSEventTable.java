@@ -30,7 +30,6 @@ import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSTypeMapping;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
-import org.wso2.extension.siddhi.store.rdbms.util.Constant;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
@@ -448,8 +447,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     }
 
     @Override
-    protected boolean contains(Map<String, Object> containsConditionParameterMap,
-                               CompiledCondition compiledCondition) {
+    protected boolean contains(Map<String, Object> containsConditionParameterMap, CompiledCondition compiledCondition) {
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -471,13 +469,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
     }
 
     @Override
-    protected void delete(List<Map<String, Object>> deleteConditionParameterMaps,
-                          CompiledCondition compiledCondition) {
+    protected void delete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition compiledCondition) {
         this.batchProcessDelete(deleteConditionParameterMaps, compiledCondition);
     }
 
-    private void batchProcessDelete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition
-            compiledCondition) {
+    private void batchProcessDelete(List<Map<String, Object>> deleteConditionParameterMaps,
+                                    CompiledCondition compiledCondition) {
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -510,8 +507,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     protected void update(CompiledCondition compiledCondition, List<Map<String, Object>> updateConditionParameterMaps,
-                          Map<String, CompiledExpression> updateSetExpressions,
-                          List<Map<String, Object>> updateValues)
+                          Map<String, CompiledExpression> updateSetExpressions, List<Map<String, Object>> updateValues)
             throws ConnectionUnavailableException {
         String sql = this.composeUpdateQuery(compiledCondition, updateSetExpressions);
         this.batchProcessSQLUpdates(sql, updateConditionParameterMaps, compiledCondition,
@@ -543,25 +539,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             while (conditionParamIterator.hasNext() && updateSetParameterMapsIterator.hasNext()) {
                 Map<String, Object> conditionParameters = conditionParamIterator.next();
                 Map<String, Object> updateSetMap = updateSetParameterMapsIterator.next();
-                int ordinal = 1;
-                for (Map.Entry<String, CompiledExpression> assignmentEntry :
-                        updateSetExpressions.entrySet()) {
-                    for (Map.Entry<Integer, Object> parameterEntry :
-                            ((RDBMSCompiledCondition) assignmentEntry.getValue()).getParameters().entrySet()) {
-                        Object parameter = parameterEntry.getValue();
-                        if (parameter instanceof Constant) {
-                            Constant constant = (Constant) parameter;
-                            RDBMSTableUtils.populateStatementWithSingleElement(stmt, ordinal, constant.getType(),
-                                    constant.getValue());
-                        } else {
-                            Attribute variable = (Attribute) parameter;
-                            RDBMSTableUtils.populateStatementWithSingleElement(stmt, ordinal, variable.getType(),
-                                    updateSetMap.get(variable.getName()));
-                        }
-                        ordinal++;
-                    }
-                }
-
+                int ordinal = RDBMSTableUtils.enumerateUpdateSetEntries(updateSetExpressions, stmt, updateSetMap);
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
                 RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
                         conditionParameters, ordinal - 1);
@@ -617,26 +595,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             while (conditionParamIterator.hasNext() && updateSetMapIterator.hasNext()) {
                 Map<String, Object> conditionParameters = conditionParamIterator.next();
                 Map<String, Object> updateSetMap = updateSetMapIterator.next();
-
-                int ordinal = 1;
-                for (Map.Entry<String, CompiledExpression> assignmentEntry :
-                        updateSetExpressions.entrySet()) {
-                    for (Map.Entry<Integer, Object> parameterEntry :
-                            ((RDBMSCompiledCondition) assignmentEntry.getValue()).getParameters().entrySet()) {
-                        Object parameter = parameterEntry.getValue();
-                        if (parameter instanceof Constant) {
-                            Constant constant = (Constant) parameter;
-                            RDBMSTableUtils.populateStatementWithSingleElement(updateStmt, ordinal, constant.getType(),
-                                    constant.getValue());
-                        } else {
-                            Attribute variable = (Attribute) parameter;
-                            RDBMSTableUtils.populateStatementWithSingleElement(updateStmt, ordinal, variable.getType(),
-                                    updateSetMap.get(variable.getName()));
-                        }
-                        ordinal++;
-                    }
-                }
-
+                int ordinal = RDBMSTableUtils.enumerateUpdateSetEntries(updateSetExpressions, updateStmt, updateSetMap);
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
                 RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
                         conditionParameters, ordinal - 1);
@@ -675,26 +634,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
             while (counter < updateSetParameterMaps.size()) {
                 Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
                 Map<String, Object> updateSetParameterMap = updateSetParameterMaps.get(counter);
-
-                int ordinal = 1;
-                for (Map.Entry<String, CompiledExpression> assignmentEntry :
-                        updateSetExpressions.entrySet()) {
-                    for (Map.Entry<Integer, Object> parameterEntry :
-                            ((RDBMSCompiledCondition) assignmentEntry.getValue()).getParameters().entrySet()) {
-                        Object parameter = parameterEntry.getValue();
-                        if (parameter instanceof Constant) {
-                            Constant constant = (Constant) parameter;
-                            RDBMSTableUtils.populateStatementWithSingleElement(updateStmt, ordinal, constant.getType(),
-                                    constant.getValue());
-                        } else {
-                            Attribute variable = (Attribute) parameter;
-                            RDBMSTableUtils.populateStatementWithSingleElement(updateStmt, ordinal, variable.getType(),
-                                    updateSetParameterMap.get(variable.getName()));
-                        }
-                        ordinal++;
-                    }
-                }
-
+                int ordinal = RDBMSTableUtils.enumerateUpdateSetEntries(
+                        updateSetExpressions, updateStmt, updateSetParameterMap);
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
                 RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
                         conditionParameters, ordinal - 1);
@@ -891,16 +832,19 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     public void disconnect() {
-
-    }
-
-    @Override
-    public void destroy() {
         if (dataSource != null) {
             dataSource.close();
             if (log.isDebugEnabled()) {
                 log.debug("Closing the pool name: " + dataSource.getPoolName());
             }
+        }
+    }
+
+    @Override
+    public void destroy() {
+        this.disconnect();
+        if (log.isDebugEnabled()) {
+            log.debug("Destroyed RDBMS Store instance");
         }
     }
 

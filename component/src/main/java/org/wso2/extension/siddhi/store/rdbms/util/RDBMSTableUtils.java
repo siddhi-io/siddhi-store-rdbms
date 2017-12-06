@@ -23,11 +23,13 @@ import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfiguration;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -147,6 +149,30 @@ public class RDBMSTableUtils {
                         conditionParameterMap.get(variable.getName()));
             }
         }
+    }
+
+    public static int enumerateUpdateSetEntries(Map<String, CompiledExpression> updateSetExpressions,
+                                                PreparedStatement stmt, Map<String, Object> updateSetMap)
+            throws SQLException {
+        Object parameter;
+        int ordinal = 1;
+        for (Map.Entry<String, CompiledExpression> assignmentEntry : updateSetExpressions.entrySet()) {
+            for (Map.Entry<Integer, Object> parameterEntry :
+                    ((RDBMSCompiledCondition) assignmentEntry.getValue()).getParameters().entrySet()) {
+                parameter = parameterEntry.getValue();
+                if (parameter instanceof Constant) {
+                    Constant constant = (Constant) parameter;
+                    RDBMSTableUtils.populateStatementWithSingleElement(stmt, ordinal, constant.getType(),
+                            constant.getValue());
+                } else {
+                    Attribute variable = (Attribute) parameter;
+                    RDBMSTableUtils.populateStatementWithSingleElement(stmt, ordinal, variable.getType(),
+                            updateSetMap.get(variable.getName()));
+                }
+                ordinal++;
+            }
+        }
+        return ordinal;
     }
 
     /**
@@ -352,14 +378,15 @@ public class RDBMSTableUtils {
          * Method for loading the configuration mappings.
          *
          * @return an instance of {@link RDBMSQueryConfiguration}.
-         * @throws CannotLoadConfigurationException if the config cannot me loaded.
+         * @throws CannotLoadConfigurationException if the config cannot be loaded.
          */
         private RDBMSQueryConfiguration loadConfiguration() throws CannotLoadConfigurationException {
+            InputStream inputStream = null;
             try {
                 JAXBContext ctx = JAXBContext.newInstance(RDBMSQueryConfiguration.class);
                 Unmarshaller unmarshaller = ctx.createUnmarshaller();
                 ClassLoader classLoader = getClass().getClassLoader();
-                InputStream inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
+                inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
                 if (inputStream == null) {
                     throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE
                             + " is not found in the classpath");
@@ -368,6 +395,14 @@ public class RDBMSTableUtils {
             } catch (JAXBException e) {
                 throw new CannotLoadConfigurationException(
                         "Error in processing RDBMS query configuration: " + e.getMessage(), e);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        //do nothing
+                    }
+                }
             }
         }
     }
