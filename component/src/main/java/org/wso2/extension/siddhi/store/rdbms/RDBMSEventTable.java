@@ -918,17 +918,15 @@ public class RDBMSEventTable extends AbstractRecordTable {
             throw new RDBMSTableException("Required parameter '" + ANNOTATION_ELEMENT_USERNAME + "' for DB " +
                     "connectivity cannot be empty.");
         }
-        if (RDBMSTableUtils.isEmpty(password)) {
-            throw new RDBMSTableException("Required parameter '" + ANNOTATION_ELEMENT_PASSWORD + "' for DB " +
-                    "connectivity cannot be empty.");
-        }
         if (RDBMSTableUtils.isEmpty(driverClassName)) {
             throw new RDBMSTableException("Required parameter '" + ANNOTATION_DRIVER_CLASS_NAME + "' for DB " +
                     "connectivity cannot be empty.");
         }
         connectionProperties.setProperty("jdbcUrl", url);
         connectionProperties.setProperty("dataSource.user", username);
-        connectionProperties.setProperty("dataSource.password", password);
+        if (!RDBMSTableUtils.isEmpty(password)) {
+            connectionProperties.setProperty("dataSource.password", password);
+        }
         connectionProperties.setProperty("driverClassName", driverClassName);
         if (poolPropertyString != null) {
             List<String[]> poolProps = RDBMSTableUtils.processKeyValuePairs(poolPropertyString);
