@@ -17,6 +17,11 @@
 */
 package org.wso2.extension.siddhi.store.rdbms.util;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import com.google.common.collect.Maps;
 import org.wso2.extension.siddhi.store.rdbms.RDBMSCompiledCondition;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfiguration;
@@ -28,6 +33,7 @@ import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -41,11 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.sql.DataSource;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.DATABASE_PRODUCT_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.MAX_VERSION;
@@ -212,12 +214,12 @@ public class RDBMSTableUtils {
      */
     public static String flattenAnnotatedElements(List<Element> elements) {
         StringBuilder sb = new StringBuilder();
-        elements.forEach(elem -> {
+        for (Element elem : elements) {
             sb.append(elem.getValue());
             if (elements.indexOf(elem) != elements.size() - 1) {
                 sb.append(RDBMSTableConstants.SEPARATOR);
             }
-        });
+        }
         return sb.toString();
     }
 
@@ -228,8 +230,12 @@ public class RDBMSTableUtils {
      * @return a map of fields and their specified sizes.
      */
     public static Map<String, String> processFieldLengths(String fieldInfo) {
-        return processKeyValuePairs(fieldInfo).stream()
-                .collect(Collectors.toMap(name -> name[0], value -> value[1]));
+        Map<String, String> processFieldLengthsMap = new HashMap<>();
+        List<String[]> keyValuePairs = processKeyValuePairs(fieldInfo);
+        for (String[] keyValuePair : keyValuePairs) {
+            processFieldLengthsMap.put(keyValuePair[0], keyValuePair[1]);
+        }
+        return processFieldLengthsMap;
     }
 
     /**
@@ -355,20 +361,27 @@ public class RDBMSTableUtils {
          * @throws CannotLoadConfigurationException if the config cannot me loaded.
          */
         private RDBMSQueryConfiguration loadConfiguration() throws CannotLoadConfigurationException {
+
+            ClassLoader classLoader = getClass().getClassLoader();
+            InputStream inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
+            if (inputStream == null) {
+                throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE
+                        + " is not found in the classpath");
+            }
+
+            JacksonXmlModule module = new JacksonXmlModule();
+            module.setDefaultUseWrapper(false);
+            ObjectMapper xmlMapper = new XmlMapper(module);
+            JaxbAnnotationModule annotationModule = new JaxbAnnotationModule();
+            xmlMapper.registerModule(annotationModule);
+
             try {
-                JAXBContext ctx = JAXBContext.newInstance(RDBMSQueryConfiguration.class);
-                Unmarshaller unmarshaller = ctx.createUnmarshaller();
-                ClassLoader classLoader = getClass().getClassLoader();
-                InputStream inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
-                if (inputStream == null) {
-                    throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE
-                            + " is not found in the classpath");
-                }
-                return (RDBMSQueryConfiguration) unmarshaller.unmarshal(inputStream);
-            } catch (JAXBException e) {
+                return (RDBMSQueryConfiguration) xmlMapper.readValue(inputStream, RDBMSQueryConfiguration.class);
+            } catch (IOException e) {
                 throw new CannotLoadConfigurationException(
                         "Error in processing RDBMS query configuration: " + e.getMessage(), e);
             }
+
         }
     }
 
@@ -402,11 +415,11 @@ public class RDBMSTableUtils {
 
         private List<RDBMSQueryConfigurationEntry> extractMatchingConfigEntries(String dbName) {
             List<RDBMSQueryConfigurationEntry> result = new ArrayList<>();
-            this.entries.forEach(entry -> {
+            for (Map.Entry<Pattern, RDBMSQueryConfigurationEntry> entry : this.entries) {
                 if (entry.getKey().matcher(dbName).find()) {
                     result.add(entry.getValue());
                 }
-            });
+            }
             return result;
         }
 
