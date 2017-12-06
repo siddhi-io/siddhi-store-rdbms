@@ -18,6 +18,8 @@
 package org.wso2.extension.siddhi.store.rdbms.util;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.extension.siddhi.store.rdbms.RDBMSCompiledCondition;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfiguration;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfigurationEntry;
@@ -66,6 +68,7 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.WHI
 public class RDBMSTableUtils {
 
     private static RDBMSConfigurationMapper mapper;
+    private static final Log log = LogFactory.getLog(RDBMSTableUtils.class);
 
     private RDBMSTableUtils() {
         //preventing initialization
@@ -88,22 +91,42 @@ public class RDBMSTableUtils {
      * @param stmt {@link PreparedStatement} instance (can be null)
      * @param conn {@link Connection} instance (can be null)
      */
-    //TODO put debug logs
     public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn) {
         if (rs != null) {
             try {
                 rs.close();
-            } catch (SQLException ignore) { /* ignore */ }
+                if (log.isDebugEnabled()) {
+                    log.debug("Closed ResultSet");
+                }
+            } catch (SQLException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error closing ResultSet: " + e.getMessage(), e);
+                }
+            }
         }
         if (stmt != null) {
             try {
                 stmt.close();
-            } catch (SQLException ignore) { /* ignore */ }
+                if (log.isDebugEnabled()) {
+                    log.debug("Closed PreparedStatement");
+                }
+            } catch (SQLException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error closing PreparedStatement: " + e.getMessage(), e);
+                }
+            }
         }
         if (conn != null) {
             try {
                 conn.close();
-            } catch (SQLException ignore) { /* ignore */ }
+                if (log.isDebugEnabled()) {
+                    log.debug("Closed Connection");
+                }
+            } catch (SQLException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error closing Connection: " + e.getMessage(), e);
+                }
+            }
         }
     }
 
