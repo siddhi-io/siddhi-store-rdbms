@@ -47,7 +47,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-beta14</siddhi.version>
+        <siddhi.version>4.0.0-beta15</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <testng.version>6.9.10</testng.version>
         <hikari.version>2.4.1</hikari.version>
