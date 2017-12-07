@@ -36,7 +36,7 @@ public class RDBMSCompiledCondition implements CompiledCondition {
     }
 
     @Override
-    public CompiledCondition cloneCompiledCondition(String key) {
+    public CompiledCondition cloneCompilation(String key) {
         return new RDBMSCompiledCondition(this.compiledQuery, this.parameters);
     }
 
