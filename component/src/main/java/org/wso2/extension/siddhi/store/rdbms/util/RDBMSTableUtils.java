@@ -423,7 +423,7 @@ public class RDBMSTableUtils {
                     try {
                         inputStream.close();
                     } catch (IOException e) {
-                        //do nothing
+                        log.error(String.format("Failed to close the input stream for %s", RDBMS_QUERY_CONFIG_FILE));
                     }
                 }
             }

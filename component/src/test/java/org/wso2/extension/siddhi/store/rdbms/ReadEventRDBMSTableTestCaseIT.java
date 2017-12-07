@@ -27,10 +27,10 @@ import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.sql.SQLException;
 
@@ -140,7 +140,7 @@ public class ReadEventRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = SiddhiAppCreationException.class, dependsOnMethods = "readEventRDBMSTableTestCase1")
+    @Test(expectedExceptions = SiddhiParserException.class, dependsOnMethods = "readEventRDBMSTableTestCase1")
     public void readEventRDBMSTableTestCase2() throws InterruptedException, SQLException {
         //Read events from a non existing RDBMS table unsuccessfully
         log.info("readEventRDBMSTableTestCase2");
@@ -163,7 +163,7 @@ public class ReadEventRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = SiddhiAppCreationException.class, dependsOnMethods = "readEventRDBMSTableTestCase2")
+    @Test(expectedExceptions = SiddhiParserException.class, dependsOnMethods = "readEventRDBMSTableTestCase2")
     public void readEventRDBMSTableTestCase3() throws InterruptedException, SQLException {
         //Read events from a RDBMS table through a non existing stream unsuccessfully
         log.info("readEventRDBMSTableTestCase3");
