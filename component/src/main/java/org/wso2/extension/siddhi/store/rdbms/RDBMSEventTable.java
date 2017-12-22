@@ -602,7 +602,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 updateStmt.addBatch();
                 if (counter % batchSize == batchSize - 1) {
                     recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
-                            (counter - batchSize)));
+                            ((counter / batchSize) * batchSize)));
                     updateStmt.clearBatch();
                 }
                 counter++;
@@ -696,12 +696,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     private List<Integer> filterRequiredInsertIndex(int[] updateResultIndex, int lastUpdatedRecordIndex) {
         List<Integer> insertIndexList = new ArrayList<>();
-        int currentRecodeIndex = lastUpdatedRecordIndex;
         for (int i = 0; i < updateResultIndex.length; i++) {
             //Filter update result index and adding to list.
-            currentRecodeIndex += i;
             if (updateResultIndex[i] < 1) {
-                insertIndexList.add(currentRecodeIndex);
+                insertIndexList.add(lastUpdatedRecordIndex + i);
             }
         }
         return insertIndexList;
