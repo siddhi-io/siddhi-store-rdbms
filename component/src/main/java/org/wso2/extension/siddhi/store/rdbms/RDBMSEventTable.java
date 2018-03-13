@@ -349,6 +349,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private static final Log log = LogFactory.getLog(RDBMSEventTable.class);
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
     private HikariDataSource dataSource;
+    private boolean isLocalDatasource;
     private String dataSourceName;
     private String tableName;
     private List<Attribute> attributes;
@@ -730,12 +731,13 @@ public class RDBMSEventTable extends AbstractRecordTable {
                         ServiceReference serviceRef = bundleContext.getServiceReference(DataSourceService.class
                                 .getName());
                         if (serviceRef == null) {
-                            throw new RDBMSTableException("Datasource '" + dataSourceName + "' service cannot be " +
-                                    "found. Please check the data source configuration.");
+                            throw new RDBMSTableException("DatasourceService with service reference: '" +
+                                    DataSourceService.class.getCanonicalName() + "cannot be found.");
                         } else {
                             DataSourceService dataSourceService = (DataSourceService) bundleContext
                                     .getService(serviceRef);
                             this.dataSource = (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
+                            this.isLocalDatasource = false;
                             if (log.isDebugEnabled()) {
                                 log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
                                         "DataSource Service lookup.");
@@ -832,7 +834,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     public void disconnect() {
-        if (dataSource != null) {
+        if (dataSource != null && isLocalDatasource) {
             dataSource.close();
             if (log.isDebugEnabled()) {
                 log.debug("Closing the pool name: " + dataSource.getPoolName());
@@ -856,6 +858,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
      */
     private void lookupDatasource(String resourceName) throws NamingException {
         this.dataSource = InitialContext.doLookup(resourceName);
+        this.isLocalDatasource = false;
         if (log.isDebugEnabled()) {
             log.debug("Lookup for resource '" + resourceName + "' completed through " +
                     "JNDI lookup.");
@@ -944,6 +947,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
         HikariConfig config = new HikariConfig(connectionProperties);
         this.dataSource = new HikariDataSource(config);
+        this.isLocalDatasource = true;
         if (log.isDebugEnabled()) {
             log.debug("Database connection for '" + this.tableName + "' created through connection" +
                     " parameters specified in the query.");
