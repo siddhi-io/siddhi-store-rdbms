@@ -731,8 +731,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
                         ServiceReference serviceRef = bundleContext.getServiceReference(DataSourceService.class
                                 .getName());
                         if (serviceRef == null) {
-                            throw new RDBMSTableException("DatasourceService with service reference: '" +
-                                    DataSourceService.class.getCanonicalName() + "cannot be found.");
+                            throw new RDBMSTableException("DatasourceService: '" +
+                                    DataSourceService.class.getCanonicalName() + "' cannot be found.");
                         } else {
                             DataSourceService dataSourceService = (DataSourceService) bundleContext
                                     .getService(serviceRef);
