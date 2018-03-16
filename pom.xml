@@ -27,7 +27,7 @@
 
     <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
     <artifactId>siddhi-store-rdbms-parent</artifactId>
-    <version>4.0.17-SNAPSHOT</version>
+    <version>4.0.17</version>
     <packaging>pom</packaging>
     <name>WSO2 Siddhi Store Extension - RDBMS Aggregator Pom</name>
     <url>http://wso2.org</url>
@@ -100,7 +100,7 @@
         <url>https://github.com/wso2-extensions/siddhi-eventtable-rdbms.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/siddhi-eventtable-rdbms.git
         </developerConnection>
-        <tag>HEAD</tag>
+        <tag>v4.0.17</tag>
     </scm>
 
     <dependencyManagement>
