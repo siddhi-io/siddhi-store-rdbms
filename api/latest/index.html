@@ -183,6 +183,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../4.0.17/" title="4.0.17" class="md-nav__link">
+      4.0.17
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../4.0.16/" title="4.0.16" class="md-nav__link">
       4.0.16
     </a>
@@ -502,7 +514,7 @@
               
                 
                 
-                <h1 id="api-docs-v4016">API Docs - v4.0.16</h1>
+                <h1 id="api-docs-v4017">API Docs - v4.0.17</h1>
 <h2 id="store">Store</h2>
 <h3 id="rdbms-store">rdbms <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#store">(Store)</a></em></h3>
 <p style="word-wrap: break-word">This extension assigns data sources and connection instructions to event tables. It also implements read write operations on connected datasources</p>
@@ -637,7 +649,7 @@
     <tr>
         <td style="vertical-align: top">{{RDBMS-Name}}.recordInsertQuery</td>
         <td style="vertical-align: top; word-wrap: break-word">The template query for the <code>insert record</code> operation in {{RDBMS-Name}}.</td>
-        <td style="vertical-align: top"><b>H2</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>MySQL</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>Oracle</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>Microsoft SQL Server</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>PostgreSQL</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>DB2.</em></b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</td>
+        <td style="vertical-align: top"><b>H2</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br><b>MySQL</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br><b>Oracle</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br><b>Microsoft SQL Server</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br><b>PostgreSQL</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br><b>DB2.</em></b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</td>
         <td style="vertical-align: top">N/A</td>
     </tr>
     <tr>
