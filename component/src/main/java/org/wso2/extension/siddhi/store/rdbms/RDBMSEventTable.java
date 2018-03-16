@@ -242,7 +242,8 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                         defaultValue = "<b>H2</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
                                 "<b>MySQL</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
                                 "<b>Oracle</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
-                                "<b>Microsoft SQL Server</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
+                                "<b>Microsoft SQL Server</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) " +
+                                "VALUES ({{Q}})<br>" +
                                 "<b>PostgreSQL</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
                                 "<b>DB2.*</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})",
                         possibleParameters = "N/A"
