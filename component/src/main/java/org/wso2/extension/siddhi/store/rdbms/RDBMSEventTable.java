@@ -86,6 +86,7 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.INT
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.LONG_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.OPEN_PARENTHESIS;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_FOR_CREATE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_VALUES;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_CONDITION;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX;
@@ -238,12 +239,12 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordInsertQuery",
                         description = "The template query for the `insert record` operation in {{RDBMS-Name}}.",
-                        defaultValue = "<b>H2</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br>" +
-                                "<b>MySQL</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br>" +
-                                "<b>Oracle</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br>" +
-                                "<b>Microsoft SQL Server</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br>" +
-                                "<b>PostgreSQL</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br>" +
-                                "<b>DB2.*</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})",
+                        defaultValue = "<b>H2</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
+                                "<b>MySQL</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
+                                "<b>Oracle</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
+                                "<b>Microsoft SQL Server</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
+                                "<b>PostgreSQL</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
+                                "<b>DB2.*</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})",
                         possibleParameters = "N/A"
                 ),
                 @SystemParameter(
@@ -770,6 +771,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     insertQuery = this.resolveTableName(configReader.readConfig(
                             this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_INSERT_QUERY,
                             this.queryConfigurationEntry.getRecordInsertQuery()));
+                    insertQuery = this.insertColumnNames();
                     recordUpdateQuery = this.resolveTableName(configReader.readConfig(
                             this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_UPDATE_QUERY,
                             this.queryConfigurationEntry.getRecordUpdateQuery()));
@@ -879,6 +881,16 @@ public class RDBMSEventTable extends AbstractRecordTable {
             fieldsLeft = fieldsLeft - 1;
         }
         return insertQuery.replace(PLACEHOLDER_Q, params.toString());
+    }
+
+    private String insertColumnNames() {
+        StringBuilder columnNames = new StringBuilder();
+        for (int i = 0; i < attributes.size(); i++) {
+            columnNames.append(attributes.get(i).getName()).append(WHITESPACE).append(SEPARATOR);
+        }
+        //Deleting the last two characters to remove the WHITESPACE and SEPARATOR
+        columnNames.delete(columnNames.length() - 2, columnNames.length() - 1);
+        return insertQuery.replace(PLACEHOLDER_COLUMNS, columnNames.toString());
     }
 
     /**
@@ -1039,7 +1051,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     .append(RDBMSTableUtils.flattenAnnotatedElements(primaryKeyList))
                     .append(CLOSE_PARENTHESIS);
         }
-        queries.add(createQuery.replace(PLACEHOLDER_COLUMNS, builder.toString()));
+        queries.add(createQuery.replace(PLACEHOLDER_COLUMNS_FOR_CREATE, builder.toString()));
         if (indexElementList != null && !indexElementList.isEmpty()) {
             queries.add(indexQuery.replace(PLACEHOLDER_INDEX,
                     RDBMSTableUtils.flattenAnnotatedElements(indexElementList)));
