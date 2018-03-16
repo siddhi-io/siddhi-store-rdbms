@@ -123,4 +123,47 @@ public class InsertIntoRDBMSTableTestCaseIT {
         Assert.assertEquals(totalRowsInTable, 4, "Definition/Insertion failed");
         siddhiAppRuntime.shutdown();
     }
+
+    @Test
+    public void insertIntoRDBMSTableTest3() throws InterruptedException, SQLException {
+        //Testing table creation with a compound primary key (normal insertion)
+        log.info("insertIntoRDBMSTableTest3");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long);\n";
+
+        String table = "" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
+                "@PrimaryKey(\"symbol, price\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price float, volume long);\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", table.name=\"StockTable\"," +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
+                "@PrimaryKey(\"symbol, price\")" +
+                //"@Index(\"volume\")" +
+                "define table MyTable (symbol string, price float);\n";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "select symbol, price " +
+                "insert into MyTable ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + table + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F});
+        stockStream.send(new Object[]{"IBM", 75.6F});
+        stockStream.send(new Object[]{"MSFT", 57.6F});
+        stockStream.send(new Object[]{"WSO2", 58.6F});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 4, "Definition/Insertion failed");
+        siddhiAppRuntime.shutdown();
+    }
 }
