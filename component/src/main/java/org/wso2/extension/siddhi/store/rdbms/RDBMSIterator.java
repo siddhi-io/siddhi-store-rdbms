@@ -99,7 +99,6 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
      *                      to the table definition
      */
     private Object[] extractRecord(ResultSet rs) throws SQLException {
-        int ordinal = 1;
         List<Object> result = new ArrayList<>();
         for (Attribute attribute : this.attributes) {
             switch (attribute.getType()) {
@@ -125,7 +124,6 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
                     result.add(rs.getString(attribute.getName()));
                     break;
             }
-            ordinal++;
         }
         return result.toArray();
     }
