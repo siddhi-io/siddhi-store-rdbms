@@ -99,33 +99,31 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
      *                      to the table definition
      */
     private Object[] extractRecord(ResultSet rs) throws SQLException {
-        int ordinal = 1;
         List<Object> result = new ArrayList<>();
         for (Attribute attribute : this.attributes) {
             switch (attribute.getType()) {
                 case BOOL:
-                    result.add(rs.getBoolean(ordinal));
+                    result.add(rs.getBoolean(attribute.getName()));
                     break;
                 case DOUBLE:
-                    result.add(rs.getDouble(ordinal));
+                    result.add(rs.getDouble(attribute.getName()));
                     break;
                 case FLOAT:
-                    result.add(rs.getFloat(ordinal));
+                    result.add(rs.getFloat(attribute.getName()));
                     break;
                 case INT:
-                    result.add(rs.getInt(ordinal));
+                    result.add(rs.getInt(attribute.getName()));
                     break;
                 case LONG:
-                    result.add(rs.getLong(ordinal));
+                    result.add(rs.getLong(attribute.getName()));
                     break;
                 case OBJECT:
-                    result.add(rs.getObject(ordinal));
+                    result.add(rs.getObject(attribute.getName()));
                     break;
                 case STRING:
-                    result.add(rs.getString(ordinal));
+                    result.add(rs.getString(attribute.getName()));
                     break;
             }
-            ordinal++;
         }
         return result.toArray();
     }
