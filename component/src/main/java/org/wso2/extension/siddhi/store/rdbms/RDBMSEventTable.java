@@ -905,12 +905,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
         String result = updateSetExpressions.entrySet().stream().map(e -> e.getKey()
                 + " = " + ((RDBMSCompiledCondition) e.getValue()).getCompiledQuery())
                 .collect(Collectors.joining(", "));
-        recordUpdateQuery = recordUpdateQuery.replace(PLACEHOLDER_COLUMNS_VALUES, result);
+        String localRecordUpdateQuery = recordUpdateQuery.replace(PLACEHOLDER_COLUMNS_VALUES, result);
 
-        recordUpdateQuery = RDBMSTableUtils.isEmpty(condition) ? recordUpdateQuery.replace(PLACEHOLDER_CONDITION, "") :
-                RDBMSTableUtils.formatQueryWithCondition(recordUpdateQuery, condition);
-        return recordUpdateQuery;
+        localRecordUpdateQuery = RDBMSTableUtils.isEmpty(condition) ? localRecordUpdateQuery.
+                replace(PLACEHOLDER_CONDITION, "") :
+                RDBMSTableUtils.formatQueryWithCondition(localRecordUpdateQuery, condition);
+        return localRecordUpdateQuery;
     }
+
 
     /**
      * Method for creating and initializing the datasource instance given the "@Store" annotation.
