@@ -17,6 +17,9 @@
 package org.wso2.extension.siddhi.store.rdbms.test.osgi.util;
 
 import io.netty.handler.codec.http.HttpMethod;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.extension.siddhi.store.rdbms.RDBMSEventTable;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -28,7 +31,7 @@ import java.net.URL;
  * Util class for test cases.
  */
 public class TestUtil {
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(TestUtil.class);
+    private static final Log logger = LogFactory.getLog(RDBMSEventTable.class);
 
     public static HTTPResponseMessage sendHRequest(String body, URI baseURI, String path, String contentType,
                                                    String methodType, Boolean auth, String userName, String password) {
