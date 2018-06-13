@@ -47,7 +47,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.4</siddhi.version>
+        <siddhi.version>4.1.38</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <testng.version>6.9.10</testng.version>
         <hikari.version>2.4.1</hikari.version>
@@ -76,7 +76,7 @@
         <carbon.touchpoint.version>1.1.1</carbon.touchpoint.version>
         <carbon.config.version>2.1.4</carbon.config.version>
         <carbon.securevault.version>5.0.10</carbon.securevault.version>
-        <carbon.analytics.version>2.0.115</carbon.analytics.version>
+        <carbon.analytics.version>2.0.364</carbon.analytics.version>
         <carbon.feature.plugin.version>3.1.3</carbon.feature.plugin.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
