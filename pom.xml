@@ -63,7 +63,7 @@
         <io.fabric8.version>0.20.0</io.fabric8.version>
         <carbon.datasources.version>1.1.4</carbon.datasources.version>
 
-        <carbon.kernel.version>5.2.0</carbon.kernel.version>
+        <carbon.kernel.version>5.2.6</carbon.kernel.version>
         <carbon.utils.version>2.0.4</carbon.utils.version>
         <org.wso2.carbon.transport.http.netty.version>5.0.1</org.wso2.carbon.transport.http.netty.version>
         <org.wso2.carbon.transport.version>5.0.1</org.wso2.carbon.transport.version>
@@ -71,12 +71,13 @@
         <carbon.jndi.version>1.0.5</carbon.jndi.version>
         <carbon.cache.version>1.1.3</carbon.cache.version>
         <carbon.metrics.version>2.3.3</carbon.metrics.version>
-        <msf4j.version>2.4.1</msf4j.version>
-        <carbon.deployment.version>5.1.5</carbon.deployment.version>
+        <msf4j.version>2.6.2</msf4j.version>
+        <carbon.deployment.version>5.2.0</carbon.deployment.version>
         <carbon.touchpoint.version>1.1.1</carbon.touchpoint.version>
-        <carbon.config.version>2.1.4</carbon.config.version>
+        <carbon.config.version>2.1.5</carbon.config.version>
         <carbon.securevault.version>5.0.10</carbon.securevault.version>
         <carbon.analytics.version>2.0.364</carbon.analytics.version>
+        <carbon.analytics.common.version>6.0.62</carbon.analytics.common.version>
         <carbon.feature.plugin.version>3.1.3</carbon.feature.plugin.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
@@ -369,7 +370,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.das.jobmanager.core.feature</artifactId>
+            <artifactId>org.wso2.carbon.sp.jobmanager.core.feature</artifactId>
             <version>${carbon.analytics.version}</version>
             <type>zip</type>
         </dependency>
@@ -381,7 +382,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.msf4j.interceptor.common.feature</artifactId>
+            <artifactId>org.wso2.carbon.analytics.msf4j.interceptor.common.feature</artifactId>
             <version>${carbon.analytics.version}</version>
             <type>zip</type>
         </dependency>
@@ -389,6 +390,18 @@
             <groupId>org.wso2.carbon.analytics</groupId>
             <artifactId>org.wso2.carbon.databridge.feature</artifactId>
             <version>${carbon.analytics.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.analytics-common</groupId>
+            <artifactId>org.wso2.carbon.analytics.permissions.feature</artifactId>
+            <version>${carbon.analytics.common.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.analytics-common</groupId>
+            <artifactId>org.wso2.carbon.analytics.idp.client.feature</artifactId>
+            <version>${carbon.analytics.common.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
