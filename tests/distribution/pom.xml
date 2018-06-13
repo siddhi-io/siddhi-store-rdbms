@@ -170,7 +170,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.das.jobmanager.core.feature</artifactId>
+            <artifactId>org.wso2.carbon.sp.jobmanager.core.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -185,7 +185,17 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.msf4j.interceptor.common.feature</artifactId>
+            <artifactId>org.wso2.carbon.analytics.msf4j.interceptor.common.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.analytics-common</groupId>
+            <artifactId>org.wso2.carbon.analytics.permissions.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.analytics-common</groupId>
+            <artifactId>org.wso2.carbon.analytics.idp.client.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -361,7 +371,7 @@
 
                                 <!-- Interceptor -->
                                 <feature>
-                                    <id>org.wso2.carbon.msf4j.interceptor.common.feature</id>
+                                    <id>org.wso2.carbon.analytics.msf4j.interceptor.common.feature</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
 
@@ -383,7 +393,7 @@
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.das.jobmanager.core.feature</id>
+                                    <id>org.wso2.carbon.sp.jobmanager.core.feature</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
@@ -403,6 +413,15 @@
                                 <feature>
                                     <id>org.wso2.carbon.cluster.coordinator.commons.feature</id>
                                     <version>${carbon.coordination.version}</version>
+                                </feature>
+
+                                <feature>
+                                    <id>org.wso2.carbon.analytics.permissions.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.analytics.idp.client.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
                                 </feature>
                             </features>
                         </configuration>
@@ -535,7 +554,7 @@
                                     <version>${msf4j.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.msf4j.interceptor.common.feature.group</id>
+                                    <id>org.wso2.carbon.analytics.msf4j.interceptor.common.feature.group</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
 
@@ -568,6 +587,15 @@
                                 <feature>
                                     <id>org.wso2.carbon.cluster.coordinator.commons.feature.group</id>
                                     <version>${carbon.coordination.version}</version>
+                                </feature>
+
+                                <feature>
+                                    <id>org.wso2.carbon.analytics.permissions.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.analytics.idp.client.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
                                 </feature>
                             </features>
                         </configuration>
@@ -659,7 +687,7 @@
                                     <version>${msf4j.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.msf4j.interceptor.common.feature.group</id>
+                                    <id>org.wso2.carbon.analytics.msf4j.interceptor.common.feature.group</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
 
@@ -686,6 +714,15 @@
                                 <feature>
                                     <id>org.wso2.carbon.pax.exam.feature.group</id>
                                     <version>${carbon.kernel.version}</version>
+                                </feature>
+
+                                <feature>
+                                    <id>org.wso2.carbon.analytics.permissions.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.analytics.idp.client.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
                                 </feature>
                             </features>
                         </configuration>
