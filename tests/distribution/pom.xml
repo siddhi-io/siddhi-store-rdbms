@@ -175,6 +175,16 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.sp.distributed.resource.core.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.siddhi.metrics.core.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
             <artifactId>org.wso2.siddhi.feature</artifactId>
             <type>zip</type>
         </dependency>
@@ -397,6 +407,14 @@
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
+                                    <id>org.wso2.carbon.sp.distributed.resource.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.siddhi.metrics.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+                                <feature>
                                     <id>org.wso2.siddhi.feature</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
@@ -572,6 +590,14 @@
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
+                                    <id>org.wso2.carbon.sp.distributed.resource.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.siddhi.metrics.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+                                <feature>
                                     <id>org.wso2.siddhi.feature.group</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
@@ -698,6 +724,14 @@
                                 </feature>
                                 <feature>
                                     <id>org.wso2.carbon.siddhi.editor.core.feature.group</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.sp.distributed.resource.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.siddhi.metrics.core.feature</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
