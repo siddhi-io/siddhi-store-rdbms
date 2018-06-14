@@ -43,6 +43,7 @@ public class DefineRDBMSTableTestCaseIT {
     private static final Logger log = Logger.getLogger(DefineRDBMSTableTestCaseIT.class);
     private boolean isLogEventArrived;
     private static String regexPattern = "will retry in '5 sec'";
+    private static String siddhiAppErrorRegex = "Error starting Siddhi App";
 
     @BeforeClass
     public static void startTest() {
@@ -205,7 +206,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(dependsOnMethods = "rdbmstabledefinitiontest4", expectedExceptions = RuntimeException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest4")
     public void rdbmstabledefinitiontest5() throws InterruptedException, SQLException {
         //Testing table creation with invalid connection URL
         log.info("rdbmstabledefinitiontest5");
@@ -215,7 +216,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", " +
-                "jdbc.url=\"eerrrjdbc:h222:repository/database/" +
+                "jdbc.url=\"jdsbc:h2:repository/database/" +
                 "ANALYTICS_EVENT_STORE\", jdbc.driver.name=\"" + driverClassName + "\", " +
                 "field.length=\"symbol:100\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
@@ -228,7 +229,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+        LoggerCallBack loggerCallBack = new LoggerCallBack(siddhiAppErrorRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -238,7 +239,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + regexPattern + "'");
+                "Matching log event not found for pattern: '" + siddhiAppErrorRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
@@ -262,7 +263,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+        LoggerCallBack loggerCallBack = new LoggerCallBack(siddhiAppErrorRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -272,7 +273,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + regexPattern + "'");
+                "Matching log event not found for pattern: '" + siddhiAppErrorRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
@@ -296,7 +297,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+        LoggerCallBack loggerCallBack = new LoggerCallBack(siddhiAppErrorRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -306,7 +307,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + regexPattern + "'");
+                "Matching log event not found for pattern: '" + siddhiAppErrorRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
@@ -330,7 +331,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+        LoggerCallBack loggerCallBack = new LoggerCallBack(siddhiAppErrorRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -340,7 +341,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + regexPattern + "'");
+                "Matching log event not found for pattern: '" + siddhiAppErrorRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
@@ -350,6 +351,7 @@ public class DefineRDBMSTableTestCaseIT {
         //Defining a RDBMS table without having an username field.
         log.info("rdbmstabledefinitiontest9");
         SiddhiManager siddhiManager = new SiddhiManager();
+        String usernameErrorRegex = "username' for DB connectivity cannot be empty";
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
@@ -364,7 +366,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+        LoggerCallBack loggerCallBack = new LoggerCallBack(usernameErrorRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -374,7 +376,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + regexPattern + "'");
+                "Matching log event not found for pattern: '" + usernameErrorRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
@@ -384,6 +386,7 @@ public class DefineRDBMSTableTestCaseIT {
         //Defining a RDBMS table without defining a value for username field.
         log.info("rdbmstabledefinitiontest10");
         SiddhiManager siddhiManager = new SiddhiManager();
+        String usernameEmptyRegex = "'username' for DB connectivity cannot be empty";
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
@@ -398,7 +401,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+        LoggerCallBack loggerCallBack = new LoggerCallBack(usernameEmptyRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -408,7 +411,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + regexPattern + "'");
+                "Matching log event not found for pattern: '" + usernameEmptyRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
@@ -418,6 +421,7 @@ public class DefineRDBMSTableTestCaseIT {
         //Defining a RDBMS table without defining a value for username field.
         log.info("rdbmstabledefinitiontest11");
         SiddhiManager siddhiManager = new SiddhiManager();
+        String wrongUsernameRegex = "Wrong user name or password";
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
@@ -432,7 +436,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+        LoggerCallBack loggerCallBack = new LoggerCallBack(wrongUsernameRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -442,7 +446,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + regexPattern + "'");
+                "Matching log event not found for pattern: '" + wrongUsernameRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
@@ -614,7 +618,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(dependsOnMethods = "rdbmstabledefinitiontest16", expectedExceptions = RuntimeException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest16")
     public void rdbmstabledefinitiontest17() throws InterruptedException, SQLException {
         //  This testcase verified that defining a RDBMS table by including at least one invalid pool.property
         // field will not successfully create the table.
@@ -635,7 +639,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+        LoggerCallBack loggerCallBack = new LoggerCallBack(siddhiAppErrorRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -645,16 +649,17 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + regexPattern + "'");
+                "Matching log event not found for pattern: '" + siddhiAppErrorRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(dependsOnMethods = "rdbmstabledefinitiontest17", expectedExceptions = RuntimeException.class)
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest17")
     public void rdbmstabledefinitiontest18() throws InterruptedException, SQLException {
         //Defining a RDBMS table with an invalid value for a pool.property.
         log.info("rdbmstabledefinitiontest18");
         SiddhiManager siddhiManager = new SiddhiManager();
+        String numberFormatErrorRegex = "WSO2";
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
@@ -670,7 +675,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(regexPattern) {
+        LoggerCallBack loggerCallBack = new LoggerCallBack(numberFormatErrorRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -680,7 +685,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + regexPattern + "'");
+                "Matching log event not found for pattern: '" + numberFormatErrorRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
