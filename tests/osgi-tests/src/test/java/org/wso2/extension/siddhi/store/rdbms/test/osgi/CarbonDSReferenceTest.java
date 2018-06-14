@@ -84,7 +84,7 @@ public class CarbonDSReferenceTest {
 
     @Test
     public void testValidDataSourceReference() throws SQLException {
-        URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 9090));
+        URI baseURI = URI.create(String.format("https://%s:%d", "localhost", 9443));
         String path = "/simulation/single";
         String contentType = "text/plain";
         String method = "POST";
@@ -96,8 +96,11 @@ public class CarbonDSReferenceTest {
                 "    \"ID001\", 148.34, 72.00\n" +
                 "  ]\n" +
                 "}";
+        System.setProperty("javax.net.ssl.trustStore", System.getProperty("carbon.home")
+                + "/resources/security/client-truststore.jks");
+        System.setProperty("javax.net.ssl.trustStorePassword", "wso2carbon");
         HTTPResponseMessage httpResponseMessage = TestUtil.sendHRequest(body, baseURI, path, contentType, method,
-                false, "", "");
+                true, "admin", "admin");
         Assert.assertEquals(httpResponseMessage.getResponseCode(), 200);
     }
 }
