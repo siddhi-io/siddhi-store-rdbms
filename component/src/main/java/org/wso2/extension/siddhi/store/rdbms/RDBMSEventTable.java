@@ -19,7 +19,6 @@ package org.wso2.extension.siddhi.store.rdbms;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.pool.PoolInitializationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -825,8 +824,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     log.debug("A table: " + this.tableName + " is created with the provided information.");
                 }
             }
-        } catch (CannotLoadConfigurationException | NamingException | PoolInitializationException |
-                RDBMSTableException e) {
+        } catch (CannotLoadConfigurationException | NamingException | RDBMSTableException e) {
             this.destroy();
             throw new ConnectionUnavailableException("Failed to initialize store for table name '" +
                     this.tableName + "': " + e.getMessage(), e);
