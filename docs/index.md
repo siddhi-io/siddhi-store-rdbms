@@ -10,7 +10,7 @@ Find some useful links below:
 
 ## Latest API Docs 
 
-Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.20">4.0.20</a>.
+Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.21">4.0.21</a>.
 
 ## Prerequisites
 
@@ -121,7 +121,7 @@ Note: local-mysql is the profile. Use other profiles accordingly.
 
 ## Features
 
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.20/#rdbms-store">rdbms</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#store">(Store)</a>)*<br><div style="padding-left: 1em;"><p>This extension assigns data sources and connection instructions to event tables. It also implements read write operations on connected datasources</p></div>
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.21/#rdbms-store">rdbms</a> *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#store">(Store)</a>*<br><div style="padding-left: 1em;"><p>This extension assigns data sources and connection instructions to event tables. It also implements read write operations on connected datasources</p></div>
 
 ## How to Contribute
  
