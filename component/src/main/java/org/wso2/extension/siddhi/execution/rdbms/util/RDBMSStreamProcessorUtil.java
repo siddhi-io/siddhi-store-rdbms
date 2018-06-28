@@ -55,16 +55,16 @@ public class RDBMSStreamProcessorUtil {
      * @param stmt {@link Statement} instance (can be null)
      * @param conn {@link Connection} instance (can be null)
      */
-    public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn, String siddhiAppName) {
+    public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn) {
         if (rs != null) {
             try {
                 rs.close();
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(siddhiAppName + " - Closed ResultSet");
+                    LOG.debug("Closed ResultSet");
                 }
             } catch (SQLException e) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(siddhiAppName + " - Error in closing ResultSet: " + e.getMessage(), e);
+                    LOG.debug("Error in closing ResultSet: " + e.getMessage(), e);
                 }
             }
         }
@@ -72,11 +72,11 @@ public class RDBMSStreamProcessorUtil {
             try {
                 stmt.close();
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(siddhiAppName + " - Closed PreparedStatement");
+                    LOG.debug("Closed PreparedStatement");
                 }
             } catch (SQLException e) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(siddhiAppName + " - Error in closing PreparedStatement: " + e.getMessage(), e);
+                    LOG.debug("Error in closing PreparedStatement: " + e.getMessage(), e);
                 }
             }
         }
@@ -84,11 +84,11 @@ public class RDBMSStreamProcessorUtil {
             try {
                 conn.close();
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(siddhiAppName + " - Closed Connection");
+                    LOG.debug("Closed Connection");
                 }
             } catch (SQLException e) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(siddhiAppName + " - Error in closing Connection: " + e.getMessage(), e);
+                    LOG.debug("Error in closing Connection: " + e.getMessage(), e);
                 }
             }
         }
@@ -153,21 +153,20 @@ public class RDBMSStreamProcessorUtil {
     /**
      * The datasource parameter is validated
      * @param attributeExpressionExecutor Function parameter Attribute Expression Executor
-     * @param siddhiAppName Siddhi App name
      * @return Datasource name
      */
-    public static String validateDatasourceName(ExpressionExecutor attributeExpressionExecutor, String siddhiAppName) {
+    public static String validateDatasourceName(ExpressionExecutor attributeExpressionExecutor) {
         if ((attributeExpressionExecutor instanceof ConstantExpressionExecutor)) {
             String dataSourceName = ((ConstantExpressionExecutor) attributeExpressionExecutor)
                     .getValue().toString();
             if (dataSourceName.trim().length() != 0) {
                 return dataSourceName;
             } else {
-                throw new SiddhiAppValidationException(siddhiAppName + " - The parameter 'datasource.name' cannot " +
+                throw new SiddhiAppValidationException("The parameter 'datasource.name' cannot " +
                         "be empty in rdbms query function.");
             }
         } else {
-            throw new SiddhiAppValidationException(siddhiAppName + " - The parameter 'datasource.name' in rdbms " +
+            throw new SiddhiAppValidationException("The parameter 'datasource.name' in rdbms " +
                     "query function should be a constant, but found a dynamic parameter of type " +
                     attributeExpressionExecutor.getClass().getCanonicalName() + "'.");
         }
@@ -178,29 +177,28 @@ public class RDBMSStreamProcessorUtil {
      * Utility class to get the datasource service
      *
      * @param dataSourceName The datasource name
-     * @param siddhiAppName Siddhi App name
      * @return Hikari Data Source
      */
-    public static HikariDataSource getDataSourceService(String dataSourceName, String siddhiAppName) {
+    public static HikariDataSource getDataSourceService(String dataSourceName) {
         try {
             BundleContext bundleContext = FrameworkUtil.getBundle(DataSourceService.class)
                     .getBundleContext();
             ServiceReference serviceRef = bundleContext.getServiceReference(DataSourceService.class
                     .getName());
             if (serviceRef == null) {
-                throw new SiddhiAppRuntimeException(siddhiAppName + " - DatasourceService : '" +
+                throw new SiddhiAppRuntimeException("DatasourceService : '" +
                         DataSourceService.class.getCanonicalName() + "' cannot be found.");
             } else {
                 DataSourceService dataSourceService = (DataSourceService) bundleContext
                         .getService(serviceRef);
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(siddhiAppName + " - Lookup for datasource '" + dataSourceName + "' completed through " +
+                    LOG.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
                             "DataSource Service lookup.");
                 }
                 return (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
             }
         } catch (DataSourceException e) {
-            throw new SiddhiAppRuntimeException(siddhiAppName + " - Datasource '" + dataSourceName + "' cannot be " +
+            throw new SiddhiAppRuntimeException("Datasource '" + dataSourceName + "' cannot be " +
                     "connected.", e);
         }
     }

@@ -94,7 +94,6 @@ import java.util.Map;
         }
 )
 public class CUDStreamProcessor extends StreamProcessor {
-    private String siddhiAppName;
     private String dataSourceName;
     private HikariDataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
@@ -103,28 +102,26 @@ public class CUDStreamProcessor extends StreamProcessor {
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                    SiddhiAppContext siddhiAppContext) {
-        this.siddhiAppName = siddhiAppContext.getName();
 
         boolean performCUDOps = Boolean.parseBoolean(
                 configReader.readConfig("perform.CUD.operations", "false"));
         if (!performCUDOps) {
-            throw new SiddhiAppValidationException(this.siddhiAppName + " - performing CUD operations through " +
+            throw new SiddhiAppValidationException("Performing CUD operations through " +
                     "rdbms cud function is disabled. This is configured through system parameter, " +
                     "'perform.CUD.operations' in '<SP_HOME>/conf/<profile>/deployment.yaml'");
         }
 
         if ((attributeExpressionExecutors.length != 2)) {
-            throw new SiddhiAppValidationException(this.siddhiAppName + " - rdbms cud function " +
+            throw new SiddhiAppValidationException("rdbms cud function " +
                     "should have 2 parameters , but found '" + attributeExpressionExecutors.length + "' parameters.");
         }
 
-        this.dataSourceName = RDBMSStreamProcessorUtil
-                .validateDatasourceName(attributeExpressionExecutors[0], this.siddhiAppName);
+        this.dataSourceName = RDBMSStreamProcessorUtil.validateDatasourceName(attributeExpressionExecutors[0]);
 
         if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.STRING) {
             queryExpressionExecutor = attributeExpressionExecutors[1];
         } else {
-            throw new SiddhiAppValidationException(this.siddhiAppName + " - The parameter 'query' in rdbms cud " +
+            throw new SiddhiAppValidationException("The parameter 'query' in rdbms cud " +
                     "function should be of type STRING, but found a parameter with type '" +
                     attributeExpressionExecutors[1].getReturnType() + "'.");
         }
@@ -143,7 +140,7 @@ public class CUDStreamProcessor extends StreamProcessor {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
                 if (RDBMSStreamProcessorUtil.queryContainsCheck(false, query)) {
-                    throw new SiddhiAppRuntimeException(this.siddhiAppName + " - Dropping event since the query has " +
+                    throw new SiddhiAppRuntimeException("Dropping event since the query has " +
                             "unauthorised operations, '" + query + "'. Event: '" + event + "'.");
                 }
                 stmt = conn.prepareStatement(query);
@@ -161,10 +158,10 @@ public class CUDStreamProcessor extends StreamProcessor {
                 }
             }
         } catch (SQLException e) {
-            throw new SiddhiAppRuntimeException(this.siddhiAppName + " - Error in manipulating records from " +
+            throw new SiddhiAppRuntimeException("Error in manipulating records from " +
                     "datasource '" + this.dataSourceName + "': " + e.getMessage(), e);
         } finally {
-            RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, conn, this.siddhiAppName);
+            RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, conn);
         }
         nextProcessor.process(streamEventChunk);
     }
@@ -174,7 +171,7 @@ public class CUDStreamProcessor extends StreamProcessor {
         try {
             conn = this.dataSource.getConnection();
         } catch (SQLException e) {
-            throw new SiddhiAppRuntimeException(this.siddhiAppName + " - Error initializing datasource connection: "
+            throw new SiddhiAppRuntimeException("Error initializing datasource connection: "
                     + e.getMessage(), e);
         }
         return conn;
@@ -182,8 +179,7 @@ public class CUDStreamProcessor extends StreamProcessor {
 
     @Override
     public void start() {
-        this.dataSource = RDBMSStreamProcessorUtil
-                .getDataSourceService(this.dataSourceName, this.siddhiAppName);
+        this.dataSource = RDBMSStreamProcessorUtil.getDataSourceService(this.dataSourceName);
     }
 
     @Override

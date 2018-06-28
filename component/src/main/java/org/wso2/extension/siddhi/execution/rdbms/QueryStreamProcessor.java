@@ -113,7 +113,6 @@ import java.util.stream.Collectors;
         }
 )
 public class QueryStreamProcessor extends StreamProcessor {
-    private String siddhiAppName;
     private String dataSourceName;
     private HikariDataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
@@ -123,20 +122,18 @@ public class QueryStreamProcessor extends StreamProcessor {
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                    SiddhiAppContext siddhiAppContext) {
-        this.siddhiAppName = siddhiAppContext.getName();
 
         if ((attributeExpressionExecutors.length != 3)) {
-            throw new SiddhiAppValidationException(this.siddhiAppName + " - rdbms query function " +
-                    "should have 3 parameters , but found '" + attributeExpressionExecutors.length + "' parameters.");
+            throw new SiddhiAppValidationException("rdbms query function  should have 3 parameters , but found '" +
+                    attributeExpressionExecutors.length + "' parameters.");
         }
 
-        this.dataSourceName = RDBMSStreamProcessorUtil.validateDatasourceName(attributeExpressionExecutors[0],
-                this.siddhiAppName);
+        this.dataSourceName = RDBMSStreamProcessorUtil.validateDatasourceName(attributeExpressionExecutors[0]);
 
         if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.STRING) {
             queryExpressionExecutor = attributeExpressionExecutors[1];
         } else {
-            throw new SiddhiAppValidationException(this.siddhiAppName + " - The parameter 'query' in rdbms query " +
+            throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
                     "function should be of type STRING, but found a parameter with type '" +
                     attributeExpressionExecutors[1].getReturnType() + "'.");
         }
@@ -148,9 +145,9 @@ public class QueryStreamProcessor extends StreamProcessor {
                     .map((String attributeExp) -> {
                         String[] splitAttributeDef = attributeExp.trim().split("\\s");
                         if (splitAttributeDef.length != 2) {
-                            throw new SiddhiAppValidationException(this.siddhiAppName + " - The parameter " +
-                                    "'attribute.definition.list' is invalid, it should be comma separated list of " +
-                                    "<AttributeName AttributeType>, but found '" + attributeDefinition);
+                            throw new SiddhiAppValidationException("The parameter 'attribute.definition.list' is " +
+                                    "invalid, it should be comma separated list of <AttributeName AttributeType>, " +
+                                    "but found '" + attributeDefinition);
                         }
                         Attribute.Type attributeType;
                         switch (splitAttributeDef[1].toLowerCase()) {
@@ -173,17 +170,16 @@ public class QueryStreamProcessor extends StreamProcessor {
                                 attributeType = Attribute.Type.STRING;
                                 break;
                             default:
-                                throw new SiddhiAppCreationException(this.siddhiAppName + " -The attribute defined " +
-                                        "in the parameter 'attribute.definition.list' should be a valid Siddhi" +
-                                        " attribute type, but found an attribute of type '" + splitAttributeDef[1]
-                                        + "'.");
+                                throw new SiddhiAppCreationException("The attribute defined  in the parameter " +
+                                        "'attribute.definition.list' should be a valid Siddhi  attribute type, " +
+                                        "but found an attribute of type '" + splitAttributeDef[1] + "'.");
                         }
                         return new Attribute(splitAttributeDef[0], attributeType);
                     }).collect(Collectors.toList());
             return this.attributeList;
         } else {
-            throw new SiddhiAppValidationException(this.siddhiAppName + " - The parameter 'query' in " +
-                    "rdbms query function should be a constant, but found a dynamic attribute of type '" +
+            throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function should be a " +
+                    "constant, but found a dynamic attribute of type '" +
                     attributeExpressionExecutors[1].getClass().getCanonicalName() + "'.");
         }
     }
@@ -200,8 +196,8 @@ public class QueryStreamProcessor extends StreamProcessor {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
                 if (RDBMSStreamProcessorUtil.queryContainsCheck(true, query)) {
-                    throw new SiddhiAppRuntimeException(this.siddhiAppName + " - Dropping event since the query has " +
-                            "unauthorised operations, '" + query + "'. Event: '" + event + "'.");
+                    throw new SiddhiAppRuntimeException("Dropping event since the query has unauthorised operations, " +
+                            "'" + query + "'. Event: '" + event + "'.");
                 }
                 stmt = conn.prepareStatement(query);
                 resultSet = stmt.executeQuery();
@@ -213,10 +209,10 @@ public class QueryStreamProcessor extends StreamProcessor {
                 }
                 streamEventChunk.remove();
             } catch (SQLException e) {
-                throw new SiddhiAppRuntimeException(this.siddhiAppName + " - Error in retrieving records from " +
-                        "datasource '" + this.dataSourceName + "': " + e.getMessage(), e);
+                throw new SiddhiAppRuntimeException("Error in retrieving records from  datasource '"
+                        + this.dataSourceName + "': " + e.getMessage(), e);
             } finally {
-                RDBMSStreamProcessorUtil.cleanupConnection(resultSet, stmt, conn, this.siddhiAppName);
+                RDBMSStreamProcessorUtil.cleanupConnection(resultSet, stmt, conn);
             }
         }
         nextProcessor.process(streamEventChunk);
@@ -227,16 +223,15 @@ public class QueryStreamProcessor extends StreamProcessor {
         try {
             conn = this.dataSource.getConnection();
         } catch (SQLException e) {
-            throw new SiddhiAppRuntimeException(this.siddhiAppName + " - Error initializing datasource connection: "
-                    + e.getMessage(), e);
+            throw new SiddhiAppRuntimeException("Error initializing datasource '" + this.dataSourceName +
+                    "'connection: " + e.getMessage(), e);
         }
         return conn;
     }
 
     @Override
     public void start() {
-        this.dataSource = RDBMSStreamProcessorUtil
-                .getDataSourceService(this.dataSourceName, this.siddhiAppName);
+        this.dataSource = RDBMSStreamProcessorUtil.getDataSourceService(this.dataSourceName);
     }
 
     @Override
