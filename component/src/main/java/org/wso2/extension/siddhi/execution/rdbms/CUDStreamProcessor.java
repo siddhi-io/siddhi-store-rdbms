@@ -62,7 +62,7 @@ import java.util.Map;
                 ),
                 @Parameter(
                         name = "query",
-                        description = "The manipulation query(formatted according to " +
+                        description = "The update, delete, or insert query(formatted according to " +
                                 "the appropriate database type) that needs to be performed.",
                         type = DataType.STRING
                 )
@@ -86,7 +86,8 @@ import java.util.Map;
                 @Example(
                         syntax = "from TriggerStream#rdbms:cud(\"SAMPLE_DB\", \"UPDATE Customers_Table SET " +
                                 "customerName='abc' where customerName='xyz'\") \n" +
-                                "insert all events into  recordStream;",
+                                "select numRecords \n" +
+                                "insert into  recordStream;",
                         description = "Events will be modified with additional attribute of name 'numRecords' with " +
                                 "the number of records manipulated."
                 )

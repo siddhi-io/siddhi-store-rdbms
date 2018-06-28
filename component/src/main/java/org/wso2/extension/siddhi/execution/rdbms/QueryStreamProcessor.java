@@ -91,22 +91,24 @@ import java.util.stream.Collectors;
         },
         returnAttributes = {
                 @ReturnAttribute(
-                        name = "custom",
+                        name = "attributeName",
                         description = "The return attributes will be the ones defined in the parameter" +
                                 "`attribute.definition.list`.",
-                        type = DataType.STRING
+                        type = {DataType.STRING, DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.BOOL}
                 )
         },
         examples = {
                 @Example(
                         syntax = "from TriggerStream#rdbms:query('SAMPLE_DB', 'select * from " +
                                 "Transactions_Table', 'creditcardno string, country string, transaction string," +
-                                " amount int')  \n" +
-                                "insert into  recordStream;",
+                                " amount int') \n" +
+                                "select creditcardno, country, transaction, amount \n" +
+                                "insert into recordStream;",
                         description = "Events inserted into recordStream includes all records matched for the query " +
-                                "i.e a single event will be generated for each record retrieved from the datasource. " +
+                                "i.e an event will be generated for each record retrieved from the datasource. " +
                                 "The event will include as additional attributes, the attributes defined in the " +
-                                "function(creditcardno, country, transaction, amount)."
+                                "`attribute.definition.list`(creditcardno, country, transaction, amount)."
                 )
         }
 )
