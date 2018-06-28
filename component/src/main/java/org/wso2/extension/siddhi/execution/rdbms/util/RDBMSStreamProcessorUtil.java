@@ -122,9 +122,6 @@ public class RDBMSStreamProcessorUtil {
                 case LONG:
                     result.add(rs.getLong(i + 1));
                     break;
-                case OBJECT:
-                    result.add(rs.getObject(i + 1));
-                    break;
                 case STRING:
                     result.add(rs.getString(i + 1));
                     break;
