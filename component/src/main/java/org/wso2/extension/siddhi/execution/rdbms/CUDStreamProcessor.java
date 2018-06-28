@@ -57,12 +57,13 @@ import java.util.Map;
         parameters = {
                 @Parameter(
                         name = "datasource.name",
-                        description = "The name of the WSO2 datasource the query should be performed on",
+                        description = "The name of the WSO2 datasource on which the query should be performed on",
                         type = DataType.STRING
                 ),
                 @Parameter(
                         name = "query",
-                        description = "The select query that needs to be performed",
+                        description = "The manipulation query(formatted according to " +
+                                "the appropriate database type) that needs to be performed.",
                         type = DataType.STRING
                 )
         },
