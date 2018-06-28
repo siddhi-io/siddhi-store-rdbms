@@ -51,17 +51,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * This extension function can be used to perform SQL retrieval queries on a wso2 datasource.
+ * This extension function can be used to perform SQL retrieval queries on a WSO2 datasource.
  */
 @Extension(
         name = "query",
         namespace = "rdbms",
-        description = "The function can be used to perform SQL retrieval queries on a wso2 datasource. \n" +
-                "Note: This will only work within a carbon environment.",
+        description = "The function can be used to perform SQL retrieval queries on a WSO2 datasource. \n" +
+                "Note: This will only work within WSO2 SP.",
         parameters = {
                 @Parameter(
                         name = "datasource.name",
-                        description = "The name of the wso2 datasource the query should be performed on",
+                        description = "The name of the WSO2 datasource the query should be performed on",
                         type = DataType.STRING
                 ),
                 @Parameter(

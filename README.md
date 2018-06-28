@@ -37,7 +37,7 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
      </dependency>
 ```
 
-**Note** : rdbms:query() and rdbms:cud() function will work only inside a carbon environment
+**Note** : rdbms:query() and rdbms:cud() function will work only in WSO2 Stream Processor. 
 
 ## Running Integration tests in docker containers(Optional)
 

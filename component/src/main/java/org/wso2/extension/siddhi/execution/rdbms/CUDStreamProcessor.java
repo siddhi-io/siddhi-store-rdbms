@@ -47,17 +47,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This extension can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a wso2 datasource.
+ * This extension can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a WSO2 datasource.
  */
 @Extension(
         name = "cud",
         namespace = "rdbms",
-        description = "The function can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a wso2 " +
-                "datasource. \nNote: This will only work within a carbon environment.\n",
+        description = "The function can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a WSO2 " +
+                "datasource. \nNote: This will only work within WSO2 SP.\n",
         parameters = {
                 @Parameter(
                         name = "datasource.name",
-                        description = "The name of the wso2 datasource the query should be performed on",
+                        description = "The name of the WSO2 datasource the query should be performed on",
                         type = DataType.STRING
                 ),
                 @Parameter(
