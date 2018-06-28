@@ -125,6 +125,9 @@ public class RDBMSStreamProcessorUtil {
                 case STRING:
                     result.add(rs.getString(i + 1));
                     break;
+                default:
+                    // Due to validation in init method, this will not be initiated
+                    break;
             }
         }
         return result.toArray();
