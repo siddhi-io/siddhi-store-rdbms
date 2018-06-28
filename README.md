@@ -37,6 +37,9 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
      </dependency>
 ```
 
+!!! Note 
+    rdbms:query() and rdbms:cud() function will work only inside a carbon environment
+
 ## Running Integration tests in docker containers(Optional)
 
 The RDBMS functionality are tested with the docker base integration test framework, except the H2 default 

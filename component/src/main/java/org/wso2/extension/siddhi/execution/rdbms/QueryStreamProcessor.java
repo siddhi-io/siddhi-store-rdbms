@@ -56,7 +56,8 @@ import java.util.stream.Collectors;
 @Extension(
         name = "query",
         namespace = "rdbms",
-        description = "The function can be used to perform SQL retrieval queries on a wso2 datasource.",
+        description = "The function can be used to perform SQL retrieval queries on a wso2 datasource. \n" +
+                "Note: This will only work within a carbon environment.",
         parameters = {
                 @Parameter(
                         name = "datasource.name",

@@ -53,7 +53,7 @@ import java.util.Map;
         name = "cud",
         namespace = "rdbms",
         description = "The function can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a wso2 " +
-                "datasource.",
+                "datasource. \nNote: This will only work within a carbon environment.\n",
         parameters = {
                 @Parameter(
                         name = "datasource.name",
