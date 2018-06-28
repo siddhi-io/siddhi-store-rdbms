@@ -38,4 +38,17 @@
         <Class name="org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils$RDBMSConfigurationMapper"/>
         <Bug pattern="DM_CONVERT_CASE"/>
     </Match>
+
+    <!-- As per the functionality query may change event to event,
+    The datasource is initialised with start method from EternalReferencedHolder-->
+    <Match>
+        <Class name="org.wso2.extension.siddhi.execution.rdbms.QueryStreamProcessor"/>
+        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING,
+        UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.extension.siddhi.execution.rdbms.CUDStreamProcessor"/>
+        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING,
+        UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
 </FindBugsFilter>

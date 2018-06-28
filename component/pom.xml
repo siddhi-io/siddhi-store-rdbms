@@ -119,7 +119,8 @@
                         </Private-Package>
                         <Export-Package>
                             !com.zaxxer.hikari.*,
-                            org.wso2.extension.siddhi.store.rdbms.*
+                            org.wso2.extension.siddhi.store.rdbms.*,
+                            org.wso2.extension.siddhi.execution.rdbms.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
