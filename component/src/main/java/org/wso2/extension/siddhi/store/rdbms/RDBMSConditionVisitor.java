@@ -191,12 +191,11 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitIsNull(String streamId) {
-        condition.append(RDBMSTableConstants.SQL_IS_NULL).append(RDBMSTableConstants.WHITESPACE);
     }
 
     @Override
     public void endVisitIsNull(String streamId) {
-        //Not applicable
+        condition.append(RDBMSTableConstants.SQL_IS_NULL).append(RDBMSTableConstants.WHITESPACE);
     }
 
     @Override
