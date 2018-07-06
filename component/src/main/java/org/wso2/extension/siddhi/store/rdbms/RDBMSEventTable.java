@@ -589,9 +589,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
         Connection conn = this.getConnection();
         PreparedStatement updateStmt = null;
         List<Integer> recordInsertIndexList = new ArrayList<>();
+        String query = this.composeUpdateQuery(compiledCondition, updateSetExpressions);
         try {
-            updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition,
-                    updateSetExpressions));
+            updateStmt = conn.prepareStatement(query);
             Iterator<Map<String, Object>> conditionParamIterator = updateConditionParameterMaps.iterator();
             Iterator<Map<String, Object>> updateSetMapIterator = updateSetParameterMaps.iterator();
             while (conditionParamIterator.hasNext() && updateSetMapIterator.hasNext()) {
@@ -614,8 +614,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
                         (counter - (counter % batchSize))));
             }
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
-                    + this.tableName + "': " + e.getMessage(), e);
+            throw new RDBMSTableException("Cannot execute update/insert operation (update) on table '"
+                                          + this.tableName + "' with SQL query " + query + " .", e);
         } finally {
             RDBMSTableUtils.cleanupConnection(null, updateStmt, conn);
         }
@@ -662,8 +662,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
         int counter = 0;
         Connection conn = this.getConnection(false);
         PreparedStatement insertStmt = null;
+        String query = this.composeInsertQuery();
         try {
-            insertStmt = conn.prepareStatement(this.composeInsertQuery());
+            insertStmt = conn.prepareStatement(query);
             while (counter < recordInsertIndexList.size()) {
                 if (recordInsertIndexList.get(counter) == counter) {
                     Object[] record = addingRecords.get(counter);
@@ -688,9 +689,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 conn.commit();
             }
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
-                    + this.tableName
-                    + "': " + e.getMessage(), e);
+            throw new RDBMSTableException("Cannot execute update/insert operation (update) on table '"
+                                          + this.tableName + "' with SQL query " + query + " .", e);
         } finally {
             RDBMSTableUtils.cleanupConnection(null, insertStmt, conn);
         }
