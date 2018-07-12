@@ -1,19 +1,36 @@
-site_name: Siddhi-Store-RDBMS
+site_name: Siddhi Store RDBMS
+site_description: Siddhi Store RDBMS Extension
+site_author: WSO2
+site_url: https://wso2-extensions.github.io/siddhi-store-rdbms/
 extra_css:
 - stylesheets/extra.css
 extra_javascript:
 - javascripts/extra.js
-site_favicon: images/favicon.ico
-extra:
+repo_name: Siddhi-Store-RDBMS
+repo_url: https://github.com/wso2-extensions/siddhi-store-rdbms
+copyright: Copyright &copy; 2011 - 2018 WSO2
+theme:
+  name: 'material'
   logo: images/siddhi-logo-w.svg
+  favicon: images/favicon.ico
   palette:
     primary: teal
     accent: teal
 google_analytics:
 - UA-103065-28
 - auto
+extra:
+  social:
+  - type: github
+    link: https://github.com/wso2/siddhi
+  - type: linkedin
+    link: https://www.linkedin.com/groups/13553064
+markdown_extensions:
+  - admonition
+  - toc(permalink=true)
+  - codehilite(guess_lang=false)
 pages:
-- Welcome to WSO2 Siddhi Store RDBMS: index.md
+- Welcome: index.md
 - API Docs:
   - 4.0.23: api/4.0.23.md
   - 4.0.22: api/4.0.22.md
@@ -40,4 +57,3 @@ pages:
   - 4.0.1: api/4.0.1.md
   - latest: api/latest.md
 - License: license.md
-theme: material
