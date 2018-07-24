@@ -161,7 +161,9 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                         defaultValue = "The table name defined in the Siddhi App query."),
                 @Parameter(name = "field.length",
                         description = "The number of characters that the values for fields of the `STRING` type in " +
-                                "the table definition must contain. If this is not specified, the default number of " +
+                                "the table definition must contain. Each required field must be provided as a " +
+                                "key value pair in the form of <field.name>:<length> and separated by commas " +
+                                "for each field. If this is not specified, the default number of " +
                                 "characters specific to the database type is considered.",
                         type = {DataType.STRING},
                         optional = true,
