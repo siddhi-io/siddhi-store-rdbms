@@ -504,12 +504,6 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.extension.siddhi.execution.string</groupId>
-            <artifactId>siddhi-execution-string</artifactId>
-            <version>${siddhi.execution.string.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     </dependencyManagement>
 

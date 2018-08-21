@@ -96,11 +96,6 @@
             <artifactId>sqljdbc4</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.extension.siddhi.execution.string</groupId>
-            <artifactId>siddhi-execution-string</artifactId>
-            <scope>test</scope>
-        </dependency>
         <!--<dependency>-->
             <!--<groupId>com.ibm.db2</groupId>-->
             <!--<artifactId>db2jcc</artifactId>-->

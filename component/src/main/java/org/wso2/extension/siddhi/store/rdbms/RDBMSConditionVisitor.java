@@ -289,7 +289,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     public void beginVisitAttributeFunction(String namespace, String functionName) {
         if (RDBMSTableUtils.isEmpty(namespace)) {
             condition.append(functionName).append(RDBMSTableConstants.OPEN_PARENTHESIS);
-        } else if ((namespace.trim().equals("str") && functionName.equals("contain"))) {
+        } else if ((namespace.trim().equals("str") && functionName.equals("contains"))) {
             condition.append("CONTAINS").append(RDBMSTableConstants.OPEN_PARENTHESIS);
             isContainsConditionExist = true;
             nextProcessContainsPattern = true;
