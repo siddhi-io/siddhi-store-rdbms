@@ -35,6 +35,7 @@ public class RDBMSTableConstants {
     public static final String PLACEHOLDER_INDEX = "{{INDEX_COLUMNS}}";
     public static final String PLACEHOLDER_Q = "{{Q}}";
     public static final String PLACEHOLDER_COLUMNS = "{{COLUMNS}}";
+    public static final String PLACEHOLDER_VALUES = "{{VALUES}}";
 
     //Miscellaneous SQL constants
     public static final String SQL_MATH_ADD = "+";
@@ -63,6 +64,8 @@ public class RDBMSTableConstants {
     public static final String OPEN_PARENTHESIS = "(";
     public static final String CLOSE_PARENTHESIS = ")";
 
+    public static final String CONTAINS_CONDITION_REGEX = "(CONTAINS\\()([a-zA-z.]*)(\\s\\?\\s\\))";
+
     //Annotation field names
     public static final String ANNOTATION_ELEMENT_URL = "jdbc.url";
     public static final String ANNOTATION_ELEMENT_USERNAME = "username";
@@ -86,6 +89,7 @@ public class RDBMSTableConstants {
     public static final String RECORD_SELECT_QUERY = "recordSelectQuery";
     public static final String RECORD_EXISTS_QUERY = "recordExistsQuery";
     public static final String RECORD_DELETE_QUERY = "recordDeleteQuery";
+    public static final String RECORD_CONTAINS_CONDITION = "recordContainsCondition";
     public static final String STRING_SIZE = "stringSize";
     public static final String TYPE_MAPPING = "typeMapping";
     public static final String BINARY_TYPE = "binaryType";

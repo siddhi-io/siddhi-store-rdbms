@@ -47,6 +47,10 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     private int streamVarCount;
     private int constantCount;
 
+    private boolean isContainsConditionExist;
+    private boolean nextProcessContainsPattern;
+    private int ordinalOfContainPattern = 1;
+
     public RDBMSConditionVisitor(String tableName) {
         this.tableName = tableName;
         this.condition = new StringBuilder();
@@ -65,8 +69,16 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         return this.finalCompiledCondition.trim();
     }
 
+    public int getOrdinalOfContainPattern() {
+        return ordinalOfContainPattern;
+    }
+
     public SortedMap<Integer, Object> getParameters() {
         return this.parameters;
+    }
+
+    public boolean isContainsConditionExist() {
+        return isContainsConditionExist;
     }
 
     @Override
@@ -210,7 +222,13 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitConstant(Object value, Attribute.Type type) {
-        String name = this.generateConstantName();
+        String name;
+        if (nextProcessContainsPattern) {
+            name = this.generatePatternConstantName();
+            nextProcessContainsPattern = false;
+        } else {
+            name = this.generateConstantName();
+        }
         this.placeholders.put(name, new Constant(value, type));
         condition.append("[").append(name).append("]").append(RDBMSTableConstants.WHITESPACE);
     }
@@ -271,6 +289,10 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     public void beginVisitAttributeFunction(String namespace, String functionName) {
         if (RDBMSTableUtils.isEmpty(namespace)) {
             condition.append(functionName).append(RDBMSTableConstants.OPEN_PARENTHESIS);
+        } else if ((namespace.trim().equals("str") && functionName.equals("contain"))) {
+            condition.append("CONTAINS").append(RDBMSTableConstants.OPEN_PARENTHESIS);
+            isContainsConditionExist = true;
+            nextProcessContainsPattern = true;
         } else {
             throw new OperationNotSupportedException("The RDBMS Event table does not support function namespaces, " +
                     "but namespace '" + namespace + "' was specified. Please use functions supported by the " +
@@ -280,7 +302,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void endVisitAttributeFunction(String namespace, String functionName) {
-        if (RDBMSTableUtils.isEmpty(namespace)) {
+        if (RDBMSTableUtils.isEmpty(namespace) || isContainsConditionExist) {
             condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS).append(RDBMSTableConstants.WHITESPACE);
         } else {
             throw new OperationNotSupportedException("The RDBMS Event table does not support function namespaces, " +
@@ -301,7 +323,13 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitStreamVariable(String id, String streamId, String attributeName, Attribute.Type type) {
-        String name = this.generateStreamVarName();
+        String name;
+        if (nextProcessContainsPattern) {
+            name = this.generatePatternStreamVarName();
+            nextProcessContainsPattern = false;
+        } else {
+            name = this.generateStreamVarName();
+        }
         this.placeholders.put(name, new Attribute(id, type));
         condition.append("[").append(name).append("]").append(RDBMSTableConstants.WHITESPACE);
     }
@@ -338,6 +366,9 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
                 if (this.placeholders.containsKey(candidate)) {
                     this.parameters.put(ordinal, this.placeholders.get(candidate));
                     ordinal++;
+                    if (candidate.equals("pattern-value")) {
+                        ordinalOfContainPattern = ordinal;
+                    }
                 }
             }
         }
@@ -365,6 +396,28 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
      */
     private String generateConstantName() {
         String name = "const" + this.constantCount;
+        this.constantCount++;
+        return name;
+    }
+
+    /**
+     * Method for generating a temporary placeholder for contains pattern as stream variables.
+     *
+     * @return a placeholder string of known format.
+     */
+    private String generatePatternStreamVarName() {
+        String name = "pattern-value" + this.streamVarCount;
+        this.streamVarCount++;
+        return name;
+    }
+
+    /**
+     * Method for generating a temporary placeholder for contains pattern as constants.
+     *
+     * @return a placeholder string of known format.
+     */
+    private String generatePatternConstantName() {
+        String name = "pattern-value" + this.constantCount;
         this.constantCount++;
         return name;
     }

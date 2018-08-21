@@ -47,7 +47,8 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.2.0</siddhi.version>
+        <siddhi.version>4.2.5</siddhi.version>
+        <siddhi.execution.string.version>4.0.20</siddhi.execution.string.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <testng.version>6.9.10</testng.version>
         <hikari.version>2.6.1</hikari.version>
@@ -502,6 +503,12 @@
             <artifactId>siddhi-store-rdbms-tests-distribution</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.extension.siddhi.execution.string</groupId>
+            <artifactId>siddhi-execution-string</artifactId>
+            <version>${siddhi.execution.string.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     </dependencyManagement>

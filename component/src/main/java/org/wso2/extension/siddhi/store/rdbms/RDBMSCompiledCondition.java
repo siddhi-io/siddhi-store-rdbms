@@ -29,19 +29,29 @@ public class RDBMSCompiledCondition implements CompiledCondition {
 
     private String compiledQuery;
     private SortedMap<Integer, Object> parameters;
+    private boolean isContainsConditionExist;
+    private int ordinalOfContainPattern;
 
-    public RDBMSCompiledCondition(String compiledQuery, SortedMap<Integer, Object> parameters) {
+    public RDBMSCompiledCondition(String compiledQuery, SortedMap<Integer, Object> parameters,
+                                  boolean isContainsConditionExist, int ordinalOfContainPattern) {
         this.compiledQuery = compiledQuery;
         this.parameters = parameters;
+        this.isContainsConditionExist = isContainsConditionExist;
+        this.ordinalOfContainPattern = ordinalOfContainPattern;
     }
 
     @Override
     public CompiledCondition cloneCompilation(String key) {
-        return new RDBMSCompiledCondition(this.compiledQuery, this.parameters);
+        return new RDBMSCompiledCondition(this.compiledQuery, this.parameters,
+                this.isContainsConditionExist, this.ordinalOfContainPattern);
     }
 
     public String getCompiledQuery() {
         return compiledQuery;
+    }
+
+    public boolean isContainsConditionExist() {
+        return isContainsConditionExist;
     }
 
     public String toString() {
@@ -50,5 +60,9 @@ public class RDBMSCompiledCondition implements CompiledCondition {
 
     public SortedMap<Integer, Object> getParameters() {
         return parameters;
+    }
+
+    public int getOrdinalOfContainPattern() {
+        return ordinalOfContainPattern;
     }
 }
