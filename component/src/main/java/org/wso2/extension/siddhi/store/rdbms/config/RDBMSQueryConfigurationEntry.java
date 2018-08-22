@@ -46,6 +46,7 @@ public class RDBMSQueryConfigurationEntry {
     private int batchSize;
     private boolean batchEnable = false;
     private boolean transactionSupported = true;
+    private String recordContainsCondition;
 
     @XmlAttribute(name = "name", required = true)
     public String getDatabaseName() {
@@ -158,6 +159,14 @@ public class RDBMSQueryConfigurationEntry {
     @XmlElement(required = true)
     public String getRecordDeleteQuery() {
         return recordDeleteQuery;
+    }
+
+    public String getRecordContainsCondition() {
+        return recordContainsCondition;
+    }
+
+    public void setRecordContainsCondition(String recordContainsCondition) {
+        this.recordContainsCondition = recordContainsCondition;
     }
 
     public void setRecordDeleteQuery(String recordDeleteQuery) {

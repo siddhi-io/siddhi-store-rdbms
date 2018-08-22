@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
@@ -51,11 +52,15 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.CONTAINS_CONDITION_REGEX;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.DATABASE_PRODUCT_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.MAX_VERSION;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.MIN_VERSION;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_CONDITION;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_VALUES;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PROPERTY_SEPARATOR;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.QUESTION_MARK;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RDBMS_QUERY_CONFIG_FILE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.SQL_WHERE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.VERSION;
@@ -170,6 +175,36 @@ public class RDBMSTableUtils {
                 Attribute variable = (Attribute) parameter;
                 populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
                         conditionParameterMap.get(variable.getName()));
+            }
+        }
+    }
+
+    public static void resolveConditionForContainsCheck(PreparedStatement stmt,
+                                                        RDBMSCompiledCondition compiledCondition,
+                                                        Map<String, Object> conditionParameterMap, int seed)
+            throws SQLException {
+        SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
+        for (Map.Entry<Integer, Object> entry : parameters.entrySet()) {
+            Object parameter = entry.getValue();
+            if (parameter instanceof Constant) {
+                Constant constant = (Constant) parameter;
+                if (entry.getKey().equals(compiledCondition.getOrdinalOfContainPattern())) {
+                    populateStatementWithSingleElement(stmt, seed + entry.getKey(), constant.getType(),
+                            "%" + constant.getValue() + "%");
+                } else {
+                    populateStatementWithSingleElement(stmt, seed + entry.getKey(), constant.getType(),
+                            constant.getValue());
+                }
+            } else {
+                Attribute variable = (Attribute) parameter;
+                if (entry.getKey().equals(compiledCondition.getOrdinalOfContainPattern())) {
+                    populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
+                            "%" + conditionParameterMap.get(variable.getName()) + "%");
+                } else {
+                    populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
+                            conditionParameterMap.get(variable.getName()));
+                }
+
             }
         }
     }
@@ -380,6 +415,28 @@ public class RDBMSTableUtils {
             throw new CannotLoadConfigurationException("Cannot find a database section in the RDBMS "
                     + "configuration for the database: " + dbInfo);
         }
+    }
+
+    /**
+     * Utility method which matches the contain condition regex and replace the contain condition in findCondition
+     * by the record contains condition template.
+     *
+     * @param findCondition                   the find condition string
+     * @param recordContainsConditionTemplate the contains condition template based on the database type
+     * @return the results of processed find condition by the contains condition template
+     */
+    public static String processFindConditionWithContainsConditionTemplate(String findCondition,
+                                                                           String recordContainsConditionTemplate) {
+        Pattern pattern = Pattern.compile(CONTAINS_CONDITION_REGEX);
+        Matcher matcher = pattern.matcher(findCondition);
+        while (matcher.find()) {
+            String tableColumnId = matcher.group(2);
+            String recordContainsCondition = recordContainsConditionTemplate.replace(PLACEHOLDER_COLUMNS,
+                    tableColumnId).
+                    replace(PLACEHOLDER_VALUES, QUESTION_MARK);
+            return matcher.replaceAll(recordContainsCondition);
+        }
+        return findCondition;
     }
 
     /**

@@ -91,8 +91,10 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLA
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_Q;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_TABLE_NAME;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_VALUES;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PROPERTY_SEPARATOR;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.QUESTION_MARK;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RECORD_CONTAINS_CONDITION;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RECORD_DELETE_QUERY;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RECORD_EXISTS_QUERY;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.RECORD_INSERT_QUERY;
@@ -174,14 +176,32 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                         syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
                                 "username=\"root\", password=\"root\" , jdbc.driver.name=\"org.h2.Driver\"," +
                                 "field.length=\"symbol:100\")\n" +
-                                "@PrimaryKey(\"symbol\")" +
-                                "@Index(\"volume\")" +
+                                "@PrimaryKey(\"symbol\")\n" +
+                                "@Index(\"volume\")\n" +
                                 "define table StockTable (symbol string, price float, volume long);",
                         description = "The above example creates an event table named `StockTable` on the DB if " +
                                 "it does not already exist (with 3 attributes named `symbol`, `price`, and `volume` " +
                                 "of the types types `string`, `float` and `long` respectively). The connection is " +
                                 "made as specified by the parameters configured for the '@Store' annotation. The " +
                                 "`symbol` attribute is considered a unique field, and a DB index is created for it."
+                ),
+                @Example(
+                        syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                                "username=\"root\", password=\"root\" , jdbc.driver.name=\"org.h2.Driver\"," +
+                                "field.length=\"symbol:100\")\n" +
+                                "@PrimaryKey(\"symbol\")\n" +
+                                "@Index(\"symbol\")\n" +
+                                "define table StockTable (symbol string, price float, volume long);\n" +
+                                "define stream InputStream (symbol string, volume long);\n" +
+                                "from InputStream as a join StockTable as b on str:contains(b.symbol, a.symbol)\n" +
+                                "select a.symbol as symbol, b.volume as volume\n" +
+                                "insert into FooStream;",
+                        description = "The above example creates an event table named `StockTable` on the DB if " +
+                                "it does not already exist (with 3 attributes named `symbol`, `price`, and `volume` " +
+                                "of the types types `string`, `float` and `long` respectively). Then the table is " +
+                                "join with the InputStream based on a condition. In the on condition following " +
+                                "operations are supported [ AND, OR, Comparisons( <  <=  >  >=  == !=), IS NULL, " +
+                                "NOT, str:contains(Table<Column>, Stream<Attribute> or Search.String)]"
                 )
         },
         systemParameter = {
@@ -379,6 +399,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private String longType;
     private String stringType;
     private String stringSize;
+    private String recordContainsConditionTemplate;
+    private String findCondition;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -416,13 +438,21 @@ public class RDBMSEventTable extends AbstractRecordTable {
     @Override
     protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
                                             CompiledCondition compiledCondition) {
-        String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
+        RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
+        if (findCondition == null) {
+            if (rdbmsCompiledCondition.isContainsConditionExist()) {
+                findCondition = RDBMSTableUtils.processFindConditionWithContainsConditionTemplate(
+                        rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate);
+            } else {
+                findCondition = rdbmsCompiledCondition.getCompiledQuery();
+            }
+        }
         //Some databases does not support single condition on where clause.
         //(atomic condition on where clause: SELECT * FROM TABLE WHERE true)
         //If the compile condition is resolved for '?', atomicCondition boolean value
         // will be used for ignore condition resolver.
         boolean atomicCondition = false;
-        if (condition.equals(QUESTION_MARK)) {
+        if (findCondition.equals(QUESTION_MARK)) {
             atomicCondition = true;
             if (log.isDebugEnabled()) {
                 log.debug("Ignore the condition resolver in 'find()' method for compile " +
@@ -433,12 +463,18 @@ public class RDBMSEventTable extends AbstractRecordTable {
         PreparedStatement stmt = null;
         ResultSet rs;
         try {
-            stmt = RDBMSTableUtils.isEmpty(condition) | atomicCondition ?
+            stmt = RDBMSTableUtils.isEmpty(findCondition) | atomicCondition ?
                     conn.prepareStatement(selectQuery.replace(PLACEHOLDER_CONDITION, "")) :
-                    conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(selectQuery, condition));
+                    conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(selectQuery, findCondition));
             if (!atomicCondition) {
-                RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
-                        findConditionParameterMap, 0);
+                if (rdbmsCompiledCondition.isContainsConditionExist()) {
+
+                    RDBMSTableUtils.resolveConditionForContainsCheck(stmt, (RDBMSCompiledCondition) compiledCondition,
+                            findConditionParameterMap, 0);
+                } else {
+                    RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
+                            findConditionParameterMap, 0);
+                }
             }
             rs = stmt.executeQuery();
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
@@ -713,7 +749,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected CompiledCondition compileCondition(ExpressionBuilder expressionBuilder) {
         RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
         expressionBuilder.build(visitor);
-        return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters());
+        return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters(),
+                visitor.isContainsConditionExist(), visitor.getOrdinalOfContainPattern());
     }
 
 
@@ -818,6 +855,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     stringSize = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + STRING_SIZE,
                             this.queryConfigurationEntry.getStringSize());
+                    recordContainsConditionTemplate = configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
+                                    RECORD_CONTAINS_CONDITION, this.queryConfigurationEntry.
+                                    getRecordContainsCondition()).replace(PLACEHOLDER_VALUES, QUESTION_MARK);
                 }
             }
             if (!this.tableExists()) {

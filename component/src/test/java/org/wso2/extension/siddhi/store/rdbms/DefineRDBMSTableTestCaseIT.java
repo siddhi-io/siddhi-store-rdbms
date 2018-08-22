@@ -421,7 +421,6 @@ public class DefineRDBMSTableTestCaseIT {
         //Defining a RDBMS table without defining a value for username field.
         log.info("rdbmstabledefinitiontest11");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String wrongUsernameRegex = "Wrong user name or password";
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
@@ -436,7 +435,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(wrongUsernameRegex) {
+        LoggerCallBack loggerCallBack = new LoggerCallBack(RDBMSTableTestUtils.wrongUsernameRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -446,7 +445,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + wrongUsernameRegex + "'");
+                "Matching log event not found for pattern: '" + RDBMSTableTestUtils.wrongUsernameRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }

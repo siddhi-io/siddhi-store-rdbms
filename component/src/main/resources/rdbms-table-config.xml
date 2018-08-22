@@ -10,6 +10,7 @@
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}}
             {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
+        <recordContainsCondition>{{COLUMNS}} LIKE {{VALUES}}</recordContainsCondition>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
@@ -32,6 +33,7 @@
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
+        <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
@@ -54,6 +56,7 @@
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
+        <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <stringSize>254</stringSize>
         <batchEnable>false</batchEnable>
         <batchSize>1000</batchSize>
@@ -76,6 +79,7 @@
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
+        <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
@@ -98,6 +102,7 @@
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
+        <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
@@ -120,6 +125,7 @@
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
+        <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
@@ -142,6 +148,7 @@
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
+        <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <keyExplicitNotNull>true</keyExplicitNotNull>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>

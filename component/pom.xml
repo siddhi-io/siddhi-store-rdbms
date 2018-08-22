@@ -736,7 +736,7 @@
                                             <port>${das-db2.port}:50000</port>
                                         </ports>
                                         <wait>
-                                            <log>SQL1063N DB2START processing was successful.</log>
+                                            <log>SQL1063N  DB2START processing was successful.</log>
                                             <time>10000</time>
                                         </wait>
                                     </run>

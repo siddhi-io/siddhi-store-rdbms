@@ -39,11 +39,17 @@ public class RDBMSTableTestUtils {
 
     public static final String TABLE_NAME = "StockTable";
     private static final Logger log = Logger.getLogger(RDBMSTableTestUtils.class);
-    private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/dasdb";
+    private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/dasdb?useSSL=false";
     private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:{{container.port}}/dasdb";
     private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:{{container.port}}/XE";
     private static String connectionUrlMsSQL = "jdbc:sqlserver://{{container.ip}}:{{container.port}};" +
             "databaseName=tempdb";
+    private static final String WRONG_USER_NAME_REGEX_MYSQL = "Access denied for user";
+    private static final String WRONG_USER_NAME_REGEX_ORACLE = "invalid username/password; logon denied";
+    private static final String WRONG_USER_NAME_REGEX_H2 = "Wrong user name or password";
+    private static final String WRONG_USER_NAME_REGEX_POSTGRES = "password authentication failed";
+    private static final String WRONG_USER_NAME_REGEX_MSSQL = "Login failed for user";
+    private static final String WRONG_USER_NAME_REGEX_DB2 = "Connection authorization failure occurred";
     private static String connectionUrlDB2 = "jdbc:db2://{{container.ip}}:{{container.port}}/SAMPLE";
     private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
     private static final String JDBC_DRIVER_CLASS_NAME_H2 = "org.h2.Driver";
@@ -60,6 +66,7 @@ public class RDBMSTableTestUtils {
     public static String user = USERNAME;
     public static String password = PASSWORD;
     private static DataSource testDataSource;
+    public static String wrongUsernameRegex = WRONG_USER_NAME_REGEX_H2;
 
     private RDBMSTableTestUtils() {
 
@@ -91,32 +98,38 @@ public class RDBMSTableTestUtils {
                 url = connectionUrlMysql.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_NAME_MYSQL;
+                wrongUsernameRegex = WRONG_USER_NAME_REGEX_MYSQL;
                 break;
             case H2:
                 url = CONNECTION_URL_H2;
                 driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
                 user = USERNAME;
                 password = PASSWORD;
+                wrongUsernameRegex = WRONG_USER_NAME_REGEX_H2;
                 break;
             case POSTGRES:
                 url = connectionUrlPostgres.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_POSTGRES;
+                wrongUsernameRegex = WRONG_USER_NAME_REGEX_POSTGRES;
                 break;
             case ORACLE:
                 url = connectionUrlOracle.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_NAME_ORACLE;
+                wrongUsernameRegex = WRONG_USER_NAME_REGEX_ORACLE;
                 break;
             case MSSQL:
                 url = connectionUrlMsSQL.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_MSSQL;
+                wrongUsernameRegex = WRONG_USER_NAME_REGEX_MSSQL;
                 break;
             case DB2:
                 url = connectionUrlDB2.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_DB2;
+                wrongUsernameRegex = WRONG_USER_NAME_REGEX_DB2;
                 break;
         }
         log.info("URL of docker instance: " + url);
