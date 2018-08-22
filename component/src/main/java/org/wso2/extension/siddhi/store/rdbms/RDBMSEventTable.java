@@ -193,7 +193,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                                 "@Index(\"symbol\")\n" +
                                 "define table StockTable (symbol string, price float, volume long);\n" +
                                 "define stream InputStream (symbol string, volume long);\n" +
-                                "from InputStream as a join StockTable as b on str:contain(b.symbol, a.symbol)\n" +
+                                "from InputStream as a join StockTable as b on str:contains(b.symbol, a.symbol)\n" +
                                 "select a.symbol as symbol, b.volume as volume\n" +
                                 "insert into FooStream;",
                         description = "The above example creates an event table named `StockTable` on the DB if " +
@@ -201,7 +201,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                                 "of the types types `string`, `float` and `long` respectively). Then the table is " +
                                 "join with the InputStream based on a condition. In the on condition following " +
                                 "operations are supported [ AND, OR, Comparisons( <  <=  >  >=  == !=), IS NULL, " +
-                                "NOT, str:contain(Table<Column>, Stream<Attribute> or Search.String)]"
+                                "NOT, str:contains(Table<Column>, Stream<Attribute> or Search.String)]"
                 )
         },
         systemParameter = {
