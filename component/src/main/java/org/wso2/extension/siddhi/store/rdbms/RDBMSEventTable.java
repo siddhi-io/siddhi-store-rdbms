@@ -400,7 +400,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private String stringType;
     private String stringSize;
     private String recordContainsConditionTemplate;
-    private String findCondition;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -439,13 +438,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
                                             CompiledCondition compiledCondition) {
         RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
-        if (findCondition == null) {
-            if (rdbmsCompiledCondition.isContainsConditionExist()) {
-                findCondition = RDBMSTableUtils.processFindConditionWithContainsConditionTemplate(
-                        rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate);
-            } else {
-                findCondition = rdbmsCompiledCondition.getCompiledQuery();
-            }
+        String findCondition;
+        if (rdbmsCompiledCondition.isContainsConditionExist()) {
+            findCondition = RDBMSTableUtils.processFindConditionWithContainsConditionTemplate(
+                    rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate);
+        } else {
+            findCondition = rdbmsCompiledCondition.getCompiledQuery();
         }
         //Some databases does not support single condition on where clause.
         //(atomic condition on where clause: SELECT * FROM TABLE WHERE true)
