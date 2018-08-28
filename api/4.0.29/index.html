@@ -13,7 +13,7 @@
         <meta name="description" content="Siddhi Store RDBMS Extension">
       
       
-        <link rel="canonical" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.15/">
+        <link rel="canonical" href="https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.29/">
       
       
         <meta name="author" content="WSO2">
@@ -42,7 +42,7 @@
     
     
       
-        <title>4.0.15 - Siddhi Store RDBMS</title>
+        <title>4.0.29 - Siddhi Store RDBMS</title>
       
     
     
@@ -106,7 +106,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#api-docs-v4015" tabindex="1" class="md-skip">
+      <a href="#api-docs-v4029" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -132,7 +132,7 @@
                 Siddhi Store RDBMS
               </span>
               <span class="md-header-nav__topic">
-                4.0.15
+                4.0.29
               </span>
             
           
@@ -280,11 +280,89 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../4.0.29/" title="4.0.29" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        4.0.29
+      </label>
+    
+    <a href="./" title="4.0.29" class="md-nav__link md-nav__link--active">
       4.0.29
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rdbms" title="Rdbms" class="md-nav__link">
+    Rdbms
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cud-stream-processor" title="cud (Stream Processor)" class="md-nav__link">
+    cud (Stream Processor)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-stream-processor" title="query (Stream Processor)" class="md-nav__link">
+    query (Stream Processor)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#store" title="Store" class="md-nav__link">
+    Store
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rdbms-store" title="rdbms (Store)" class="md-nav__link">
+    rdbms (Store)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -448,62 +526,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-      
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="__toc">
-        4.0.15
-      </label>
-    
-    <a href="./" title="4.0.15" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../4.0.15/" title="4.0.15" class="md-nav__link">
       4.0.15
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#store" title="Store" class="md-nav__link">
-    Store
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#rdbms-store" title="rdbms (Store)" class="md-nav__link">
-    rdbms (Store)
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-      
-      
-      
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
         
@@ -725,6 +752,33 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#rdbms" title="Rdbms" class="md-nav__link">
+    Rdbms
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cud-stream-processor" title="cud (Stream Processor)" class="md-nav__link">
+    cud (Stream Processor)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-stream-processor" title="query (Stream Processor)" class="md-nav__link">
+    query (Stream Processor)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#store" title="Store" class="md-nav__link">
     Store
   </a>
@@ -760,10 +814,150 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/wso2-extensions/siddhi-store-rdbms/edit/master/docs/api/4.0.15.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/wso2-extensions/siddhi-store-rdbms/edit/master/docs/api/4.0.29.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="api-docs-v4015">API Docs - v4.0.15<a class="headerlink" href="#api-docs-v4015" title="Permanent link">&para;</a></h1>
+                <h1 id="api-docs-v4029">API Docs - v4.0.29<a class="headerlink" href="#api-docs-v4029" title="Permanent link">&para;</a></h1>
+<h2 id="rdbms">Rdbms<a class="headerlink" href="#rdbms" title="Permanent link">&para;</a></h2>
+<h3 id="cud-stream-processor">cud <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em><a class="headerlink" href="#cud-stream-processor" title="Permanent link">&para;</a></h3>
+<p style="word-wrap: break-word">The function can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a WSO2 datasource. <br>Note: This will only work within WSO2 SP.<br></p>
+
+<p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
+<div class="codehilite"><pre><span></span>rdbms:cud(&lt;STRING&gt; datasource.name, &lt;STRING&gt; query)
+</pre></div>
+
+
+<p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Default Value</th>
+        <th>Possible Data Types</th>
+        <th>Optional</th>
+        <th>Dynamic</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">datasource.name</td>
+        <td style="vertical-align: top; word-wrap: break-word">The name of the WSO2 datasource on which the query should be performed on</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">query</td>
+        <td style="vertical-align: top; word-wrap: break-word">The update, delete, or insert query(formatted according to the appropriate database type) that needs to be performed.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+</table></p>
+<p><span id="system-parameters" class="md-typeset" style="display: block; font-weight: bold;">System Parameters</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Default Value</th>
+        <th>Possible Parameters</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">perform.CUD.operations</td>
+        <td style="vertical-align: top; word-wrap: break-word">Enable/Disable performing CUD operations through rdbms cud function</td>
+        <td style="vertical-align: top">false</td>
+        <td style="vertical-align: top">true<br>false</td>
+    </tr>
+</table>
+<span id="extra-return-attributes" class="md-typeset" style="display: block; font-weight: bold;">Extra Return Attributes</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Possible Types</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">numRecords</td>
+        <td style="vertical-align: top; word-wrap: break-word">The number of records manipulated by the query.</td>
+        <td style="vertical-align: top">INT</td>
+    </tr>
+</table></p>
+<p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
+<div class="codehilite"><pre><span></span>from TriggerStream#rdbms:cud(&quot;SAMPLE_DB&quot;, &quot;UPDATE Customers_Table SET customerName=&#39;abc&#39; where customerName=&#39;xyz&#39;&quot;) 
+select numRecords 
+insert into  recordStream;
+</pre></div>
+
+
+<p style="word-wrap: break-word">Events will be modified with additional attribute of name 'numRecords' with the number of records manipulated.</p>
+
+<h3 id="query-stream-processor">query <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em><a class="headerlink" href="#query-stream-processor" title="Permanent link">&para;</a></h3>
+<p style="word-wrap: break-word">The function can be used to perform SQL retrieval queries on a WSO2 datasource. <br>Note: This will only work within WSO2 SP.</p>
+
+<p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
+<div class="codehilite"><pre><span></span>rdbms:query(&lt;STRING&gt; datasource.name, &lt;STRING&gt; query, &lt;STRING&gt; attribute.definition.list)
+</pre></div>
+
+
+<p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Default Value</th>
+        <th>Possible Data Types</th>
+        <th>Optional</th>
+        <th>Dynamic</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">datasource.name</td>
+        <td style="vertical-align: top; word-wrap: break-word">The name of the WSO2 datasource on which the query should be performed on</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">query</td>
+        <td style="vertical-align: top; word-wrap: break-word">The select query(formatted according to the appropriate database type) that needs to be performed</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">attribute.definition.list</td>
+        <td style="vertical-align: top; word-wrap: break-word">Comma separated list of <code>&lt;AttributeName AttributeType&gt;</code>. It is expected that the SQL query will return the attributes in order, as in if one attribute is defined here, the SQL query should return one column result set, if more than one column is returned then the first column will be processed. The Siddhi data types supported will be <code>STRING</code>, <code>INT</code>, <code>LONG</code>, <code>DOUBLE</code>, <code>FLOAT</code>, <code>BOOL</code>. <br>&nbsp;Mapping of the Siddhi data type to database data type can be done as follows, <br><em>Siddhi Datatype</em>-&gt;<em>Datasource Datatype</em><br><code>STRING</code>-&gt;<code>CHAR</code>,<code>VARCHAR</code>,<code>LONGVARCHAR</code><br><code>INT</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&gt;<code>INTEGER</code><br><code>LONG</code>&nbsp;&nbsp;&nbsp;&nbsp;-&gt;<code>BIGINT</code><br><code>DOUBLE</code>-&gt;<code>DOUBLE</code><br><code>FLOAT</code>&nbsp;&nbsp;&nbsp;-&gt;<code>REAL</code><br><code>BOOL</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&gt;<code>BIT</code><br></td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+</table>
+<span id="extra-return-attributes" class="md-typeset" style="display: block; font-weight: bold;">Extra Return Attributes</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Possible Types</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">attributeName</td>
+        <td style="vertical-align: top; word-wrap: break-word">The return attributes will be the ones defined in the parameter<code>attribute.definition.list</code>.</td>
+        <td style="vertical-align: top">STRING<br>INT<br>LONG<br>DOUBLE<br>FLOAT<br>BOOL</td>
+    </tr>
+</table></p>
+<p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
+<div class="codehilite"><pre><span></span>from TriggerStream#rdbms:query(&#39;SAMPLE_DB&#39;, &#39;select * from Transactions_Table&#39;, &#39;creditcardno string, country string, transaction string, amount int&#39;) 
+select creditcardno, country, transaction, amount 
+insert into recordStream;
+</pre></div>
+
+
+<p style="word-wrap: break-word">Events inserted into recordStream includes all records matched for the query i.e an event will be generated for each record retrieved from the datasource. The event will include as additional attributes, the attributes defined in the <code>attribute.definition.list</code>(creditcardno, country, transaction, amount).</p>
+
 <h2 id="store">Store<a class="headerlink" href="#store" title="Permanent link">&para;</a></h2>
 <h3 id="rdbms-store">rdbms <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#store">(Store)</a></em><a class="headerlink" href="#rdbms-store" title="Permanent link">&para;</a></h3>
 <p style="word-wrap: break-word">This extension assigns data sources and connection instructions to event tables. It also implements read write operations on connected datasources</p>
@@ -851,7 +1045,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">field.length</td>
-        <td style="vertical-align: top; word-wrap: break-word">The number of characters that the values for fields of the <code>STRING</code> type in the table definition must contain. If this is not specified, the default number of characters specific to the database type is considered.</td>
+        <td style="vertical-align: top; word-wrap: break-word">The number of characters that the values for fields of the <code>STRING</code> type in the table definition must contain. Each required field must be provided as a key value pair in the form of &lt;field.name&gt;:&lt;length&gt; and separated by commas for each field. If this is not specified, the default number of characters specific to the database type is considered.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -899,7 +1093,7 @@
     <tr>
         <td style="vertical-align: top">{{RDBMS-Name}}.recordInsertQuery</td>
         <td style="vertical-align: top; word-wrap: break-word">The template query for the <code>insert record</code> operation in {{RDBMS-Name}}.</td>
-        <td style="vertical-align: top"><b>H2</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>MySQL</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>Oracle</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>Microsoft SQL Server</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>PostgreSQL</b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})<br><b>DB2.</em></b>: INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</td>
+        <td style="vertical-align: top"><b>H2</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br><b>MySQL</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br><b>Oracle</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br><b>Microsoft SQL Server</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br><b>PostgreSQL</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br><b>DB2.</em></b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</td>
         <td style="vertical-align: top">N/A</td>
     </tr>
     <tr>
@@ -954,11 +1148,27 @@
 <p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
 <div class="codehilite"><pre><span></span>@Store(type=&quot;rdbms&quot;, jdbc.url=&quot;jdbc:mysql://localhost:3306/das&quot;, username=&quot;root&quot;, password=&quot;root&quot; , jdbc.driver.name=&quot;org.h2.Driver&quot;,field.length=&quot;symbol:100&quot;)
-@PrimaryKey(&quot;symbol&quot;)@Index(&quot;volume&quot;)define table StockTable (symbol string, price float, volume long);
+@PrimaryKey(&quot;symbol&quot;)
+@Index(&quot;volume&quot;)
+define table StockTable (symbol string, price float, volume long);
 </pre></div>
 
 
 <p style="word-wrap: break-word">The above example creates an event table named <code>StockTable</code> on the DB if it does not already exist (with 3 attributes named <code>symbol</code>, <code>price</code>, and <code>volume</code> of the types types <code>string</code>, <code>float</code> and <code>long</code> respectively). The connection is made as specified by the parameters configured for the '@Store' annotation. The <code>symbol</code> attribute is considered a unique field, and a DB index is created for it.</p>
+
+<p><span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span></p>
+<div class="codehilite"><pre><span></span>@Store(type=&quot;rdbms&quot;, jdbc.url=&quot;jdbc:mysql://localhost:3306/das&quot;, username=&quot;root&quot;, password=&quot;root&quot; , jdbc.driver.name=&quot;org.h2.Driver&quot;,field.length=&quot;symbol:100&quot;)
+@PrimaryKey(&quot;symbol&quot;)
+@Index(&quot;symbol&quot;)
+define table StockTable (symbol string, price float, volume long);
+define stream InputStream (symbol string, volume long);
+from InputStream as a join StockTable as b on str:contains(b.symbol, a.symbol)
+select a.symbol as symbol, b.volume as volume
+insert into FooStream;
+</pre></div>
+
+
+<p style="word-wrap: break-word">The above example creates an event table named <code>StockTable</code> on the DB if it does not already exist (with 3 attributes named <code>symbol</code>, <code>price</code>, and <code>volume</code> of the types types <code>string</code>, <code>float</code> and <code>long</code> respectively). Then the table is join with the InputStream based on a condition. In the on condition following operations are supported [ AND, OR, Comparisons( &lt;  &lt;=  &gt;  &gt;=  == !=), IS NULL, NOT, str:contains(Table&lt;Column&gt;, Stream&lt;Attribute&gt; or Search.String)]</p>
                 
                   
                 
@@ -979,7 +1189,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../4.0.16/" title="4.0.16" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../.." title="Welcome" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -988,19 +1198,19 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                4.0.16
+                Welcome
               </span>
             </div>
           </a>
         
         
-          <a href="../4.0.14/" title="4.0.14" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../4.0.28/" title="4.0.28" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                4.0.14
+                4.0.28
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
