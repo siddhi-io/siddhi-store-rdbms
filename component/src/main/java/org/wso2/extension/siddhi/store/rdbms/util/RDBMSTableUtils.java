@@ -74,6 +74,7 @@ public class RDBMSTableUtils {
 
     private static RDBMSConfigurationMapper mapper;
     private static final Log log = LogFactory.getLog(RDBMSTableUtils.class);
+    private static final Pattern CONTAINS_CONDITION_REGEX_PATTERN = Pattern.compile(CONTAINS_CONDITION_REGEX);
 
     private RDBMSTableUtils() {
         //preventing initialization
@@ -427,8 +428,7 @@ public class RDBMSTableUtils {
      */
     public static String processFindConditionWithContainsConditionTemplate(String findCondition,
                                                                            String recordContainsConditionTemplate) {
-        Pattern pattern = Pattern.compile(CONTAINS_CONDITION_REGEX);
-        Matcher matcher = pattern.matcher(findCondition);
+        Matcher matcher = CONTAINS_CONDITION_REGEX_PATTERN.matcher(findCondition);
         while (matcher.find()) {
             String tableColumnId = matcher.group(2);
             String recordContainsCondition = recordContainsConditionTemplate.replace(PLACEHOLDER_COLUMNS,
