@@ -63,7 +63,7 @@ import java.util.Map;
                 @Parameter(
                         name = "query",
                         description = "The update, delete, or insert query(formatted according to " +
-                                "the appropriate database type) that needs to be performed.",
+                                "the relevant database type) that needs to be performed.",
                         type = DataType.STRING
                 )
         },
