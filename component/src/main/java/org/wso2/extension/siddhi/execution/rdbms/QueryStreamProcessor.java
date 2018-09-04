@@ -56,28 +56,29 @@ import java.util.stream.Collectors;
 @Extension(
         name = "query",
         namespace = "rdbms",
-        description = "The function can be used to perform SQL retrieval queries on a WSO2 datasource. \n" +
-                "Note: This will only work within WSO2 SP.",
+        description = "This function performs SQL retrieval queries on WSO2 datasources. \n" +
+                "Note: This function is only available when running Siddhi with WSO2 SP.",
         parameters = {
                 @Parameter(
                         name = "datasource.name",
-                        description = "The name of the WSO2 datasource on which the query should be performed on",
+                        description = "The name of the WSO2 datasource for which the query should be performed.",
                         type = DataType.STRING
                 ),
                 @Parameter(
                         name = "query",
                         description = "The select query(formatted according to " +
-                                "the appropriate database type) that needs to be performed",
+                                "the relevant database type) that needs to be performed",
                         type = DataType.STRING
                 ),
                 @Parameter(
                         name = "attribute.definition.list",
-                        description = "Comma separated list of `<AttributeName AttributeType>`. " +
-                                "It is expected that the SQL query will return the attributes in order, as in if one " +
-                                "attribute is defined here, the SQL query should return one column result set, " +
-                                "if more than one column is returned then the first column will be processed. The " +
-                                "Siddhi data types supported will be `STRING`, `INT`, `LONG`, `DOUBLE`, `FLOAT`, " +
-                                "`BOOL`. \n Mapping of the Siddhi data type to database data type can be done as " +
+                        description = "This is provided as a comma-separated list in the " +
+                                "'<AttributeName AttributeType>' format. " +
+                                "The SQL query is expected to return the attributes in the given order. e.g., If one " +
+                                "attribute is defined here, the SQL query should return one column result set. " +
+                                "If more than one column is returned, then the first column is processed. The " +
+                                "Siddhi data types supported are 'STRING', 'INT', 'LONG', 'DOUBLE', 'FLOAT', and " +
+                                "'BOOL'. \n Mapping of the Siddhi data type to the database data type can be done as " +
                                 "follows, \n" +
                                 "*Siddhi Datatype*->*Datasource Datatype*\n" +
                                 "`STRING`->`CHAR`,`VARCHAR`,`LONGVARCHAR`\n" +
