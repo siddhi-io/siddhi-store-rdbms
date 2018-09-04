@@ -119,7 +119,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
         name = "rdbms",
         namespace = "store",
         description = "This extension assigns data sources and connection instructions to event tables. It also " +
-                "implements read write operations on connected datasources",
+                "implements read-write operations on connected datasources.",
         parameters = {
                 @Parameter(name = "jdbc.url",
                         description = "The JDBC URL via which the RDBMS data store is accessed.",
@@ -134,22 +134,22 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                         description = "The driver class name for connecting the RDBMS data store.",
                         type = {DataType.STRING}),
                 @Parameter(name = "pool.properties",
-                        description = "Any pool parameters for the database connection must be specified as key value" +
+                        description = "Any pool parameters for the database connection must be specified as key-value" +
                                 " pairs.",
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = "null"),
                 @Parameter(name = "jndi.resource",
                         description = "The name of the JNDI resource through which the connection is attempted. " +
-                                "If this is found, the pool properties described above are not taken into account, " +
+                                "If this is found, the pool properties described above are not taken into account " +
                                 "and the connection is attempted via JNDI lookup instead.",
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = "null"),
                 @Parameter(name = "datasource",
-                        description = "The name of the Carbon datasource which should be used for creating the " +
+                        description = "The name of the Carbon datasource that should be used for creating the " +
                                 "connection with the database. If this is found, neither the pool properties nor the " +
-                                "JNDI resource name described above are not taken into account, and the connection " +
+                                "JNDI resource name described above are taken into account and the connection " +
                                 "is attempted via Carbon datasources instead. ",
                         type = {DataType.STRING},
                         optional = true,
@@ -162,11 +162,11 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                         optional = true,
                         defaultValue = "The table name defined in the Siddhi App query."),
                 @Parameter(name = "field.length",
-                        description = "The number of characters that the values for fields of the `STRING` type in " +
+                        description = "The number of characters that the values for fields of the 'STRING' type in " +
                                 "the table definition must contain. Each required field must be provided as a " +
-                                "key value pair in the form of <field.name>:<length> and separated by commas " +
-                                "for each field. If this is not specified, the default number of " +
-                                "characters specific to the database type is considered.",
+                                "comma-separated list of key-value pairs in the '<field.name>:<length>' format. If " +
+                                "this is not specified, the default number of characters specific to the database " +
+                                "type is considered.",
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = "null")
@@ -179,11 +179,11 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                                 "@PrimaryKey(\"symbol\")\n" +
                                 "@Index(\"volume\")\n" +
                                 "define table StockTable (symbol string, price float, volume long);",
-                        description = "The above example creates an event table named `StockTable` on the DB if " +
-                                "it does not already exist (with 3 attributes named `symbol`, `price`, and `volume` " +
-                                "of the types types `string`, `float` and `long` respectively). The connection is " +
-                                "made as specified by the parameters configured for the '@Store' annotation. The " +
-                                "`symbol` attribute is considered a unique field, and a DB index is created for it."
+                        description = "The above example creates an event table named 'StockTable' in the database if" +
+                                " it does not already exist (with three attributes named 'symbol', 'price', and " +
+                                "'volume' of the types 'string', 'float', and 'long' respectively). The connection " +
+                                "is made as specified by the parameters configured for the '@Store' annotation. The " +
+                                "'symbol' attribute is considered a unique field, and a DB index is created for it."
                 ),
                 @Example(
                         syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
@@ -196,11 +196,12 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                                 "from InputStream as a join StockTable as b on str:contains(b.symbol, a.symbol)\n" +
                                 "select a.symbol as symbol, b.volume as volume\n" +
                                 "insert into FooStream;",
-                        description = "The above example creates an event table named `StockTable` on the DB if " +
-                                "it does not already exist (with 3 attributes named `symbol`, `price`, and `volume` " +
-                                "of the types types `string`, `float` and `long` respectively). Then the table is " +
-                                "join with the InputStream based on a condition. In the on condition following " +
-                                "operations are supported [ AND, OR, Comparisons( <  <=  >  >=  == !=), IS NULL, " +
+                        description = "The above example creates an event table named 'StockTable' in the database if" +
+                                " it does not already exist (with three attributes named 'symbol', 'price', and " +
+                                "'volume' of the types 'string', 'float' and 'long' respectively). Then the table is " +
+                                "joined with a stream named 'InputStream' based on a condition. The following " +
+                                "operations are included in the condition:\n" +
+                                "[ AND, OR, Comparisons( <  <=  >  >=  == !=), IS NULL, " +
                                 "NOT, str:contains(Table<Column>, Stream<Attribute> or Search.String)]"
                 )
         },
@@ -219,7 +220,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.tableCheckQuery",
-                        description = "The template query for the `check table` operation in {{RDBMS-Name}}.",
+                        description = "The template query for the 'check table' operation in {{RDBMS-Name}}.",
                         defaultValue = "<b>H2</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br>" +
                                 "<b>MySQL</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br>" +
                                 "<b>Oracle</b>: CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})<br>" +
@@ -231,7 +232,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.tableCreateQuery",
-                        description = "The template query for the `create table` operation in {{RDBMS-Name}}.",
+                        description = "The template query for the 'create table' operation in {{RDBMS-Name}}.",
                         defaultValue = "<b>H2</b>: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1<br>" +
                                 "<b>MySQL</b>: SELECT 1 FROM {{TABLE_NAME}} LIMIT 1<br>" +
                                 "<b>Oracle</b>: SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1<br>" +
@@ -242,7 +243,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.indexCreateQuery",
-                        description = "The template query for the `create index` operation in {{RDBMS-Name}}.",
+                        description = "The template query for the 'create index' operation in {{RDBMS-Name}}.",
                         defaultValue = "<b>H2</b>: CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} " +
                                 "({{INDEX_COLUMNS}})" +
                                 "<br>" +
@@ -259,7 +260,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordInsertQuery",
-                        description = "The template query for the `insert record` operation in {{RDBMS-Name}}.",
+                        description = "The template query for the 'insert record' operation in {{RDBMS-Name}}.",
                         defaultValue = "<b>H2</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
                                 "<b>MySQL</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
                                 "<b>Oracle</b>: INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})<br>" +
@@ -271,7 +272,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordUpdateQuery",
-                        description = "The template query for the `update record` operation in {{RDBMS-Name}}.",
+                        description = "The template query for the 'update record' operation in {{RDBMS-Name}}.",
                         defaultValue = "<b>H2</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br>" +
                                 "<b>MySQL</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br>" +
                                 "<b>Oracle</b>: UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}<br>" +
@@ -284,7 +285,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordSelectQuery",
-                        description = "The template query for the `select record` operation in {{RDBMS-Name}}.",
+                        description = "The template query for the 'select record' operation in {{RDBMS-Name}}.",
                         defaultValue = "<b>H2</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
                                 "<b>MySQL</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
                                 "<b>Oracle</b>: SELECT * FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
@@ -295,7 +296,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordExistsQuery",
-                        description = "The template query for the `check record existence` operation in " +
+                        description = "The template query for the 'check record existence' operation in " +
                                 "{{RDBMS-Name}}.",
                         defaultValue = "<b>H2</b>: SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
                                 "<b>MySQL</b>: SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
@@ -307,7 +308,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.recordDeleteQuery",
-                        description = "The query for the `delete record` operation in {{RDBMS-Name}}.",
+                        description = "The query for the 'delete record' operation in {{RDBMS-Name}}.",
                         defaultValue = "<b>H2</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
                                 "<b>MySQL</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
                                 "<b>Oracle</b>: DELETE FROM {{TABLE_NAME}} {{CONDITION}}<br>" +
@@ -341,7 +342,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.batchEnable",
-                        description = "This specifies whether `Update` and `Insert` operations can be performed for" +
+                        description = "This specifies whether 'Update' and 'Insert' operations can be performed for" +
                                 " batches of events or not.",
                         defaultValue = "<b>H2</b>: true<br>" +
                                 "<b>MySQL</b>: true<br>" +
@@ -354,8 +355,8 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                 ),
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.transactionSupported",
-                        description = "This is used to specify whether or not the JDBC connection that is used " +
-                                "supports JDBC transactions.",
+                        description = "This is used to specify whether the JDBC connection that is used supports JDBC" +
+                                " transactions or not.",
                         defaultValue = "<b>H2</b>: true<br>" +
                                 "<b>MySQL</b>: true<br>" +
                                 "<b>Oracle</b>: true<br>" +
