@@ -1,10 +1,10 @@
-# API Docs - v4.0.29
+# API Docs - v4.0.30-SNAPSHOT
 
 ## Rdbms
 
 ### cud *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a>*
 
-<p style="word-wrap: break-word">The function can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a WSO2 datasource. <br>Note: This will only work within WSO2 SP.<br></p>
+<p style="word-wrap: break-word">This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.<br></p>
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
@@ -23,7 +23,7 @@ rdbms:cud(<STRING> datasource.name, <STRING> query)
     </tr>
     <tr>
         <td style="vertical-align: top">datasource.name</td>
-        <td style="vertical-align: top; word-wrap: break-word">The name of the WSO2 datasource on which the query should be performed on</td>
+        <td style="vertical-align: top; word-wrap: break-word">The name of the WSO2 datasource for which the query should be performed.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -49,7 +49,7 @@ rdbms:cud(<STRING> datasource.name, <STRING> query)
     </tr>
     <tr>
         <td style="vertical-align: top">perform.CUD.operations</td>
-        <td style="vertical-align: top; word-wrap: break-word">Enable/Disable performing CUD operations through rdbms cud function</td>
+        <td style="vertical-align: top; word-wrap: break-word">If this parameter is set to 'true', the RDBMS CUD function is enabled to perform CUD operations.</td>
         <td style="vertical-align: top">false</td>
         <td style="vertical-align: top">true<br>false</td>
     </tr>
@@ -75,7 +75,7 @@ from TriggerStream#rdbms:cud("SAMPLE_DB", "UPDATE Customers_Table SET customerNa
 select numRecords 
 insert into  recordStream;
 ```
-<p style="word-wrap: break-word">Events will be modified with additional attribute of name 'numRecords' with the number of records manipulated.</p>
+<p style="word-wrap: break-word">Events are updated with an additional attribute named 'numRecords', of which the value indicates the number of records manipulated.</p>
 
 ### query *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a>*
 

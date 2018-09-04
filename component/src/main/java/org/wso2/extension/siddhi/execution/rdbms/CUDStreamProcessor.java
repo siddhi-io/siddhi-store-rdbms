@@ -88,9 +88,11 @@ import java.util.Map;
                         syntax = "from TriggerStream#rdbms:cud(\"SAMPLE_DB\", \"UPDATE Customers_Table SET " +
                                 "customerName='abc' where customerName='xyz'\") \n" +
                                 "select numRecords \n" +
-                                "insert into  recordStream;",
-                        description = "Events are updated with an additional attribute named 'numRecords', of which" +
-                                " the value indicates the number of records manipulated."
+                                "insert into  RecordStream;",
+                        description = "This query updates the events from the input stream named 'TriggerStream' " +
+                                "with an additional attribute named 'numRecords', of which the value indicates the" +
+                                " number of records manipulated. The updated events are inserted into an output " +
+                                "stream named 'RecordStream'."
                 )
         }
 )
