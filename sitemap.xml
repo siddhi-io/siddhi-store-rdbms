@@ -6,6 +6,11 @@
      <changefreq>daily</changefreq>
     </url>
     <url>
+     <loc>https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.33/</loc>
+     <lastmod>2018-09-07</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
      <loc>https://wso2-extensions.github.io/siddhi-store-rdbms/api/4.0.32/</loc>
      <lastmod>2018-09-07</lastmod>
      <changefreq>daily</changefreq>
