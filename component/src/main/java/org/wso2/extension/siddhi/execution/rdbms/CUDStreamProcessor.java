@@ -52,25 +52,26 @@ import java.util.Map;
 @Extension(
         name = "cud",
         namespace = "rdbms",
-        description = "The function can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a WSO2 " +
-                "datasource. \nNote: This will only work within WSO2 SP.\n",
+        description = "This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on WSO2 " +
+                "datasources. \nNote: This function is only available when running Siddhi with WSO2 SP.\n",
         parameters = {
                 @Parameter(
                         name = "datasource.name",
-                        description = "The name of the WSO2 datasource on which the query should be performed on",
+                        description = "The name of the WSO2 datasource for which the query should be performed.",
                         type = DataType.STRING
                 ),
                 @Parameter(
                         name = "query",
                         description = "The update, delete, or insert query(formatted according to " +
-                                "the appropriate database type) that needs to be performed.",
+                                "the relevant database type) that needs to be performed.",
                         type = DataType.STRING
                 )
         },
         systemParameter = {
                 @SystemParameter(
                         name = "perform.CUD.operations",
-                        description = "Enable/Disable performing CUD operations through rdbms cud function",
+                        description = "If this parameter is set to 'true', the RDBMS CUD function is enabled to " +
+                                "perform CUD operations.",
                         defaultValue = "false",
                         possibleParameters = {"true", "false"}
                 )
@@ -87,9 +88,11 @@ import java.util.Map;
                         syntax = "from TriggerStream#rdbms:cud(\"SAMPLE_DB\", \"UPDATE Customers_Table SET " +
                                 "customerName='abc' where customerName='xyz'\") \n" +
                                 "select numRecords \n" +
-                                "insert into  recordStream;",
-                        description = "Events will be modified with additional attribute of name 'numRecords' with " +
-                                "the number of records manipulated."
+                                "insert into  RecordStream;",
+                        description = "This query updates the events from the input stream named 'TriggerStream' " +
+                                "with an additional attribute named 'numRecords', of which the value indicates the" +
+                                " number of records manipulated. The updated events are inserted into an output " +
+                                "stream named 'RecordStream'."
                 )
         }
 )
