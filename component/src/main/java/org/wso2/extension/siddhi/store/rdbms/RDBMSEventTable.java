@@ -1083,13 +1083,13 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     builder.append(binaryType);
                     break;
                 case STRING:
-                    if (null != stringSize) {
-                        String fieldLengthAsString = fieldLengths.getOrDefault(attribute.getName(), stringSize);
-                        int fieldLength = fieldLengthAsString != null ? Integer.parseInt(fieldLengthAsString) : 0;
-                        if (fieldLength > fieldSizeLimit && bigStringType != null) {
-                            builder.append(bigStringType);
-                        } else {
-                            builder.append(stringType);
+                    String fieldLengthAsString = fieldLengths.getOrDefault(attribute.getName(), stringSize);
+                    int fieldLength = fieldLengthAsString != null ? Integer.parseInt(fieldLengthAsString) : 0;
+                    if (fieldLength > fieldSizeLimit && bigStringType != null) {
+                        builder.append(bigStringType);
+                    } else {
+                        builder.append(stringType);
+                        if (null != stringSize) {
                             builder.append(OPEN_PARENTHESIS);
                             builder.append(fieldLengths.getOrDefault(attribute.getName(), stringSize));
                             builder.append(CLOSE_PARENTHESIS);
