@@ -30,6 +30,7 @@ public class RDBMSTypeMapping {
     private String integerType;
     private String longType;
     private String stringType;
+    private String bigStringType;
 
     public String getBinaryType() {
         return binaryType;
@@ -87,4 +88,11 @@ public class RDBMSTypeMapping {
         this.stringType = stringType;
     }
 
+    public String getBigStringType() {
+        return bigStringType;
+    }
+
+    public void setBigStringType(String bigStringType) {
+        this.bigStringType = bigStringType;
+    }
 }

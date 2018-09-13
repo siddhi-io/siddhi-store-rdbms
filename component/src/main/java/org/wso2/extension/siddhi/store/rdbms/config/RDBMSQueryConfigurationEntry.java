@@ -42,6 +42,7 @@ public class RDBMSQueryConfigurationEntry {
     private String recordDeleteQuery;
     private boolean keyExplicitNotNull = false;
     private String stringSize;
+    private int fieldSizeLimit;
     private RDBMSTypeMapping rdbmsTypeMapping;
     private int batchSize;
     private boolean batchEnable = false;
@@ -215,4 +216,12 @@ public class RDBMSQueryConfigurationEntry {
         this.batchSize = batchSize;
     }
 
+    @XmlElement(name = "fieldSizeLimit", required = false)
+    public int getFieldSizeLimit() {
+        return fieldSizeLimit;
+    }
+
+    public void setFieldSizeLimit(int fieldSizeLimit) {
+        this.fieldSizeLimit = fieldSizeLimit;
+    }
 }
