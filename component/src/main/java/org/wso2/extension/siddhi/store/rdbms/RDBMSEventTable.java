@@ -75,10 +75,12 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANN
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_USERNAME;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BATCH_ENABLE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BATCH_SIZE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BIG_STRING_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BINARY_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.BOOLEAN_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.DOUBLE_TYPE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.FIELD_SIZE_LIMIT;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.FLOAT_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.INDEX_CREATE_QUERY;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.INTEGER_TYPE;
@@ -390,6 +392,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private String createQuery;
     private String indexQuery;
     private int batchSize;
+    private int fieldSizeLimit;
     private boolean batchEnable;
     private boolean transactionSupported;
     private String binaryType;
@@ -399,6 +402,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private String integerType;
     private String longType;
     private String stringType;
+    private String bigStringType;
     private String stringSize;
     private String recordContainsConditionTemplate;
 
@@ -652,7 +656,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             }
         } catch (SQLException e) {
             throw new RDBMSTableException("Cannot execute update/insert operation (update) on table '"
-                                          + this.tableName + "' with SQL query " + query + " .", e);
+                    + this.tableName + "' with SQL query " + query + " .", e);
         } finally {
             RDBMSTableUtils.cleanupConnection(null, updateStmt, conn);
         }
@@ -727,7 +731,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             }
         } catch (SQLException e) {
             throw new RDBMSTableException("Cannot execute update/insert operation (update) on table '"
-                                          + this.tableName + "' with SQL query " + query + " .", e);
+                    + this.tableName + "' with SQL query " + query + " .", e);
         } finally {
             RDBMSTableUtils.cleanupConnection(null, insertStmt, conn);
         }
@@ -806,6 +810,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     batchSize = Integer.parseInt(configReader.readConfig(
                             this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
                             String.valueOf(this.queryConfigurationEntry.getBatchSize())));
+                    fieldSizeLimit = Integer.parseInt(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + FIELD_SIZE_LIMIT,
+                            String.valueOf(this.queryConfigurationEntry.getFieldSizeLimit())));
                     insertQuery = this.resolveTableName(configReader.readConfig(
                             this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_INSERT_QUERY,
                             this.queryConfigurationEntry.getRecordInsertQuery()));
@@ -851,6 +858,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     stringType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + STRING_TYPE,
                             typeMapping.getStringType());
+                    bigStringType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BIG_STRING_TYPE,
+                            typeMapping.getBigStringType());
                     stringSize = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + STRING_SIZE,
                             this.queryConfigurationEntry.getStringSize());
@@ -1073,11 +1083,17 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     builder.append(binaryType);
                     break;
                 case STRING:
-                    builder.append(stringType);
-                    if (null != stringSize) {
-                        builder.append(OPEN_PARENTHESIS);
-                        builder.append(fieldLengths.getOrDefault(attribute.getName(), stringSize));
-                        builder.append(CLOSE_PARENTHESIS);
+                    String fieldLengthAsString = fieldLengths.getOrDefault(attribute.getName(), stringSize);
+                    int fieldLength = fieldLengthAsString != null ? Integer.parseInt(fieldLengthAsString) : 0;
+                    if (fieldLength > fieldSizeLimit && bigStringType != null) {
+                        builder.append(bigStringType);
+                    } else {
+                        builder.append(stringType);
+                        if (null != stringSize) {
+                            builder.append(OPEN_PARENTHESIS);
+                            builder.append(fieldLengths.getOrDefault(attribute.getName(), stringSize));
+                            builder.append(CLOSE_PARENTHESIS);
+                        }
                     }
                     break;
             }

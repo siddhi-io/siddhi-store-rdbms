@@ -99,7 +99,9 @@ public class RDBMSTableConstants {
     public static final String INTEGER_TYPE = "integerType";
     public static final String LONG_TYPE = "longType";
     public static final String STRING_TYPE = "stringType";
+    public static final String BIG_STRING_TYPE = "bigStringType";
     public static final String BATCH_SIZE = "batchSize";
+    public static final String FIELD_SIZE_LIMIT = "fieldSizeLimit";
     public static final String BATCH_ENABLE = "batchEnable";
     public static final String TRANSACTION_SUPPORTED = "transactionSupported";
 

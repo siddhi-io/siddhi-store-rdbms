@@ -58,6 +58,7 @@
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <stringSize>254</stringSize>
+        <fieldSizeLimit>2000</fieldSizeLimit>
         <batchEnable>false</batchEnable>
         <batchSize>1000</batchSize>
         <typeMapping>
@@ -68,6 +69,7 @@
             <integerType>NUMBER(10)</integerType>
             <longType>NUMBER(19)</longType>
             <stringType>VARCHAR</stringType>
+            <bigStringType>CLOB</bigStringType>
         </typeMapping>
     </database>
     <database name="oracle" minVersion = "12.1">
@@ -81,6 +83,7 @@
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <stringSize>254</stringSize>
+        <fieldSizeLimit>2000</fieldSizeLimit>
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
         <typeMapping>
@@ -91,6 +94,7 @@
             <integerType>NUMBER(10)</integerType>
             <longType>NUMBER(19)</longType>
             <stringType>VARCHAR</stringType>
+            <bigStringType>CLOB</bigStringType>
         </typeMapping>
     </database>
     <database name="Microsoft SQL Server">
