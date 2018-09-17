@@ -106,7 +106,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#api-docs-v4035" tabindex="1" class="md-skip">
+      <a href="#api-docs-v4036" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -275,6 +275,18 @@
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
         
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../4.0.36/" title="4.0.36" class="md-nav__link">
+      4.0.36
+    </a>
+  </li>
+
         
           
           
@@ -889,7 +901,7 @@
                   <a href="https://github.com/wso2-extensions/siddhi-store-rdbms/edit/master/docs/api/latest.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="api-docs-v4035">API Docs - v4.0.35<a class="headerlink" href="#api-docs-v4035" title="Permanent link">&para;</a></h1>
+                <h1 id="api-docs-v4036">API Docs - v4.0.36<a class="headerlink" href="#api-docs-v4036" title="Permanent link">&para;</a></h1>
 <h2 id="rdbms">Rdbms<a class="headerlink" href="#rdbms" title="Permanent link">&para;</a></h2>
 <h3 id="cud-stream-processor">cud <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em><a class="headerlink" href="#cud-stream-processor" title="Permanent link">&para;</a></h3>
 <p style="word-wrap: break-word">This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.<br></p>
@@ -1199,21 +1211,75 @@ insert into recordStream;
         <td style="vertical-align: top">N/A</td>
     </tr>
     <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.fieldSizeLimit</td>
+        <td style="vertical-align: top; word-wrap: break-word">This defines the field size limit for select/switch to big string type from the default string type if the 'bigStringType' is available in field type list.</td>
+        <td style="vertical-align: top"><b>H2</b>: N/A<br><b>MySQL</b>: N/A<br><b>Oracle</b>: 2000<br><b>Microsoft SQL Server</b>: N/A<br><b>PostgreSQL</b>: N/A<br><b>DB2.</em></b>: N/A</td>
+        <td style="vertical-align: top">0 =&lt; n =&lt; INT_MAX</td>
+    </tr>
+    <tr>
         <td style="vertical-align: top">{{RDBMS-Name}}.batchSize</td>
         <td style="vertical-align: top; word-wrap: break-word">This defines the batch size when operations are performed for batches of events.</td>
-        <td style="vertical-align: top"><b>H2</b>: 1000<br><b>MySQL</b>: 1000<br><b>Oracle</b>: 1000<br><b>Microsoft SQL Server</b>: 1000<br><b>PostgreSQL</b>: 1000<br><b>DB2.</em></b>: 1000</td>
+        <td style="vertical-align: top"><b>H2</b>: 1000<br><b>MySQL</b>: 1000<br><b>Oracle</b>: 1000<br><b>Microsoft SQL Server</b>: 1000<br><b>PostgreSQL</b>: 1000<br><b>DB2.<em></b>: 1000</td>
         <td style="vertical-align: top">N/A</td>
     </tr>
     <tr>
         <td style="vertical-align: top">{{RDBMS-Name}}.batchEnable</td>
         <td style="vertical-align: top; word-wrap: break-word">This specifies whether 'Update' and 'Insert' operations can be performed for batches of events or not.</td>
-        <td style="vertical-align: top"><b>H2</b>: true<br><b>MySQL</b>: true<br><b>Oracle (versions 12.0 and less)</b>: false<br><b>Oracle (versions 12.1 and above)</b>: true<br><b>Microsoft SQL Server</b>: true<br><b>PostgreSQL</b>: true<br><b>DB2.<em></b>: true</td>
+        <td style="vertical-align: top"><b>H2</b>: true<br><b>MySQL</b>: true<br><b>Oracle (versions 12.0 and less)</b>: false<br><b>Oracle (versions 12.1 and above)</b>: true<br><b>Microsoft SQL Server</b>: true<br><b>PostgreSQL</b>: true<br><b>DB2.</em></b>: true</td>
         <td style="vertical-align: top">N/A</td>
     </tr>
     <tr>
         <td style="vertical-align: top">{{RDBMS-Name}}.transactionSupported</td>
         <td style="vertical-align: top; word-wrap: break-word">This is used to specify whether the JDBC connection that is used supports JDBC transactions or not.</td>
-        <td style="vertical-align: top"><b>H2</b>: true<br><b>MySQL</b>: true<br><b>Oracle</b>: true<br><b>Microsoft SQL Server</b>: true<br><b>PostgreSQL</b>: true<br><b>DB2.</em></b>: true</td>
+        <td style="vertical-align: top"><b>H2</b>: true<br><b>MySQL</b>: true<br><b>Oracle</b>: true<br><b>Microsoft SQL Server</b>: true<br><b>PostgreSQL</b>: true<br><b>DB2.<em></b>: true</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.typeMapping.binaryType</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is used to specify the binary data type. An attribute defines as 'object' type in Siddhi stream will be stored into RDBMS with this type.</td>
+        <td style="vertical-align: top"><b>H2</b>: BLOB<br><b>MySQL</b>: BLOB<br><b>Oracle</b>: BLOB<br><b>Microsoft SQL Server</b>: VARBINARY(max)<br><b>PostgreSQL</b>: BYTEA<br><b>DB2.</em></b>: BLOB(64000)</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.typeMapping.booleanType</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is used to specify the boolean data type. An attribute defines as 'bool' type in Siddhi stream will be stored into RDBMS with this type.</td>
+        <td style="vertical-align: top"><b>H2</b>: TINYINT(1)<br><b>MySQL</b>: TINYINT(1)<br><b>Oracle</b>: NUMBER(1)<br><b>Microsoft SQL Server</b>: BIT<br><b>PostgreSQL</b>: BOOLEAN<br><b>DB2.<em></b>: SMALLINT</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.typeMapping.doubleType</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is used to specify the double data type. An attribute defines as 'double' type in Siddhi stream will be stored into RDBMS with this type.</td>
+        <td style="vertical-align: top"><b>H2</b>: DOUBLE<br><b>MySQL</b>: DOUBLE<br><b>Oracle</b>: NUMBER(19,4)<br><b>Microsoft SQL Server</b>: FLOAT(32)<br><b>PostgreSQL</b>: DOUBLE PRECISION<br><b>DB2.</em></b>: DOUBLE</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.typeMapping.floatType</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is used to specify the float data type. An attribute defines as 'float' type in Siddhi stream will be stored into RDBMS with this type.</td>
+        <td style="vertical-align: top"><b>H2</b>: FLOAT<br><b>MySQL</b>: FLOAT<br><b>Oracle</b>: NUMBER(19,4)<br><b>Microsoft SQL Server</b>: REAL<br><b>PostgreSQL</b>: REAL<br><b>DB2.<em></b>: REAL</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.typeMapping.integerType</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is used to specify the integer data type. An attribute defines as 'int' type in Siddhi stream will be stored into RDBMS with this type.</td>
+        <td style="vertical-align: top"><b>H2</b>: INTEGER<br><b>MySQL</b>: INTEGER<br><b>Oracle</b>: NUMBER(10)<br><b>Microsoft SQL Server</b>: INTEGER<br><b>PostgreSQL</b>: INTEGER<br><b>DB2.</em></b>: INTEGER</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.typeMapping.longType</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is used to specify the long data type. An attribute defines as 'long' type in Siddhi stream will be stored into RDBMS with this type.</td>
+        <td style="vertical-align: top"><b>H2</b>: BIGINT<br><b>MySQL</b>: BIGINT<br><b>Oracle</b>: NUMBER(19)<br><b>Microsoft SQL Server</b>: BIGINT<br><b>PostgreSQL</b>: BIGINT<br><b>DB2.<em></b>: BIGINT</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.typeMapping.stringType</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is used to specify the string data type. An attribute defines as 'string' type in Siddhi stream will be stored into RDBMS with this type.</td>
+        <td style="vertical-align: top"><b>H2</b>: VARCHAR(stringSize)<br><b>MySQL</b>: VARCHAR(stringSize)<br><b>Oracle</b>: VARCHAR(stringSize)<br><b>Microsoft SQL Server</b>: VARCHAR(stringSize)<br><b>PostgreSQL</b>: VARCHAR(stringSize)<br><b>DB2.</em></b>: VARCHAR(stringSize)</td>
+        <td style="vertical-align: top">N/A</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">{{RDBMS-Name}}.typeMapping.bigStringType</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is used to specify the big string data type. An attribute defines as 'string' type in Siddhi stream and field.length define in the annotation is greater than the fieldSizeLimit, will be stored into RDBMS with this type.</td>
+        <td style="vertical-align: top"><b>H2</b>: N/A<br><b>MySQL</b>: N/A<b>Oracle</b>: CLOB<b>Microsoft SQL Server</b>: N/A<br><b>PostgreSQL</b>: N/A<br><b>DB2.*</b>: N/A</td>
         <td style="vertical-align: top">N/A</td>
     </tr>
 </table></p>
