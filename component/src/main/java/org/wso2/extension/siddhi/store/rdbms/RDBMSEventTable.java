@@ -331,6 +331,18 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                         possibleParameters = "N/A"
                 ),
                 @SystemParameter(
+                        name = "{{RDBMS-Name}}.fieldSizeLimit",
+                        description = "This defines the field size limit for select/switch to big string type from " +
+                                "the default string type if the 'bigStringType' is available in field type list.",
+                        defaultValue = "<b>H2</b>: N/A<br>" +
+                                "<b>MySQL</b>: N/A<br>" +
+                                "<b>Oracle</b>: 2000<br>" +
+                                "<b>Microsoft SQL Server</b>: N/A<br>" +
+                                "<b>PostgreSQL</b>: N/A<br>" +
+                                "<b>DB2.*</b>: N/A",
+                        possibleParameters = "0 =< n =< INT_MAX"
+                ),
+                @SystemParameter(
                         name = "{{RDBMS-Name}}.batchSize",
                         description = "This defines the batch size when operations are performed for batches of " +
                                 "events.",
@@ -365,6 +377,103 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                                 "<b>Microsoft SQL Server</b>: true<br>" +
                                 "<b>PostgreSQL</b>: true<br>" +
                                 "<b>DB2.*</b>: true",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.typeMapping.binaryType",
+                        description = "This is used to specify the binary data type. An attribute defines as " +
+                                "'object' type in Siddhi stream will be stored into RDBMS with this type.",
+                        defaultValue = "<b>H2</b>: BLOB<br>" +
+                                "<b>MySQL</b>: BLOB<br>" +
+                                "<b>Oracle</b>: BLOB<br>" +
+                                "<b>Microsoft SQL Server</b>: VARBINARY(max)<br>" +
+                                "<b>PostgreSQL</b>: BYTEA<br>" +
+                                "<b>DB2.*</b>: BLOB(64000)",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.typeMapping.booleanType",
+                        description = "This is used to specify the boolean data type. An attribute defines as " +
+                                "'bool' type in Siddhi stream will be stored into RDBMS with this type.",
+                        defaultValue = "<b>H2</b>: TINYINT(1)<br>" +
+                                "<b>MySQL</b>: TINYINT(1)<br>" +
+                                "<b>Oracle</b>: NUMBER(1)<br>" +
+                                "<b>Microsoft SQL Server</b>: BIT<br>" +
+                                "<b>PostgreSQL</b>: BOOLEAN<br>" +
+                                "<b>DB2.*</b>: SMALLINT",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.typeMapping.doubleType",
+                        description = "This is used to specify the double data type. An attribute defines as " +
+                                "'double' type in Siddhi stream will be stored into RDBMS with this type.",
+                        defaultValue = "<b>H2</b>: DOUBLE<br>" +
+                                "<b>MySQL</b>: DOUBLE<br>" +
+                                "<b>Oracle</b>: NUMBER(19,4)<br>" +
+                                "<b>Microsoft SQL Server</b>: FLOAT(32)<br>" +
+                                "<b>PostgreSQL</b>: DOUBLE PRECISION<br>" +
+                                "<b>DB2.*</b>: DOUBLE",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.typeMapping.floatType",
+                        description = "This is used to specify the float data type. An attribute defines as " +
+                                "'float' type in Siddhi stream will be stored into RDBMS with this type.",
+                        defaultValue = "<b>H2</b>: FLOAT<br>" +
+                                "<b>MySQL</b>: FLOAT<br>" +
+                                "<b>Oracle</b>: NUMBER(19,4)<br>" +
+                                "<b>Microsoft SQL Server</b>: REAL<br>" +
+                                "<b>PostgreSQL</b>: REAL<br>" +
+                                "<b>DB2.*</b>: REAL",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.typeMapping.integerType",
+                        description = "This is used to specify the integer data type. An attribute defines as " +
+                                "'int' type in Siddhi stream will be stored into RDBMS with this type.",
+                        defaultValue = "<b>H2</b>: INTEGER<br>" +
+                                "<b>MySQL</b>: INTEGER<br>" +
+                                "<b>Oracle</b>: NUMBER(10)<br>" +
+                                "<b>Microsoft SQL Server</b>: INTEGER<br>" +
+                                "<b>PostgreSQL</b>: INTEGER<br>" +
+                                "<b>DB2.*</b>: INTEGER",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.typeMapping.longType",
+                        description = "This is used to specify the long data type. An attribute defines as " +
+                                "'long' type in Siddhi stream will be stored into RDBMS with this type.",
+                        defaultValue = "<b>H2</b>: BIGINT<br>" +
+                                "<b>MySQL</b>: BIGINT<br>" +
+                                "<b>Oracle</b>: NUMBER(19)<br>" +
+                                "<b>Microsoft SQL Server</b>: BIGINT<br>" +
+                                "<b>PostgreSQL</b>: BIGINT<br>" +
+                                "<b>DB2.*</b>: BIGINT",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.typeMapping.stringType",
+                        description = "This is used to specify the string data type. An attribute defines as " +
+                                "'string' type in Siddhi stream will be stored into RDBMS with this type.",
+                        defaultValue = "<b>H2</b>: VARCHAR(stringSize)<br>" +
+                                "<b>MySQL</b>: VARCHAR(stringSize)<br>" +
+                                "<b>Oracle</b>: VARCHAR(stringSize)<br>" +
+                                "<b>Microsoft SQL Server</b>: VARCHAR(stringSize)<br>" +
+                                "<b>PostgreSQL</b>: VARCHAR(stringSize)<br>" +
+                                "<b>DB2.*</b>: VARCHAR(stringSize)",
+                        possibleParameters = "N/A"
+                ),
+                @SystemParameter(
+                        name = "{{RDBMS-Name}}.typeMapping.bigStringType",
+                        description = "This is used to specify the big string data type. An attribute defines as " +
+                                "'string' type in Siddhi stream and field.length define in the annotation is " +
+                                "greater than the fieldSizeLimit, will be stored into RDBMS with this type.",
+                        defaultValue = "<b>H2</b>: N/A<br>" +
+                                "<b>MySQL</b>: N/A" +
+                                "<b>Oracle</b>: CLOB" +
+                                "<b>Microsoft SQL Server</b>: N/A<br>" +
+                                "<b>PostgreSQL</b>: N/A<br>" +
+                                "<b>DB2.*</b>: N/A",
                         possibleParameters = "N/A"
                 )
         }
