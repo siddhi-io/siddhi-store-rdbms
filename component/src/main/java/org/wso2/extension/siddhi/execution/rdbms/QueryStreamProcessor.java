@@ -210,13 +210,13 @@ public class QueryStreamProcessor extends StreamProcessor {
                 }
                 streamEventChunk.remove();
             }
+            nextProcessor.process(streamEventChunk);
         } catch (SQLException e) {
             throw new SiddhiAppRuntimeException("Error in retrieving records from  datasource '"
                     + this.dataSourceName + "': " + e.getMessage(), e);
         } finally {
             RDBMSStreamProcessorUtil.cleanupConnection(resultSet, stmt, conn);
         }
-        nextProcessor.process(streamEventChunk);
     }
 
     private Connection getConnection() {
