@@ -192,8 +192,8 @@ public class QueryStreamProcessor extends StreamProcessor {
         PreparedStatement stmt = null;
         ResultSet resultSet = null;
 
-        while (streamEventChunk.hasNext()) {
-            try {
+        try {
+            while (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
                 if (RDBMSStreamProcessorUtil.queryContainsCheck(true, query)) {
@@ -209,12 +209,12 @@ public class QueryStreamProcessor extends StreamProcessor {
                     streamEventChunk.insertBeforeCurrent(clonedEvent);
                 }
                 streamEventChunk.remove();
-            } catch (SQLException e) {
-                throw new SiddhiAppRuntimeException("Error in retrieving records from  datasource '"
-                        + this.dataSourceName + "': " + e.getMessage(), e);
-            } finally {
-                RDBMSStreamProcessorUtil.cleanupConnection(resultSet, stmt, conn);
             }
+        } catch (SQLException e) {
+            throw new SiddhiAppRuntimeException("Error in retrieving records from  datasource '"
+                    + this.dataSourceName + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSStreamProcessorUtil.cleanupConnection(resultSet, stmt, conn);
         }
         nextProcessor.process(streamEventChunk);
     }
