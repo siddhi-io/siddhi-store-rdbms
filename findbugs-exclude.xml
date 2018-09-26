@@ -19,9 +19,10 @@
 
 <FindBugsFilter>
     <!-- SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING : SQL statement will different for each event -->
+    <!-- NP_LOAD_OF_KNOWN_NULL_VALUE: Null is checked at the connection clean up util class-->
     <Match>
         <Class name="org.wso2.extension.siddhi.store.rdbms.RDBMSEventTable"/>
-        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>
+        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING, NP_LOAD_OF_KNOWN_NULL_VALUE"/>
     </Match>
     <!-- PZLA_PREFER_ZERO_LENGTH_ARRAYS: Iterator should always return a constant size array, that's why null returned
     at exception -->
