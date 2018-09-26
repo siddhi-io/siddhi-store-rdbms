@@ -18,25 +18,26 @@
   -->
 
 <FindBugsFilter>
+    <!-- SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING : SQL statement will different for each event -->
     <Match>
         <Class name="org.wso2.extension.siddhi.store.rdbms.RDBMSEventTable"/>
-        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING, NP_LOAD_OF_KNOWN_NULL_VALUE"/>
+        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>
     </Match>
+    <!-- PZLA_PREFER_ZERO_LENGTH_ARRAYS: Iterator should always return a constant size array, that's why null returned
+    at exception -->
     <Match>
         <Class name="org.wso2.extension.siddhi.store.rdbms.RDBMSIterator"/>
         <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
     </Match>
+    <!-- EI_EXPOSE_REP: These are objects read from config file, expected to be immutable during run time -->
     <Match>
         <Class name="org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfiguration"/>
         <Bug pattern="EI_EXPOSE_REP, EI_EXPOSE_REP2"/>
     </Match>
+    <!-- LI_LAZY_INIT_STATIC : Mapper class creation is synchronised. -->
     <Match>
         <Class name="org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils"/>
-        <Bug pattern="DC_DOUBLECHECK"/>
-    </Match>
-    <Match>
-        <Class name="org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils$RDBMSConfigurationMapper"/>
-        <Bug pattern="DM_CONVERT_CASE"/>
+        <Bug pattern="LI_LAZY_INIT_STATIC"/>
     </Match>
 
     <!-- As per the functionality query may change event to event,
