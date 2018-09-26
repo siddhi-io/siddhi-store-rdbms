@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
+import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
@@ -42,6 +43,8 @@ import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +103,8 @@ public class CUDStreamProcessor extends StreamProcessor {
     private String dataSourceName;
     private HikariDataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
+    private boolean isVaryingQuery;
+    private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition,
@@ -114,7 +119,7 @@ public class CUDStreamProcessor extends StreamProcessor {
                     "'perform.CUD.operations' in '<SP_HOME>/conf/<profile>/deployment.yaml'");
         }
 
-        if ((attributeExpressionExecutors.length != 2)) {
+        if ((attributeExpressionExecutors.length < 2)) {
             throw new SiddhiAppValidationException("rdbms cud function " +
                     "should have 2 parameters , but found '" + attributeExpressionExecutors.length + "' parameters.");
         }
@@ -129,6 +134,27 @@ public class CUDStreamProcessor extends StreamProcessor {
                     attributeExpressionExecutors[1].getReturnType() + "'.");
         }
 
+        if (attributeExpressionExecutors.length > 2) {
+            this.isVaryingQuery = true;
+            //Process the query conditions through stream attributes
+            long attributeCount;
+            if (queryExpressionExecutor instanceof ConstantExpressionExecutor) {
+                String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
+                attributeCount = query.chars().filter(ch -> ch == '?').count();
+            } else {
+                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
+                        "function should be a constant, but found a parameter of instance '" +
+                        attributeExpressionExecutors[1].getClass().getName() + "'.");
+            }
+            if (attributeCount == attributeExpressionExecutors.length - 2) {
+                this.expressionExecutors.addAll(
+                        Arrays.asList(attributeExpressionExecutors).subList(2, attributeExpressionExecutors.length));
+            } else {
+                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
+                        "function contains '" + attributeCount + "' ordinals, but found siddhi attributes of count '" +
+                        (attributeExpressionExecutors.length - 2) + "'.");
+            }
+        }
         return Collections.singletonList(new Attribute("numRecords", Attribute.Type.INT));
     }
 
@@ -147,6 +173,14 @@ public class CUDStreamProcessor extends StreamProcessor {
                             "unauthorised operations, '" + query + "'. Event: '" + event + "'.");
                 }
                 stmt = conn.prepareStatement(query);
+                if (isVaryingQuery) {
+                    for (int i = 0; i < this.expressionExecutors.size(); i++) {
+                        ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
+                        RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,
+                                attributeExpressionExecutor.getReturnType(),
+                                attributeExpressionExecutor.execute(event));
+                    }
+                }
                 stmt.addBatch();
             }
             int counter = 0;
