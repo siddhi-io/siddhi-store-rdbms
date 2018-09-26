@@ -42,6 +42,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.regex.Matcher;
@@ -388,10 +389,8 @@ public class RDBMSTableUtils {
     private static RDBMSConfigurationMapper loadRDBMSConfigurationMapper() throws CannotLoadConfigurationException {
         if (mapper == null) {
             synchronized (RDBMSTableUtils.class) {
-                if (mapper == null) {
-                    RDBMSQueryConfiguration config = loadQueryConfiguration();
-                    mapper = new RDBMSConfigurationMapper(config);
-                }
+                RDBMSQueryConfiguration config = loadQueryConfiguration();
+                mapper = new RDBMSConfigurationMapper(config);
             }
         }
         return mapper;
@@ -496,7 +495,8 @@ public class RDBMSTableUtils {
 
         public RDBMSConfigurationMapper(RDBMSQueryConfiguration config) {
             for (RDBMSQueryConfigurationEntry entry : config.getDatabases()) {
-                this.entries.add(Maps.immutableEntry(Pattern.compile(entry.getDatabaseName().toLowerCase()), entry));
+                this.entries.add(Maps.immutableEntry(Pattern.compile(
+                        entry.getDatabaseName().toLowerCase(Locale.ENGLISH)), entry));
             }
         }
 
@@ -526,7 +526,8 @@ public class RDBMSTableUtils {
         }
 
         public RDBMSQueryConfigurationEntry lookupEntry(String dbName, double version, ConfigReader configReader) {
-            List<RDBMSQueryConfigurationEntry> dbResults = this.extractMatchingConfigEntries(dbName.toLowerCase());
+            List<RDBMSQueryConfigurationEntry> dbResults = this.extractMatchingConfigEntries(
+                    dbName.toLowerCase(Locale.ENGLISH));
             if (dbResults.isEmpty()) {
                 return null;
             }
