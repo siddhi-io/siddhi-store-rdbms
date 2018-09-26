@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
                         type = DataType.STRING
                 ),
                 @Parameter(
-                        name = "parameterN",
+                        name = "parameter.n",
                         description = "If the second parameter is a parametrised SQL query, then siddhi attributes " +
                                 "can be passed to set the values of the parameters",
                         type = DataType.STRING
