@@ -68,6 +68,12 @@ import java.util.Map;
                         description = "The update, delete, or insert query(formatted according to " +
                                 "the relevant database type) that needs to be performed.",
                         type = DataType.STRING
+                ),
+                @Parameter(
+                        name = "parameterN",
+                        description = "If the second parameter is a parametrised SQL query, then siddhi attributes " +
+                                "can be passed to set the values of the parameters",
+                        type = DataType.STRING
                 )
         },
         systemParameter = {
@@ -96,6 +102,17 @@ import java.util.Map;
                                 "with an additional attribute named 'numRecords', of which the value indicates the" +
                                 " number of records manipulated. The updated events are inserted into an output " +
                                 "stream named 'RecordStream'."
+                ),
+                @Example(
+                        syntax = "from TriggerStream#rdbms:cud(\"SAMPLE_DB\", \"UPDATE Customers_Table SET " +
+                                "customerName=? where customerName=?\", changedName, previousName) \n" +
+                                "select numRecords \n" +
+                                "insert into  RecordStream;",
+                        description = "This query updates the events from the input stream named 'TriggerStream' " +
+                                "with an additional attribute named 'numRecords', of which the value indicates the" +
+                                " number of records manipulated. The updated events are inserted into an output " +
+                                "stream named 'RecordStream'. Here the values of attributes changedName and " +
+                                "previousName in the event will be set to the query."
                 )
         }
 )

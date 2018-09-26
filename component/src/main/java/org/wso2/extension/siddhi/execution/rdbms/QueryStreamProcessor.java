@@ -71,6 +71,12 @@ import java.util.stream.Collectors;
                         type = DataType.STRING
                 ),
                 @Parameter(
+                        name = "parameterN",
+                        description = "If the second parameter is a parametrised SQL query, then siddhi attributes " +
+                                "can be passed to set the values of the parameters",
+                        type = DataType.STRING
+                ),
+                @Parameter(
                         name = "attribute.definition.list",
                         description = "This is provided as a comma-separated list in the " +
                                 "'<AttributeName AttributeType>' format. " +
@@ -110,6 +116,19 @@ import java.util.stream.Collectors;
                                 "i.e an event will be generated for each record retrieved from the datasource. " +
                                 "The event will include as additional attributes, the attributes defined in the " +
                                 "`attribute.definition.list`(creditcardno, country, transaction, amount)."
+                ),
+                @Example(
+                        syntax = "from TriggerStream#rdbms:query('SAMPLE_DB', 'select * from " +
+                                "where country=? ', countrySearchWord, 'creditcardno string, country string, " +
+                                "transaction string, amount int') \n" +
+                                "select creditcardno, country, transaction, amount \n" +
+                                "insert into recordStream;",
+                        description = "Events inserted into recordStream includes all records matched for the query " +
+                                "i.e an event will be generated for each record retrieved from the datasource. " +
+                                "The event will include as additional attributes, the attributes defined in the " +
+                                "`attribute.definition.list`(creditcardno, country, transaction, amount). " +
+                                "countrySearchWord value from the event will be set in the query when querying the " +
+                                "datasource."
                 )
         }
 )
