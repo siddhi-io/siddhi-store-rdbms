@@ -39,7 +39,6 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     private StringBuilder condition;
     private String finalCompiledCondition;
-    private String tableName;
 
     private Map<String, Object> placeholders;
     private SortedMap<Integer, Object> parameters;
@@ -51,17 +50,12 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     private boolean nextProcessContainsPattern;
     private int ordinalOfContainPattern = 1;
 
-    public RDBMSConditionVisitor(String tableName) {
-        this.tableName = tableName;
+    public RDBMSConditionVisitor() {
         this.condition = new StringBuilder();
         this.streamVarCount = 0;
         this.constantCount = 0;
         this.placeholders = new HashMap<>();
         this.parameters = new TreeMap<>();
-    }
-
-    private RDBMSConditionVisitor() {
-        //preventing initialization
     }
 
     public String returnCondition() {
@@ -341,7 +335,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitStoreVariable(String storeId, String attributeName, Attribute.Type type) {
-        condition.append(this.tableName).append(".").append(attributeName).append(RDBMSTableConstants.WHITESPACE);
+        condition.append(attributeName).append(RDBMSTableConstants.WHITESPACE);
     }
 
     @Override
