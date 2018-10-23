@@ -180,29 +180,34 @@ public class CUDStreamProcessor extends StreamProcessor {
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
-
         try {
-            while (streamEventChunk.hasNext()) {
+            if (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
+                stmt = conn.prepareStatement(query);
                 if (RDBMSStreamProcessorUtil.queryContainsCheck(false, query)) {
                     throw new SiddhiAppRuntimeException("Dropping event since the query has " +
                             "unauthorised operations, '" + query + "'. Event: '" + event + "'.");
                 }
-                stmt = conn.prepareStatement(query);
-                if (isVaryingQuery) {
-                    for (int i = 0; i < this.expressionExecutors.size(); i++) {
-                        ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
-                        RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,
-                                attributeExpressionExecutor.getReturnType(),
-                                attributeExpressionExecutor.execute(event));
-                    }
+            }
+            streamEventChunk.reset();
+            while (streamEventChunk.hasNext() && isVaryingQuery) {
+                if (conn.getAutoCommit()) {
+                    conn.setAutoCommit(false);
+                }
+                StreamEvent event = streamEventChunk.next();
+                for (int i = 0; i < this.expressionExecutors.size(); i++) {
+                    ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
+                    RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,
+                            attributeExpressionExecutor.getReturnType(),
+                            attributeExpressionExecutor.execute(event));
                 }
                 stmt.addBatch();
             }
             int counter = 0;
             if (stmt != null) {
                 int[] numRecords = stmt.executeBatch();
+                conn.commit();
                 streamEventChunk.reset();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent event = streamEventChunk.next();
