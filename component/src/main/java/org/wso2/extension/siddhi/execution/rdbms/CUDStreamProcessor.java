@@ -178,14 +178,18 @@ public class CUDStreamProcessor extends StreamProcessor {
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
+        boolean isBatchQuery = true;
         try {
             if (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
                 stmt = conn.prepareStatement(query);
+                if (!streamEventChunk.hasNext()) {
+                    stmt.addBatch();
+                    isBatchQuery = false;
+                }
                 if (RDBMSStreamProcessorUtil.queryContainsCheck(false, query)) {
                     throw new SiddhiAppRuntimeException("Dropping event since the query has " +
                             "unauthorised operations, '" + query + "'. Event: '" + event + "'.");
@@ -193,7 +197,7 @@ public class CUDStreamProcessor extends StreamProcessor {
             }
             streamEventChunk.reset();
             while (streamEventChunk.hasNext() && isVaryingQuery) {
-                if (conn.getAutoCommit()) {
+                if (conn.getAutoCommit() && isBatchQuery) {
                     conn.setAutoCommit(false);
                 }
                 StreamEvent event = streamEventChunk.next();
