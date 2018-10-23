@@ -178,6 +178,7 @@ public class CUDStreamProcessor extends StreamProcessor {
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         try {
@@ -207,7 +208,9 @@ public class CUDStreamProcessor extends StreamProcessor {
             int counter = 0;
             if (stmt != null) {
                 int[] numRecords = stmt.executeBatch();
-                conn.commit();
+                if (!conn.getAutoCommit()) {
+                    conn.commit();
+                }
                 streamEventChunk.reset();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent event = streamEventChunk.next();
