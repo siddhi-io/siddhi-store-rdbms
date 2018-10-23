@@ -197,7 +197,7 @@ public class CUDStreamProcessor extends StreamProcessor {
             }
             streamEventChunk.reset();
             while (streamEventChunk.hasNext() && isVaryingQuery) {
-                if (conn.getAutoCommit() && isBatchQuery) {
+                if (isBatchQuery && conn.getAutoCommit()) {
                     conn.setAutoCommit(false);
                 }
                 StreamEvent event = streamEventChunk.next();
