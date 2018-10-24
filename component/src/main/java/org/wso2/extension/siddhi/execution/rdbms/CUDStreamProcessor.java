@@ -180,29 +180,49 @@ public class CUDStreamProcessor extends StreamProcessor {
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
-
+        boolean isBatchQuery = true;
         try {
-            while (streamEventChunk.hasNext()) {
+            if (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
+                stmt = conn.prepareStatement(query);
+                if (!streamEventChunk.hasNext()) {
+                    stmt.addBatch();
+                    isBatchQuery = false;
+                }
                 if (RDBMSStreamProcessorUtil.queryContainsCheck(false, query)) {
                     throw new SiddhiAppRuntimeException("Dropping event since the query has " +
                             "unauthorised operations, '" + query + "'. Event: '" + event + "'.");
                 }
-                stmt = conn.prepareStatement(query);
-                if (isVaryingQuery) {
-                    for (int i = 0; i < this.expressionExecutors.size(); i++) {
-                        ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
-                        RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,
-                                attributeExpressionExecutor.getReturnType(),
-                                attributeExpressionExecutor.execute(event));
+            }
+            streamEventChunk.reset();
+            while (streamEventChunk.hasNext()) {
+                StreamEvent event = streamEventChunk.next();
+                if (isBatchQuery) {
+                    if (isVaryingQuery) {
+                        if (conn.getAutoCommit()) {
+                            //commit transaction manually
+                            conn.setAutoCommit(false);
+                        }
+                        for (int i = 0; i < this.expressionExecutors.size(); i++) {
+                            ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
+                            RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,
+                                    attributeExpressionExecutor.getReturnType(),
+                                    attributeExpressionExecutor.execute(event));
+                        }
+                        stmt.addBatch();
+                    } else {
+                        throw new SiddhiAppRuntimeException("Different statements can not be executed "
+                                + "in a single batch. Hence, dropping the event: '" + event + "'.");
                     }
                 }
-                stmt.addBatch();
             }
             int counter = 0;
             if (stmt != null) {
                 int[] numRecords = stmt.executeBatch();
+                if (!conn.getAutoCommit()) {
+                    conn.commit();
+                }
                 streamEventChunk.reset();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent event = streamEventChunk.next();
