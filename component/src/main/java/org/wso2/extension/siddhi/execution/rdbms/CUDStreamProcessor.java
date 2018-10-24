@@ -204,7 +204,6 @@ public class CUDStreamProcessor extends StreamProcessor {
                             //commit transaction manually
                             conn.setAutoCommit(false);
                         }
-
                         for (int i = 0; i < this.expressionExecutors.size(); i++) {
                             ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
                             RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,
