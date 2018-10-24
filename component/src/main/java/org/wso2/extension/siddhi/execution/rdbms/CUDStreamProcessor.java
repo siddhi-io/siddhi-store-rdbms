@@ -212,7 +212,7 @@ public class CUDStreamProcessor extends StreamProcessor {
                         }
                         stmt.addBatch();
                     } else {
-                        throw new SiddhiAppRuntimeException("Two different statements can not be executed "
+                        throw new SiddhiAppRuntimeException("Different statements can not be executed "
                                 + "in a single batch. Hence, dropping the event: '" + event + "'.");
                     }
                 }
