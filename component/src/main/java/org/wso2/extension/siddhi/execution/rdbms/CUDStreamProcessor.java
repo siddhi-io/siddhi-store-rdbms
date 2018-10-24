@@ -196,18 +196,27 @@ public class CUDStreamProcessor extends StreamProcessor {
                 }
             }
             streamEventChunk.reset();
-            while (streamEventChunk.hasNext() && isVaryingQuery) {
-                if (isBatchQuery && conn.getAutoCommit()) {
-                    conn.setAutoCommit(false);
-                }
+            while (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
-                for (int i = 0; i < this.expressionExecutors.size(); i++) {
-                    ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
-                    RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,
-                            attributeExpressionExecutor.getReturnType(),
-                            attributeExpressionExecutor.execute(event));
+                if (isBatchQuery) {
+                    if (isVaryingQuery) {
+                        if (conn.getAutoCommit()) {
+                            //commit transaction manually
+                            conn.setAutoCommit(false);
+                        }
+
+                        for (int i = 0; i < this.expressionExecutors.size(); i++) {
+                            ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
+                            RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,
+                                    attributeExpressionExecutor.getReturnType(),
+                                    attributeExpressionExecutor.execute(event));
+                        }
+                        stmt.addBatch();
+                    } else {
+                        throw new SiddhiAppRuntimeException("Two different statements can not be executed "
+                                + "in a single batch. Hence, dropping the event: '" + event + "'.");
+                    }
                 }
-                stmt.addBatch();
             }
             int counter = 0;
             if (stmt != null) {
