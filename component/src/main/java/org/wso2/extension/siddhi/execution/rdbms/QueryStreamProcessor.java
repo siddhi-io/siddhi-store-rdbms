@@ -266,6 +266,7 @@ public class QueryStreamProcessor extends StreamProcessor {
                     streamEventChunk.insertBeforeCurrent(clonedEvent);
                 }
                 streamEventChunk.remove();
+                RDBMSStreamProcessorUtil.cleanupConnection(resultSet, null, null);
             }
             nextProcessor.process(streamEventChunk);
         } catch (SQLException e) {
