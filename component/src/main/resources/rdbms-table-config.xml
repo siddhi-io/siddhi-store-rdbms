@@ -133,6 +133,12 @@
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
+        <selectQueryTemplate>
+            <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
+            <havingClause>HAVING {{CONDITION}}</havingClause>
+            <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+        </selectQueryTemplate>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
@@ -156,6 +162,12 @@
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
+        <selectQueryTemplate>
+            <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
+            <havingClause>HAVING {{CONDITION}}</havingClause>
+            <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+        </selectQueryTemplate>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
@@ -179,6 +191,12 @@
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
+        <selectQueryTemplate>
+            <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
+            <havingClause>HAVING {{CONDITION}}</havingClause>
+            <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+        </selectQueryTemplate>
         <keyExplicitNotNull>true</keyExplicitNotNull>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -203,6 +221,12 @@
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
+        <selectQueryTemplate>
+            <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
+            <havingClause>HAVING {{CONDITION}}</havingClause>
+            <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+        </selectQueryTemplate>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
