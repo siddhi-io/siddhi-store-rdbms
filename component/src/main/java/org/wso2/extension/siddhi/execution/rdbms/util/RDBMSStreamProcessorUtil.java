@@ -32,6 +32,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -200,6 +201,43 @@ public class RDBMSStreamProcessorUtil {
         } catch (DataSourceException e) {
             throw new SiddhiAppRuntimeException("Datasource '" + dataSourceName + "' cannot be " +
                     "connected.", e);
+        }
+    }
+
+    /**
+     * Util method which is used to populate a {@link PreparedStatement} instance with a single element.
+     *
+     * @param stmt    the statement to which the element should be set.
+     * @param ordinal the ordinal of the element in the statement (its place in a potential list of places).
+     * @param type    the type of the element to be set, adheres to
+     *                {@link org.wso2.siddhi.query.api.definition.Attribute.Type}.
+     * @param value   the value of the element.
+     * @throws SQLException if there are issues when the element is being set.
+     */
+    public static void populateStatementWithSingleElement(PreparedStatement stmt, int ordinal, Attribute.Type type,
+                                                          Object value) throws SQLException {
+        switch (type) {
+            case BOOL:
+                stmt.setBoolean(ordinal, (Boolean) value);
+                break;
+            case DOUBLE:
+                stmt.setDouble(ordinal, (Double) value);
+                break;
+            case FLOAT:
+                stmt.setFloat(ordinal, (Float) value);
+                break;
+            case INT:
+                stmt.setInt(ordinal, (Integer) value);
+                break;
+            case LONG:
+                stmt.setLong(ordinal, (Long) value);
+                break;
+            case OBJECT:
+                stmt.setObject(ordinal, value);
+                break;
+            case STRING:
+                stmt.setString(ordinal, (String) value);
+                break;
         }
     }
 }

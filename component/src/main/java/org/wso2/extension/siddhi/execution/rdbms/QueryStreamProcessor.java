@@ -71,6 +71,12 @@ import java.util.stream.Collectors;
                         type = DataType.STRING
                 ),
                 @Parameter(
+                        name = "parameter.n",
+                        description = "If the second parameter is a parametrised SQL query, then siddhi attributes " +
+                                "can be passed to set the values of the parameters",
+                        type = DataType.STRING
+                ),
+                @Parameter(
                         name = "attribute.definition.list",
                         description = "This is provided as a comma-separated list in the " +
                                 "'<AttributeName AttributeType>' format. " +
@@ -110,6 +116,19 @@ import java.util.stream.Collectors;
                                 "i.e an event will be generated for each record retrieved from the datasource. " +
                                 "The event will include as additional attributes, the attributes defined in the " +
                                 "`attribute.definition.list`(creditcardno, country, transaction, amount)."
+                ),
+                @Example(
+                        syntax = "from TriggerStream#rdbms:query('SAMPLE_DB', 'select * from " +
+                                "where country=? ', countrySearchWord, 'creditcardno string, country string, " +
+                                "transaction string, amount int') \n" +
+                                "select creditcardno, country, transaction, amount \n" +
+                                "insert into recordStream;",
+                        description = "Events inserted into recordStream includes all records matched for the query " +
+                                "i.e an event will be generated for each record retrieved from the datasource. " +
+                                "The event will include as additional attributes, the attributes defined in the " +
+                                "`attribute.definition.list`(creditcardno, country, transaction, amount). " +
+                                "countrySearchWord value from the event will be set in the query when querying the " +
+                                "datasource."
                 )
         }
 )
@@ -118,15 +137,18 @@ public class QueryStreamProcessor extends StreamProcessor {
     private HikariDataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
     private List<Attribute> attributeList = new ArrayList<>();
+    private boolean isVaryingQuery;
+    private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                    SiddhiAppContext siddhiAppContext) {
 
-        if ((attributeExpressionExecutors.length != 3)) {
-            throw new SiddhiAppValidationException("rdbms query function  should have 3 parameters , but found '" +
-                    attributeExpressionExecutors.length + "' parameters.");
+        int attributesLength = attributeExpressionExecutors.length;
+        if ((attributesLength < 3)) {
+            throw new SiddhiAppValidationException("rdbms query function  should have at least 3 parameters , " +
+                    "but found '" + attributesLength + "' parameters.");
         }
 
         this.dataSourceName = RDBMSStreamProcessorUtil.validateDatasourceName(attributeExpressionExecutors[0]);
@@ -139,8 +161,35 @@ public class QueryStreamProcessor extends StreamProcessor {
                     attributeExpressionExecutors[1].getReturnType() + "'.");
         }
 
-        if (attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor) {
-            String attributeDefinition = ((ConstantExpressionExecutor) attributeExpressionExecutors[2])
+        ExpressionExecutor streamDefExecutor;
+        if (attributesLength == 3) {
+            streamDefExecutor = attributeExpressionExecutors[2];
+            this.isVaryingQuery = false;
+        } else {
+            this.isVaryingQuery = true;
+            //Process the query conditions through stream attributes
+            long attributeCount;
+            if (queryExpressionExecutor instanceof ConstantExpressionExecutor) {
+                String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
+                attributeCount = query.chars().filter(ch -> ch == '?').count();
+            } else {
+                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
+                        "function should be a constant, but found a parameter of instance '" +
+                        attributeExpressionExecutors[1].getClass().getName() + "'.");
+            }
+            if (attributeCount == attributesLength - 3) {
+                this.expressionExecutors.addAll(
+                        Arrays.asList(attributeExpressionExecutors).subList(2, attributesLength - 1));
+            } else {
+                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
+                        "function contains '" + attributeCount + "' ordinals, but found siddhi attributes of count '" +
+                        (attributesLength - 3) + "'.");
+            }
+            streamDefExecutor = attributeExpressionExecutors[attributesLength - 1];
+        }
+
+        if (streamDefExecutor instanceof ConstantExpressionExecutor) {
+            String attributeDefinition = ((ConstantExpressionExecutor) streamDefExecutor)
                     .getValue().toString();
             this.attributeList = Arrays.stream(attributeDefinition.split(","))
                     .map((String attributeExp) -> {
@@ -181,7 +230,7 @@ public class QueryStreamProcessor extends StreamProcessor {
         } else {
             throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function should be a " +
                     "constant, but found a dynamic attribute of type '" +
-                    attributeExpressionExecutors[1].getClass().getCanonicalName() + "'.");
+                    queryExpressionExecutor.getClass().getCanonicalName() + "'.");
         }
     }
 
@@ -201,6 +250,14 @@ public class QueryStreamProcessor extends StreamProcessor {
                             "'" + query + "'. Event: '" + event + "'.");
                 }
                 stmt = conn.prepareStatement(query);
+                if (isVaryingQuery) {
+                    for (int i = 0; i < this.expressionExecutors.size(); i++) {
+                        ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
+                        RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,
+                                attributeExpressionExecutor.getReturnType(),
+                                attributeExpressionExecutor.execute(event));
+                    }
+                }
                 resultSet = stmt.executeQuery();
                 while (resultSet.next()) {
                     StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(event);
@@ -209,6 +266,7 @@ public class QueryStreamProcessor extends StreamProcessor {
                     streamEventChunk.insertBeforeCurrent(clonedEvent);
                 }
                 streamEventChunk.remove();
+                RDBMSStreamProcessorUtil.cleanupConnection(resultSet, stmt, null);
             }
             nextProcessor.process(streamEventChunk);
         } catch (SQLException e) {

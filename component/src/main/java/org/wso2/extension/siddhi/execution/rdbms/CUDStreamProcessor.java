@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
+import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
@@ -42,6 +43,8 @@ import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +67,12 @@ import java.util.Map;
                         name = "query",
                         description = "The update, delete, or insert query(formatted according to " +
                                 "the relevant database type) that needs to be performed.",
+                        type = DataType.STRING
+                ),
+                @Parameter(
+                        name = "parameter.n",
+                        description = "If the second parameter is a parametrised SQL query, then siddhi attributes " +
+                                "can be passed to set the values of the parameters",
                         type = DataType.STRING
                 )
         },
@@ -93,6 +102,17 @@ import java.util.Map;
                                 "with an additional attribute named 'numRecords', of which the value indicates the" +
                                 " number of records manipulated. The updated events are inserted into an output " +
                                 "stream named 'RecordStream'."
+                ),
+                @Example(
+                        syntax = "from TriggerStream#rdbms:cud(\"SAMPLE_DB\", \"UPDATE Customers_Table SET " +
+                                "customerName=? where customerName=?\", changedName, previousName) \n" +
+                                "select numRecords \n" +
+                                "insert into  RecordStream;",
+                        description = "This query updates the events from the input stream named 'TriggerStream' " +
+                                "with an additional attribute named 'numRecords', of which the value indicates the" +
+                                " number of records manipulated. The updated events are inserted into an output " +
+                                "stream named 'RecordStream'. Here the values of attributes changedName and " +
+                                "previousName in the event will be set to the query."
                 )
         }
 )
@@ -100,6 +120,8 @@ public class CUDStreamProcessor extends StreamProcessor {
     private String dataSourceName;
     private HikariDataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
+    private boolean isVaryingQuery;
+    private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition,
@@ -114,7 +136,7 @@ public class CUDStreamProcessor extends StreamProcessor {
                     "'perform.CUD.operations' in '<SP_HOME>/conf/<profile>/deployment.yaml'");
         }
 
-        if ((attributeExpressionExecutors.length != 2)) {
+        if ((attributeExpressionExecutors.length < 2)) {
             throw new SiddhiAppValidationException("rdbms cud function " +
                     "should have 2 parameters , but found '" + attributeExpressionExecutors.length + "' parameters.");
         }
@@ -129,6 +151,27 @@ public class CUDStreamProcessor extends StreamProcessor {
                     attributeExpressionExecutors[1].getReturnType() + "'.");
         }
 
+        if (attributeExpressionExecutors.length > 2) {
+            this.isVaryingQuery = true;
+            //Process the query conditions through stream attributes
+            long attributeCount;
+            if (queryExpressionExecutor instanceof ConstantExpressionExecutor) {
+                String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
+                attributeCount = query.chars().filter(ch -> ch == '?').count();
+            } else {
+                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
+                        "function should be a constant, but found a parameter of instance '" +
+                        attributeExpressionExecutors[1].getClass().getName() + "'.");
+            }
+            if (attributeCount == attributeExpressionExecutors.length - 2) {
+                this.expressionExecutors.addAll(
+                        Arrays.asList(attributeExpressionExecutors).subList(2, attributeExpressionExecutors.length));
+            } else {
+                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
+                        "function contains '" + attributeCount + "' ordinals, but found siddhi attributes of count '" +
+                        (attributeExpressionExecutors.length - 2) + "'.");
+            }
+        }
         return Collections.singletonList(new Attribute("numRecords", Attribute.Type.INT));
     }
 
@@ -137,21 +180,42 @@ public class CUDStreamProcessor extends StreamProcessor {
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
-
         try {
-            while (streamEventChunk.hasNext()) {
+            if (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
+                stmt = conn.prepareStatement(query);
+                if (!streamEventChunk.hasNext() && !isVaryingQuery) {
+                    stmt.addBatch();
+                }
                 if (RDBMSStreamProcessorUtil.queryContainsCheck(false, query)) {
                     throw new SiddhiAppRuntimeException("Dropping event since the query has " +
                             "unauthorised operations, '" + query + "'. Event: '" + event + "'.");
                 }
-                stmt = conn.prepareStatement(query);
-                stmt.addBatch();
+            }
+            streamEventChunk.reset();
+            while (streamEventChunk.hasNext()) {
+                StreamEvent event = streamEventChunk.next();
+                if (isVaryingQuery) {
+                    if (conn.getAutoCommit()) {
+                        //commit transaction manually
+                        conn.setAutoCommit(false);
+                    }
+                    for (int i = 0; i < this.expressionExecutors.size(); i++) {
+                        ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
+                        RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,
+                                attributeExpressionExecutor.getReturnType(),
+                                attributeExpressionExecutor.execute(event));
+                    }
+                    stmt.addBatch();
+                }
             }
             int counter = 0;
             if (stmt != null) {
                 int[] numRecords = stmt.executeBatch();
+                if (!conn.getAutoCommit()) {
+                    conn.commit();
+                }
                 streamEventChunk.reset();
                 while (streamEventChunk.hasNext()) {
                     StreamEvent event = streamEventChunk.next();
