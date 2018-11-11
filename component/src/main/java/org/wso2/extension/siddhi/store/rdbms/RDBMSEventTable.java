@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.extension.siddhi.store.rdbms;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -487,6 +487,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private String dataSourceName;
     private String tableName;
     private List<Attribute> attributes;
+    private List<Integer> primaryKeyAttributePositionsList;
     private ConfigReader configReader;
     private String jndiResourceName;
     private Annotation storeAnnotation;
@@ -521,6 +522,20 @@ public class RDBMSEventTable extends AbstractRecordTable {
         storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
         primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
+        List<Element> primaryKeyList = (primaryKeys == null) ? new ArrayList<>() :
+                primaryKeys.getElements();
+        primaryKeyAttributePositionsList = new ArrayList<>();
+        primaryKeyList.forEach(elem -> {
+            Attribute attribute;
+            for (int i = 0; i < this.attributes.size(); i++) {
+                attribute = this.attributes.get(i);
+                if (attribute != null && attribute.getType() == Attribute.Type.STRING) {
+                    if (attribute.getName().equalsIgnoreCase(elem.getValue())) {
+                        primaryKeyAttributePositionsList.add(i);
+                    }
+                }
+            }
+        });
         indices = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX,
                 tableDefinition.getAnnotations());
         RDBMSTableUtils.validateAnnotation(primaryKeys);
@@ -728,7 +743,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
             recordInsertIndexList = sequentialProcessUpdate(updateConditionParameterMaps, compiledCondition,
                     updateSetExpressions, updateSetParameterMaps);
         }
-        batchProcessInsert(addingRecords, recordInsertIndexList);
+        if (!recordInsertIndexList.isEmpty()) {
+            batchProcessInsert(addingRecords, recordInsertIndexList);
+        }
     }
 
     private List<Integer> batchProcessUpdate(List<Map<String, Object>> updateConditionParameterMaps,
@@ -772,6 +789,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return recordInsertIndexList;
     }
 
+
     private List<Integer> sequentialProcessUpdate(List<Map<String, Object>> updateConditionParameterMaps,
                                                   CompiledCondition compiledCondition,
                                                   Map<String, CompiledExpression> updateSetExpressions,
@@ -810,34 +828,33 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     private void batchProcessInsert(List<Object[]> addingRecords, List<Integer> recordInsertIndexList) {
         int counter = 0;
+        String query = this.composeInsertQuery();
+        Map<String, Object[]> insertionRecordMap = new HashMap<>();
         Connection conn = this.getConnection(false);
         PreparedStatement insertStmt = null;
-        String query = this.composeInsertQuery();
         try {
             insertStmt = conn.prepareStatement(query);
             while (counter < recordInsertIndexList.size()) {
-                if (recordInsertIndexList.get(counter) == counter) {
-                    Object[] record = addingRecords.get(counter);
-                    this.populateStatement(record, insertStmt);
-                    try {
-                        insertStmt.addBatch();
-                        if (counter % batchSize == (batchSize - 1)) {
-                            insertStmt.executeBatch();
-                            conn.commit();
-                            insertStmt.clearBatch();
+                Object[] record = addingRecords.get(counter);
+                if (primaryKeyAttributePositionsList.isEmpty()) {
+                    insertionRecordMap.put(Integer.toString(counter), record);
+                } else {
+                    if (recordInsertIndexList.get(counter) == counter) {
+                        StringBuilder primaryKeyHashBuilder = new StringBuilder();
+                        for (Integer primaryKeyAttributePosition : primaryKeyAttributePositionsList) {
+                            primaryKeyHashBuilder.append((String) record[primaryKeyAttributePosition]);
                         }
-                    } catch (SQLException e2) {
-                        RDBMSTableUtils.rollbackConnection(conn);
-                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
-                                + this.tableName + "': " + e2.getMessage(), e2);
+                        insertionRecordMap.put(primaryKeyHashBuilder.toString(), record);
                     }
                 }
                 counter++;
             }
-            if (counter % batchSize > 0) {
-                insertStmt.executeBatch();
-                conn.commit();
+            for (Map.Entry<String, Object[]> record : insertionRecordMap.entrySet()) {
+                this.populateStatement(record.getValue(), insertStmt);
+                insertStmt.addBatch();
             }
+            insertStmt.executeBatch();
+            conn.commit();
         } catch (SQLException e) {
             throw new RDBMSTableException("Cannot execute update/insert operation (update) on table '"
                     + this.tableName + "' with SQL query " + query + " .", e);

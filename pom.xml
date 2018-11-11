@@ -96,6 +96,7 @@
 
         <carbon.coordination.version>2.0.5</carbon.coordination.version>
         <awaitility.version>3.0.0</awaitility.version>
+        <bind.host.name>localhost</bind.host.name>
     </properties>
 
     <scm>
