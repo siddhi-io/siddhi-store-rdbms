@@ -857,10 +857,9 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
 
     @Test(dependsOnMethods = "updateOrInsertTableTest12")
     public void updateOrInsertTableTest13() throws InterruptedException, SQLException {
-        log.info("updateOrInsertTableTest1");
+        log.info("updateOrInsertTableTest13");
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "define stream StockStream (symbol string, price int, volume long); " +
                 "define stream UpdateStockStream (symbol string, price int, volume long); " +
                 "define stream SearchStream (symbol string); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
@@ -871,15 +870,11 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
                 "define table StockTable (symbol string, price int, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from StockStream " +
-                "insert into StockTable ;" +
-                "" +
-                "@info(name = 'query2') " +
                 "from UpdateStockStream " +
                 "update or insert into StockTable " +
                 "   on StockTable.symbol == symbol ;" +
                 "" +
-                "@info(name = 'query3') " +
+                "@info(name = 'query2') " +
                 "from SearchStream#window.length(1) join StockTable on StockTable.symbol == SearchStream.symbol " +
                 "select StockTable.symbol as symbol, price, volume " +
                 "insert into OutStream;";
@@ -887,7 +882,7 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
         InputHandler searchStream = siddhiAppRuntime.getInputHandler("SearchStream");
-        siddhiAppRuntime.addCallback("query3", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -915,6 +910,68 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
         events[1] = new Event(System.currentTimeMillis(), new Object[]{"IBM", 55, 100L});
         events[2] = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 155, 200L});
         events[3] = new Event(System.currentTimeMillis(), new Object[]{"IBM", 155, 200L});
+        updateStockStream.send(events);
+        searchStream.send(new Object[]{"WSO2"});
+        searchStream.send(new Object[]{"IBM"});
+        waitTillVariableCountMatches(2, Duration.ONE_MINUTE);
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(dependsOnMethods = "updateOrInsertTableTest13")
+    public void updateOrInsertTableTest14() throws InterruptedException, SQLException {
+        log.info("updateOrInsertTableTest14");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream UpdateStockStream (symbol string, price int, volume long); " +
+                "define stream SearchStream (symbol string); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
+                "@PrimaryKey(\"symbol\", \"volume\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price int, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from UpdateStockStream " +
+                "update or insert into StockTable " +
+                "   on StockTable.symbol == symbol ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from SearchStream#window.length(1) join StockTable on StockTable.symbol == SearchStream.symbol " +
+                "select StockTable.symbol as symbol, price, volume " +
+                "insert into OutStream;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+        InputHandler searchStream = siddhiAppRuntime.getInputHandler("SearchStream");
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        int inEventCount = actualEventCount.incrementAndGet();
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", 155, 100L});
+                                break;
+                            case 2:
+                                Assert.assertEquals(event.getData(), new Object[]{"IBM", 155, 100L});
+                                break;
+                            default:
+                                Assert.assertSame(inEventCount, 2);
+                        }
+                    }
+                }
+            }
+
+        });
+        siddhiAppRuntime.start();
+        Event[] events = new Event[4];
+        events[0] = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55, 100L});
+        events[1] = new Event(System.currentTimeMillis(), new Object[]{"IBM", 55, 100L});
+        events[2] = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 155, 100L});
+        events[3] = new Event(System.currentTimeMillis(), new Object[]{"IBM", 155, 100L});
         updateStockStream.send(events);
         searchStream.send(new Object[]{"WSO2"});
         searchStream.send(new Object[]{"IBM"});

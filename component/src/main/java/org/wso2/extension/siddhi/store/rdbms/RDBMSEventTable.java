@@ -57,6 +57,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -515,6 +516,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private String bigStringType;
     private String stringSize;
     private String recordContainsConditionTemplate;
+    private boolean primaryKeysEnabled;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -522,20 +524,17 @@ public class RDBMSEventTable extends AbstractRecordTable {
         storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
         primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
-        List<Element> primaryKeyList = (primaryKeys == null) ? new ArrayList<>() :
-                primaryKeys.getElements();
         primaryKeyAttributePositionsList = new ArrayList<>();
-        primaryKeyList.forEach(elem -> {
-            Attribute attribute;
-            for (int i = 0; i < this.attributes.size(); i++) {
-                attribute = this.attributes.get(i);
-                if (attribute != null && attribute.getType() == Attribute.Type.STRING) {
-                    if (attribute.getName().equalsIgnoreCase(elem.getValue())) {
+        if (primaryKeys != null) {
+            primaryKeysEnabled = true;
+            primaryKeys.getElements().forEach(elem -> {
+                for (int i = 0; i < this.attributes.size(); i++) {
+                    if (this.attributes.get(i).getName().equalsIgnoreCase(elem.getValue())) {
                         primaryKeyAttributePositionsList.add(i);
                     }
                 }
-            }
-        });
+            });
+        }
         indices = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX,
                 tableDefinition.getAnnotations());
         RDBMSTableUtils.validateAnnotation(primaryKeys);
@@ -829,32 +828,93 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private void batchProcessInsert(List<Object[]> addingRecords, List<Integer> recordInsertIndexList) {
         int counter = 0;
         String query = this.composeInsertQuery();
-        Map<String, Object[]> insertionRecordMap = new HashMap<>();
         Connection conn = this.getConnection(false);
         PreparedStatement insertStmt = null;
         try {
             insertStmt = conn.prepareStatement(query);
-            while (counter < recordInsertIndexList.size()) {
-                Object[] record = addingRecords.get(counter);
-                if (primaryKeyAttributePositionsList.isEmpty()) {
-                    insertionRecordMap.put(Integer.toString(counter), record);
-                } else {
+            if (!primaryKeysEnabled) {
+                while (counter < recordInsertIndexList.size()) {
+                    if (recordInsertIndexList.get(counter) == counter) {
+                        Object[] record = addingRecords.get(counter);
+                        this.populateStatement(record, insertStmt);
+                        try {
+                            insertStmt.addBatch();
+                            if (counter % batchSize == (batchSize - 1)) {
+                                insertStmt.executeBatch();
+                                conn.commit();
+                                insertStmt.clearBatch();
+                            }
+                        } catch (SQLException e2) {
+                            RDBMSTableUtils.rollbackConnection(conn);
+                            throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
+                                    + this.tableName + "': " + e2.getMessage(), e2);
+                        }
+                    }
+                    counter++;
+                }
+                if (counter % batchSize > 0) {
+                    insertStmt.executeBatch();
+                    conn.commit();
+                }
+            } else {
+                Map<String, Integer> nonDuplicateRecordIdMap = new LinkedHashMap<>();
+                while (counter < recordInsertIndexList.size()) {
+                    Object[] record = addingRecords.get(counter);
                     if (recordInsertIndexList.get(counter) == counter) {
                         StringBuilder primaryKeyHashBuilder = new StringBuilder();
                         for (Integer primaryKeyAttributePosition : primaryKeyAttributePositionsList) {
-                            primaryKeyHashBuilder.append((String) record[primaryKeyAttributePosition]);
+                            Attribute attribute = attributes.get(primaryKeyAttributePosition);
+                            Object recordAttribute = record[primaryKeyAttributePosition];
+                            switch (attribute.getType()) {
+                                case BOOL:
+                                    primaryKeyHashBuilder.append(Boolean.toString((Boolean) recordAttribute));
+                                    break;
+                                case DOUBLE:
+                                    primaryKeyHashBuilder.append(Double.toString((Double) recordAttribute));
+                                    break;
+                                case FLOAT:
+                                    primaryKeyHashBuilder.append(Float.toString((Float) recordAttribute));
+                                    break;
+                                case INT:
+                                    primaryKeyHashBuilder.append(Integer.toString((Integer) recordAttribute));
+                                    break;
+                                case LONG:
+                                    primaryKeyHashBuilder.append(Long.toString((Long) recordAttribute));
+                                    break;
+                                case OBJECT:
+                                    primaryKeyHashBuilder.append(recordAttribute.toString());
+                                    break;
+                                case STRING:
+                                    primaryKeyHashBuilder.append((String) recordAttribute);
+                                    break;
+                            }
                         }
-                        insertionRecordMap.put(primaryKeyHashBuilder.toString(), record);
+                        nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), counter);
                     }
+                    counter++;
                 }
-                counter++;
+                counter = 0;
+                for (Map.Entry<String, Integer> record : nonDuplicateRecordIdMap.entrySet()) {
+                    this.populateStatement(addingRecords.get(record.getValue()), insertStmt);
+                    try {
+                        insertStmt.addBatch();
+                        if (counter % batchSize == (batchSize - 1)) {
+                            insertStmt.executeBatch();
+                            conn.commit();
+                            insertStmt.clearBatch();
+                        }
+                    } catch (SQLException e2) {
+                        RDBMSTableUtils.rollbackConnection(conn);
+                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
+                                + this.tableName + "': " + e2.getMessage(), e2);
+                    }
+                    counter++;
+                }
+                if (counter % batchSize > 0) {
+                    insertStmt.executeBatch();
+                    conn.commit();
+                }
             }
-            for (Map.Entry<String, Object[]> record : insertionRecordMap.entrySet()) {
-                this.populateStatement(record.getValue(), insertStmt);
-                insertStmt.addBatch();
-            }
-            insertStmt.executeBatch();
-            conn.commit();
         } catch (SQLException e) {
             throw new RDBMSTableException("Cannot execute update/insert operation (update) on table '"
                     + this.tableName + "' with SQL query " + query + " .", e);
