@@ -859,12 +859,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
             } else {
                 Map<String, Integer> nonDuplicateRecordIdMap = new LinkedHashMap<>();
                 while (counter < recordInsertIndexList.size()) {
-                    Object[] record = addingRecords.get(counter);
                     if (recordInsertIndexList.get(counter) == counter) {
                         StringBuilder primaryKeyHashBuilder = new StringBuilder();
                         for (Integer primaryKeyAttributePosition : primaryKeyAttributePositionsList) {
                             Attribute attribute = attributes.get(primaryKeyAttributePosition);
-                            Object recordAttribute = record[primaryKeyAttributePosition];
+                            Object recordAttribute = addingRecords.get(counter)[primaryKeyAttributePosition];
                             switch (attribute.getType()) {
                                 case BOOL:
                                     primaryKeyHashBuilder.append(Boolean.toString((Boolean) recordAttribute));
