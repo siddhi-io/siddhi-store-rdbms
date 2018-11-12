@@ -263,7 +263,7 @@ wso2.datasources:
       definition:
         type: RDBMS
         configuration:
-          jdbcUrl: 'jdbc:h2:./target/dasdb'
+          jdbcUrl: 'jdbc:h2:./target/testdb'
           username: root
           password: root
           driverClassName: org.h2.Driver2

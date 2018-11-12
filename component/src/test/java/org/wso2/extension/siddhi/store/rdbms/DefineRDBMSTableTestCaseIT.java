@@ -521,7 +521,7 @@ public class DefineRDBMSTableTestCaseIT {
         RDBMSTableTestUtils.setupJNDIDatasource(url, driverClassName);
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:h2:./target/dasdb###\", jdbc.driver.name=\"" +
+                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:h2:./target/testdb###\", jdbc.driver.name=\"" +
                 driverClassName + "\"," +
                 "username=\"root###\", jndi.resource=\"java:comp/env/jdbc/TestDB\", field.length=\"symbol:100\", " +
                 "password=\"root###\")\n" +
@@ -554,7 +554,7 @@ public class DefineRDBMSTableTestCaseIT {
         RDBMSTableTestUtils.setupJNDIDatasource(url, driverClassName);
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:h2:./target/dasdb###\", jdbc.driver.name=\"" +
+                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:h2:./target/testdb###\", jdbc.driver.name=\"" +
                 driverClassName + "\"," +
                 "username=\"root###\", jndi.resource=\"jdbc444/444TestDB\", field.length=\"symbol:100\", " +
                 "password=\"root###\")\n" +

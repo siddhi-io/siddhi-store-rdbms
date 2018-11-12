@@ -42,8 +42,8 @@ public class RDBMSTableTestUtils {
 
     public static final String TABLE_NAME = "StockTable";
     private static final Logger log = Logger.getLogger(RDBMSTableTestUtils.class);
-    private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/dasdb?useSSL=false";
-    private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:{{container.port}}/dasdb";
+    private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/testdb?useSSL=false";
+    private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:{{container.port}}/testdb";
     private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:{{container.port}}/XE";
     private static String connectionUrlMsSQL = "jdbc:sqlserver://{{container.ip}}:{{container.port}};" +
             "databaseName=tempdb";
@@ -54,7 +54,7 @@ public class RDBMSTableTestUtils {
     private static final String WRONG_USER_NAME_REGEX_MSSQL = "Login failed for user";
     private static final String WRONG_USER_NAME_REGEX_DB2 = "Connection authorization failure occurred";
     private static String connectionUrlDB2 = "jdbc:db2://{{container.ip}}:{{container.port}}/SAMPLE";
-    private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
+    private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/testdb";
     private static final String JDBC_DRIVER_CLASS_NAME_H2 = "org.h2.Driver";
     private static final String JDBC_DRIVER_CLASS_NAME_MYSQL = "com.mysql.jdbc.Driver";
     private static final String JDBC_DRIVER_CLASS_NAME_ORACLE = "oracle.jdbc.driver.OracleDriver";
