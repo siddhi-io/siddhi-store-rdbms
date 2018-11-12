@@ -748,15 +748,20 @@ public class RDBMSEventTable extends AbstractRecordTable {
             //Batch process the non-existing records by inserting into the table.
             //Returns the retry update list, if there are any events to update after the non-existing
             // insertion process.
-            List<Map<String, Object>> retryUpdateSetParameterMaps = batchProcessInsert(addingRecords,
-                    recordInsertIndexList, updateSetParameterMaps);
-            if (!retryUpdateSetParameterMaps.isEmpty()) {
+            List<Integer> retryUpdateOrdinalList = batchProcessInsert(addingRecords, recordInsertIndexList);
+            if (!retryUpdateOrdinalList.isEmpty()) {
+                List<Map<String, Object>> retryUpdateConditionParameterMaps = new ArrayList<>();
+                List<Map<String, Object>> retryUpdateSetParameterMaps = new ArrayList<>();
+                for (Integer ordinal: retryUpdateOrdinalList) {
+                    retryUpdateConditionParameterMaps.add(updateConditionParameterMaps.get(ordinal));
+                    retryUpdateSetParameterMaps.add(updateSetParameterMaps.get(ordinal));
+                }
                 //Retry the update operation
                 if (batchEnable) {
-                    batchProcessUpdate(updateConditionParameterMaps, compiledCondition,
+                    batchProcessUpdate(retryUpdateConditionParameterMaps, compiledCondition,
                             updateSetExpressions, retryUpdateSetParameterMaps);
                 } else {
-                    sequentialProcessUpdate(updateConditionParameterMaps, compiledCondition,
+                    sequentialProcessUpdate(retryUpdateConditionParameterMaps, compiledCondition,
                             updateSetExpressions, retryUpdateSetParameterMaps);
                 }
             }
@@ -841,14 +846,13 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return updateResultList;
     }
 
-    private List<Map<String, Object>> batchProcessInsert(List<Object[]> addingRecords,
-                                                         List<Integer> recordInsertIndexList,
-                                                         List<Map<String, Object>> updateSetParameterMaps) {
+    private List<Integer> batchProcessInsert(List<Object[]> addingRecords,
+                                                         List<Integer> recordInsertIndexList) {
         int counter = 0;
         String query = this.composeInsertQuery();
         Connection conn = this.getConnection(false);
         PreparedStatement insertStmt = null;
-        List<Map<String, Object>> retryUpdateSetParameterMaps = new ArrayList<>();
+        List<Integer> retryUpdateOrdinalList = new ArrayList<>();
         try {
             insertStmt = conn.prepareStatement(query);
             if (!primaryKeysEnabled) {
@@ -916,8 +920,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
                         if (!nonDuplicateRecordIdMap.containsKey(primaryKeyHashBuilder.toString())) {
                             nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), counter);
                         } else {
-                            //Add the update set parameter element to retry the update operation
-                            retryUpdateSetParameterMaps.add(updateSetParameterMaps.get(counter));
+                            //Add the record insert index ordinal to retry update
+                            retryUpdateOrdinalList.add(counter);
                         }
                     }
                     counter++;
@@ -950,7 +954,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         } finally {
             RDBMSTableUtils.cleanupConnection(null, insertStmt, conn);
         }
-        return retryUpdateSetParameterMaps;
+        return retryUpdateOrdinalList;
     }
 
     private List<Integer> filterRequiredInsertIndex(int[] updateResultIndex, int lastUpdatedRecordIndex) {
