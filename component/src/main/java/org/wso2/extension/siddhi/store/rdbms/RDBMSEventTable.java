@@ -735,6 +735,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
                                List<Map<String, Object>> updateSetParameterMaps, List<Object[]> addingRecords)
             throws ConnectionUnavailableException {
         List<Integer> recordInsertIndexList;
+        //If any existing records already contain the new values supplied for the MATCHING columns,
+        //if so, those records are updated. If not, a new record is inserted.
         if (batchEnable) {
             recordInsertIndexList = batchProcessUpdate(updateConditionParameterMaps, compiledCondition,
                     updateSetExpressions, updateSetParameterMaps);
@@ -743,7 +745,21 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     updateSetExpressions, updateSetParameterMaps);
         }
         if (!recordInsertIndexList.isEmpty()) {
-            batchProcessInsert(addingRecords, recordInsertIndexList);
+            //Batch process the non-existing records by inserting into the table.
+            //Returns the retry update list, if there are any events to update after the non-existing
+            // insertion process.
+            List<Map<String, Object>> retryUpdateSetParameterMaps = batchProcessInsert(addingRecords,
+                    recordInsertIndexList, updateSetParameterMaps);
+            if (!retryUpdateSetParameterMaps.isEmpty()) {
+                //Retry the update operation
+                if (batchEnable) {
+                    batchProcessUpdate(updateConditionParameterMaps, compiledCondition,
+                            updateSetExpressions, retryUpdateSetParameterMaps);
+                } else {
+                    sequentialProcessUpdate(updateConditionParameterMaps, compiledCondition,
+                            updateSetExpressions, retryUpdateSetParameterMaps);
+                }
+            }
         }
     }
 
@@ -825,14 +841,18 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return updateResultList;
     }
 
-    private void batchProcessInsert(List<Object[]> addingRecords, List<Integer> recordInsertIndexList) {
+    private List<Map<String, Object>> batchProcessInsert(List<Object[]> addingRecords,
+                                                         List<Integer> recordInsertIndexList,
+                                                         List<Map<String, Object>> updateSetParameterMaps) {
         int counter = 0;
         String query = this.composeInsertQuery();
         Connection conn = this.getConnection(false);
         PreparedStatement insertStmt = null;
+        List<Map<String, Object>> retryUpdateSetParameterMaps = new ArrayList<>();
         try {
             insertStmt = conn.prepareStatement(query);
             if (!primaryKeysEnabled) {
+                //Default Scenario: If the primary keys are disabled, then insert all the records into the table.
                 while (counter < recordInsertIndexList.size()) {
                     if (recordInsertIndexList.get(counter) == counter) {
                         Object[] record = addingRecords.get(counter);
@@ -857,6 +877,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     conn.commit();
                 }
             } else {
+                // If the primary keys are enabled, add records into a map with keys as a combination of primary keys,
+                // values as ordinal of the recordInsertIndexList.
+                // If the key already available in the map, then its copy the relevant updateSetParameter entry into
+                // retryUpdateSetParameterMaps, where it will be process again with update operation.
+                // Finally insert records from recordInsertIndexList into database table.
                 Map<String, Integer> nonDuplicateRecordIdMap = new LinkedHashMap<>();
                 while (counter < recordInsertIndexList.size()) {
                     if (recordInsertIndexList.get(counter) == counter) {
@@ -888,7 +913,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
                                     break;
                             }
                         }
-                        nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), counter);
+                        if (!nonDuplicateRecordIdMap.containsKey(primaryKeyHashBuilder.toString())) {
+                            nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), counter);
+                        } else {
+                            //Add the update set parameter element to retry the update operation
+                            retryUpdateSetParameterMaps.add(updateSetParameterMaps.get(counter));
+                        }
                     }
                     counter++;
                 }
@@ -920,6 +950,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         } finally {
             RDBMSTableUtils.cleanupConnection(null, insertStmt, conn);
         }
+        return retryUpdateSetParameterMaps;
     }
 
     private List<Integer> filterRequiredInsertIndex(int[] updateResultIndex, int lastUpdatedRecordIndex) {

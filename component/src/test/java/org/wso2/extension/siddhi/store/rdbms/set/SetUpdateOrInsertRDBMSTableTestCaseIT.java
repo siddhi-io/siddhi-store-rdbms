@@ -19,6 +19,8 @@
 package org.wso2.extension.siddhi.store.rdbms.set;
 
 import org.apache.log4j.Logger;
+import org.awaitility.Awaitility;
+import org.awaitility.Duration;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -27,9 +29,13 @@ import org.testng.annotations.Test;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
+import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.util.EventPrinter;
 
 import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.TABLE_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.driverClassName;
@@ -39,11 +45,12 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.use
 
 public class SetUpdateOrInsertRDBMSTableTestCaseIT {
     private static final Logger log = Logger.getLogger(SetUpdateOrInsertRDBMSTableTestCaseIT.class);
-
+    private static AtomicInteger actualEventCount = new AtomicInteger(0);
 
     @BeforeMethod
     public void init() {
         try {
+            actualEventCount.set(0);
             RDBMSTableTestUtils.initDatabaseTable(TABLE_NAME);
             log.info("Test init with url: " + url + " and driverClass: " + driverClassName);
         } catch (SQLException e) {
@@ -376,5 +383,74 @@ public class SetUpdateOrInsertRDBMSTableTestCaseIT {
             log.info("Test case 'setUpdateOrInsertRDBMSTableTestCase7' ignored due to " + e.getMessage());
             throw e;
         }
+    }
+
+    @Test(testName = "setUpdateOrInsertRDBMSTableTestCase8",
+            description = "Record batch update or insert with set operation")
+    public void setUpdateOrInsertRDBMSTableTestCase8() throws InterruptedException, SQLException {
+        log.info("setUpdateOrInsertRDBMSTableTestCase8: Set update or insert event batch.");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream SearchStream (symbol string); " +
+                "define stream UpdateStockStream (symbol string, price int, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
+                "@PrimaryKey(\"symbol\")" +
+                //"@Index(\"volume\")" +
+                "define table StockTable (symbol string, price int, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from UpdateStockStream " +
+                "select symbol, price, volume " +
+                "update or insert into StockTable " +
+                "set StockTable.price = price " +
+                "   on StockTable.symbol == symbol;" +
+                "@info(name = 'query2') " +
+                "from SearchStream#window.length(1) join StockTable on StockTable.symbol == SearchStream.symbol " +
+                "select StockTable.symbol as symbol, price, volume " +
+                "insert into OutStream;";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+        InputHandler searchStream = siddhiAppRuntime.getInputHandler("SearchStream");
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        int inEventCount = actualEventCount.incrementAndGet();
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", 155, 100L});
+                                break;
+                            case 2:
+                                Assert.assertEquals(event.getData(), new Object[]{"IBM", 155, 100L});
+                                break;
+                            default:
+                                Assert.assertSame(inEventCount, 2);
+                        }
+                    }
+                }
+            }
+
+        });
+        siddhiAppRuntime.start();
+        Event[] events = new Event[4];
+        events[0] = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55, 100L});
+        events[1] = new Event(System.currentTimeMillis(), new Object[]{"IBM", 55, 100L});
+        events[2] = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 155, 0L});
+        events[3] = new Event(System.currentTimeMillis(), new Object[]{"IBM", 155, 0L});
+        updateStockStream.send(events);
+        searchStream.send(new Object[]{"WSO2"});
+        searchStream.send(new Object[]{"IBM"});
+        waitTillVariableCountMatches(2, Duration.ONE_MINUTE);
+        siddhiAppRuntime.shutdown();
+    }
+
+    private static void waitTillVariableCountMatches(long expected, Duration duration) {
+        Awaitility.await().atMost(duration).until(() -> {
+            return actualEventCount.get() == expected;
+        });
     }
 }
