@@ -749,7 +749,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
             //Returns the retry update list, if there are any events to update after the non-existing
             // insertion process.
             List<Integer> retryUpdateOrdinalList = batchProcessInsert(addingRecords, recordInsertIndexList);
-
             if (!retryUpdateOrdinalList.isEmpty()) {
                 List<Map<String, Object>> retryUpdateConditionParameterMaps = new ArrayList<>();
                 List<Map<String, Object>> retryUpdateSetParameterMaps = new ArrayList<>();
