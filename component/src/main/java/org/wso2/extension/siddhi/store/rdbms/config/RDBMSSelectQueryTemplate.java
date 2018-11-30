@@ -24,10 +24,12 @@ package org.wso2.extension.siddhi.store.rdbms.config;
 public class RDBMSSelectQueryTemplate {
 
     private String selectClause;
+    private String whereClause;
     private String groupByClause;
     private String havingClause;
     private String orderByClause;
     private String limitClause;
+    private String offsetClause;
 
     public String getSelectClause() {
         return selectClause;
@@ -35,6 +37,14 @@ public class RDBMSSelectQueryTemplate {
 
     public void setSelectClause(String selectClause) {
         this.selectClause = selectClause;
+    }
+
+    public String getWhereClause() {
+        return whereClause;
+    }
+
+    public void setWhereClause(String whereClause) {
+        this.whereClause = whereClause;
     }
 
     public String getGroupByClause() {
@@ -67,5 +77,13 @@ public class RDBMSSelectQueryTemplate {
 
     public void setLimitClause(String limitClause) {
         this.limitClause = limitClause;
+    }
+
+    public String getOffsetClause() {
+        return offsetClause;
+    }
+
+    public void setOffsetClause(String offsetClause) {
+        this.offsetClause = offsetClause;
     }
 }

@@ -31,22 +31,24 @@ public class RDBMSCompiledSelection implements CompiledSelection {
     private RDBMSCompiledCondition compiledHavingClause;
     private RDBMSCompiledCondition compiledOrderByClause;
     private Long limit;
+    private Long offset;
 
     public RDBMSCompiledSelection (RDBMSCompiledCondition compiledSelectClause,
                                    RDBMSCompiledCondition compiledGroupByClause,
                                    RDBMSCompiledCondition compiledHavingClause,
-                                   RDBMSCompiledCondition compiledOrderByClause, Long limit) {
+                                   RDBMSCompiledCondition compiledOrderByClause, Long limit, Long offset) {
         this.compiledSelectClause = compiledSelectClause;
         this.compiledGroupByClause = compiledGroupByClause;
         this.compiledHavingClause = compiledHavingClause;
         this.compiledOrderByClause = compiledOrderByClause;
         this.limit = limit;
+        this.offset = offset;
     }
 
     @Override
     public CompiledSelection cloneCompilation(String s) {
         return new RDBMSCompiledSelection(compiledSelectClause, compiledGroupByClause, compiledHavingClause,
-                compiledOrderByClause, limit);
+                compiledOrderByClause, limit, offset);
     }
 
     public RDBMSCompiledCondition getCompiledSelectClause() {
@@ -67,6 +69,10 @@ public class RDBMSCompiledSelection implements CompiledSelection {
 
     public Long getLimit() {
         return limit;
+    }
+
+    public Long getOffset() {
+        return offset;
     }
 }
 

@@ -108,10 +108,12 @@ public class RDBMSTableConstants {
     public static final String TRANSACTION_SUPPORTED = "transactionSupported";
     public static final String SELECT_QUERY_TEMPLATE = "selectQueryTemplate";
     public static final String SELECT_CLAUSE = "selectClause";
+    public static final String WHERE_CLAUSE = "whereClause";
     public static final String GROUP_BY_CLAUSE = "groupByClause";
     public static final String HAVING_CLAUSE = "havingClause";
     public static final String ORDER_BY_CLAUSE = "orderByClause";
     public static final String LIMIT_CLAUSE = "limitClause";
+    public static final String OFFSET_CLAUSE = "offsetClause";
 
     private RDBMSTableConstants() {
         //preventing initialization

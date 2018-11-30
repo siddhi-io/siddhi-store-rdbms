@@ -189,9 +189,14 @@ public class RDBMSTableUtils {
     }
 
     public static void resolveQuery(PreparedStatement stmt, RDBMSCompiledSelection rdbmsCompiledSelection,
+                                    RDBMSCompiledCondition rdbmsCompiledCondition,
                                     Map<String, Object> conditionParameterMap, int seed) throws SQLException {
         seed = seed + resolveCondition(stmt, rdbmsCompiledSelection.getCompiledSelectClause(),
                 conditionParameterMap, seed);
+
+        if (rdbmsCompiledCondition != null) {
+            seed = seed + resolveCondition(stmt, rdbmsCompiledCondition, conditionParameterMap, seed);
+        }
 
         RDBMSCompiledCondition groupByClause = rdbmsCompiledSelection.getCompiledGroupByClause();
         if (groupByClause != null) {

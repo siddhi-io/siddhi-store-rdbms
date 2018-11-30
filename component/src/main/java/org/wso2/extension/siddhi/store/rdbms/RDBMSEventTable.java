@@ -39,6 +39,7 @@ import org.wso2.siddhi.annotation.SystemParameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.exception.QueryableRecordTableException;
 import org.wso2.siddhi.core.table.record.AbstractQueryableRecordTable;
 import org.wso2.siddhi.core.table.record.ExpressionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
@@ -96,6 +97,7 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.IND
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.INTEGER_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.LIMIT_CLAUSE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.LONG_TYPE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.OFFSET_CLAUSE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.OPEN_PARENTHESIS;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ORDER_BY_CLAUSE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS;
@@ -126,6 +128,7 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TAB
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TABLE_CREATE_QUERY;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TRANSACTION_SUPPORTED;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TYPE_MAPPING;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.WHERE_CLAUSE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.WHITESPACE;
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
 
@@ -999,6 +1002,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
                                     + SELECT_CLAUSE, rdbmsSelectQueryTemplate.getSelectClause())));
+                    this.rdbmsSelectQueryTemplate.setWhereClause(resolveTableName(
+                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                    + WHERE_CLAUSE, rdbmsSelectQueryTemplate.getWhereClause())));
                     this.rdbmsSelectQueryTemplate.setGroupByClause(
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
@@ -1015,6 +1022,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
                                     + LIMIT_CLAUSE, rdbmsSelectQueryTemplate.getLimitClause()));
+                    this.rdbmsSelectQueryTemplate.setOffsetClause(
+                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                    PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                    + OFFSET_CLAUSE, rdbmsSelectQueryTemplate.getOffsetClause()));
                 }
             }
             if (!this.tableExists()) {
@@ -1417,9 +1428,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                              CompiledSelection compiledSelection, Attribute[] outputAttributes)
             throws ConnectionUnavailableException {
         RDBMSCompiledSelection rdbmsCompiledSelection = (RDBMSCompiledSelection) compiledSelection;
+        RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
         Connection conn = this.getConnection();
         PreparedStatement stmt;
-        String query = getSelectQuery(rdbmsCompiledSelection);
+        String query = getSelectQuery(rdbmsCompiledCondition, rdbmsCompiledSelection);
         try {
             stmt = conn.prepareStatement(query);
         } catch (SQLException e) {
@@ -1427,7 +1439,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     + "' on '" + this.tableName + "' store: " + e.getMessage(), e);
         }
         try {
-            RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, parameterMap, 0);
+            RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0);
         } catch (SQLException e) {
             throw new RDBMSTableException("Error when preparing to execute query: '" + query
                     + "' on '" + this.tableName + "' store: " + e.getMessage(), e);
@@ -1435,7 +1447,13 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         ResultSet rs;
         try {
             rs = stmt.executeQuery();
-            //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
+
+            //Supporting null to keep backward compatibility.
+            // If the outputAttributes are null, it is assumed that all the attributes from the table definition
+            // are being selected in the query.
+            if (outputAttributes == null) {
+                return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
+            }
             return new RDBMSIterator(conn, stmt, rs, Arrays.asList(outputAttributes), this.tableName);
         } catch (SQLException e) {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
@@ -1444,17 +1462,29 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
     }
 
-    private String getSelectQuery(RDBMSCompiledSelection rdbmsCompiledSelection) {
+    private String getSelectQuery(RDBMSCompiledCondition rdbmsCompiledCondition,
+                                  RDBMSCompiledSelection rdbmsCompiledSelection) {
         String selectClause = rdbmsSelectQueryTemplate.getSelectClause().replace(RDBMSTableConstants.
                         PLACEHOLDER_SELECTORS, rdbmsCompiledSelection.getCompiledSelectClause().getCompiledQuery());
         StringBuilder selectQuery = new StringBuilder(selectClause);
+
+        if (rdbmsCompiledCondition != null) {
+            String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
+            if (whereClause == null || whereClause.isEmpty()) {
+                throw new QueryableRecordTableException("Where clause is present in query but no query configuration " +
+                        "has being provided for store: " + tableName);
+            }
+            whereClause = whereClause.replace(
+                    RDBMSTableConstants.PLACEHOLDER_CONDITION, rdbmsCompiledCondition.getCompiledQuery());
+            selectQuery = selectQuery.append(WHITESPACE).append(whereClause);
+        }
 
         RDBMSCompiledCondition compiledGroupByClause = rdbmsCompiledSelection.getCompiledGroupByClause();
         if (compiledGroupByClause != null) {
             String groupByClause = rdbmsSelectQueryTemplate.getGroupByClause();
             if (groupByClause == null || groupByClause.isEmpty()) {
-                throw new RDBMSTableException("Group by clause is present in query but no query configuration " +
-                        "has being provided for store: " + tableName);
+                throw new QueryableRecordTableException("Group by clause is present in query but no query " +
+                        "configuration has being provided for store: " + tableName);
             }
             groupByClause = groupByClause.replace(
                     RDBMSTableConstants.PLACEHOLDER_COLUMNS, compiledGroupByClause.getCompiledQuery());
@@ -1465,8 +1495,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (compiledHavingClause != null) {
             String havingClause = rdbmsSelectQueryTemplate.getHavingClause();
             if (havingClause == null || havingClause.isEmpty()) {
-                throw new RDBMSTableException("Having clause is present in query but no query configuration " +
-                        "has being provided for store: " + tableName);
+                throw new QueryableRecordTableException("Having clause is present in query but no query " +
+                        "configuration has being provided for store: " + tableName);
             }
             havingClause = havingClause.replace(
                     RDBMSTableConstants.PLACEHOLDER_CONDITION, compiledHavingClause.getCompiledQuery());
@@ -1477,8 +1507,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (compiledOrderByClause != null) {
             String orderByClause = rdbmsSelectQueryTemplate.getOrderByClause();
             if (orderByClause == null || orderByClause.isEmpty()) {
-                throw new RDBMSTableException("Order by clause is present in query but no query configuration " +
-                        "has being provided for store: " + tableName);
+                throw new QueryableRecordTableException("Order by clause is present in query but no query " +
+                        "configuration has being provided for store: " + tableName);
             }
             orderByClause = orderByClause.replace(
                     RDBMSTableConstants.PLACEHOLDER_COLUMNS, compiledOrderByClause.getCompiledQuery());
@@ -1489,12 +1519,24 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (limit != null) {
             String limitClause = rdbmsSelectQueryTemplate.getLimitClause();
             if (limitClause == null || limitClause.isEmpty()) {
-                throw new RDBMSTableException("Limit clause is present in query but no query configuration " +
+                throw new QueryableRecordTableException("Limit clause is present in query but no query configuration " +
                         "has being provided for store: " + tableName);
             }
             limitClause = limitClause.replace(RDBMSTableConstants.PLACEHOLDER_Q, Long.toString(limit));
             selectQuery = selectQuery.append(WHITESPACE).append(limitClause);
         }
+
+        Long offset = rdbmsCompiledSelection.getOffset();
+        if (offset != null) {
+            String offsetClause = rdbmsSelectQueryTemplate.getOffsetClause();
+            if (offsetClause == null || offsetClause.isEmpty()) {
+                throw new QueryableRecordTableException("Offset clause is present in query but no query " +
+                        "configuration has being provided for store: " + tableName);
+            }
+            offsetClause = offsetClause.replace(RDBMSTableConstants.PLACEHOLDER_Q, Long.toString(offset));
+            selectQuery = selectQuery.append(WHITESPACE).append(offsetClause);
+        }
+
         return selectQuery.toString();
     }
 
@@ -1509,7 +1551,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 (groupByExpressionBuilder == null) ? null : compileClause(groupByExpressionBuilder),
                 (havingExpressionBuilder == null) ? null :
                         compileClause(Collections.singletonList(havingExpressionBuilder)),
-                (orderByAttributeBuilders == null) ? null : compileOrderByClause(orderByAttributeBuilders), limit);
+                (orderByAttributeBuilders == null) ? null : compileOrderByClause(orderByAttributeBuilders),
+                limit, offset);
     }
 
     private RDBMSCompiledCondition compileSelectClause(List<SelectAttributeBuilder> selectAttributeBuilders) {

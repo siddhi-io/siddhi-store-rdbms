@@ -13,10 +13,12 @@
         <recordContainsCondition>{{COLUMNS}} LIKE {{VALUES}}</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
             <limitClause>LIMIT {{Q}}</limitClause>
+            <offsetClause>OFFSET {{Q}}</offsetClause>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -43,10 +45,12 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
             <limitClause>LIMIT {{Q}}</limitClause>
+            <offsetClause>OFFSET {{Q}}</offsetClause>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -73,6 +77,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
@@ -104,6 +109,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
@@ -135,6 +141,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
@@ -164,6 +171,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
@@ -193,6 +201,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
@@ -223,6 +232,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
