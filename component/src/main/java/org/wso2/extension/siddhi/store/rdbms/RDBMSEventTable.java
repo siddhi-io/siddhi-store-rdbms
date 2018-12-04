@@ -61,6 +61,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -517,6 +519,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private String stringSize;
     private String recordContainsConditionTemplate;
     private boolean primaryKeysEnabled;
+    private Map<String, Integer> nonDuplicateRecordIdMap = new LinkedHashMap<>();
+    private ReadWriteLock nonDuplicateRecordIdMapReadWriteLock = new ReentrantReadWriteLock();
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -752,7 +756,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             if (!retryUpdateOrdinalList.isEmpty()) {
                 List<Map<String, Object>> retryUpdateConditionParameterMaps = new ArrayList<>();
                 List<Map<String, Object>> retryUpdateSetParameterMaps = new ArrayList<>();
-                for (Integer ordinal: retryUpdateOrdinalList) {
+                for (Integer ordinal : retryUpdateOrdinalList) {
                     retryUpdateConditionParameterMaps.add(updateConditionParameterMaps.get(ordinal));
                     retryUpdateSetParameterMaps.add(updateSetParameterMaps.get(ordinal));
                 }
@@ -847,7 +851,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     }
 
     private List<Integer> batchProcessInsert(List<Object[]> addingRecords,
-                                                         List<Integer> recordInsertIndexList) {
+                                             List<Integer> recordInsertIndexList) {
         int counter = 0;
         String query = this.composeInsertQuery();
         Connection conn = this.getConnection(false);
@@ -886,7 +890,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 // If the key already available in the map, then its copy the relevant updateSetParameter entry into
                 // retryUpdateSetParameterMaps, where it will be process again with update operation.
                 // Finally insert records from recordInsertIndexList into database table.
-                Map<String, Integer> nonDuplicateRecordIdMap = new LinkedHashMap<>();
                 while (counter < recordInsertIndexList.size()) {
                     if (recordInsertIndexList.get(counter) == counter) {
                         StringBuilder primaryKeyHashBuilder = new StringBuilder();
@@ -917,31 +920,42 @@ public class RDBMSEventTable extends AbstractRecordTable {
                                     break;
                             }
                         }
-                        if (!nonDuplicateRecordIdMap.containsKey(primaryKeyHashBuilder.toString())) {
-                            nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), counter);
-                        } else {
-                            //Add the record insert index ordinal to retry update
-                            retryUpdateOrdinalList.add(counter);
+                        nonDuplicateRecordIdMapReadWriteLock.writeLock().lock();
+                        try {
+                            if (!nonDuplicateRecordIdMap.containsKey(primaryKeyHashBuilder.toString())) {
+                                nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), counter);
+                            } else {
+                                //Add the record insert index ordinal to retry update
+                                retryUpdateOrdinalList.add(counter);
+                            }
+                        } finally {
+                            nonDuplicateRecordIdMapReadWriteLock.writeLock().unlock();
                         }
                     }
                     counter++;
                 }
                 counter = 0;
-                for (Map.Entry<String, Integer> record : nonDuplicateRecordIdMap.entrySet()) {
-                    this.populateStatement(addingRecords.get(record.getValue()), insertStmt);
-                    try {
-                        insertStmt.addBatch();
-                        if (counter % batchSize == (batchSize - 1)) {
-                            insertStmt.executeBatch();
-                            conn.commit();
-                            insertStmt.clearBatch();
+                nonDuplicateRecordIdMapReadWriteLock.writeLock().lock();
+                try {
+                    for (Map.Entry<String, Integer> record : nonDuplicateRecordIdMap.entrySet()) {
+                        this.populateStatement(addingRecords.get(record.getValue()), insertStmt);
+                        try {
+                            insertStmt.addBatch();
+                            if (counter % batchSize == (batchSize - 1)) {
+                                insertStmt.executeBatch();
+                                conn.commit();
+                                insertStmt.clearBatch();
+                            }
+                        } catch (SQLException e2) {
+                            RDBMSTableUtils.rollbackConnection(conn);
+                            throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
+                                    + this.tableName + "': " + e2.getMessage(), e2);
                         }
-                    } catch (SQLException e2) {
-                        RDBMSTableUtils.rollbackConnection(conn);
-                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
-                                + this.tableName + "': " + e2.getMessage(), e2);
+                        counter++;
                     }
-                    counter++;
+                } finally {
+                    nonDuplicateRecordIdMap.clear();
+                    nonDuplicateRecordIdMapReadWriteLock.writeLock().unlock();
                 }
                 if (counter % batchSize > 0) {
                     insertStmt.executeBatch();
