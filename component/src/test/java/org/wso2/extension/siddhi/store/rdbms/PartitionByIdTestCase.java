@@ -34,7 +34,6 @@ public class PartitionByIdTestCase {
 
     private static final Logger log = Logger.getLogger(PartitionByIdTestCase.class);
 
-
     @BeforeMethod
     public void init() {
 
@@ -68,7 +67,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -76,11 +76,12 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
-        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long " +
-                ", quantity int, timestamp long); ";
+        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
+                + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\")\n" + "@partitionbyid \n" +
@@ -146,30 +147,33 @@ public class PartitionByIdTestCase {
         log.info("partitionByIdTest2 - Checking seconds granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
+        systemConfigs1.put("cluster.config.enabled", "true");
+        systemConfigs1.put("cluster.config.groupId", "sp1");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
+        systemConfigs2.put("cluster.config.enabled", "true");
+        systemConfigs2.put("cluster.config.groupId", "sp2");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
-        systemConfigs3.put("cluster.config.enabled", "false");
-        systemConfigs3.put("cluster.config.groupId", "sp");
+        systemConfigs3.put("cluster.config.enabled", "true");
+        systemConfigs3.put("cluster.config.groupId", "sp3");
         systemConfigs3.put("wso2.carbon.id", "node3");
-        InMemoryConfigManager inMemoryConfigManager3 = new InMemoryConfigManager(null, systemConfigs3);
+        InMemoryConfigManager inMemoryConfigManager3 =
+                new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
-        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long " +
-                ", quantity int, timestamp long); ";
+        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
+                + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\")\n" + "@partitionbyid \n" +
@@ -243,7 +247,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -251,11 +256,12 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
-        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long " +
-                ", quantity int, timestamp long); ";
+        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
+                + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\")\n" + "@partitionbyid \n" +
@@ -333,7 +339,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -341,17 +348,19 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
-        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long " +
-                ", quantity int, timestamp long); ";
+        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
+                + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\")\n" + "@partitionbyid \n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
-                "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, (price*quantity) as lastTradeValue \n" +
+                "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, " +
+                "(price*quantity) as lastTradeValue \n" +
                 "aggregate by timestamp every sec...year; ";
 
         SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(streams + query);
@@ -419,7 +428,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -427,17 +437,19 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
-        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long " +
-                ", quantity int, timestamp long); ";
+        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
+                + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\")\n" + "@partitionbyid \n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
-                "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, (price*quantity) as lastTradeValue \n" +
+                "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, " +
+                "(price*quantity) as lastTradeValue \n" +
                 "aggregate by timestamp every sec...year; ";
 
         SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(streams + query);
@@ -509,7 +521,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -517,7 +530,8 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
@@ -525,17 +539,19 @@ public class PartitionByIdTestCase {
         systemConfigs3.put("cluster.config.enabled", "false");
         systemConfigs3.put("cluster.config.groupId", "sp");
         systemConfigs3.put("wso2.carbon.id", "node3");
-        InMemoryConfigManager inMemoryConfigManager3 = new InMemoryConfigManager(null, systemConfigs3);
+        InMemoryConfigManager inMemoryConfigManager3 =
+                new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
-        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long " +
-                ", quantity int, timestamp long); ";
+        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
+                + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\")\n" + "@partitionbyid \n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
-                "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, (price*quantity) as lastTradeValue \n" +
+                "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, " +
+                "(price*quantity) as lastTradeValue \n" +
                 "aggregate by timestamp every sec...year; ";
 
         SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(streams + query);
@@ -608,7 +624,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -616,7 +633,8 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
@@ -624,17 +642,19 @@ public class PartitionByIdTestCase {
         systemConfigs3.put("cluster.config.enabled", "false");
         systemConfigs3.put("cluster.config.groupId", "sp");
         systemConfigs3.put("wso2.carbon.id", "node3");
-        InMemoryConfigManager inMemoryConfigManager3 = new InMemoryConfigManager(null, systemConfigs3);
+        InMemoryConfigManager inMemoryConfigManager3 =
+                new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
-        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long " +
-                ", quantity int); ";
+        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
+                + " quantity int); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\")\n" + "@partitionbyid \n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
-                "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, (price*quantity) as lastTradeValue \n" +
+                "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, " +
+                "(price*quantity) as lastTradeValue \n" +
                 "aggregate every sec...year; ";
 
         SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(streams + query);
@@ -696,7 +716,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -704,7 +725,8 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
@@ -712,7 +734,8 @@ public class PartitionByIdTestCase {
         systemConfigs3.put("cluster.config.enabled", "false");
         systemConfigs3.put("cluster.config.groupId", "sp");
         systemConfigs3.put("wso2.carbon.id", "node3");
-        InMemoryConfigManager inMemoryConfigManager3 = new InMemoryConfigManager(null, systemConfigs3);
+        InMemoryConfigManager inMemoryConfigManager3 =
+                new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String stockStream =
@@ -807,7 +830,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -815,7 +839,8 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
@@ -823,7 +848,8 @@ public class PartitionByIdTestCase {
         systemConfigs3.put("cluster.config.enabled", "false");
         systemConfigs3.put("cluster.config.groupId", "sp");
         systemConfigs3.put("wso2.carbon.id", "node3");
-        InMemoryConfigManager inMemoryConfigManager3 = new InMemoryConfigManager(null, systemConfigs3);
+        InMemoryConfigManager inMemoryConfigManager3 =
+                new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String stockStream =
@@ -942,7 +968,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -950,7 +977,8 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
@@ -958,7 +986,8 @@ public class PartitionByIdTestCase {
         systemConfigs3.put("cluster.config.enabled", "false");
         systemConfigs3.put("cluster.config.groupId", "sp");
         systemConfigs3.put("wso2.carbon.id", "node3");
-        InMemoryConfigManager inMemoryConfigManager3 = new InMemoryConfigManager(null, systemConfigs3);
+        InMemoryConfigManager inMemoryConfigManager3 =
+                new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String stockStream =
@@ -1065,7 +1094,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -1073,7 +1103,8 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
@@ -1081,11 +1112,12 @@ public class PartitionByIdTestCase {
         systemConfigs3.put("cluster.config.enabled", "false");
         systemConfigs3.put("cluster.config.groupId", "sp");
         systemConfigs3.put("wso2.carbon.id", "node3");
-        InMemoryConfigManager inMemoryConfigManager3 = new InMemoryConfigManager(null, systemConfigs3);
+        InMemoryConfigManager inMemoryConfigManager3 =
+                new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
-        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long " +
-                ", quantity int, timestamp long); ";
+        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
+                + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\")\n" + "@partitionbyid \n" +
@@ -1146,16 +1178,16 @@ public class PartitionByIdTestCase {
 
         Thread.sleep(1000);
 
-        Event[] eventsSeconds = siddhiAppRuntime1.query("from stockAggregation within 0L, 1543664151000L per "
-                + "'seconds' select AGG_TIMESTAMP, totalPrice, avgPrice");
+        Event[] eventsSeconds = siddhiAppRuntime1.query("from stockAggregation within 0L, " +
+                "1543664151000L per 'seconds' select AGG_TIMESTAMP, totalPrice, avgPrice");
 
         List<Object[]> eventsListSeconds = new ArrayList<>();
         for (Event event : eventsSeconds) {
             eventsListSeconds.add(event.getData());
         }
 
-        Event[] eventsMinutes = siddhiAppRuntime1.query("from stockAggregation within 0L, 1543664151000L per "
-                + "'minutes' select AGG_TIMESTAMP, totalPrice, avgPrice");
+        Event[] eventsMinutes = siddhiAppRuntime1.query("from stockAggregation within 0L, " +
+                "1543664151000L per 'minutes' select AGG_TIMESTAMP, totalPrice, avgPrice");
 
         List<Object[]> eventsListMinutes = new ArrayList<>();
         for (Event event : eventsMinutes) {
@@ -1215,7 +1247,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -1223,7 +1256,8 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
@@ -1231,11 +1265,12 @@ public class PartitionByIdTestCase {
         systemConfigs3.put("cluster.config.enabled", "false");
         systemConfigs3.put("cluster.config.groupId", "sp");
         systemConfigs3.put("wso2.carbon.id", "node3");
-        InMemoryConfigManager inMemoryConfigManager3 = new InMemoryConfigManager(null, systemConfigs3);
+        InMemoryConfigManager inMemoryConfigManager3 =
+                new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
-        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long " +
-                ", quantity int, timestamp long); ";
+        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
+                + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\")\n" + "@partitionbyid \n" +
@@ -1307,16 +1342,16 @@ public class PartitionByIdTestCase {
 
         Thread.sleep(1000);
 
-        Event[] sumAggEvents = siddhiAppRuntime1.query("from stockSumAggregation within 0L, 1543664151000L per "
-                + "'hours' select AGG_TIMESTAMP, symbol, totalPrice");
+        Event[] sumAggEvents = siddhiAppRuntime1.query("from stockSumAggregation within 0L, " +
+                "1543664151000L per 'hours' select AGG_TIMESTAMP, symbol, totalPrice");
 
         List<Object[]> eventsListSumAgg = new ArrayList<>();
         for (Event event : sumAggEvents) {
             eventsListSumAgg.add(event.getData());
         }
 
-        Event[] avgAggEvents = siddhiAppRuntime1.query("from stockAvgAggregation within 0L, 1543664151000L per "
-                + "'hours' select AGG_TIMESTAMP, symbol, avgPrice");
+        Event[] avgAggEvents = siddhiAppRuntime1.query("from stockAvgAggregation within 0L, " +
+                "1543664151000L per 'hours' select AGG_TIMESTAMP, symbol, avgPrice");
 
         List<Object[]> eventsListAvgAgg = new ArrayList<>();
         for (Event event : avgAggEvents) {
@@ -1369,7 +1404,8 @@ public class PartitionByIdTestCase {
         systemConfigs1.put("cluster.config.enabled", "false");
         systemConfigs1.put("cluster.config.groupId", "sp");
         systemConfigs1.put("wso2.carbon.id", "node1");
-        InMemoryConfigManager inMemoryConfigManager1 = new InMemoryConfigManager(null, systemConfigs1);
+        InMemoryConfigManager inMemoryConfigManager1 =
+                new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
@@ -1377,7 +1413,8 @@ public class PartitionByIdTestCase {
         systemConfigs2.put("cluster.config.enabled", "false");
         systemConfigs2.put("cluster.config.groupId", "sp");
         systemConfigs2.put("wso2.carbon.id", "node2");
-        InMemoryConfigManager inMemoryConfigManager2 = new InMemoryConfigManager(null, systemConfigs2);
+        InMemoryConfigManager inMemoryConfigManager2 =
+                new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
@@ -1385,11 +1422,12 @@ public class PartitionByIdTestCase {
         systemConfigs3.put("cluster.config.enabled", "false");
         systemConfigs3.put("cluster.config.groupId", "sp");
         systemConfigs3.put("wso2.carbon.id", "node3");
-        InMemoryConfigManager inMemoryConfigManager3 = new InMemoryConfigManager(null, systemConfigs3);
+        InMemoryConfigManager inMemoryConfigManager3 =
+                new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
-        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long " +
-                ", quantity int, timestamp long); ";
+        String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
+                + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\")\n" + "@partitionbyid \n" +
@@ -1407,8 +1445,8 @@ public class PartitionByIdTestCase {
                 "aggregate by timestamp every sec...year; ";
 
         SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(streams + query + query2);
-        SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager2.createSiddhiAppRuntime(streams + query + query2);
-        SiddhiAppRuntime siddhiAppRuntime3 = siddhiManager3.createSiddhiAppRuntime(streams + query + query2);
+        SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager2.createSiddhiAppRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime3 = siddhiManager3.createSiddhiAppRuntime(streams + query);
 
         InputHandler stockStreamInputHandler1 = siddhiAppRuntime1.getInputHandler("stockStream");
         InputHandler stockStreamInputHandler2 = siddhiAppRuntime2.getInputHandler("stockStream");
@@ -1466,8 +1504,8 @@ public class PartitionByIdTestCase {
             eventsListAgg.add(event.getData());
         }
 
-        Event[] normalAggEvents = siddhiAppRuntime1.query("from stockNormalAggregation within 0L, 1543664151000L per "
-                + "'days' select AGG_TIMESTAMP, symbol, totalPrice");
+        Event[] normalAggEvents = siddhiAppRuntime1.query("from stockNormalAggregation within 0L, " +
+                "1543664151000L per 'days' select AGG_TIMESTAMP, symbol, totalPrice");
 
         List<Object[]> eventsListNormalAgg = new ArrayList<>();
         for (Event event : normalAggEvents) {
@@ -1486,8 +1524,8 @@ public class PartitionByIdTestCase {
         Assert.assertEquals(normalAggEvents.length, 1, "Number of success events for minutes");
         Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsListAgg, expectedAgg), true,
                 "Partitionbyid Agg Data Matched");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsListNormalAgg, expectedNormalAgg), true,
-                "Normal Agg Data Matched");
+        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsListNormalAgg, expectedNormalAgg),
+                true, "Normal Agg Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
