@@ -30,9 +30,11 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.pas
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.url;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.user;
 
-public class PartitionByIdTestCase {
+// The following test cases are for Partial Aggregations in Siddhi Core. If any of the test cases fail, Siddhi Core
+// should be analyzed in Partial Aggregation context.
+public class PartialAggregationTestCase {
 
-    private static final Logger log = Logger.getLogger(PartitionByIdTestCase.class);
+    private static final Logger log = Logger.getLogger(PartialAggregationTestCase.class);
 
     @BeforeMethod
     public void init() {
@@ -51,17 +53,17 @@ public class PartitionByIdTestCase {
 
     @BeforeClass
     public static void startTest() {
-        log.info("== Aggregation partitionbyid tests started ==");
+        log.info("== Partial Aggregation tests started ==");
     }
 
     @AfterClass
     public static void shutdown() {
-        log.info("== Aggregation partitionbyid tests completed ==");
+        log.info("== Partial Aggregation tests completed ==");
     }
 
     @Test
-    public void partitionByIdTest1() throws InterruptedException {
-        log.info("partitionByIdTest1 - Checking minute granularity");
+    public void partialAggregationTest1() throws InterruptedException {
+        log.info("partialAggregationTest1 - Checking minute granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -113,16 +115,16 @@ public class PartitionByIdTestCase {
 
         // Thursday, June 1, 2017 4:06:22 AM
         stockStreamInputHandler1.send(new Object[]{"IBM", 1000f, null, 200L, 60, 1496289982000L});
-        stockStreamInputHandler2.send(new Object[]{"WSO2", 400f, null, 200L, 7, 1496289982000L});
+        stockStreamInputHandler2.send(new Object[]{"WSO2", 400f, null, 200L, 7, 1496289982005L});
 
         // Thursday, June 1, 2017 4:20:01 AM
         stockStreamInputHandler1.send(new Object[]{"IBM", 150f, null, 200L, 26, 1496290801000L});
-        stockStreamInputHandler2.send(new Object[]{"WSO2", 50f, null, 200L, 96, 1496290801000L});
+        stockStreamInputHandler2.send(new Object[]{"WSO2", 50f, null, 200L, 96, 1496290801001L});
 
         Thread.sleep(1000);
 
         Event[] events = siddhiAppRuntime2.query("from stockAggregation within 0L, 1543664151000L per " +
-                "'minutes' select AGG_TIMESTAMP, totalPrice, avgPrice");
+                "'minutes' select AGG_TIMESTAMP, symbol, totalPrice, avgPrice");
 
         List<Object[]> eventsList = new ArrayList<>();
         for (Event event : events) {
@@ -130,21 +132,20 @@ public class PartitionByIdTestCase {
         }
 
         List<Object[]> expected = Arrays.asList(
-                new Object[]{1496290800000L, 200.0, 100.0},
-                new Object[]{1496289900000L, 330.0, 82.5},
-                new Object[]{1496289960000L, 2200.0, 550.0}
+                new Object[]{1496290800000L, "WSO2", 200.0, 100.0},
+                new Object[]{1496289900000L, "IBM", 330.0, 82.5},
+                new Object[]{1496289960000L, "WSO2", 2200.0, 550.0}
         );
 
         Assert.assertEquals(events.length, 3, "Number of success events");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), true,
-                "Data Matched");
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest1")
-    public void partitionByIdTest2() throws InterruptedException {
-        log.info("partitionByIdTest2 - Checking seconds granularity");
+    @Test(dependsOnMethods = "partialAggregationTest1")
+    public void partialAggregationTest2() throws InterruptedException {
+        log.info("partialAggregationTest2 - Checking seconds granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "true");
@@ -232,16 +233,15 @@ public class PartitionByIdTestCase {
         );
 
         Assert.assertEquals(events.length, 4, "Number of success events");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), true,
-                "Data Matched");
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest2")
-    public void partitionByIdTest3() throws InterruptedException {
-        log.info("partitionByIdTest3 - Checking hours granularity");
+    @Test(dependsOnMethods = "partialAggregationTest2")
+    public void partialAggregationTest3() throws InterruptedException {
+        log.info("partialAggregationTest3 - Checking hours granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -325,15 +325,14 @@ public class PartitionByIdTestCase {
         );
 
         Assert.assertEquals(events.length, 4, "Number of success events");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), true,
-                "Data Matched");
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest3")
-    public void partitionByIdTest4() throws InterruptedException {
-        log.info("partitionByIdTest4 - Checking days granularity");
+    @Test(dependsOnMethods = "partialAggregationTest3")
+    public void partialAggregationTest4() throws InterruptedException {
+        log.info("partialAggregationTest4 - Checking days granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -414,15 +413,14 @@ public class PartitionByIdTestCase {
         );
 
         Assert.assertEquals(events.length, 3, "Number of success events");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), true,
-                "Data Matched");
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest4")
-    public void partitionByIdTest5() throws InterruptedException {
-        log.info("partitionByIdTest5 - Checking months granularity");
+    @Test(dependsOnMethods = "partialAggregationTest4")
+    public void partialAggregationTest5() throws InterruptedException {
+        log.info("partialAggregationTest5 - Checking months granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -507,15 +505,14 @@ public class PartitionByIdTestCase {
         );
 
         Assert.assertEquals(events.length, 3, "Number of success events");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), true,
-                "Data Matched");
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest5")
-    public void partitionByIdTest6() throws InterruptedException {
-        log.info("partitionByIdTest6 - Checking years granularity");
+    @Test(dependsOnMethods = "partialAggregationTest5")
+    public void partialAggregationTest6() throws InterruptedException {
+        log.info("partialAggregationTest6 - Checking years granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -609,16 +606,15 @@ public class PartitionByIdTestCase {
         );
 
         Assert.assertEquals(events.length, 3, "Number of success events");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), true,
-                "Data Matched");
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest6")
-    public void partitionByIdTest7() throws InterruptedException {
-        log.info("partitionByIdTest7 - Checking non external timestamp");
+    @Test(dependsOnMethods = "partialAggregationTest6")
+    public void partialAggregationTest7() throws InterruptedException {
+        log.info("partialAggregationTest7 - Checking system timestamp");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -701,16 +697,15 @@ public class PartitionByIdTestCase {
         expected.add(new Object[]{64.0, 640.0, 18000.0f});
 
         Assert.assertEquals(events.length, 1, "Number of success events");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), true,
-                "Data Matched");
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest7")
-    public void partitionByIdTest8() throws InterruptedException {
-        log.info("partitionByIdTest8 - Checking non external timestamp using join");
+    @Test(dependsOnMethods = "partialAggregationTest7")
+    public void partialAggregationTest8() throws InterruptedException {
+        log.info("partialAggregationTest8 - Checking system timestamp using join");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -815,16 +810,15 @@ public class PartitionByIdTestCase {
         expected.add(new Object[]{64.0, 640.0, 18000.0f});
 
         Assert.assertEquals(inEventCount.get(), 1, "Number of success events");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected), true,
-                "Data Matched");
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected), "Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest8")
-    public void partitionByIdTest9() throws InterruptedException {
-        log.info("partitionByIdTest9 - Checking aggregation group by");
+    @Test(dependsOnMethods = "partialAggregationTest8")
+    public void partialAggregationTest9() throws InterruptedException {
+        log.info("partialAggregationTest9 - Checking aggregation group by");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -951,18 +945,18 @@ public class PartitionByIdTestCase {
             eventsList.add(event.getData());
         }
         Assert.assertEquals(events.length, 5, "Number of success events");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), true,
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected),
                 "Data Matched from Store Query");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected), true,
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected),
                 "Data Matched from Join Query");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest9")
-    public void partitionByIdTest10() throws InterruptedException {
-        log.info("partitionByIdTest10 - Checking group by using non external timestamp");
+    @Test(dependsOnMethods = "partialAggregationTest9")
+    public void partialAggregationTest10() throws InterruptedException {
+        log.info("partialAggregationTest10 - Checking group by using system timestamp");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -1077,18 +1071,18 @@ public class PartitionByIdTestCase {
         }
 
         Assert.assertEquals(inEventCount.get(), 2, "Number of success events");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected), true,
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected),
                 "Data Matched using Join");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), true,
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected),
                 "Data Matched using Store Query");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest10")
-    public void partitionByIdTest11() throws InterruptedException {
-        log.info("partitionByIdTest11 - Checking out of order events");
+    @Test(dependsOnMethods = "partialAggregationTest10")
+    public void partialAggregationTest11() throws InterruptedException {
+        log.info("partialAggregationTest11 - Checking out of order events");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -1214,17 +1208,17 @@ public class PartitionByIdTestCase {
 
         Assert.assertEquals(eventsSeconds.length, 6, "Number of success events for seconds");
         Assert.assertEquals(eventsMinutes.length, 4, "Number of success events for minutes");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsListSeconds, expectedSeconds), true,
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsListSeconds, expectedSeconds),
                 "Seconds granularity Data Matched");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsListMinutes, expectedMinutes), true,
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsListMinutes, expectedMinutes),
                 "Minutes granularity Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest11")
-    public void partitionByIdTest12() throws InterruptedException {
+    @Test(dependsOnMethods = "partialAggregationTest11")
+    public void partialAggregationTest12() throws InterruptedException {
         try {
             RDBMSTableTestUtils.initDatabaseTable("stockSumAggregation_SECONDS");
             RDBMSTableTestUtils.initDatabaseTable("stockSumAggregation_MINUTES");
@@ -1241,7 +1235,8 @@ public class PartitionByIdTestCase {
         } catch (SQLException e) {
             log.info("Test case ignored due to " + e.getMessage());
         }
-        log.info("partitionByIdTest12 - Checking grouped by out of order events ");
+        log.info("partialAggregationTest12 - Checking grouped by out of order events with one app having two partial "
+                + "aggregations");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -1376,17 +1371,17 @@ public class PartitionByIdTestCase {
 
         Assert.assertEquals(sumAggEvents.length, 4, "Number of success events for seconds");
         Assert.assertEquals(avgAggEvents.length, 4, "Number of success events for minutes");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsListSumAgg, expectedSumAgg), true,
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsListSumAgg, expectedSumAgg),
                 "Sum Agg Data Matched");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsListAvgAgg, expectedAvgAgg), true,
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsListAvgAgg, expectedAvgAgg),
                 "Avg Agg Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
     }
 
-    @Test(dependsOnMethods = "partitionByIdTest12")
-    public void partitionByIdTest13() throws InterruptedException {
+    @Test(dependsOnMethods = "partialAggregationTest12")
+    public void partialAggregationTest13() throws InterruptedException {
         try {
             RDBMSTableTestUtils.initDatabaseTable("stockNormalAggregation_SECONDS");
             RDBMSTableTestUtils.initDatabaseTable("stockNormalAggregation_MINUTES");
@@ -1398,7 +1393,7 @@ public class PartitionByIdTestCase {
             log.info("Test case ignored due to " + e.getMessage());
         }
 
-        log.info("partitionByIdTest13 - Checking normal and partitionbyid aggregations together");
+        log.info("partialAggregationTest13 - Checking normal and partitionbyid aggregations together");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("cluster.config.enabled", "false");
@@ -1522,10 +1517,10 @@ public class PartitionByIdTestCase {
 
         Assert.assertEquals(aggEvents.length, 2, "Number of success events for seconds");
         Assert.assertEquals(normalAggEvents.length, 1, "Number of success events for minutes");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsListAgg, expectedAgg), true,
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsListAgg, expectedAgg),
                 "Partitionbyid Agg Data Matched");
-        Assert.assertEquals(SiddhiTestHelper.isUnsortedEventsMatch(eventsListNormalAgg, expectedNormalAgg),
-                true, "Normal Agg Data Matched");
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsListNormalAgg, expectedNormalAgg),
+                "Normal Agg Data Matched");
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
