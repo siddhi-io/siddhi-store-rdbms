@@ -66,18 +66,14 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest1 - Checking minute granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
@@ -148,27 +144,21 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest2 - Checking seconds granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "true");
-        systemConfigs1.put("cluster.config.groupId", "sp1");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "true");
-        systemConfigs2.put("cluster.config.groupId", "sp2");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
-        systemConfigs3.put("cluster.config.enabled", "true");
-        systemConfigs3.put("cluster.config.groupId", "sp3");
-        systemConfigs3.put("wso2.carbon.id", "node3");
+        systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
                 new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
@@ -244,18 +234,14 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest3 - Checking hours granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
@@ -335,18 +321,14 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest4 - Checking days granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
@@ -423,18 +405,14 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest5 - Checking months granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
@@ -515,27 +493,21 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest6 - Checking years granularity");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
-        systemConfigs3.put("cluster.config.enabled", "false");
-        systemConfigs3.put("cluster.config.groupId", "sp");
-        systemConfigs3.put("wso2.carbon.id", "node3");
+        systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
                 new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
@@ -617,27 +589,21 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest7 - Checking system timestamp");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
-        systemConfigs3.put("cluster.config.enabled", "false");
-        systemConfigs3.put("cluster.config.groupId", "sp");
-        systemConfigs3.put("wso2.carbon.id", "node3");
+        systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
                 new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
@@ -708,27 +674,21 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest8 - Checking system timestamp using join");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
-        systemConfigs3.put("cluster.config.enabled", "false");
-        systemConfigs3.put("cluster.config.groupId", "sp");
-        systemConfigs3.put("wso2.carbon.id", "node3");
+        systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
                 new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
@@ -821,27 +781,21 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest9 - Checking aggregation group by");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
-        systemConfigs3.put("cluster.config.enabled", "false");
-        systemConfigs3.put("cluster.config.groupId", "sp");
-        systemConfigs3.put("wso2.carbon.id", "node3");
+        systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
                 new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
@@ -959,27 +913,21 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest10 - Checking group by using system timestamp");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
-        systemConfigs3.put("cluster.config.enabled", "false");
-        systemConfigs3.put("cluster.config.groupId", "sp");
-        systemConfigs3.put("wso2.carbon.id", "node3");
+        systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
                 new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
@@ -1085,27 +1033,21 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest11 - Checking out of order events");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
-        systemConfigs3.put("cluster.config.enabled", "false");
-        systemConfigs3.put("cluster.config.groupId", "sp");
-        systemConfigs3.put("wso2.carbon.id", "node3");
+        systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
                 new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
@@ -1239,27 +1181,21 @@ public class PartialAggregationTestCase {
                 + "aggregations");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
-        systemConfigs3.put("cluster.config.enabled", "false");
-        systemConfigs3.put("cluster.config.groupId", "sp");
-        systemConfigs3.put("wso2.carbon.id", "node3");
+        systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
                 new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
@@ -1396,27 +1332,21 @@ public class PartialAggregationTestCase {
         log.info("partialAggregationTest13 - Checking normal and partitionbyid aggregations together");
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
-        systemConfigs1.put("cluster.config.enabled", "false");
-        systemConfigs1.put("cluster.config.groupId", "sp");
-        systemConfigs1.put("wso2.carbon.id", "node1");
+        systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
                 new InMemoryConfigManager(null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
-        systemConfigs2.put("cluster.config.enabled", "false");
-        systemConfigs2.put("cluster.config.groupId", "sp");
-        systemConfigs2.put("wso2.carbon.id", "node2");
+        systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
                 new InMemoryConfigManager(null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
-        systemConfigs3.put("cluster.config.enabled", "false");
-        systemConfigs3.put("cluster.config.groupId", "sp");
-        systemConfigs3.put("wso2.carbon.id", "node3");
+        systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
                 new InMemoryConfigManager(null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
