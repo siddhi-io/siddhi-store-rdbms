@@ -113,7 +113,8 @@ public class RDBMSTableConstants {
     public static final String HAVING_CLAUSE = "havingClause";
     public static final String ORDER_BY_CLAUSE = "orderByClause";
     public static final String LIMIT_CLAUSE = "limitClause";
-    public static final String OFFSET_CLAUSE = "offsetClause";
+        public static final String OFFSET_CLAUSE = "offsetClause";
+    public static final String IS_LIMIT_BEFORE_OFFSET = "isLimitBeforeOffset";
 
     private RDBMSTableConstants() {
         //preventing initialization

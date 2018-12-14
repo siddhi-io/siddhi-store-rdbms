@@ -19,6 +19,7 @@
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
             <limitClause>LIMIT {{Q}}</limitClause>
             <offsetClause>OFFSET {{Q}}</offsetClause>
+            <isLimitBeforeOffset>true</isLimitBeforeOffset>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -51,6 +52,7 @@
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
             <limitClause>LIMIT {{Q}}</limitClause>
             <offsetClause>OFFSET {{Q}}</offsetClause>
+            <isLimitBeforeOffset>true</isLimitBeforeOffset>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -81,6 +83,9 @@
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+            <limitClause>FETCH NEXT {{Q}} ROWS ONLY</limitClause>
+            <offsetClause>OFFSET {{Q}} ROWS</offsetClause>
+            <isLimitBeforeOffset>false</isLimitBeforeOffset>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <fieldSizeLimit>2000</fieldSizeLimit>
@@ -113,6 +118,9 @@
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+            <limitClause>FETCH NEXT {{Q}} ROWS ONLY</limitClause>
+            <offsetClause>OFFSET {{Q}} ROWS</offsetClause>
+            <isLimitBeforeOffset>false</isLimitBeforeOffset>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <fieldSizeLimit>2000</fieldSizeLimit>
@@ -145,6 +153,9 @@
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+            <limitClause>FETCH NEXT {{Q}} ROWS ONLY</limitClause>
+            <offsetClause>OFFSET {{Q}} ROWS</offsetClause>
+            <isLimitBeforeOffset>false</isLimitBeforeOffset>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -175,6 +186,9 @@
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+            <limitClause>LIMIT {{Q}}</limitClause>
+            <offsetClause>OFFSET {{Q}}</offsetClause>
+            <isLimitBeforeOffset>true</isLimitBeforeOffset>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -205,6 +219,9 @@
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+            <limitClause>LIMIT {{Q}}</limitClause>
+            <offsetClause>OFFSET {{Q}}</offsetClause>
+            <isLimitBeforeOffset>true</isLimitBeforeOffset>
         </selectQueryTemplate>
         <keyExplicitNotNull>true</keyExplicitNotNull>
         <stringSize>254</stringSize>
@@ -236,6 +253,9 @@
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+            <limitClause>FETCH NEXT {{Q}} ROWS ONLY</limitClause>
+            <offsetClause>OFFSET {{Q}} ROWS</offsetClause>
+            <isLimitBeforeOffset>false</isLimitBeforeOffset>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>

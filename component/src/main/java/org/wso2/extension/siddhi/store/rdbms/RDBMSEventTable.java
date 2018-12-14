@@ -70,6 +70,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -96,6 +98,7 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.GRO
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.HAVING_CLAUSE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.INDEX_CREATE_QUERY;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.INTEGER_TYPE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.IS_LIMIT_BEFORE_OFFSET;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.LIMIT_CLAUSE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.LONG_TYPE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.OFFSET_CLAUSE;
@@ -536,6 +539,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String recordContainsConditionTemplate;
     private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate = new RDBMSSelectQueryTemplate();
     private boolean primaryKeysEnabled;
+    private Map<String, Integer> nonDuplicateRecordIdMap = new LinkedHashMap<>();
+    private ReadWriteLock nonDuplicateRecordIdMapReadWriteLock = new ReentrantReadWriteLock();
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -771,7 +776,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             if (!retryUpdateOrdinalList.isEmpty()) {
                 List<Map<String, Object>> retryUpdateConditionParameterMaps = new ArrayList<>();
                 List<Map<String, Object>> retryUpdateSetParameterMaps = new ArrayList<>();
-                for (Integer ordinal: retryUpdateOrdinalList) {
+                for (Integer ordinal : retryUpdateOrdinalList) {
                     retryUpdateConditionParameterMaps.add(updateConditionParameterMaps.get(ordinal));
                     retryUpdateSetParameterMaps.add(updateSetParameterMaps.get(ordinal));
                 }
@@ -866,7 +871,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     }
 
     private List<Integer> batchProcessInsert(List<Object[]> addingRecords,
-                                                         List<Integer> recordInsertIndexList) {
+                                             List<Integer> recordInsertIndexList) {
         int counter = 0;
         String query = this.composeInsertQuery();
         Connection conn = this.getConnection(false);
@@ -905,7 +910,6 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 // If the key already available in the map, then its copy the relevant updateSetParameter entry into
                 // retryUpdateSetParameterMaps, where it will be process again with update operation.
                 // Finally insert records from recordInsertIndexList into database table.
-                Map<String, Integer> nonDuplicateRecordIdMap = new LinkedHashMap<>();
                 while (counter < recordInsertIndexList.size()) {
                     if (recordInsertIndexList.get(counter) == counter) {
                         StringBuilder primaryKeyHashBuilder = new StringBuilder();
@@ -936,31 +940,42 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                     break;
                             }
                         }
-                        if (!nonDuplicateRecordIdMap.containsKey(primaryKeyHashBuilder.toString())) {
-                            nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), counter);
-                        } else {
-                            //Add the record insert index ordinal to retry update
-                            retryUpdateOrdinalList.add(counter);
+                        nonDuplicateRecordIdMapReadWriteLock.writeLock().lock();
+                        try {
+                            if (!nonDuplicateRecordIdMap.containsKey(primaryKeyHashBuilder.toString())) {
+                                nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), counter);
+                            } else {
+                                //Add the record insert index ordinal to retry update
+                                retryUpdateOrdinalList.add(counter);
+                            }
+                        } finally {
+                            nonDuplicateRecordIdMapReadWriteLock.writeLock().unlock();
                         }
                     }
                     counter++;
                 }
                 counter = 0;
-                for (Map.Entry<String, Integer> record : nonDuplicateRecordIdMap.entrySet()) {
-                    this.populateStatement(addingRecords.get(record.getValue()), insertStmt);
-                    try {
-                        insertStmt.addBatch();
-                        if (counter % batchSize == (batchSize - 1)) {
-                            insertStmt.executeBatch();
-                            conn.commit();
-                            insertStmt.clearBatch();
+                nonDuplicateRecordIdMapReadWriteLock.writeLock().lock();
+                try {
+                    for (Map.Entry<String, Integer> record : nonDuplicateRecordIdMap.entrySet()) {
+                        this.populateStatement(addingRecords.get(record.getValue()), insertStmt);
+                        try {
+                            insertStmt.addBatch();
+                            if (counter % batchSize == (batchSize - 1)) {
+                                insertStmt.executeBatch();
+                                conn.commit();
+                                insertStmt.clearBatch();
+                            }
+                        } catch (SQLException e2) {
+                            RDBMSTableUtils.rollbackConnection(conn);
+                            throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
+                                    + this.tableName + "': " + e2.getMessage(), e2);
                         }
-                    } catch (SQLException e2) {
-                        RDBMSTableUtils.rollbackConnection(conn);
-                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
-                                + this.tableName + "': " + e2.getMessage(), e2);
+                        counter++;
                     }
-                    counter++;
+                } finally {
+                    nonDuplicateRecordIdMap.clear();
+                    nonDuplicateRecordIdMapReadWriteLock.writeLock().unlock();
                 }
                 if (counter % batchSize > 0) {
                     insertStmt.executeBatch();
@@ -1137,6 +1152,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
                                     + OFFSET_CLAUSE, rdbmsSelectQueryTemplate.getOffsetClause()));
+                    this.rdbmsSelectQueryTemplate.setLimitBeforeOffset(Boolean.parseBoolean(
+                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                            PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                            + IS_LIMIT_BEFORE_OFFSET,
+                                    String.valueOf(rdbmsSelectQueryTemplate.getLimitBeforeOffset()))));
                 }
             }
             if (!this.tableExists()) {
@@ -1576,14 +1596,14 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String getSelectQuery(RDBMSCompiledCondition rdbmsCompiledCondition,
                                   RDBMSCompiledSelection rdbmsCompiledSelection) {
         String selectClause = rdbmsSelectQueryTemplate.getSelectClause().replace(RDBMSTableConstants.
-                        PLACEHOLDER_SELECTORS, rdbmsCompiledSelection.getCompiledSelectClause().getCompiledQuery());
+                PLACEHOLDER_SELECTORS, rdbmsCompiledSelection.getCompiledSelectClause().getCompiledQuery());
         StringBuilder selectQuery = new StringBuilder(selectClause);
 
         if (rdbmsCompiledCondition != null) {
             String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
             if (whereClause == null || whereClause.isEmpty()) {
-                throw new QueryableRecordTableException("Where clause is present in query but no query configuration " +
-                        "has being provided for store: " + tableName);
+                throw new QueryableRecordTableException("Where clause is present in query but 'whereClause' has not " +
+                        "being configured in RDBMS Event Table query configuration, for store: " + tableName);
             }
             whereClause = whereClause.replace(
                     RDBMSTableConstants.PLACEHOLDER_CONDITION, rdbmsCompiledCondition.getCompiledQuery());
@@ -1594,8 +1614,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (compiledGroupByClause != null) {
             String groupByClause = rdbmsSelectQueryTemplate.getGroupByClause();
             if (groupByClause == null || groupByClause.isEmpty()) {
-                throw new QueryableRecordTableException("Group by clause is present in query but no query " +
-                        "configuration has being provided for store: " + tableName);
+                throw new QueryableRecordTableException("Group by clause is present in query but 'groupByClause' has " +
+                        "not being configured in RDBMS Event Table query configuration, for store: " + tableName);
             }
             groupByClause = groupByClause.replace(
                     RDBMSTableConstants.PLACEHOLDER_COLUMNS, compiledGroupByClause.getCompiledQuery());
@@ -1606,8 +1626,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (compiledHavingClause != null) {
             String havingClause = rdbmsSelectQueryTemplate.getHavingClause();
             if (havingClause == null || havingClause.isEmpty()) {
-                throw new QueryableRecordTableException("Having clause is present in query but no query " +
-                        "configuration has being provided for store: " + tableName);
+                throw new QueryableRecordTableException("Having by clause is present in query but 'havingClause' has " +
+                        "not being configured in RDBMS Event Table query configuration, for store: " + tableName);
             }
             havingClause = havingClause.replace(
                     RDBMSTableConstants.PLACEHOLDER_CONDITION, compiledHavingClause.getCompiledQuery());
@@ -1618,8 +1638,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (compiledOrderByClause != null) {
             String orderByClause = rdbmsSelectQueryTemplate.getOrderByClause();
             if (orderByClause == null || orderByClause.isEmpty()) {
-                throw new QueryableRecordTableException("Order by clause is present in query but no query " +
-                        "configuration has being provided for store: " + tableName);
+                throw new QueryableRecordTableException("Order by clause is present in query but 'orderByClause' has " +
+                        "not being configured in RDBMS Event Table query configuration, for store: " + tableName);
             }
             orderByClause = orderByClause.replace(
                     RDBMSTableConstants.PLACEHOLDER_COLUMNS, compiledOrderByClause.getCompiledQuery());
@@ -1630,24 +1650,38 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (limit != null) {
             String limitClause = rdbmsSelectQueryTemplate.getLimitClause();
             if (limitClause == null || limitClause.isEmpty()) {
-                throw new QueryableRecordTableException("Limit clause is present in query but no query configuration " +
-                        "has being provided for store: " + tableName);
+                throw new QueryableRecordTableException("Limit by clause is present in query but 'limitClause' has " +
+                        "not being configured in RDBMS Event Table query configuration, for store: " + tableName);
             }
             limitClause = limitClause.replace(RDBMSTableConstants.PLACEHOLDER_Q, Long.toString(limit));
-            selectQuery = selectQuery.append(WHITESPACE).append(limitClause);
-        }
 
-        Long offset = rdbmsCompiledSelection.getOffset();
-        if (offset != null) {
-            String offsetClause = rdbmsSelectQueryTemplate.getOffsetClause();
-            if (offsetClause == null || offsetClause.isEmpty()) {
-                throw new QueryableRecordTableException("Offset clause is present in query but no query " +
-                        "configuration has being provided for store: " + tableName);
+            Long offset = rdbmsCompiledSelection.getOffset();
+            if (offset != null) {
+                String offsetClause = rdbmsSelectQueryTemplate.getOffsetClause();
+                if (offsetClause == null || offsetClause.isEmpty()) {
+                    throw new QueryableRecordTableException("Offset clause is present in query but " +
+                            "'offsetClause' has not being configured in RDBMS Event Table query configuration, " +
+                            "for store: " + tableName);
+                }
+                offsetClause = offsetClause.replace(RDBMSTableConstants.PLACEHOLDER_Q, Long.toString(offset));
+
+                Boolean isLimitBeforeOffset = rdbmsSelectQueryTemplate.getLimitBeforeOffset();
+                if (isLimitBeforeOffset == null) {
+                    throw new QueryableRecordTableException("Offset clause is present in query but " +
+                            "'isLimitBeforeOffset' has not being configured in RDBMS Event Table query configuration," +
+                            " for store: " + tableName);
+                }
+                if (isLimitBeforeOffset) {
+                    selectQuery = selectQuery.append(WHITESPACE).append(limitClause)
+                            .append(WHITESPACE).append(offsetClause);
+                } else {
+                    selectQuery = selectQuery.append(WHITESPACE).append(offsetClause)
+                            .append(WHITESPACE).append(limitClause);
+                }
+            } else {
+                selectQuery = selectQuery.append(WHITESPACE).append(limitClause);
             }
-            offsetClause = offsetClause.replace(RDBMSTableConstants.PLACEHOLDER_Q, Long.toString(offset));
-            selectQuery = selectQuery.append(WHITESPACE).append(offsetClause);
         }
-
         return selectQuery.toString();
     }
 
