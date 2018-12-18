@@ -1004,7 +1004,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     @Override
     protected CompiledCondition compileCondition(ExpressionBuilder expressionBuilder) {
-        RDBMSConditionVisitor visitor = new RDBMSConditionVisitor();
+        RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
         expressionBuilder.build(visitor);
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters(),
                 visitor.isContainsConditionExist(), visitor.getOrdinalOfContainPattern());
@@ -1152,11 +1152,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
                                     + OFFSET_CLAUSE, rdbmsSelectQueryTemplate.getOffsetClause()));
-                    this.rdbmsSelectQueryTemplate.setLimitBeforeOffset(Boolean.parseBoolean(
+                    this.rdbmsSelectQueryTemplate.setIsLimitBeforeOffset(
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                             PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
                                             + IS_LIMIT_BEFORE_OFFSET,
-                                    String.valueOf(rdbmsSelectQueryTemplate.getLimitBeforeOffset()))));
+                                    rdbmsSelectQueryTemplate.getIsLimitBeforeOffset()));
                 }
             }
             if (!this.tableExists()) {
@@ -1664,8 +1664,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             "for store: " + tableName);
                 }
                 offsetClause = offsetClause.replace(RDBMSTableConstants.PLACEHOLDER_Q, Long.toString(offset));
+                Boolean isLimitBeforeOffset = Boolean.parseBoolean(rdbmsSelectQueryTemplate.getIsLimitBeforeOffset());
 
-                Boolean isLimitBeforeOffset = rdbmsSelectQueryTemplate.getLimitBeforeOffset();
                 if (isLimitBeforeOffset == null) {
                     throw new QueryableRecordTableException("Offset clause is present in query but " +
                             "'isLimitBeforeOffset' has not being configured in RDBMS Event Table query configuration," +
@@ -1706,7 +1706,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         int offset = 0;
 
         for (SelectAttributeBuilder selectAttributeBuilder : selectAttributeBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor();
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
             selectAttributeBuilder.getExpressionBuilder().build(visitor);
 
             String compiledCondition = visitor.returnCondition();
@@ -1740,7 +1740,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         int offset = 0;
 
         for (ExpressionBuilder expressionBuilder : expressionBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor();
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
             expressionBuilder.build(visitor);
 
             String compiledCondition = visitor.returnCondition();
@@ -1770,7 +1770,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         int offset = 0;
 
         for (OrderByAttributeBuilder orderByAttributeBuilder : orderByAttributeBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor();
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
             orderByAttributeBuilder.getExpressionBuilder().build(visitor);
 
             String compiledCondition = visitor.returnCondition();

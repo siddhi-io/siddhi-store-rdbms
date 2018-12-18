@@ -162,7 +162,7 @@ public class StoreQueryTableTestCase {
         events = siddhiAppRuntime.query("" +
                 "from StockTable " +
                 "on price > 5 " +
-                "select symbol, volume " +
+                "select symbol " +
                 "group by symbol " +
                 "having symbol == 'WSO2' ");
         EventPrinter.print(events);
