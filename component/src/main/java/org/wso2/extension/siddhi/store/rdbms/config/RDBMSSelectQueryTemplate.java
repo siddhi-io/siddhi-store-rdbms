@@ -30,11 +30,7 @@ public class RDBMSSelectQueryTemplate {
     private String orderByClause;
     private String limitClause;
     private String offsetClause;
-    /**
-     * Out of the supported DBs, some have 'Limit clause' before the 'Offset clause' (e.g. MySQL), whilst others have
-     * it after the 'Offset clause' (e.g. Oracle). This boolean indicates the order of the limit and offset clauses.
-     */
-    private Boolean isLimitBeforeOffset;
+    private String isLimitBeforeOffset;
 
     public String getSelectClause() {
         return selectClause;
@@ -92,11 +88,11 @@ public class RDBMSSelectQueryTemplate {
         this.offsetClause = offsetClause;
     }
 
-    public Boolean getLimitBeforeOffset() {
+    public String getIsLimitBeforeOffset() {
         return isLimitBeforeOffset;
     }
 
-    public void setLimitBeforeOffset(Boolean limitBeforeOffset) {
-        isLimitBeforeOffset = limitBeforeOffset;
+    public void setIsLimitBeforeOffset(String isLimitBeforeOffset) {
+        this.isLimitBeforeOffset = isLimitBeforeOffset;
     }
 }
