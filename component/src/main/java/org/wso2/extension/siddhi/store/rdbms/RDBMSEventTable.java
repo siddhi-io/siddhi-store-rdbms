@@ -537,7 +537,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String bigStringType;
     private String stringSize;
     private String recordContainsConditionTemplate;
-    private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate = new RDBMSSelectQueryTemplate();
+    private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate;
     private boolean primaryKeysEnabled;
     private Map<String, Integer> nonDuplicateRecordIdMap = new LinkedHashMap<>();
     private ReadWriteLock nonDuplicateRecordIdMapReadWriteLock = new ReentrantReadWriteLock();
@@ -1122,8 +1122,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
                                     RECORD_CONTAINS_CONDITION, this.queryConfigurationEntry.
                                     getRecordContainsCondition()).replace(PLACEHOLDER_VALUES, QUESTION_MARK);
+
                     RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate =
                             this.queryConfigurationEntry.getRdbmsSelectQueryTemplate();
+                    this.rdbmsSelectQueryTemplate = new RDBMSSelectQueryTemplate();
+
                     this.rdbmsSelectQueryTemplate.setSelectClause(resolveTableName(
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
