@@ -82,7 +82,8 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice \n" +
@@ -167,7 +168,8 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice \n" +
@@ -250,7 +252,8 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice \n" +
@@ -337,7 +340,8 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, " +
@@ -421,7 +425,8 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, " +
@@ -516,7 +521,8 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, " +
@@ -612,7 +618,8 @@ public class PartialAggregationTestCase {
                 + " quantity int); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice, " +
@@ -698,8 +705,9 @@ public class PartialAggregationTestCase {
                         "quantity int);";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
                 "@partitionbyid " +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
                 "from stockStream " +
                 "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) " +
@@ -805,8 +813,9 @@ public class PartialAggregationTestCase {
                         "quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
                 "@partitionbyid " +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
                 "from stockStream " +
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, count() as count " +
@@ -937,8 +946,9 @@ public class PartialAggregationTestCase {
                         "quantity int); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
                 "@partitionbyid " +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
                 "from stockStream " +
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, count() as count " +
@@ -1056,7 +1066,8 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice \n" +
@@ -1204,21 +1215,23 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockSumAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice \n" +
                 "group by symbol " +
-                "aggregate by timestamp every sec...year; ";
+                "aggregate by timestamp every sec...hour; ";
 
         String query2 = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAvgAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,avg(price) as avgPrice \n" +
                 "group by symbol " +
-                "aggregate by timestamp every sec...year; ";
+                "aggregate by timestamp every sec...hour; ";
 
 
         SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(streams + query + query2);
@@ -1355,7 +1368,8 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice \n" +
@@ -1363,7 +1377,8 @@ public class PartialAggregationTestCase {
 
         String query2 = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" +
+                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
+                "@purge(enable='false')\n" +
                 "define aggregation stockNormalAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice \n" +
