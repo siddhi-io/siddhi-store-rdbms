@@ -68,14 +68,14 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
@@ -147,21 +147,21 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
         systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
-                new InMemoryConfigManager(null, systemConfigs3);
+                new InMemoryConfigManager(null, null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
@@ -238,14 +238,14 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
@@ -326,14 +326,14 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
@@ -411,14 +411,14 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
@@ -500,21 +500,21 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
         systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
-                new InMemoryConfigManager(null, systemConfigs3);
+                new InMemoryConfigManager(null, null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
@@ -597,21 +597,21 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
         systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
-                new InMemoryConfigManager(null, systemConfigs3);
+                new InMemoryConfigManager(null, null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
@@ -683,21 +683,21 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
         systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
-                new InMemoryConfigManager(null, systemConfigs3);
+                new InMemoryConfigManager(null, null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String stockStream =
@@ -791,21 +791,21 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
         systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
-                new InMemoryConfigManager(null, systemConfigs3);
+                new InMemoryConfigManager(null, null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String stockStream =
@@ -924,21 +924,21 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
         systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
-                new InMemoryConfigManager(null, systemConfigs3);
+                new InMemoryConfigManager(null, null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String stockStream =
@@ -1045,21 +1045,21 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
         systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
-                new InMemoryConfigManager(null, systemConfigs3);
+                new InMemoryConfigManager(null, null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
@@ -1194,21 +1194,21 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
         systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
-                new InMemoryConfigManager(null, systemConfigs3);
+                new InMemoryConfigManager(null, null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
@@ -1347,21 +1347,21 @@ public class PartialAggregationTestCase {
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
         InMemoryConfigManager inMemoryConfigManager1 =
-                new InMemoryConfigManager(null, systemConfigs1);
+                new InMemoryConfigManager(null, null, systemConfigs1);
         siddhiManager1.setConfigManager(inMemoryConfigManager1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         Map<String, String> systemConfigs2 = new HashMap<>();
         systemConfigs2.put("shardId", "node2");
         InMemoryConfigManager inMemoryConfigManager2 =
-                new InMemoryConfigManager(null, systemConfigs2);
+                new InMemoryConfigManager(null, null, systemConfigs2);
         siddhiManager2.setConfigManager(inMemoryConfigManager2);
 
         SiddhiManager siddhiManager3 = new SiddhiManager();
         Map<String, String> systemConfigs3 = new HashMap<>();
         systemConfigs3.put("shardId", "node3");
         InMemoryConfigManager inMemoryConfigManager3 =
-                new InMemoryConfigManager(null, systemConfigs3);
+                new InMemoryConfigManager(null, null, systemConfigs3);
         siddhiManager3.setConfigManager(inMemoryConfigManager3);
 
         String streams = "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long,"
