@@ -36,6 +36,7 @@ public class RDBMSTableConstants {
     public static final String PLACEHOLDER_Q = "{{Q}}";
     public static final String PLACEHOLDER_COLUMNS = "{{COLUMNS}}";
     public static final String PLACEHOLDER_VALUES = "{{VALUES}}";
+    public static final String PLACEHOLDER_SELECTORS = "{{SELECTORS}}";
 
     //Miscellaneous SQL constants
     public static final String SQL_MATH_ADD = "+";
@@ -57,6 +58,7 @@ public class RDBMSTableConstants {
     public static final String SQL_NOT_NULL = "NOT NULL";
     public static final String SQL_PRIMARY_KEY_DEF = "PRIMARY KEY";
     public static final String SQL_WHERE = "WHERE";
+    public static final String SQL_AS = " AS ";
     public static final String WHITESPACE = " ";
     public static final String SEPARATOR = ", ";
     public static final String EQUALS = "=";
@@ -104,6 +106,15 @@ public class RDBMSTableConstants {
     public static final String FIELD_SIZE_LIMIT = "fieldSizeLimit";
     public static final String BATCH_ENABLE = "batchEnable";
     public static final String TRANSACTION_SUPPORTED = "transactionSupported";
+    public static final String SELECT_QUERY_TEMPLATE = "selectQueryTemplate";
+    public static final String SELECT_CLAUSE = "selectClause";
+    public static final String WHERE_CLAUSE = "whereClause";
+    public static final String GROUP_BY_CLAUSE = "groupByClause";
+    public static final String HAVING_CLAUSE = "havingClause";
+    public static final String ORDER_BY_CLAUSE = "orderByClause";
+    public static final String LIMIT_CLAUSE = "limitClause";
+        public static final String OFFSET_CLAUSE = "offsetClause";
+    public static final String IS_LIMIT_BEFORE_OFFSET = "isLimitBeforeOffset";
 
     private RDBMSTableConstants() {
         //preventing initialization

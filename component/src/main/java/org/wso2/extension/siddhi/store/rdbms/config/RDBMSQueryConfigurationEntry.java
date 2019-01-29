@@ -44,6 +44,7 @@ public class RDBMSQueryConfigurationEntry {
     private String stringSize;
     private int fieldSizeLimit;
     private RDBMSTypeMapping rdbmsTypeMapping;
+    private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate;
     private int batchSize;
     private boolean batchEnable = false;
     private boolean transactionSupported = true;
@@ -205,6 +206,15 @@ public class RDBMSQueryConfigurationEntry {
 
     public void setRdbmsTypeMapping(RDBMSTypeMapping rdbmsTypeMapping) {
         this.rdbmsTypeMapping = rdbmsTypeMapping;
+    }
+
+    @XmlElement(name = "selectQueryTemplate")
+    public RDBMSSelectQueryTemplate getRdbmsSelectQueryTemplate() {
+        return rdbmsSelectQueryTemplate;
+    }
+
+    public void setRdbmsSelectQueryTemplate(RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate) {
+        this.rdbmsSelectQueryTemplate = rdbmsSelectQueryTemplate;
     }
 
     @XmlElement(name = "batchSize", required = true)

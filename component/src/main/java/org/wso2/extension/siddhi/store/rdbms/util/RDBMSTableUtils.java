@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.extension.siddhi.store.rdbms.RDBMSCompiledCondition;
+import org.wso2.extension.siddhi.store.rdbms.RDBMSCompiledSelection;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfiguration;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
@@ -164,20 +165,52 @@ public class RDBMSTableUtils {
      * @throws SQLException in the unlikely case where there are errors when setting values to the statement
      *                      (e.g. type mismatches)
      */
-    public static void resolveCondition(PreparedStatement stmt, RDBMSCompiledCondition compiledCondition,
+    public static int resolveCondition(PreparedStatement stmt, RDBMSCompiledCondition compiledCondition,
                                         Map<String, Object> conditionParameterMap, int seed) throws SQLException {
+        int maxOrdinal = 0;
         SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
         for (Map.Entry<Integer, Object> entry : parameters.entrySet()) {
             Object parameter = entry.getValue();
+            int ordinal = entry.getKey();
+            if (ordinal > maxOrdinal) {
+                maxOrdinal = ordinal;
+            }
             if (parameter instanceof Constant) {
                 Constant constant = (Constant) parameter;
-                populateStatementWithSingleElement(stmt, seed + entry.getKey(), constant.getType(),
+                populateStatementWithSingleElement(stmt, seed + ordinal, constant.getType(),
                         constant.getValue());
             } else {
                 Attribute variable = (Attribute) parameter;
-                populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
+                populateStatementWithSingleElement(stmt, seed + ordinal, variable.getType(),
                         conditionParameterMap.get(variable.getName()));
             }
+        }
+        return maxOrdinal;
+    }
+
+    public static void resolveQuery(PreparedStatement stmt, RDBMSCompiledSelection rdbmsCompiledSelection,
+                                    RDBMSCompiledCondition rdbmsCompiledCondition,
+                                    Map<String, Object> conditionParameterMap, int seed) throws SQLException {
+        seed = seed + resolveCondition(stmt, rdbmsCompiledSelection.getCompiledSelectClause(),
+                conditionParameterMap, seed);
+
+        if (rdbmsCompiledCondition != null) {
+            seed = seed + resolveCondition(stmt, rdbmsCompiledCondition, conditionParameterMap, seed);
+        }
+
+        RDBMSCompiledCondition groupByClause = rdbmsCompiledSelection.getCompiledGroupByClause();
+        if (groupByClause != null) {
+            seed = seed + resolveCondition(stmt, groupByClause, conditionParameterMap, seed);
+        }
+
+        RDBMSCompiledCondition havingClause = rdbmsCompiledSelection.getCompiledHavingClause();
+        if (havingClause != null) {
+            seed = seed + resolveCondition(stmt, havingClause, conditionParameterMap, seed);
+        }
+
+        RDBMSCompiledCondition orderByClause = rdbmsCompiledSelection.getCompiledOrderByClause();
+        if (orderByClause != null) {
+            resolveCondition(stmt, orderByClause, conditionParameterMap, seed);
         }
     }
 
