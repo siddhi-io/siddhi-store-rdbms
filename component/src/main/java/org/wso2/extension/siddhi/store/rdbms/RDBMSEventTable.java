@@ -61,8 +61,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -520,7 +518,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private String recordContainsConditionTemplate;
     private boolean primaryKeysEnabled;
     private Map<String, Integer> nonDuplicateRecordIdMap = new LinkedHashMap<>();
-    private ReadWriteLock nonDuplicateRecordIdMapReadWriteLock = new ReentrantReadWriteLock();
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -733,10 +730,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
     }
 
     @Override
-    protected void updateOrAdd(CompiledCondition compiledCondition,
-                               List<Map<String, Object>> updateConditionParameterMaps,
-                               Map<String, CompiledExpression> updateSetExpressions,
-                               List<Map<String, Object>> updateSetParameterMaps, List<Object[]> addingRecords)
+    protected synchronized void updateOrAdd(CompiledCondition compiledCondition,
+                                            List<Map<String, Object>> updateConditionParameterMaps,
+                                            Map<String, CompiledExpression> updateSetExpressions,
+                                            List<Map<String, Object>> updateSetParameterMaps,
+                                            List<Object[]> addingRecords)
             throws ConnectionUnavailableException {
         List<Integer> recordInsertIndexList;
         //If any existing records already contain the new values supplied for the MATCHING columns,
@@ -852,7 +850,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     private List<Integer> batchProcessInsert(List<Object[]> addingRecords,
                                              List<Integer> recordInsertIndexList) {
-        int counter = 0;
         String query = this.composeInsertQuery();
         Connection conn = this.getConnection(false);
         PreparedStatement insertStmt = null;
@@ -861,28 +858,27 @@ public class RDBMSEventTable extends AbstractRecordTable {
             insertStmt = conn.prepareStatement(query);
             if (!primaryKeysEnabled) {
                 //Default Scenario: If the primary keys are disabled, then insert all the records into the table.
-                while (counter < recordInsertIndexList.size()) {
-                    if (recordInsertIndexList.get(counter) == counter) {
-                        Object[] record = addingRecords.get(counter);
-                        this.populateStatement(record, insertStmt);
-                        try {
-                            insertStmt.addBatch();
-                            if (counter % batchSize == (batchSize - 1)) {
-                                insertStmt.executeBatch();
-                                conn.commit();
-                                insertStmt.clearBatch();
-                            }
-                        } catch (SQLException e2) {
-                            RDBMSTableUtils.rollbackConnection(conn);
-                            throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
-                                    + this.tableName + "': " + e2.getMessage(), e2);
+                int counter = 0;
+                for (Integer ordinal : recordInsertIndexList) {
+                    Object[] record = addingRecords.get(ordinal);
+                    this.populateStatement(record, insertStmt);
+                    try {
+                        insertStmt.addBatch();
+                        if (counter % batchSize == (batchSize - 1)) {
+                            insertStmt.executeBatch();
+                            conn.commit();
+                            insertStmt.clearBatch();
                         }
+                    } catch (SQLException e2) {
+                        RDBMSTableUtils.rollbackConnection(conn);
+                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
+                                + this.tableName + "': " + e2.getMessage(), e2);
                     }
                     counter++;
-                }
-                if (counter % batchSize > 0) {
-                    insertStmt.executeBatch();
-                    conn.commit();
+                    if (counter % batchSize > 0) {
+                        insertStmt.executeBatch();
+                        conn.commit();
+                    }
                 }
             } else {
                 // If the primary keys are enabled, add records into a map with keys as a combination of primary keys,
@@ -890,53 +886,44 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 // If the key already available in the map, then its copy the relevant updateSetParameter entry into
                 // retryUpdateSetParameterMaps, where it will be process again with update operation.
                 // Finally insert records from recordInsertIndexList into database table.
-                while (counter < recordInsertIndexList.size()) {
-                    if (recordInsertIndexList.get(counter) == counter) {
-                        StringBuilder primaryKeyHashBuilder = new StringBuilder();
-                        for (Integer primaryKeyAttributePosition : primaryKeyAttributePositionsList) {
-                            Attribute attribute = attributes.get(primaryKeyAttributePosition);
-                            Object recordAttribute = addingRecords.get(counter)[primaryKeyAttributePosition];
-                            switch (attribute.getType()) {
-                                case BOOL:
-                                    primaryKeyHashBuilder.append(Boolean.toString((Boolean) recordAttribute));
-                                    break;
-                                case DOUBLE:
-                                    primaryKeyHashBuilder.append(Double.toString((Double) recordAttribute));
-                                    break;
-                                case FLOAT:
-                                    primaryKeyHashBuilder.append(Float.toString((Float) recordAttribute));
-                                    break;
-                                case INT:
-                                    primaryKeyHashBuilder.append(Integer.toString((Integer) recordAttribute));
-                                    break;
-                                case LONG:
-                                    primaryKeyHashBuilder.append(Long.toString((Long) recordAttribute));
-                                    break;
-                                case OBJECT:
-                                    primaryKeyHashBuilder.append(recordAttribute.toString());
-                                    break;
-                                case STRING:
-                                    primaryKeyHashBuilder.append((String) recordAttribute);
-                                    break;
-                            }
-                        }
-                        nonDuplicateRecordIdMapReadWriteLock.writeLock().lock();
-                        try {
-                            if (!nonDuplicateRecordIdMap.containsKey(primaryKeyHashBuilder.toString())) {
-                                nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), counter);
-                            } else {
-                                //Add the record insert index ordinal to retry update
-                                retryUpdateOrdinalList.add(counter);
-                            }
-                        } finally {
-                            nonDuplicateRecordIdMapReadWriteLock.writeLock().unlock();
+                for (Integer ordinal : recordInsertIndexList) {
+                    StringBuilder primaryKeyHashBuilder = new StringBuilder();
+                    for (Integer primaryKeyAttributePosition : primaryKeyAttributePositionsList) {
+                        Attribute attribute = attributes.get(primaryKeyAttributePosition);
+                        Object recordAttribute = addingRecords.get(ordinal)[primaryKeyAttributePosition];
+                        switch (attribute.getType()) {
+                            case BOOL:
+                                primaryKeyHashBuilder.append(Boolean.toString((Boolean) recordAttribute));
+                                break;
+                            case DOUBLE:
+                                primaryKeyHashBuilder.append(Double.toString((Double) recordAttribute));
+                                break;
+                            case FLOAT:
+                                primaryKeyHashBuilder.append(Float.toString((Float) recordAttribute));
+                                break;
+                            case INT:
+                                primaryKeyHashBuilder.append(Integer.toString((Integer) recordAttribute));
+                                break;
+                            case LONG:
+                                primaryKeyHashBuilder.append(Long.toString((Long) recordAttribute));
+                                break;
+                            case OBJECT:
+                                primaryKeyHashBuilder.append(recordAttribute.toString());
+                                break;
+                            case STRING:
+                                primaryKeyHashBuilder.append((String) recordAttribute);
+                                break;
                         }
                     }
-                    counter++;
+                    if (!nonDuplicateRecordIdMap.containsKey(primaryKeyHashBuilder.toString())) {
+                        nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), ordinal);
+                    } else {
+                        //Add the record insert index ordinal to retry update
+                        retryUpdateOrdinalList.add(ordinal);
+                    }
                 }
-                counter = 0;
-                nonDuplicateRecordIdMapReadWriteLock.writeLock().lock();
                 try {
+                    int counter = 0;
                     for (Map.Entry<String, Integer> record : nonDuplicateRecordIdMap.entrySet()) {
                         this.populateStatement(addingRecords.get(record.getValue()), insertStmt);
                         try {
@@ -953,13 +940,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
                         }
                         counter++;
                     }
+                    if (counter % batchSize > 0) {
+                        insertStmt.executeBatch();
+                        conn.commit();
+                    }
                 } finally {
                     nonDuplicateRecordIdMap.clear();
-                    nonDuplicateRecordIdMapReadWriteLock.writeLock().unlock();
-                }
-                if (counter % batchSize > 0) {
-                    insertStmt.executeBatch();
-                    conn.commit();
                 }
             }
         } catch (SQLException e) {
