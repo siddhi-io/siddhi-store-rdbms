@@ -17,13 +17,13 @@
 */
 package org.wso2.extension.siddhi.store.rdbms.exception;
 
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 /**
  * Represents an unchecked exception which may be thrown during runtime, from which we may not expect the Siddhi runtime
  * to reasonable recover.
  */
-public class RDBMSTableException extends SiddhiAppCreationException {
+public class RDBMSTableException extends SiddhiAppRuntimeException {
 
     public RDBMSTableException(String message) {
         super(message);
