@@ -83,9 +83,12 @@
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+            <queryWrapperClause>SELECT * FROM (SELECT A.*, ROWNUM rn FROM ({{INNER_QUERY}}) A {{LIMIT_WRAPPER}}) {{OFFSET_WRAPPER}}</queryWrapperClause>
+            <limitWrapperClause>WHERE ROWNUM &lt;= {{Q}}</limitWrapperClause>
+            <offsetWrapperClause>WHERE rn &gt; {{Q}}</offsetWrapperClause>
             <limitClause>FETCH NEXT {{Q}} ROWS ONLY</limitClause>
             <offsetClause>OFFSET {{Q}} ROWS</offsetClause>
-            <isLimitBeforeOffset>false</isLimitBeforeOffset>
+            <isLimitBeforeOffset>true</isLimitBeforeOffset>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <fieldSizeLimit>2000</fieldSizeLimit>

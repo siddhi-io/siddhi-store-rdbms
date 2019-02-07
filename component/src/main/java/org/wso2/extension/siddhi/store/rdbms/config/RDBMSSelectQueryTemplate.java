@@ -30,6 +30,9 @@ public class RDBMSSelectQueryTemplate {
     private String orderByClause;
     private String limitClause;
     private String offsetClause;
+    private String queryWrapperClause;
+    private String limitWrapperClause;
+    private String offsetWrapperClause;
     private String isLimitBeforeOffset;
 
     public String getSelectClause() {
@@ -94,5 +97,29 @@ public class RDBMSSelectQueryTemplate {
 
     public void setIsLimitBeforeOffset(String isLimitBeforeOffset) {
         this.isLimitBeforeOffset = isLimitBeforeOffset;
+    }
+
+    public String getQueryWrapperClause() {
+        return queryWrapperClause;
+    }
+
+    public void setQueryWrapperClause(String queryWrapperClause) {
+        this.queryWrapperClause = queryWrapperClause;
+    }
+
+    public String getLimitWrapperClause() {
+        return limitWrapperClause;
+    }
+
+    public void setLimitWrapperClause(String limitWrapperClause) {
+        this.limitWrapperClause = limitWrapperClause;
+    }
+
+    public String getOffsetWrapperClause() {
+        return offsetWrapperClause;
+    }
+
+    public void setOffsetWrapperClause(String offsetWrapperClause) {
+        this.offsetWrapperClause = offsetWrapperClause;
     }
 }
