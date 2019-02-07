@@ -44,9 +44,9 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.pas
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.url;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.user;
 
-public class StoreQueryTableTestCase {
+public class StoreQueryTableTestCaseIT {
 
-    private static final Logger log = Logger.getLogger(StoreQueryTableTestCase.class);
+    private static final Logger log = Logger.getLogger(StoreQueryTableTestCaseIT.class);
 
     @BeforeClass
     public static void startTest() {

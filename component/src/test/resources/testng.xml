@@ -31,8 +31,8 @@
             <class name="org.wso2.extension.siddhi.store.rdbms.UpdateRDBMSTableTestCaseIT" />
             <class name="org.wso2.extension.siddhi.store.rdbms.set.SetUpdateOrInsertRDBMSTableTestCaseIT" />
             <class name="org.wso2.extension.siddhi.store.rdbms.set.SetUpdateRDBMSTableTestCaseIT" />
-            <class name="org.wso2.extension.siddhi.store.rdbms.PartialAggregationTestCase" />
-            <class name="org.wso2.extension.siddhi.store.rdbms.query.StoreQueryTableTestCase"/>
+            <class name="org.wso2.extension.siddhi.store.rdbms.PartialAggregationTestCaseIT" />
+            <class name="org.wso2.extension.siddhi.store.rdbms.query.StoreQueryTableTestCaseIT"/>
         </classes>
     </test>
 </suite>
