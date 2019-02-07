@@ -88,7 +88,7 @@
             <offsetWrapperClause>WHERE rn &gt; {{Q}}</offsetWrapperClause>
             <limitClause>FETCH NEXT {{Q}} ROWS ONLY</limitClause>
             <offsetClause>OFFSET {{Q}} ROWS</offsetClause>
-            <isLimitBeforeOffset>true</isLimitBeforeOffset>
+            <isLimitBeforeOffset>false</isLimitBeforeOffset>
         </selectQueryTemplate>
         <stringSize>254</stringSize>
         <fieldSizeLimit>2000</fieldSizeLimit>
