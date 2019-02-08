@@ -141,6 +141,7 @@ public class RDBMSTableTestUtils {
         connectionProperties.setProperty("dataSource.user", user);
         connectionProperties.setProperty("dataSource.password", password);
         connectionProperties.setProperty("poolName", "Test_Pool");
+        connectionProperties.setProperty("maximumPoolSize", "10");
         HikariConfig config = new HikariConfig(connectionProperties);
         return new HikariDataSource(config);
     }
