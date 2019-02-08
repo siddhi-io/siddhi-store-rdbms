@@ -169,9 +169,6 @@ public class PartialAggregationTestCaseIT {
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
                 "\", pool.properties=\"maximumPoolSize:2" +
-                "" +
-                "" +
-                "" +
                 ", maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
