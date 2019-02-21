@@ -198,8 +198,8 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
         },
         examples = {
                 @Example(
-                        syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
-                                "username=\"root\", password=\"root\" , jdbc.driver.name=\"org.h2.Driver\"," +
+                        syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/stocks\", " +
+                                "username=\"root\", password=\"root\", jdbc.driver.name=\"com.mysql.jdbc.Driver\"," +
                                 "field.length=\"symbol:100\")\n" +
                                 "@PrimaryKey(\"symbol\")\n" +
                                 "@Index(\"volume\")\n" +
