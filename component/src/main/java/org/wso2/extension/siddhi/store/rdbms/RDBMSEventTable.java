@@ -575,20 +575,23 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     }
 
     @Override
-    protected void add(List<Object[]> records) {
+    protected void add(List<Object[]> records) throws ConnectionUnavailableException {
         String sql = this.composeInsertQuery();
+        // Setting autocommit to true if the JDBC connection does not support transactions.
         try {
-            // Setting autocommit to true if the JDBC connection does not support transactions.
             this.batchExecuteQueriesWithRecords(sql, records, !this.transactionSupported);
-        } catch (SQLException e) {
-            throw new RDBMSTableException("Error in adding events to '" + this.tableName + "' store: "
-                    + e.getMessage(), e);
+        } catch (ConnectionUnavailableException e) {
+            throw new ConnectionUnavailableException("Failed to add records to store: '" + this.tableName +
+                    "'. Reason: " + e.getMessage(), e);
+        } catch (RDBMSTableException e) {
+            throw new RDBMSTableException("Failed to add records to store: '" + this.tableName
+                    + "'. Reason: " + e.getMessage(), e);
         }
     }
 
     @Override
     protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
-                                            CompiledCondition compiledCondition) {
+                                            CompiledCondition compiledCondition) throws ConnectionUnavailableException {
         RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
         String findCondition;
         if (rdbmsCompiledCondition.isContainsConditionExist()) {
@@ -630,14 +633,26 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
             return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
         } catch (SQLException e) {
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Connection closed. Error retrieving records from store '"
+                            + this.tableName + "': " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Error retrieving records from store '" + this.tableName + "': "
+                                        + e.getMessage(), e);
+                }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Error retrieving records " + "from store '" +
+                        this.tableName + "' .Failed to close the connection. : " + e1.getMessage(), e1);
+            }
+        } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
-            throw new RDBMSTableException("Error retrieving records from table '" + this.tableName + "': "
-                    + e.getMessage(), e);
         }
     }
 
     @Override
-    protected boolean contains(Map<String, Object> containsConditionParameterMap, CompiledCondition compiledCondition) {
+    protected boolean contains(Map<String, Object> containsConditionParameterMap,
+                               CompiledCondition compiledCondition) throws ConnectionUnavailableException {
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -651,20 +666,31 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             rs = stmt.executeQuery();
             return rs.next();
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing a contains check on table '" + this.tableName
-                    + "': " + e.getMessage(), e);
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Error performing contains check. Connection is closed " +
+                            "for store: '" + tableName + "'" + " : " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Error performing contains check for store '"
+                                        + this.tableName + "': " + e.getMessage(), e);
+                }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Error performing contains check for store: '" +
+                        tableName + "'" + " : " + e1.getMessage(), e1);
+            }
         } finally {
             RDBMSTableUtils.cleanupConnection(rs, stmt, conn);
         }
     }
 
     @Override
-    protected void delete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition compiledCondition) {
+    protected void delete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition compiledCondition)
+            throws ConnectionUnavailableException {
         this.batchProcessDelete(deleteConditionParameterMaps, compiledCondition);
     }
 
     private void batchProcessDelete(List<Map<String, Object>> deleteConditionParameterMaps,
-                                    CompiledCondition compiledCondition) {
+                                    CompiledCondition compiledCondition) throws ConnectionUnavailableException {
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -688,8 +714,18 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 stmt.executeBatch();
             }
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing record deletion on table '" + this.tableName
-                    + "': " + e.getMessage(), e);
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Error performing record deletion. Connection is closed " +
+                            "for store: '" + tableName + "'" + " : " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Error performing record deletion for store '"
+                             + this.tableName + "': " + e.getMessage(), e);
+                }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Error performing record deletion for store: '" +
+                              tableName + "'" + " : " + e1.getMessage(), e1);
+            }
         } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
         }
@@ -718,7 +754,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private void batchProcessSQLUpdates(String sql, List<Map<String, Object>> updateConditionParameterMaps,
                                         CompiledCondition compiledCondition,
                                         Map<String, CompiledExpression> updateSetExpressions,
-                                        List<Map<String, Object>> updateSetParameterMaps) {
+                                        List<Map<String, Object>> updateSetParameterMaps)
+            throws ConnectionUnavailableException {
         int counter = 0;
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -745,8 +782,18 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 stmt.executeBatch();
             }
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing record update operations on table '" + this.tableName
-                    + "': " + e.getMessage(), e);
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Error performing record update operations. " +
+                            "Connection is closed for store: '" + tableName + "'" + " : " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Error performing record update operations for store '"
+                            + this.tableName + "': " + e.getMessage(), e);
+                        }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Error performing record update operations for store: '" +
+                        tableName + "'" + " : " + e1.getMessage(), e1);
+            }
         } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
         }
@@ -796,7 +843,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private List<Integer> batchProcessUpdate(List<Map<String, Object>> updateConditionParameterMaps,
                                              CompiledCondition compiledCondition,
                                              Map<String, CompiledExpression> updateSetExpressions,
-                                             List<Map<String, Object>> updateSetParameterMaps) {
+                                             List<Map<String, Object>> updateSetParameterMaps)
+            throws ConnectionUnavailableException {
         int counter = 0;
         Connection conn = this.getConnection();
         PreparedStatement updateStmt = null;
@@ -826,8 +874,19 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         (counter - (counter % batchSize))));
             }
         } catch (SQLException e) {
-            throw new RDBMSTableException("Cannot execute update/insert operation (update) on table '"
-                    + this.tableName + "' with SQL query " + query + " .", e);
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Could not execute batch update/insert operation " +
+                            "(update). Connection is closed for store: '" + tableName + "'" + " : "
+                            + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Could not execute batch update/insert operation (update) for store '"
+                            + this.tableName + "': " + e.getMessage(), e);
+                        }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Could not execute batch update/insert operation (update) " +
+                        "for store: '" + tableName + "'" + " : " + e1.getMessage(), e1);
+                }
         } finally {
             RDBMSTableUtils.cleanupConnection(null, updateStmt, conn);
         }
@@ -838,7 +897,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private List<Integer> sequentialProcessUpdate(List<Map<String, Object>> updateConditionParameterMaps,
                                                   CompiledCondition compiledCondition,
                                                   Map<String, CompiledExpression> updateSetExpressions,
-                                                  List<Map<String, Object>> updateSetParameterMaps) {
+                                                  List<Map<String, Object>> updateSetParameterMaps)
+            throws ConnectionUnavailableException {
         int counter = 0;
         Connection conn = this.getConnection(false);
         PreparedStatement updateStmt = null;
@@ -862,9 +922,18 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 counter++;
             }
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
-                    + this.tableName
-                    + "': " + e.getMessage(), e);
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Could not execute update/insert operation " +
+                        "(update). Connection is closed for store: '" + tableName + "'" + " : " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Could not execute update/insert operation (update) for store '"
+                            + this.tableName + "': " + e.getMessage(), e);
+                        }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Could not execute update/insert operation (update) " +
+                        "for store: '" + tableName + "'" + " : " + e1.getMessage(), e1);
+            }
         } finally {
             RDBMSTableUtils.cleanupConnection(null, updateStmt, conn);
         }
@@ -872,7 +941,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     }
 
     private List<Integer> batchProcessInsert(List<Object[]> addingRecords,
-                                             List<Integer> recordInsertIndexList) {
+                                             List<Integer> recordInsertIndexList)
+            throws ConnectionUnavailableException {
         String query = this.composeInsertQuery();
         Connection conn = this.getConnection(false);
         PreparedStatement insertStmt = null;
@@ -892,10 +962,22 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             conn.commit();
                             insertStmt.clearBatch();
                         }
-                    } catch (SQLException e2) {
+                    } catch (SQLException e) {
+                        try {
+                            if (conn.isClosed()) {
+                                throw new ConnectionUnavailableException("Could not execute insert operation. " +
+                                        "Connection is closed for store: '" + tableName + "'" + " : "
+                                        + e.getMessage(), e);
+                            } else {
+                                throw new RDBMSTableException("Could not execute insert operation " +
+                                        "for store '" + this.tableName + "': " + e.getMessage(), e);
+                            }
+                            } catch (SQLException e1) {
+                                    throw new ConnectionUnavailableException("Could not execute insert operation  " +
+                                            "for store: '" + tableName + "'" + " : " + e1.getMessage(), e1);
+                            }
+                    } finally {
                         RDBMSTableUtils.rollbackConnection(conn);
-                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
-                                + this.tableName + "': " + e2.getMessage(), e2);
                     }
                     counter++;
                     if (counter % batchSize > 0) {
@@ -956,10 +1038,22 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                 conn.commit();
                                 insertStmt.clearBatch();
                             }
-                        } catch (SQLException e2) {
+                        } catch (SQLException e) {
+                            try {
+                                if (conn.isClosed()) {
+                                    throw new ConnectionUnavailableException("Could not execute insert operation. " +
+                                        "Connection is closed for store: '" + tableName + "'" + " : "
+                                            + e.getMessage(), e);
+                                } else {
+                                    throw new RDBMSTableException("Could not execute insert operation " +
+                                            "for store '" + this.tableName + "': " + e.getMessage(), e);
+                                        }
+                            } catch (SQLException e1) {
+                                throw new ConnectionUnavailableException("Could not execute insert operation  " +
+                                        "for store: '" + tableName + "'" + " : " + e1.getMessage(), e1);
+                            }
+                        } finally {
                             RDBMSTableUtils.rollbackConnection(conn);
-                            throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
-                                    + this.tableName + "': " + e2.getMessage(), e2);
                         }
                         counter++;
                     }
@@ -972,8 +1066,18 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 }
             }
         } catch (SQLException e) {
-            throw new RDBMSTableException("Cannot execute update/insert operation (update) on table '"
-                    + this.tableName + "' with SQL query " + query + " .", e);
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Could not execute insert operation. " +
+                            "Connection is closed for store: '" + tableName + "'" + " : " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Could not execute insert operation " +
+                            "for store '" + this.tableName + "': " + e.getMessage(), e);
+                }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Could not execute insert operation  " +
+                        "for store: '" + tableName + "'" + " : " + e1.getMessage(), e1);
+            }
         } finally {
             RDBMSTableUtils.cleanupConnection(null, insertStmt, conn);
         }
@@ -1349,7 +1453,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      * @param primaryKeys     the unique keys that should be set for the table.
      * @param indices         the DB indices that should be set for the table.
      */
-    private void createTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices) {
+    private void createTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices)
+            throws ConnectionUnavailableException {
         StringBuilder builder = new StringBuilder();
         List<Element> primaryKeyList = (primaryKeys == null) ? new ArrayList<>() : primaryKeys.getElements();
         List<Element> indexElementList = (indices == null) ? new ArrayList<>() : indices.getElements();
@@ -1417,7 +1522,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             if (log.isDebugEnabled()) {
                 log.debug("Table '" + this.tableName + "' created.");
             }
-        } catch (SQLException e) {
+        } catch (RDBMSTableException e) {
             throw new RDBMSTableException("Unable to initialize table '" + this.tableName + "': " + e.getMessage(), e);
         }
     }
@@ -1445,7 +1550,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      * @param autocommit whether or not the transactions should automatically be committed.
      * @throws SQLException if the query execution fails.
      */
-    private void executeDDQueries(List<String> queries, boolean autocommit) throws SQLException {
+    private void executeDDQueries(List<String> queries, boolean autocommit)
+            throws ConnectionUnavailableException {
         Connection conn = this.getConnection(autocommit);
         boolean committed = autocommit;
         PreparedStatement stmt;
@@ -1463,7 +1569,18 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             if (!autocommit) {
                 RDBMSTableUtils.rollbackConnection(conn);
             }
-            throw e;
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Could not execute data definition queries. " +
+                            "Connection is closed for store: '" + tableName + "'" + " : " + e.getMessage(), e);
+                } else {
+                        throw new RDBMSTableException("Could not execute data definition queries for store '"
+                                + this.tableName + "': " + e.getMessage(), e);
+                }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Could not execute data definition queries " +
+                    "for store: '" + tableName + "'" + " : " + e1.getMessage(), e1);
+            }
         } finally {
             if (!committed) {
                 RDBMSTableUtils.rollbackConnection(conn);
@@ -1481,7 +1598,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      * @throws SQLException if the query execution fails.
      */
     private void batchExecuteQueriesWithRecords(String query, List<Object[]> records, boolean autocommit)
-            throws SQLException {
+            throws ConnectionUnavailableException {
         PreparedStatement stmt = null;
         boolean committed = autocommit;
         Connection conn = this.getConnection(autocommit);
@@ -1503,7 +1620,16 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             if (!autocommit) {
                 RDBMSTableUtils.rollbackConnection(conn);
             }
-            throw e;
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Failed to execute query. Reason: " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Failed to execute query. Reason: " + e.getMessage(), e);
+                }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Error occurred when attempting to check whether " +
+                                "connection is available. Reason: " + e1.getMessage(), e1);
+            }
         } finally {
             if (!committed) {
                 RDBMSTableUtils.rollbackConnection(conn);
@@ -1517,7 +1643,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      *
      * @return true/false based on the table existence.
      */
-    private boolean tableExists() {
+    private boolean tableExists() throws ConnectionUnavailableException {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -1526,11 +1652,18 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             rs = stmt.executeQuery();
             return true;
         } catch (SQLException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Table '" + this.tableName + "' assumed to not exist since its existence check resulted "
-                        + "in exception " + e.getMessage());
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Connection is closed. Could not check whether " +
+                            "table: '" + tableName + "' exists. " + " : " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Could not check whether table: '" + tableName + "' exists. "
+                            + " : " + e.getMessage(), e);
+                        }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Could not check whether table: '" + tableName + "' exists. "
+                        + " : " + e1.getMessage(), e1);
             }
-            return false;
         } finally {
             RDBMSTableUtils.cleanupConnection(rs, stmt, conn);
         }
@@ -1542,7 +1675,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      * @param record the record whose values should be populated.
      * @param stmt   the statement to which the values should be set.
      */
-    private void populateStatement(Object[] record, PreparedStatement stmt) {
+    private void populateStatement(Object[] record, PreparedStatement stmt) throws ConnectionUnavailableException {
         Attribute attribute = null;
         try {
             for (int i = 0; i < this.attributes.size(); i++) {
@@ -1556,8 +1689,18 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 }
             }
         } catch (SQLException e) {
-            throw new RDBMSTableException("Dropping event since value for attribute name " + attribute.getName() +
-                    "cannot be set: " + e.getMessage(), e);
+            try {
+                if (stmt.getConnection().isClosed()) {
+                    throw new ConnectionUnavailableException("Connection is closed. Could not execute Insert/Update " +
+                        " for store: '" + tableName + "' : " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Dropping event since value for attribute name " +
+                            attribute.getName() + "cannot be set: " + e.getMessage(), e);
+                }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Could not execute Insert/Update for store: '" + tableName
+                        + "' : " + e1.getMessage(), e1);
+            }
         }
     }
 
@@ -1579,14 +1722,34 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         try {
             stmt = conn.prepareStatement(query);
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                    + "' on '" + this.tableName + "' store: " + e.getMessage(), e);
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Connection is closed when preparing to execute " +
+                            "query: '" + query +  "' for store: '" + tableName + "' : " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Error when preparing to execute query: '" + query
+                        + "' on '" + this.tableName + "' store: " + e.getMessage(), e);
+                }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Error when preparing to execute query: '" + query
+                    + "' on '" + this.tableName + "' store: " + e1.getMessage(), e1);
+            }
         }
         try {
             RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0);
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                    + "' on '" + this.tableName + "' store: " + e.getMessage(), e);
+            try {
+                if (conn.isClosed()) {
+                    throw new ConnectionUnavailableException("Connection is closed when preparing to execute " +
+                        "query: '" + query +  "' for store: '" + tableName + "' : " + e.getMessage(), e);
+                } else {
+                    throw new RDBMSTableException("Error when preparing to execute query: '" + query
+                        + "' on '" + this.tableName + "' store: " + e.getMessage(), e);
+                }
+            } catch (SQLException e1) {
+                throw new ConnectionUnavailableException("Error when preparing to execute query: '" + query
+                    + "' on '" + this.tableName + "' store: " + e1.getMessage(), e1);
+            }
         }
         ResultSet rs;
         try {
@@ -1600,9 +1763,20 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             }
             return new RDBMSIterator(conn, stmt, rs, Arrays.asList(outputAttributes), this.tableName);
         } catch (SQLException e) {
+             try {
+                 if (conn.isClosed()) {
+                     throw new ConnectionUnavailableException("Connection is closed when preparing to execute " +
+                         "query: '" + query +  "' for store: '" + tableName + "' : " + e.getMessage(), e);
+                 } else {
+                     throw new RDBMSTableException("Error when preparing to execute query: '" + query
+                         + "' on '" + this.tableName + "' store: " + e.getMessage(), e);
+                 }
+             } catch (SQLException e1) {
+                 throw new ConnectionUnavailableException("Error when preparing to execute query: '" + query
+                     + "' on '" + this.tableName + "' store: " + e1.getMessage(), e1);
+             }
+        } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
-            throw new RDBMSTableException("Error when executing query: '" + query
-                    + "' on '" + this.tableName + "' store: " + e.getMessage(), e);
         }
     }
 
@@ -1860,3 +2034,4 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
     }
 }
+
