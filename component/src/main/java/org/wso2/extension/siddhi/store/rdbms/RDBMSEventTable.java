@@ -1412,7 +1412,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      *
      * @return a new {@link Connection} instance from the datasource.
      */
-    private Connection getConnection() {
+    private Connection getConnection() throws ConnectionUnavailableException {
         return this.getConnection(true);
     }
 
@@ -1422,13 +1422,14 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      * @param autoCommit whether or not transactions to the connections should be committed automatically.
      * @return a new {@link Connection} instance from the datasource.
      */
-    private Connection getConnection(boolean autoCommit) {
+    private Connection getConnection(boolean autoCommit) throws ConnectionUnavailableException {
         Connection conn;
         try {
             conn = this.dataSource.getConnection();
             conn.setAutoCommit(autoCommit);
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error initializing connection: " + e.getMessage(), e);
+            throw new ConnectionUnavailableException("Error initializing connection for store: " + tableName +
+                    ". Reason: " + e.getMessage(), e);
         }
         return conn;
     }
@@ -1645,7 +1646,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      *
      * @return true/false based on the table existence.
      */
-    private boolean tableExists() {
+    private boolean tableExists() throws ConnectionUnavailableException {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs = null;
