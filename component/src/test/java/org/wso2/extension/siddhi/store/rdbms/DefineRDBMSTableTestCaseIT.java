@@ -351,7 +351,7 @@ public class DefineRDBMSTableTestCaseIT {
         //Defining a RDBMS table without having an username field.
         log.info("rdbmstabledefinitiontest9");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String usernameErrorRegex = "username' for DB connectivity cannot be empty";
+        String usernameErrorRegex = "Failed to initialize store for table name 'StockTable'";
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
@@ -386,7 +386,7 @@ public class DefineRDBMSTableTestCaseIT {
         //Defining a RDBMS table without defining a value for username field.
         log.info("rdbmstabledefinitiontest10");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String usernameEmptyRegex = "'username' for DB connectivity cannot be empty";
+        String usernameEmptyRegex = "Failed to initialize store for table name 'StockTable'";
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
