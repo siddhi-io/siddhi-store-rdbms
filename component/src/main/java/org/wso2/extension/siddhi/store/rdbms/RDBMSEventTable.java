@@ -1515,7 +1515,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 log.debug("Table '" + this.tableName + "' created.");
             }
         } catch (RDBMSTableException e) {
-            if (e.getCause().getMessage().toLowerCase().contains("already exists")) {
+            if (e.getCause() != null && e.getCause().getMessage().toLowerCase().contains("already exists")) {
                 if (log.isDebugEnabled()) {
                     log.debug("Table exist with the name " + tableName + ". Existing table will be used ");
                 }
