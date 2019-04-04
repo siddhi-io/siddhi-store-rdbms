@@ -1520,8 +1520,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     log.debug("Table exist with the name " + tableName + ". Existing table will be used ");
                 }
             } else {
-                throw new RDBMSTableException("Unable to initialize table '" + this.tableName +
-                        "': " + e.getMessage(), e);
+                throw new RDBMSTableException("Unable to initialize table '" + this.tableName + "'", e);
             }
         }
     }
