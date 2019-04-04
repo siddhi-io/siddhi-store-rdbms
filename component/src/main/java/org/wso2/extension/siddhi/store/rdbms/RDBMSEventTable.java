@@ -636,7 +636,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 RDBMSTableUtils.cleanupConnection(null, stmt, conn);
                 if (!isConnValid) {
                     throw new ConnectionUnavailableException("Connection closed. Error retrieving records from store '"
-                            + this.tableName + "'" , e);
+                            + this.tableName + "'", e);
                 } else {
                     throw new RDBMSTableException("Error retrieving records from store '" + this.tableName + "'", e);
                 }
@@ -1515,7 +1515,14 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 log.debug("Table '" + this.tableName + "' created.");
             }
         } catch (RDBMSTableException e) {
-            throw new RDBMSTableException("Unable to initialize table '" + this.tableName + "'", e);
+            if (e.getCause().getMessage().toLowerCase().contains("already exists")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Table exist with the name " + tableName + ". Existing table will be used ");
+                }
+            } else {
+                throw new RDBMSTableException("Unable to initialize table '" + this.tableName +
+                        "': " + e.getMessage(), e);
+            }
         }
     }
 
