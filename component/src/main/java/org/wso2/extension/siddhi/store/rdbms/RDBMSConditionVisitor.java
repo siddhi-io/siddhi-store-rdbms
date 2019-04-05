@@ -299,8 +299,9 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
             nextProcessContainsPattern = true;
         } else {
             throw new OperationNotSupportedException("The RDBMS Event table does not support functions other than " +
-                    "sum(), avg(), min(), max() and str:contains() but function '" + ((namespace.isEmpty()) ? ""
-                    + functionName : namespace + ":" + functionName) + "' was specified.");
+                    "sum(), avg(), min(), max() and str:contains() but function '" +
+                    ((RDBMSTableUtils.isEmpty(namespace)) ? "" + functionName : namespace + ":" + functionName) +
+                    "' was specified.");
 
         }
     }
@@ -312,8 +313,9 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
             condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS).append(RDBMSTableConstants.WHITESPACE);
         } else {
             throw new OperationNotSupportedException("The RDBMS Event table does not support functions other than " +
-                    "sum(), avg(), min(), max() and str:contains() but function '" + ((namespace.isEmpty()) ? ""
-                    + functionName : namespace + ":" + functionName) + "' was specified.");
+                    "sum(), avg(), min(), max() and str:contains() but function '" +
+                    ((RDBMSTableUtils.isEmpty(namespace)) ? "" + functionName : namespace + ":" + functionName) +
+                    "' was specified.");
         }
     }
 
