@@ -435,7 +435,8 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(RDBMSTableTestUtils.wrongUsernameRegex) {
+        String tableConnectionErrorRegex = "Error while connecting to Table 'StockTable";
+        LoggerCallBack loggerCallBack = new LoggerCallBack(tableConnectionErrorRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -445,7 +446,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + RDBMSTableTestUtils.wrongUsernameRegex + "'");
+                "Matching log event not found for pattern: '" + tableConnectionErrorRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }
