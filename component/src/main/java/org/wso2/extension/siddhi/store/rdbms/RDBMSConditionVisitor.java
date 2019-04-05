@@ -293,7 +293,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         if (RDBMSTableUtils.isEmpty(namespace) &&
                 (Arrays.stream(supportedFunctions).anyMatch(functionName::equals))) {
             condition.append(functionName).append(RDBMSTableConstants.OPEN_PARENTHESIS);
-        } else  if (namespace.trim().equals("str") && functionName.equals("contains")) {
+        } else if (namespace.trim().equals("str") && functionName.equals("contains")) {
             condition.append("CONTAINS").append(RDBMSTableConstants.OPEN_PARENTHESIS);
             isContainsConditionExist = true;
             nextProcessContainsPattern = true;
