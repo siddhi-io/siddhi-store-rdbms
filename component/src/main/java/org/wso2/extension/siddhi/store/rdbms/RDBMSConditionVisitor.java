@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.table.record.BaseExpressionVisitor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -50,6 +51,8 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     private boolean isContainsConditionExist;
     private boolean nextProcessContainsPattern;
     private int ordinalOfContainPattern = 1;
+
+    private String[] supportedFunctions = {"sum", "avg", "min", "max"};
 
     public RDBMSConditionVisitor(String tableName) {
         this.tableName = tableName;
@@ -287,27 +290,32 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitAttributeFunction(String namespace, String functionName) {
-        if (RDBMSTableUtils.isEmpty(namespace)) {
+        if (RDBMSTableUtils.isEmpty(namespace) &&
+                (Arrays.stream(supportedFunctions).anyMatch(functionName::equals))) {
             condition.append(functionName).append(RDBMSTableConstants.OPEN_PARENTHESIS);
-        } else if ((namespace.trim().equals("str") && functionName.equals("contains"))) {
+        } else if (namespace.trim().equals("str") && functionName.equals("contains")) {
             condition.append("CONTAINS").append(RDBMSTableConstants.OPEN_PARENTHESIS);
             isContainsConditionExist = true;
             nextProcessContainsPattern = true;
         } else {
-            throw new OperationNotSupportedException("The RDBMS Event table does not support function namespaces, " +
-                    "but namespace '" + namespace + "' was specified. Please use functions supported by the " +
-                    "defined RDBMS data store.");
+            throw new OperationNotSupportedException("The RDBMS Event table does not support functions other than " +
+                    "sum(), avg(), min(), max() and str:contains() but function '" +
+                    ((RDBMSTableUtils.isEmpty(namespace)) ? "" + functionName : namespace + ":" + functionName) +
+                    "' was specified.");
+
         }
     }
 
     @Override
     public void endVisitAttributeFunction(String namespace, String functionName) {
-        if (RDBMSTableUtils.isEmpty(namespace) || isContainsConditionExist) {
+        if ((namespace.trim().equals("str") && functionName.equals("contains")) ||
+                (Arrays.stream(supportedFunctions).anyMatch(functionName::equals))) {
             condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS).append(RDBMSTableConstants.WHITESPACE);
         } else {
-            throw new OperationNotSupportedException("The RDBMS Event table does not support function namespaces, " +
-                    "but namespace '" + namespace + "' was specified. Please use functions supported by the " +
-                    "defined RDBMS data store.");
+            throw new OperationNotSupportedException("The RDBMS Event table does not support functions other than " +
+                    "sum(), avg(), min(), max() and str:contains() but function '" +
+                    ((RDBMSTableUtils.isEmpty(namespace)) ? "" + functionName : namespace + ":" + functionName) +
+                    "' was specified.");
         }
     }
 
