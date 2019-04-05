@@ -66,6 +66,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.SortedMap;
@@ -1515,7 +1516,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 log.debug("Table '" + this.tableName + "' created.");
             }
         } catch (RDBMSTableException e) {
-            if (e.getCause() != null && e.getCause().getMessage().toLowerCase().contains("already exists")) {
+            if (e.getCause() != null && e.getCause().getMessage().toLowerCase(Locale.ENGLISH).
+                    contains("already exists")) {
                 if (log.isDebugEnabled()) {
                     log.debug("Table exist with the name " + tableName + ". Existing table will be used ");
                 }
