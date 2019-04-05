@@ -48,9 +48,9 @@
 
     <properties>
         <carbon.analytics.version>2.0.468</carbon.analytics.version>
-        <siddhi.version>4.4.8</siddhi.version>
+        <siddhi.version>5.0.0-m4</siddhi.version>
         <siddhi.bundle.version>4.3.6</siddhi.bundle.version>
-        <siddhi.version.range>[4.0.0, 5.0.0)</siddhi.version.range>
+        <siddhi.version.range>[5.0.0, 6.0.0)</siddhi.version.range>
         <carbon.analytics.common.version>6.0.71</carbon.analytics.common.version>
 
         <!--Dashboard-->
@@ -159,12 +159,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.wso2.siddhi</groupId>
+                <groupId>io.siddhi</groupId>
                 <artifactId>siddhi-core</artifactId>
                 <version>${siddhi.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.siddhi</groupId>
+                <groupId>io.siddhi</groupId>
                 <artifactId>siddhi-query-api</artifactId>
                 <version>${siddhi.version}</version>
             </dependency>
@@ -685,7 +685,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.wso2.siddhi</groupId>
+                <groupId>io.siddhi</groupId>
                 <artifactId>siddhi-doc-gen</artifactId>
                 <version>${siddhi.version}</version>
                 <executions>

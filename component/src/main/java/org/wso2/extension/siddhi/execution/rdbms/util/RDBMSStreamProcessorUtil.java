@@ -18,6 +18,11 @@
 package org.wso2.extension.siddhi.execution.rdbms.util;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.siddhi.core.exception.SiddhiAppRuntimeException;
+import io.siddhi.core.executor.ConstantExpressionExecutor;
+import io.siddhi.core.executor.ExpressionExecutor;
+import io.siddhi.query.api.definition.Attribute;
+import io.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -25,11 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -210,7 +210,7 @@ public class RDBMSStreamProcessorUtil {
      * @param stmt    the statement to which the element should be set.
      * @param ordinal the ordinal of the element in the statement (its place in a potential list of places).
      * @param type    the type of the element to be set, adheres to
-     *                {@link org.wso2.siddhi.query.api.definition.Attribute.Type}.
+     *                {@link io.siddhi.query.api.definition.Attribute.Type}.
      * @param value   the value of the element.
      * @throws SQLException if there are issues when the element is being set.
      */

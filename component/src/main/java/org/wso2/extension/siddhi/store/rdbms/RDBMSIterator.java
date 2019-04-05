@@ -17,10 +17,10 @@
 */
 package org.wso2.extension.siddhi.store.rdbms;
 
+import io.siddhi.core.table.record.RecordIterator;
+import io.siddhi.query.api.definition.Attribute;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils;
-import org.wso2.siddhi.core.table.record.RecordIterator;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.io.IOException;
 import java.sql.Connection;

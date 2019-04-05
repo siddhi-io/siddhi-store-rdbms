@@ -17,7 +17,7 @@
 */
 package org.wso2.extension.siddhi.store.rdbms.util;
 
-import org.wso2.siddhi.query.api.definition.Attribute;
+import io.siddhi.query.api.definition.Attribute;
 
 /**
  * Denotes a bean class which is used to keep track of constants which may be specified in Siddhi query conditions.
