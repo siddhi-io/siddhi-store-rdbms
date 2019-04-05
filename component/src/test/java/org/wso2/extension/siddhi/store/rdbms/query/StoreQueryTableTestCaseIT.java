@@ -482,7 +482,7 @@ public class StoreQueryTableTestCaseIT {
         stockStream.send(new Object[]{"IBM", 57.6f, 150L});
         stockStream.send(new Object[]{"IBM", 57.6f, 50L});
         stockStream.send(new Object[]{"WSO2", 50.0f, 200L});
-        Thread.sleep(1500);
+        Thread.sleep(500);
 
         String storeQuery = "" +
                 "from StockTable " +
