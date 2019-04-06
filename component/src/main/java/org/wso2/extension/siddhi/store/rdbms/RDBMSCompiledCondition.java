@@ -40,12 +40,6 @@ public class RDBMSCompiledCondition implements CompiledCondition {
         this.ordinalOfContainPattern = ordinalOfContainPattern;
     }
 
-    @Override
-    public CompiledCondition cloneCompilation(String key) {
-        return new RDBMSCompiledCondition(this.compiledQuery, this.parameters,
-                this.isContainsConditionExist, this.ordinalOfContainPattern);
-    }
-
     public String getCompiledQuery() {
         return compiledQuery;
     }

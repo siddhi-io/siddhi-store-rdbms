@@ -45,12 +45,6 @@ public class RDBMSCompiledSelection implements CompiledSelection {
         this.offset = offset;
     }
 
-    @Override
-    public CompiledSelection cloneCompilation(String s) {
-        return new RDBMSCompiledSelection(compiledSelectClause, compiledGroupByClause, compiledHavingClause,
-                compiledOrderByClause, limit, offset);
-    }
-
     public RDBMSCompiledCondition getCompiledSelectClause() {
         return compiledSelectClause;
     }

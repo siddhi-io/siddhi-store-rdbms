@@ -128,6 +128,9 @@
                             org.wso2.extension.siddhi.execution.rdbms.*
                         </Export-Package>
                         <Import-Package>
+                            io.siddhi.core.*;version="${siddhi.version.range}",
+                            io.siddhi.annotation.*;version="${siddhi.version.range}",
+                            io.siddhi.query.*;version="${siddhi.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
