@@ -27,7 +27,7 @@
 
     <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
     <artifactId>siddhi-store-rdbms-parent</artifactId>
-    <version>5.1.5-SNAPSHOT</version>
+    <version>5.1.7-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Siddhi Store Extension - RDBMS Aggregator Pom</name>
     <url>http://wso2.org</url>
