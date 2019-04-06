@@ -45,11 +45,6 @@ public class RDBMSCompiledClause implements CompiledCondition {
         this.parameters = parameters;
     }
 
-    @Override
-    public CompiledCondition cloneCompilation(String key) {
-        return new RDBMSCompiledClause(this.compiledQuery, this.parameters);
-    }
-
     public String getCompiledQuery() {
         return compiledQuery;
     }

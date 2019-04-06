@@ -28,6 +28,7 @@ import io.siddhi.core.event.ComplexEventChunk;
 import io.siddhi.core.event.stream.MetaStreamEvent;
 import io.siddhi.core.event.stream.StreamEvent;
 import io.siddhi.core.event.stream.StreamEventCloner;
+import io.siddhi.core.event.stream.holder.StreamEventClonerHolder;
 import io.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import io.siddhi.core.exception.SiddhiAppCreationException;
 import io.siddhi.core.exception.SiddhiAppRuntimeException;
@@ -37,6 +38,8 @@ import io.siddhi.core.query.processor.ProcessingMode;
 import io.siddhi.core.query.processor.Processor;
 import io.siddhi.core.query.processor.stream.StreamProcessor;
 import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
 import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
@@ -49,7 +52,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -134,7 +136,7 @@ import java.util.stream.Collectors;
                 )
         }
 )
-public class QueryStreamProcessor extends StreamProcessor {
+public class QueryStreamProcessor extends StreamProcessor<State> {
     private String dataSourceName;
     private HikariDataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
@@ -142,13 +144,12 @@ public class QueryStreamProcessor extends StreamProcessor {
     private boolean isVaryingQuery;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
 
+
     @Override
-    protected List<Attribute> init(MetaStreamEvent metaStreamEvent,
-                                   AbstractDefinition abstractDefinition,
-                                   ExpressionExecutor[] expressionExecutors,
-                                   ConfigReader configReader,
-                                   boolean b,
-                                   SiddhiQueryContext siddhiQueryContext) {
+    protected StateFactory init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
+                                ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                                StreamEventClonerHolder streamEventClonerHolder, boolean outputExpectsExpiredEvents,
+                                boolean findToBeExecuted, SiddhiQueryContext siddhiQueryContext) {
 
         int attributesLength = attributeExpressionExecutors.length;
         if ((attributesLength < 3)) {
@@ -231,17 +232,19 @@ public class QueryStreamProcessor extends StreamProcessor {
                         }
                         return new Attribute(splitAttributeDef[0], attributeType);
                     }).collect(Collectors.toList());
-            return this.attributeList;
         } else {
             throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function should be a " +
                     "constant, but found a dynamic attribute of type '" +
                     queryExpressionExecutor.getClass().getCanonicalName() + "'.");
         }
+
+        return null;
     }
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
-                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater,
+                           State state) {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         ResultSet resultSet = null;
@@ -304,17 +307,13 @@ public class QueryStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    public Map<String, Object> currentState() {
-        return null;
-    }
-
-    @Override
-    public void restoreState(Map<String, Object> state) {
-
+    public List<Attribute> getReturnAttributes() {
+        return this.attributeList;
     }
 
     @Override
     public ProcessingMode getProcessingMode() {
-        return null;
+        return ProcessingMode.SLIDE;
     }
+
 }

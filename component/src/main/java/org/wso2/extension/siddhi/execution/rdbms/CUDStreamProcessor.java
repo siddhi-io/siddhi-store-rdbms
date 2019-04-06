@@ -29,6 +29,7 @@ import io.siddhi.core.event.ComplexEventChunk;
 import io.siddhi.core.event.stream.MetaStreamEvent;
 import io.siddhi.core.event.stream.StreamEvent;
 import io.siddhi.core.event.stream.StreamEventCloner;
+import io.siddhi.core.event.stream.holder.StreamEventClonerHolder;
 import io.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import io.siddhi.core.exception.SiddhiAppRuntimeException;
 import io.siddhi.core.executor.ConstantExpressionExecutor;
@@ -37,6 +38,8 @@ import io.siddhi.core.query.processor.ProcessingMode;
 import io.siddhi.core.query.processor.Processor;
 import io.siddhi.core.query.processor.stream.StreamProcessor;
 import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
 import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
@@ -49,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This extension can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a WSO2 datasource.
@@ -118,20 +120,20 @@ import java.util.Map;
                 )
         }
 )
-public class CUDStreamProcessor extends StreamProcessor {
+public class CUDStreamProcessor extends StreamProcessor<State> {
     private String dataSourceName;
     private HikariDataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
     private boolean isVaryingQuery;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
+    private List<Attribute> attributeList = new ArrayList<>();
+
 
     @Override
-    protected List<Attribute> init(MetaStreamEvent metaStreamEvent,
-                                   AbstractDefinition abstractDefinition,
-                                   ExpressionExecutor[] expressionExecutors,
-                                   ConfigReader configReader,
-                                   boolean b,
-                                   SiddhiQueryContext siddhiQueryContext) {
+    protected StateFactory init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
+                                ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                                StreamEventClonerHolder streamEventClonerHolder, boolean outputExpectsExpiredEvents,
+                                boolean findToBeExecuted, SiddhiQueryContext siddhiQueryContext) {
         boolean performCUDOps = Boolean.parseBoolean(
                 configReader.readConfig("perform.CUD.operations", "false"));
         if (!performCUDOps) {
@@ -176,12 +178,15 @@ public class CUDStreamProcessor extends StreamProcessor {
                         (attributeExpressionExecutors.length - 2) + "'.");
             }
         }
-        return Collections.singletonList(new Attribute("numRecords", Attribute.Type.INT));
+
+        attributeList = Collections.singletonList(new Attribute("numRecords", Attribute.Type.INT));
+        return null;
     }
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
-                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater,
+                           State state) {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         try {
@@ -235,6 +240,7 @@ public class CUDStreamProcessor extends StreamProcessor {
             RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, conn);
         }
         nextProcessor.process(streamEventChunk);
+
     }
 
     private Connection getConnection() {
@@ -258,16 +264,13 @@ public class CUDStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    public Map<String, Object> currentState() {
-        return null;
-    }
-
-    @Override
-    public void restoreState(Map<String, Object> state) {
+    public List<Attribute> getReturnAttributes() {
+        return attributeList;
     }
 
     @Override
     public ProcessingMode getProcessingMode() {
-        return null;
+        return ProcessingMode.SLIDE;
     }
+
 }
