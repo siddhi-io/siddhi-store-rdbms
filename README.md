@@ -2,6 +2,7 @@ siddhi-store-rdbms
 ======================================
 
 The **siddhi-store-rdbms extension** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a> that  can be used to persist events to an RDBMS instance of the user's choice.
+
 Find some useful links below:
 
 * <a target="_blank" href="https://github.com/wso2-extensions/siddhi-store-rdbms">Source code</a>

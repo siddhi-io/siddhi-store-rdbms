@@ -19,6 +19,28 @@ package org.wso2.extension.siddhi.store.rdbms;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.siddhi.annotation.Example;
+import io.siddhi.annotation.Extension;
+import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.SystemParameter;
+import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.exception.CannotLoadConfigurationException;
+import io.siddhi.core.exception.ConnectionUnavailableException;
+import io.siddhi.core.exception.QueryableRecordTableException;
+import io.siddhi.core.table.record.AbstractQueryableRecordTable;
+import io.siddhi.core.table.record.ExpressionBuilder;
+import io.siddhi.core.table.record.RecordIterator;
+import io.siddhi.core.util.SiddhiConstants;
+import io.siddhi.core.util.collection.operator.CompiledCondition;
+import io.siddhi.core.util.collection.operator.CompiledExpression;
+import io.siddhi.core.util.collection.operator.CompiledSelection;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.query.api.annotation.Annotation;
+import io.siddhi.query.api.annotation.Element;
+import io.siddhi.query.api.definition.Attribute;
+import io.siddhi.query.api.definition.TableDefinition;
+import io.siddhi.query.api.execution.query.selection.OrderByAttribute;
+import io.siddhi.query.api.util.AnnotationHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -32,28 +54,6 @@ import org.wso2.extension.siddhi.store.rdbms.config.RDBMSTypeMapping;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.SystemParameter;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.QueryableRecordTableException;
-import org.wso2.siddhi.core.table.record.AbstractQueryableRecordTable;
-import org.wso2.siddhi.core.table.record.ExpressionBuilder;
-import org.wso2.siddhi.core.table.record.RecordIterator;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
-import org.wso2.siddhi.core.util.collection.operator.CompiledSelection;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.execution.query.selection.OrderByAttribute;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -75,6 +75,7 @@ import java.util.stream.Collectors;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_DRIVER_CLASS_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_DATASOURCE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_FIELD_LENGTHS;
@@ -136,7 +137,6 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TRA
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TYPE_MAPPING;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.WHERE_CLAUSE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.WHITESPACE;
-import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
 
 /**
  * Class representing the RDBMS Event Table implementation.

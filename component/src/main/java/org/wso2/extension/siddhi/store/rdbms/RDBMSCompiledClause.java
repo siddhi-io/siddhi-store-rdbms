@@ -18,7 +18,7 @@
 
 package org.wso2.extension.siddhi.store.rdbms;
 
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import io.siddhi.core.util.collection.operator.CompiledCondition;
 
 import java.util.SortedMap;
 
@@ -43,11 +43,6 @@ public class RDBMSCompiledClause implements CompiledCondition {
     public RDBMSCompiledClause(String compiledQuery, SortedMap<Integer, Object> parameters) {
         this.compiledQuery = compiledQuery;
         this.parameters = parameters;
-    }
-
-    @Override
-    public CompiledCondition cloneCompilation(String key) {
-        return new RDBMSCompiledClause(this.compiledQuery, this.parameters);
     }
 
     public String getCompiledQuery() {

@@ -18,6 +18,15 @@
 
 package org.wso2.extension.siddhi.store.rdbms.query;
 
+import io.siddhi.core.SiddhiAppRuntime;
+import io.siddhi.core.SiddhiManager;
+import io.siddhi.core.event.Event;
+import io.siddhi.core.exception.StoreQueryCreationException;
+import io.siddhi.core.stream.input.InputHandler;
+import io.siddhi.core.util.EventPrinter;
+import io.siddhi.query.api.definition.Attribute;
+import io.siddhi.query.compiler.SiddhiCompiler;
+import io.siddhi.query.compiler.exception.SiddhiParserException;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
@@ -26,15 +35,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.StoreQueryCreationException;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.compiler.SiddhiCompiler;
-import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.sql.SQLException;
 

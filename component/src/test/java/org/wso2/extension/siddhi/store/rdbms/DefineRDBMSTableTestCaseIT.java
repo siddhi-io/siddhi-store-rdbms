@@ -17,6 +17,9 @@
  */
 package org.wso2.extension.siddhi.store.rdbms;
 
+import io.siddhi.core.SiddhiAppRuntime;
+import io.siddhi.core.SiddhiManager;
+import io.siddhi.core.stream.input.InputHandler;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -26,9 +29,6 @@ import org.testng.annotations.Test;
 import org.wso2.extension.siddhi.store.rdbms.util.LoggerAppender;
 import org.wso2.extension.siddhi.store.rdbms.util.LoggerCallBack;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.stream.input.InputHandler;
 
 import java.sql.SQLException;
 import javax.naming.NamingException;
@@ -435,7 +435,8 @@ public class DefineRDBMSTableTestCaseIT {
                 "insert into StockTable ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        LoggerCallBack loggerCallBack = new LoggerCallBack(RDBMSTableTestUtils.wrongUsernameRegex) {
+        String tableConnectionErrorRegex = "Error while connecting to Table 'StockTable";
+        LoggerCallBack loggerCallBack = new LoggerCallBack(tableConnectionErrorRegex) {
             @Override
             public void receive(String logEventMessage) {
                 isLogEventArrived = true;
@@ -445,7 +446,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.start();
         Thread.sleep(1000);
         Assert.assertEquals(isLogEventArrived, true,
-                "Matching log event not found for pattern: '" + RDBMSTableTestUtils.wrongUsernameRegex + "'");
+                "Matching log event not found for pattern: '" + tableConnectionErrorRegex + "'");
         LoggerAppender.setLoggerCallBack(null);
         siddhiAppRuntime.shutdown();
     }

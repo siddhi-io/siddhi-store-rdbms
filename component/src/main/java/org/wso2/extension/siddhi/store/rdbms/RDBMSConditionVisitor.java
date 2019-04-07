@@ -17,13 +17,13 @@
 */
 package org.wso2.extension.siddhi.store.rdbms;
 
+import io.siddhi.core.exception.OperationNotSupportedException;
+import io.siddhi.core.table.record.BaseExpressionVisitor;
+import io.siddhi.query.api.definition.Attribute;
+import io.siddhi.query.api.expression.condition.Compare;
 import org.wso2.extension.siddhi.store.rdbms.util.Constant;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants;
 import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.table.record.BaseExpressionVisitor;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -18,7 +18,7 @@
 
 package org.wso2.extension.siddhi.store.rdbms;
 
-import org.wso2.siddhi.core.util.collection.operator.CompiledSelection;
+import io.siddhi.core.util.collection.operator.CompiledSelection;
 
 /**
  * Implementation class of {@link CompiledSelection} corresponding to the RDBMS Event Table.
@@ -43,12 +43,6 @@ public class RDBMSCompiledSelection implements CompiledSelection {
         this.compiledOrderByClause = compiledOrderByClause;
         this.limit = limit;
         this.offset = offset;
-    }
-
-    @Override
-    public CompiledSelection cloneCompilation(String s) {
-        return new RDBMSCompiledSelection(compiledSelectClause, compiledGroupByClause, compiledHavingClause,
-                compiledOrderByClause, limit, offset);
     }
 
     public RDBMSCompiledCondition getCompiledSelectClause() {

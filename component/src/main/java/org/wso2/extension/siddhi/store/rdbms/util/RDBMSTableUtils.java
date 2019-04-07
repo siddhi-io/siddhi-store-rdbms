@@ -18,6 +18,12 @@
 package org.wso2.extension.siddhi.store.rdbms.util;
 
 import com.google.common.collect.Maps;
+import io.siddhi.core.exception.CannotLoadConfigurationException;
+import io.siddhi.core.util.collection.operator.CompiledExpression;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.query.api.annotation.Annotation;
+import io.siddhi.query.api.annotation.Element;
+import io.siddhi.query.api.definition.Attribute;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.extension.siddhi.store.rdbms.RDBMSCompiledCondition;
@@ -25,12 +31,6 @@ import org.wso2.extension.siddhi.store.rdbms.RDBMSCompiledSelection;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfiguration;
 import org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.extension.siddhi.store.rdbms.exception.RDBMSTableException;
-import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -274,7 +274,7 @@ public class RDBMSTableUtils {
      * @param stmt    the statement to which the element should be set.
      * @param ordinal the ordinal of the element in the statement (its place in a potential list of places).
      * @param type    the type of the element to be set, adheres to
-     *                {@link org.wso2.siddhi.query.api.definition.Attribute.Type}.
+     *                {@link io.siddhi.query.api.definition.Attribute.Type}.
      * @param value   the value of the element.
      * @throws SQLException if there are issues when the element is being set.
      */
