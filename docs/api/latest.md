@@ -1,8 +1,8 @@
-# API Docs - v5.1.6
+# API Docs - v6.0.0
 
 ## Rdbms
 
-### cud *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a>*
+### cud *<a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a>*
 
 <p style="word-wrap: break-word">This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.<br></p>
 
@@ -93,7 +93,7 @@ insert into  RecordStream;
 ```
 <p style="word-wrap: break-word">This query updates the events from the input stream named 'TriggerStream' with an additional attribute named 'numRecords', of which the value indicates the number of records manipulated. The updated events are inserted into an output stream named 'RecordStream'. Here the values of attributes changedName and previousName in the event will be set to the query.</p>
 
-### query *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a>*
+### query *<a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a>*
 
 <p style="word-wrap: break-word">This function performs SQL retrieval queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.</p>
 
@@ -178,7 +178,7 @@ insert into recordStream;
 
 ## Store
 
-### rdbms *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#store">(Store)</a>*
+### rdbms *<a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#store">(Store)</a>*
 
 <p style="word-wrap: break-word">This extension assigns data sources and connection instructions to event tables. It also implements read-write operations on connected datasources.</p>
 
