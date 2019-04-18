@@ -489,7 +489,8 @@ public class StoreQueryTableTestCaseIT {
                 "on price > 53 " +
                 "select symbol, price, sum(volume) as totalVolume, avg(volume) as avgVolume, " +
                 "min(volume) as minVolume, max(volume) as maxVolume " +
-                "group by symbol, price ";
+                "group by symbol, price "
+                + "order by price desc";
         Event[] events = siddhiAppRuntime.query(storeQuery);
         EventPrinter.print(events);
         AssertJUnit.assertEquals(2, events.length);

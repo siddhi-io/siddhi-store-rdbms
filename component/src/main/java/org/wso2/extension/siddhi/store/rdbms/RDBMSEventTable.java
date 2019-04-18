@@ -505,6 +505,8 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
 public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     private static final Log log = LogFactory.getLog(RDBMSEventTable.class);
+    private String selectNullClause = "(SELECT NULL)";
+    public static final String ZERO = "0";
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
     private HikariDataSource dataSource;
     private boolean isLocalDatasource;
@@ -1886,6 +1888,13 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                 "'isLimitBeforeOffset' has not being configured in RDBMS Event Table query " +
                                 "configuration, for store: " + tableName);
                     }
+                    if (queryConfigurationEntry.getDatabaseName().equals(RDBMSTableConstants.MICROSOFT_SQL_SERVER_NAME)
+                            && compiledOrderByClause == null) {
+                        String orderByClause = rdbmsSelectQueryTemplate.getOrderByClause();
+                        orderByClause = orderByClause.replace(
+                                RDBMSTableConstants.PLACEHOLDER_COLUMNS, selectNullClause);
+                        selectQuery = selectQuery.append(WHITESPACE).append(orderByClause);
+                    }
                     if (isLimitBeforeOffset) {
                         selectQuery = selectQuery.append(WHITESPACE).append(limitClause)
                                 .append(WHITESPACE).append(offsetClause);
@@ -1894,7 +1903,29 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                 .append(WHITESPACE).append(limitClause);
                     }
                 } else {
-                    selectQuery = selectQuery.append(WHITESPACE).append(limitClause);
+                    if (queryConfigurationEntry.getDatabaseName().equals(
+                            RDBMSTableConstants.MICROSOFT_SQL_SERVER_NAME)) {
+                        if (compiledOrderByClause == null) {
+                            String orderByClause = rdbmsSelectQueryTemplate.getOrderByClause();
+//                            selectNullClause = selectNullClause.replace(TABLE_NAME, tableName);
+                            orderByClause = orderByClause.replace(
+                                    RDBMSTableConstants.PLACEHOLDER_COLUMNS, selectNullClause);
+                            selectQuery = selectQuery.append(WHITESPACE).append(orderByClause);
+                        }
+                        String offsetClause = rdbmsSelectQueryTemplate.getOffsetClause();
+                        offsetClause = offsetClause.replace(RDBMSTableConstants.PLACEHOLDER_Q, ZERO);
+                        Boolean isLimitBeforeOffset = Boolean.parseBoolean(rdbmsSelectQueryTemplate.
+                                getIsLimitBeforeOffset());
+                        if (isLimitBeforeOffset) {
+                            selectQuery = selectQuery.append(WHITESPACE).append(limitClause)
+                                    .append(WHITESPACE).append(offsetClause);
+                        } else {
+                            selectQuery = selectQuery.append(WHITESPACE).append(offsetClause)
+                                    .append(WHITESPACE).append(limitClause);
+                        }
+                    } else {
+                        selectQuery = selectQuery.append(WHITESPACE).append(limitClause);
+                    }
                 }
             }
             return selectQuery.toString();
