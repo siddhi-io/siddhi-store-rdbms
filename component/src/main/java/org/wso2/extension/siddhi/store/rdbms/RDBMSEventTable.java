@@ -505,8 +505,8 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
 public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     private static final Log log = LogFactory.getLog(RDBMSEventTable.class);
-    private String selectNullClause = "(SELECT NULL)";
-    public static final String ZERO = "0";
+    private static final  String SELECT_NULL = "(SELECT NULL)";
+    private static final String ZERO = "0";
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
     private HikariDataSource dataSource;
     private boolean isLocalDatasource;
@@ -1888,11 +1888,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                 "'isLimitBeforeOffset' has not being configured in RDBMS Event Table query " +
                                 "configuration, for store: " + tableName);
                     }
-                    if (queryConfigurationEntry.getDatabaseName().equals(RDBMSTableConstants.MICROSOFT_SQL_SERVER_NAME)
-                            && compiledOrderByClause == null) {
+                    if (queryConfigurationEntry.getDatabaseName().equalsIgnoreCase(
+                            RDBMSTableConstants.MICROSOFT_SQL_SERVER_NAME) && compiledOrderByClause == null) {
                         String orderByClause = rdbmsSelectQueryTemplate.getOrderByClause();
                         orderByClause = orderByClause.replace(
-                                RDBMSTableConstants.PLACEHOLDER_COLUMNS, selectNullClause);
+                                RDBMSTableConstants.PLACEHOLDER_COLUMNS, SELECT_NULL);
                         selectQuery = selectQuery.append(WHITESPACE).append(orderByClause);
                     }
                     if (isLimitBeforeOffset) {
@@ -1903,13 +1903,12 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                 .append(WHITESPACE).append(limitClause);
                     }
                 } else {
-                    if (queryConfigurationEntry.getDatabaseName().equals(
+                    if (queryConfigurationEntry.getDatabaseName().equalsIgnoreCase(
                             RDBMSTableConstants.MICROSOFT_SQL_SERVER_NAME)) {
                         if (compiledOrderByClause == null) {
                             String orderByClause = rdbmsSelectQueryTemplate.getOrderByClause();
-//                            selectNullClause = selectNullClause.replace(TABLE_NAME, tableName);
                             orderByClause = orderByClause.replace(
-                                    RDBMSTableConstants.PLACEHOLDER_COLUMNS, selectNullClause);
+                                    RDBMSTableConstants.PLACEHOLDER_COLUMNS, SELECT_NULL);
                             selectQuery = selectQuery.append(WHITESPACE).append(orderByClause);
                         }
                         String offsetClause = rdbmsSelectQueryTemplate.getOffsetClause();
