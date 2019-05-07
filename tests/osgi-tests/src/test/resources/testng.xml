@@ -17,8 +17,8 @@ limitations under the License.
 <suite name="Siddhi-store-rdbms-Test-Suite">
     <test name="siddhi-store-rdbms-tests" preserve-order="true">
         <classes>
-            <class name="org.wso2.extension.siddhi.store.rdbms.test.osgi.CarbonDSReferenceTest"/>
-            <class name="org.wso2.extension.siddhi.store.rdbms.test.osgi.InvalidCarbonDSReferenceTest"/>
+            <class name="io.siddhi.extension.store.rdbms.test.osgi.CarbonDSReferenceTest"/>
+            <class name="io.siddhi.extension.store.rdbms.test.osgi.InvalidCarbonDSReferenceTest"/>
         </classes>
     </test>
 </suite>

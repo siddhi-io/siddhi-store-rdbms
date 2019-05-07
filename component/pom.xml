@@ -20,7 +20,7 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
+        <groupId>io.siddhi.extension.store.rdbms</groupId>
         <artifactId>siddhi-store-rdbms-parent</artifactId>
         <version>6.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -124,8 +124,8 @@
                         </Private-Package>
                         <Export-Package>
                             !com.zaxxer.hikari.*,
-                            org.wso2.extension.siddhi.store.rdbms.*,
-                            org.wso2.extension.siddhi.execution.rdbms.*
+                            io.siddhi.extension.store.rdbms.*,
+                            io.siddhi.extension.execution.rdbms.*
                         </Export-Package>
                         <Import-Package>
                             io.siddhi.core.*;version="${siddhi.version.range}",
@@ -153,6 +153,19 @@
                     </systemProperties>
                     <skip>${skip.surefire.test}</skip>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.siddhi</groupId>
+                <artifactId>siddhi-doc-gen</artifactId>
+                <version>${siddhi.version}</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate-md-docs</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

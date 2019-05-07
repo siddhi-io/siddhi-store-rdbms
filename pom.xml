@@ -25,7 +25,7 @@
         <version>5</version>
     </parent>
 
-    <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
+    <groupId>io.siddhi.extension.store.rdbms</groupId>
     <artifactId>siddhi-store-rdbms-parent</artifactId>
     <version>6.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -48,8 +48,8 @@
 
     <properties>
         <io.siddhi.runner.version>1.0.0-m2</io.siddhi.runner.version>
-        <siddhi.version>5.0.0-m7</siddhi.version>
-        <siddhi.bundle.version>5.0.0.m7</siddhi.bundle.version>
+        <siddhi.version>5.0.0</siddhi.version>
+        <siddhi.bundle.version>5.0.0</siddhi.bundle.version>
         <siddhi.version.range>[5.0.0, 6.0.0)</siddhi.version.range>
         <carbon.analytics.common.version>6.0.73</carbon.analytics.common.version>
 
@@ -473,7 +473,7 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
+                <groupId>io.siddhi.extension.store.rdbms</groupId>
                 <artifactId>siddhi-store-rdbms-tests-distribution</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
@@ -564,19 +564,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>io.siddhi</groupId>
-                <artifactId>siddhi-doc-gen</artifactId>
-                <version>${siddhi.version}</version>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>generate-md-docs</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>

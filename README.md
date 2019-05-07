@@ -32,7 +32,7 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
 
 ```
      <dependency>
-        <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
+        <groupId>io.siddhi.extension.store.rdbms</groupId>
         <artifactId>siddhi-store-rdbms</artifactId>
         <version>x.x.x</version>
      </dependency>
