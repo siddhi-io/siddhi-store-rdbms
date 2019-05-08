@@ -32,9 +32,9 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.use
 
 // The following test cases are for Partial Aggregations in Siddhi Core. If any of the test cases fail, Siddhi Core
 // should be analyzed in Partial Aggregation context.
-public class PartialAggregationTestCaseIT {
+public class DistributedAggregationTestCaseIT {
 
-    private static final Logger log = Logger.getLogger(PartialAggregationTestCaseIT.class);
+    private static final Logger log = Logger.getLogger(DistributedAggregationTestCaseIT.class);
 
     @BeforeMethod
     public void init() {
