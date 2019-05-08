@@ -48,7 +48,7 @@
 
     <properties>
         <carbon.analytics.version>2.1.7</carbon.analytics.version>
-        <siddhi.version>4.5.5</siddhi.version>
+        <siddhi.version>4.5.8</siddhi.version>
         <siddhi.bundle.version>4.5.5</siddhi.bundle.version>
         <siddhi.version.range>[4.0.0, 5.0.0)</siddhi.version.range>
         <carbon.analytics.common.version>6.1.17</carbon.analytics.common.version>
