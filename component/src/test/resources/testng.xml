@@ -33,6 +33,7 @@
             <class name="org.wso2.extension.siddhi.store.rdbms.set.SetUpdateRDBMSTableTestCaseIT" />
             <class name="org.wso2.extension.siddhi.store.rdbms.DistributedAggregationTestCaseIT" />
             <class name="org.wso2.extension.siddhi.store.rdbms.query.StoreQueryTableTestCaseIT"/>
+            <class name="org.wso2.extension.siddhi.store.rdbms.IncrementalAggregationTestCaseIT"/>
         </classes>
     </test>
 </suite>
