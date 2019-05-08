@@ -32,9 +32,9 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.use
 
 // The following test cases are for Partial Aggregations in Siddhi Core. If any of the test cases fail, Siddhi Core
 // should be analyzed in Partial Aggregation context.
-public class PartialAggregationTestCase {
+public class DistributedAggregationTestCaseIT {
 
-    private static final Logger log = Logger.getLogger(PartialAggregationTestCase.class);
+    private static final Logger log = Logger.getLogger(DistributedAggregationTestCaseIT.class);
 
     @BeforeMethod
     public void init() {
@@ -82,7 +82,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -168,7 +168,11 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2" +
+                "" +
+                "" +
+                "" +
+                ", maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -252,7 +256,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -340,7 +344,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -425,7 +429,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -521,7 +525,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -618,7 +622,7 @@ public class PartialAggregationTestCase {
                 + " quantity int); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -705,7 +709,7 @@ public class PartialAggregationTestCase {
                         "quantity int);";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
                 "@partitionbyid " +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
@@ -813,7 +817,7 @@ public class PartialAggregationTestCase {
                         "quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
                 "@partitionbyid " +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
@@ -946,7 +950,7 @@ public class PartialAggregationTestCase {
                         "quantity int); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
                 "@partitionbyid " +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
@@ -1066,7 +1070,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -1215,7 +1219,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockSumAggregation\n" +
                 "from stockStream \n" +
@@ -1225,7 +1229,7 @@ public class PartialAggregationTestCase {
 
         String query2 = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAvgAggregation\n" +
                 "from stockStream \n" +
@@ -1368,7 +1372,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -1377,7 +1381,7 @@ public class PartialAggregationTestCase {
 
         String query2 = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockNormalAggregation\n" +
                 "from stockStream \n" +
