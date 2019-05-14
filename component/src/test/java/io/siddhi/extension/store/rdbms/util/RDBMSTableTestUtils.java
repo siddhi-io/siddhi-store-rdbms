@@ -257,4 +257,22 @@ public class RDBMSTableTestUtils {
             return stringBuilder.toString();
         }
     }
+
+    public static void runStatements(String... queries) {
+        PreparedStatement stmt = null;
+        Connection con = null;
+        try {
+            con = getTestDataSource().getConnection();
+            con.setAutoCommit(true);
+            for (String query : queries) {
+                stmt = con.prepareStatement(query);
+                stmt.execute();
+            }
+        } catch (SQLException e) {
+            log.error("Insert DB table failed due to " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, stmt, con);
+        }
+    }
+
 }

@@ -31,7 +31,7 @@
             <class name="io.siddhi.extension.store.rdbms.UpdateRDBMSTableTestCaseIT" />
             <class name="io.siddhi.extension.store.rdbms.set.SetUpdateOrInsertRDBMSTableTestCaseIT" />
             <class name="io.siddhi.extension.store.rdbms.set.SetUpdateRDBMSTableTestCaseIT" />
-            <class name="io.siddhi.extension.store.rdbms.PartialAggregationTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.DistributedAggregationTestCaseIT" />
             <class name="io.siddhi.extension.store.rdbms.query.StoreQueryTableTestCaseIT"/>
         </classes>
     </test>
