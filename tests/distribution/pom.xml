@@ -160,17 +160,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.siddhi.editor.core.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
             <artifactId>org.wso2.carbon.event.simulator.core.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.sp.jobmanager.core.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -180,7 +170,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.siddhi.metrics.core.feature</artifactId>
+            <artifactId>org.wso2.carbon.sp.metrics.core.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -213,12 +203,6 @@
             <artifactId>siddhi-store-rdbms</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.stream.processor.statistics.feature</artifactId>
-            <type>zip</type>
-        </dependency>
         <dependency>
             <groupId>org.wso2.carbon.secvault</groupId>
             <artifactId>org.wso2.carbon.secvault.tools.feature</artifactId>
@@ -227,31 +211,6 @@
         <dependency>
             <groupId>org.wso2.transport.http</groupId>
             <artifactId>org.wso2.transport.http.netty.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.stream.processor.statistics.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.business.rules.core.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.business.rules.web.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.siddhi.store.api.rest.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.analytics.auth.rest.api.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -275,28 +234,8 @@
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.status.dashboard.core.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.status.dashboard.web.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.uiserver</groupId>
-            <artifactId>org.wso2.carbon.uiserver.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.coordination</groupId>
             <artifactId>org.wso2.carbon.cluster.coordinator.rdbms.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.analytics</groupId>
-            <artifactId>org.wso2.carbon.data.provider.feature</artifactId>
             <type>zip</type>
         </dependency>
     </dependencies>
@@ -481,15 +420,7 @@
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.siddhi.editor.core.feature</id>
-                                    <version>${carbon.analytics.version}</version>
-                                </feature>
-                                <feature>
                                     <id>org.wso2.carbon.event.simulator.core.feature</id>
-                                    <version>${carbon.analytics.version}</version>
-                                </feature>
-                                <feature>
-                                    <id>org.wso2.carbon.sp.jobmanager.core.feature</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
@@ -497,7 +428,7 @@
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.siddhi.metrics.core.feature</id>
+                                    <id>org.wso2.carbon.sp.metrics.core.feature</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
@@ -536,32 +467,6 @@
                                     <id>org.wso2.transport.http.netty.feature</id>
                                     <version>${org.wso2.transport.http.netty.version}</version>
                                 </feature>
-
-                                <feature>
-                                    <id>org.wso2.carbon.stream.processor.statistics.feature</id>
-                                    <version>${carbon.analytics.version}</version>
-                                </feature>
-
-                                <feature>
-                                    <id>org.wso2.carbon.business.rules.core.feature</id>
-                                    <version>${carbon.analytics.version}</version>
-                                </feature>
-
-                                <feature>
-                                    <id>org.wso2.carbon.business.rules.web.feature</id>
-                                    <version>${carbon.analytics.version}</version>
-                                </feature>
-
-                                <feature>
-                                    <id>org.wso2.carbon.siddhi.store.api.rest.feature</id>
-                                    <version>${carbon.analytics.version}</version>
-                                </feature>
-
-                                <feature>
-                                    <id>org.wso2.carbon.analytics.auth.rest.api.feature</id>
-                                    <version>${carbon.analytics.version}</version>
-                                </feature>
-
                                 <feature>
                                     <id>org.wso2.carbon.databridge.feature</id>
                                     <version>${carbon.analytics.common.version}</version>
@@ -580,26 +485,8 @@
                                     <version>${carbon.analytics.common.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.status.dashboard.core.feature</id>
-                                    <version>${carbon.analytics.version}</version>
-                                </feature>
-                                <feature>
-                                    <id>org.wso2.carbon.status.dashboard.web.feature</id>
-                                    <version>${carbon.analytics.version}</version>
-                                </feature>
-                                <feature>
-                                    <id>org.wso2.carbon.uiserver.feature</id>
-                                    <version>${carbon.uiserver.version}</version>
-                                </feature>
-
-                                <feature>
                                     <id>org.wso2.carbon.cluster.coordinator.rdbms.feature</id>
                                     <version>${carbon.coordination.version}</version>
-                                </feature>
-
-                                <feature>
-                                    <id>org.wso2.carbon.data.provider.feature</id>
-                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                             </features>
                         </configuration>
@@ -754,7 +641,7 @@
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.siddhi.metrics.core.feature</id>
+                                    <id>org.wso2.carbon.sp.metrics.core.feature</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
@@ -782,11 +669,6 @@
                                 <feature>
                                     <id>org.wso2.carbon.analytics.idp.client.feature</id>
                                     <version>${carbon.analytics.common.version}</version>
-                                </feature>
-
-                                <feature>
-                                    <id>org.wso2.carbon.stream.processor.statistics.feature</id>
-                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                             </features>
                         </configuration>
@@ -888,15 +770,11 @@
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.siddhi.editor.core.feature.group</id>
-                                    <version>${carbon.analytics.version}</version>
-                                </feature>
-                                <feature>
                                     <id>org.wso2.carbon.sp.distributed.resource.core.feature</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.siddhi.metrics.core.feature</id>
+                                    <id>org.wso2.carbon.sp.metrics.core.feature</id>
                                     <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
@@ -922,11 +800,6 @@
                                 <feature>
                                     <id>org.wso2.carbon.analytics.idp.client.feature</id>
                                     <version>${carbon.analytics.common.version}</version>
-                                </feature>
-
-                                <feature>
-                                    <id>org.wso2.carbon.stream.processor.statistics.feature</id>
-                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                             </features>
                         </configuration>

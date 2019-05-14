@@ -32,9 +32,9 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.use
 
 // The following test cases are for Partial Aggregations in Siddhi Core. If any of the test cases fail, Siddhi Core
 // should be analyzed in Partial Aggregation context.
-public class PartialAggregationTestCase {
+public class DistributedAggregationTestCaseIT {
 
-    private static final Logger log = Logger.getLogger(PartialAggregationTestCase.class);
+    private static final Logger log = Logger.getLogger(DistributedAggregationTestCaseIT.class);
 
     @BeforeMethod
     public void init() {
@@ -82,7 +82,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -118,7 +118,7 @@ public class PartialAggregationTestCase {
         stockStreamInputHandler1.send(new Object[]{"IBM", 150f, null, 200L, 26, 1496290801000L});
         stockStreamInputHandler2.send(new Object[]{"WSO2", 50f, null, 200L, 96, 1496290801001L});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         Event[] events = siddhiAppRuntime2.query("from stockAggregation within 0L, 1543664151000L per " +
                 "'minutes' select AGG_TIMESTAMP, symbol, totalPrice, avgPrice");
@@ -168,7 +168,11 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2" +
+                "" +
+                "" +
+                "" +
+                ", maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -207,7 +211,7 @@ public class PartialAggregationTestCase {
         stockStreamInputHandler3.send(new Object[]{"WSO2", 5f, 65f, 30L, 3, 1496289982000L});
 
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         Event[] events = siddhiAppRuntime1.query("from stockAggregation within 0L, 1543664151000L per " +
                 "'seconds' select AGG_TIMESTAMP, totalPrice, avgPrice");
@@ -252,7 +256,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -296,7 +300,7 @@ public class PartialAggregationTestCase {
         stockStreamInputHandler1.send(new Object[]{"IBM", 155f, null, 200L, 26, 1496447401000L});
         stockStreamInputHandler2.send(new Object[]{"WSO2", 5f, null, 200L, 96, 1496447401000L});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         Event[] events = siddhiAppRuntime2.query("from stockAggregation within 0L, 1543664151000L per " +
                 "'hours' select AGG_TIMESTAMP, totalPrice, avgPrice");
@@ -340,7 +344,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -382,7 +386,7 @@ public class PartialAggregationTestCase {
         stockStreamInputHandler2.send(new Object[]{"WSO2", 3f, null, 200L, 96, 1500438001500L});
 
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         Event[] events = siddhiAppRuntime2.query("from stockAggregation within 0L, 1543664151000L per " +
                 "'days' select AGG_TIMESTAMP, totalPrice, avgPrice, lastTradeValue");
@@ -425,7 +429,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -471,7 +475,7 @@ public class PartialAggregationTestCase {
         stockStreamInputHandler2.send(new Object[]{"WSO2", 8f, null, 200L, 96, 1503980401500L});
 
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         Event[] events = siddhiAppRuntime2.query("from stockAggregation within 0L, 1543664151000L per " +
                 "'months' select AGG_TIMESTAMP, totalPrice, avgPrice, lastTradeValue");
@@ -521,7 +525,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -567,7 +571,7 @@ public class PartialAggregationTestCase {
         // April 04, 2019 04:20:00 PM
         stockStreamInputHandler3.send(new Object[]{"IBM", 100f, null, 200L, 100, 1555734000000L});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         Event[] events = siddhiAppRuntime2.query("from stockAggregation within 0L, 1655734000000L per " +
                 "'years' select AGG_TIMESTAMP, totalPrice, avgPrice, lastTradeValue");
@@ -618,7 +622,7 @@ public class PartialAggregationTestCase {
                 + " quantity int); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -655,7 +659,7 @@ public class PartialAggregationTestCase {
 
         stockStreamInputHandler3.send(new Object[]{"IBM", 100f, null, 200L, 180});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         Event[] events = siddhiAppRuntime1.query("from stockAggregation within 0L, " +
                 (System.currentTimeMillis() + 1000000) + "L per 'years' select avgPrice, totalPrice as sumPrice, " +
@@ -705,7 +709,7 @@ public class PartialAggregationTestCase {
                         "quantity int);";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
                 "@partitionbyid " +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
@@ -767,7 +771,7 @@ public class PartialAggregationTestCase {
 
         stockStreamInputHandler3.send(new Object[]{"IBM", 100f, null, 200L, 180});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
         LocalDate currentDate = LocalDate.now();
         String year = String.valueOf(currentDate.getYear() + 2);
         inputStreamInputHandler.send(new Object[]{"IBM", 1, "2017-06-01 09:35:52 +05:30",
@@ -813,7 +817,7 @@ public class PartialAggregationTestCase {
                         "quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
                 "@partitionbyid " +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
@@ -887,7 +891,7 @@ public class PartialAggregationTestCase {
         stockStreamInputHandler3.send(new Object[]{"IBM", 100f, null, 200L, 100, 1555734000000L});
         stockStreamInputHandler1.send(new Object[]{"IBM", 1f, null, 200L, 100, 1555734000000L});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
         inputStreamInputHandler.send(new Object[]{1, "2015-06-01 09:35:52 +05:30", "2021-06-01 09:35:52 +05:30",
                 "years"});
         Thread.sleep(1000);
@@ -946,7 +950,7 @@ public class PartialAggregationTestCase {
                         "quantity int); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
                 "@partitionbyid " +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
@@ -1008,7 +1012,7 @@ public class PartialAggregationTestCase {
 
         stockStreamInputHandler3.send(new Object[]{"IBM", 100f, null, 200L, 180});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
         LocalDate currentDate = LocalDate.now();
         String year = String.valueOf(currentDate.getYear() + 2);
         inputStreamInputHandler.send(new Object[]{1, "2017-06-01 09:35:52 +05:30",
@@ -1066,7 +1070,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -1123,7 +1127,7 @@ public class PartialAggregationTestCase {
         stockStreamInputHandler2.send(new Object[]{"WSO2", 7f, 60f, 90L, 6, 1496280950000L});
         stockStreamInputHandler3.send(new Object[]{"WSO2", 3f, 65f, 30L, 3, 1496280950010L});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         Event[] eventsSeconds = siddhiAppRuntime1.query("from stockAggregation within 0L, " +
                 "1543664151000L per 'seconds' select AGG_TIMESTAMP, totalPrice, avgPrice");
@@ -1215,7 +1219,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockSumAggregation\n" +
                 "from stockStream \n" +
@@ -1225,7 +1229,7 @@ public class PartialAggregationTestCase {
 
         String query2 = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAvgAggregation\n" +
                 "from stockStream \n" +
@@ -1284,7 +1288,7 @@ public class PartialAggregationTestCase {
         stockStreamInputHandler2.send(new Object[]{"WSO2", 7f, 60f, 90L, 6, 1496280950000L});
         stockStreamInputHandler3.send(new Object[]{"WSO2", 3f, 65f, 30L, 3, 1496280950010L});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         Event[] sumAggEvents = siddhiAppRuntime1.query("from stockSumAggregation within 0L, " +
                 "1543664151000L per 'hours' select AGG_TIMESTAMP, symbol, totalPrice");
@@ -1368,7 +1372,7 @@ public class PartialAggregationTestCase {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -1377,7 +1381,7 @@ public class PartialAggregationTestCase {
 
         String query2 = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:5, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockNormalAggregation\n" +
                 "from stockStream \n" +
@@ -1434,7 +1438,7 @@ public class PartialAggregationTestCase {
         stockStreamInputHandler2.send(new Object[]{"WSO2", 7f, 60f, 90L, 6, 1496280950000L});
         stockStreamInputHandler3.send(new Object[]{"WSO2", 3f, 65f, 30L, 3, 1496280950010L});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         Event[] aggEvents = siddhiAppRuntime1.query("from stockAggregation within 0L, 1543664151000L per "
                 + "'days' select AGG_TIMESTAMP, symbol, totalPrice");
