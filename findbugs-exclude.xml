@@ -21,35 +21,35 @@
     <!-- SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING : SQL statement will different for each event -->
     <!-- NP_LOAD_OF_KNOWN_NULL_VALUE: Null is checked at the connection clean up util class-->
     <Match>
-        <Class name="org.wso2.extension.siddhi.store.rdbms.RDBMSEventTable"/>
+        <Class name="io.siddhi.extension.store.rdbms.RDBMSEventTable"/>
         <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING, NP_LOAD_OF_KNOWN_NULL_VALUE, IS2_INCONSISTENT_SYNC"/>
     </Match>
     <!-- PZLA_PREFER_ZERO_LENGTH_ARRAYS: Iterator should always return a constant size array, that's why null returned
     at exception -->
     <Match>
-        <Class name="org.wso2.extension.siddhi.store.rdbms.RDBMSIterator"/>
+        <Class name="io.siddhi.extension.store.rdbms.RDBMSIterator"/>
         <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
     </Match>
     <!-- EI_EXPOSE_REP: These are objects read from config file, expected to be immutable during run time -->
     <Match>
-        <Class name="org.wso2.extension.siddhi.store.rdbms.config.RDBMSQueryConfiguration"/>
+        <Class name="io.siddhi.extension.store.rdbms.config.RDBMSQueryConfiguration"/>
         <Bug pattern="EI_EXPOSE_REP, EI_EXPOSE_REP2"/>
     </Match>
     <!-- LI_LAZY_INIT_STATIC : Mapper class creation is synchronised. -->
     <Match>
-        <Class name="org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils"/>
+        <Class name="io.siddhi.extension.store.rdbms.util.RDBMSTableUtils"/>
         <Bug pattern="LI_LAZY_INIT_STATIC"/>
     </Match>
 
     <!-- As per the functionality query may change event to event,
     The datasource is initialised with start method from EternalReferencedHolder-->
     <Match>
-        <Class name="org.wso2.extension.siddhi.execution.rdbms.QueryStreamProcessor"/>
+        <Class name="io.siddhi.extension.execution.rdbms.QueryStreamProcessor"/>
         <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING,
         UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
     <Match>
-        <Class name="org.wso2.extension.siddhi.execution.rdbms.CUDStreamProcessor"/>
+        <Class name="io.siddhi.extension.execution.rdbms.CUDStreamProcessor"/>
         <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING,
         UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
