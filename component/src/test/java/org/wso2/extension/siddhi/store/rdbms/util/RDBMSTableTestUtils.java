@@ -156,7 +156,7 @@ public class RDBMSTableTestUtils {
             stmt.execute();
             con.commit();
         } catch (SQLException e) {
-            log.debug("Clearing DB table failed due to " + e.getMessage(), e);
+            log.error("Clearing DB table failed due to " + e.getMessage(), e);
         } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, con);
         }

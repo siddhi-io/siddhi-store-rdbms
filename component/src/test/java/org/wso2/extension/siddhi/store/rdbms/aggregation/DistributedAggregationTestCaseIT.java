@@ -1,4 +1,4 @@
-package org.wso2.extension.siddhi.store.rdbms;
+package org.wso2.extension.siddhi.store.rdbms.aggregation;
 
 import org.apache.log4j.Logger;
 import org.testng.Assert;
