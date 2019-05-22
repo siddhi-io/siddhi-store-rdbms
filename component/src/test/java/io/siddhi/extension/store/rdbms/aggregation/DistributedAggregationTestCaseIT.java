@@ -1,4 +1,4 @@
-package io.siddhi.extension.store.rdbms;
+package io.siddhi.extension.store.rdbms.aggregation;
 
 import io.siddhi.core.SiddhiAppRuntime;
 import io.siddhi.core.SiddhiManager;
@@ -8,13 +8,13 @@ import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.SiddhiTestHelper;
 import io.siddhi.core.util.config.InMemoryConfigManager;
+import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.driverClassName;
-import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.password;
-import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.url;
-import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.user;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.driverClassName;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.password;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.url;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.user;
 
 // The following test cases are for Partial Aggregations in Siddhi Core. If any of the test cases fail, Siddhi Core
 // should be analyzed in Partial Aggregation context.

@@ -15,21 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.siddhi.extension.store.rdbms;
+package io.siddhi.extension.store.rdbms.aggregation;
 
 import io.siddhi.core.SiddhiAppRuntime;
 import io.siddhi.core.SiddhiManager;
 import io.siddhi.core.event.Event;
 import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.SiddhiTestHelper;
-import io.siddhi.extension.store.rdbms.DistributedAggregationTestCaseIT;
+import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,13 +36,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.driverClassName;
-import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.password;
-import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.url;
-import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.user;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.driverClassName;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.password;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.url;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class IncrementalAggregationTestCaseIT {
-    private static final Logger log = Logger.getLogger(DistributedAggregationTestCaseIT.class);
+    private static final Logger log = Logger.getLogger(IncrementalAggregationTestCaseIT.class);
 
     @BeforeClass
     public static void startTest() {
