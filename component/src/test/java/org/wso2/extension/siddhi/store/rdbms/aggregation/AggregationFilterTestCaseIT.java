@@ -513,15 +513,13 @@ public class AggregationFilterTestCaseIT {
         Event[] events = siddhiAppRuntime.query("from stockAggregation " +
                 "on symbol == \"IBM\" " +
                 "within \"" + year + "-" + month + "-** **:**:** +05:30\" " +
-                "per \"seconds\"; ");
+                "per \"seconds\" " +
+                "select symbol, avgPrice, totalPrice, lastTradeValue; ");
 
         EventPrinter.print(events);
         AssertJUnit.assertNotNull(events);
         AssertJUnit.assertEquals(1, events.length);
-
-        Object[] copyEventsWithoutTime = new Object[4];
-        System.arraycopy(events[0].getData(), 1, copyEventsWithoutTime, 0, 4);
-        AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, copyEventsWithoutTime);
+        AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, events[0].getData());
 
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
