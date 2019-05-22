@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.extension.siddhi.store.rdbms.aggregation;
 
 import org.apache.log4j.Logger;
@@ -496,15 +513,13 @@ public class AggregationFilterTestCaseIT {
         Event[] events = siddhiAppRuntime.query("from stockAggregation " +
                 "on symbol == \"IBM\" " +
                 "within \"" + year + "-" + month + "-** **:**:** +05:30\" " +
-                "per \"seconds\"; ");
+                "per \"seconds\" " +
+                "select symbol, avgPrice, totalPrice, lastTradeValue; ");
 
         EventPrinter.print(events);
         AssertJUnit.assertNotNull(events);
         AssertJUnit.assertEquals(1, events.length);
-
-        Object[] copyEventsWithoutTime = new Object[4];
-        System.arraycopy(events[0].getData(), 1, copyEventsWithoutTime, 0, 4);
-        AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, copyEventsWithoutTime);
+        AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, events[0].getData());
 
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
