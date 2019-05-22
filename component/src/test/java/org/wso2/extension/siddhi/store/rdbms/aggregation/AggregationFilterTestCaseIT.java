@@ -20,8 +20,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.*;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.driverClassName;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.password;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.url;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class AggregationFilterTestCaseIT {
 
@@ -44,14 +46,14 @@ public class AggregationFilterTestCaseIT {
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_MONTHS");
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_YEARS");
         } catch (SQLException e) {
-            LOG.error("Cannot initialise the tables " + e.getMessage());
+            LOG.error("Test case ignored due to " + e.getMessage());
         }
 
     }
 
     @Test
-    public void AggregationFilterTestCase1() throws InterruptedException {
-        LOG.info("AggregationFilterTestCase1");
+    public void aggregationFilterTestCase1() throws InterruptedException {
+        LOG.info("aggregationFilterTestCase1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String stockStream =
@@ -118,8 +120,7 @@ public class AggregationFilterTestCaseIT {
         stockStreamInputHandler.send(new Object[]{"IBM", 100f, null, 200L, 26, "2017-06-01 04:05:54"});
         stockStreamInputHandler.send(new Object[]{"IBM", 100f, null, 200L, 96, "2017-06-01 04:05:54"});
 
-        // Thursday, June 1, 2017 4:05:50 AM (out of order. should not be processed since events for 50th second is
-        // no longer in the buffer and @IgnoreEventsOlderThanBuffer is true)
+        // Thursday, June 1, 2017 4:05:50 AM (out of order)
         stockStreamInputHandler.send(new Object[]{"IBM", 50f, 60f, 90L, 6, "2017-06-01 04:05:50"});
 
         // Thursday, June 1, 2017 4:05:56 AM
@@ -155,9 +156,9 @@ public class AggregationFilterTestCaseIT {
     }
 
 
-    @Test(dependsOnMethods = {"AggregationFilterTestCase1"})
-    public void AggregationFilterTestCase2() throws InterruptedException {
-        LOG.info("AggregationFilterTestCase2");
+    @Test(dependsOnMethods = {"aggregationFilterTestCase1"})
+    public void aggregationFilterTestCase2() throws InterruptedException {
+        LOG.info("aggregationFilterTestCase2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String stockStream =
@@ -264,10 +265,9 @@ public class AggregationFilterTestCaseIT {
         siddhiManager.shutdown();
     }
 
-
-    @Test(dependsOnMethods = {"AggregationFilterTestCase2"})
-    public void AggregationFilterTestCase3() throws InterruptedException {
-        LOG.info("AggregationFilterTestCase3");
+    @Test(dependsOnMethods = {"aggregationFilterTestCase2"})
+    public void aggregationFilterTestCase3() throws InterruptedException {
+        LOG.info("aggregationFilterTestCase3");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String stockStream =
@@ -275,26 +275,26 @@ public class AggregationFilterTestCaseIT {
                         "quantity int, timestamp long);";
         String query =
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                        "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                        "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
-                        "@purge(enable='false')" +
-                        "define aggregation stockAggregation " +
-                        "from stockStream " +
-                        "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
-                        "(price * quantity) as lastTradeValue " +
-                        "group by symbol " +
-                        "aggregate by timestamp every sec...year; " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "@purge(enable='false')" +
+                "define aggregation stockAggregation " +
+                "from stockStream " +
+                "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
+                "(price * quantity) as lastTradeValue " +
+                "group by symbol " +
+                "aggregate by timestamp every sec...year; " +
 
-                        "define stream inputStream (symbol string, value int, startTime string, " +
-                        "endTime string, perValue string); " +
+                "define stream inputStream (symbol string, value int, startTime string, " +
+                "endTime string, perValue string); " +
 
-                        "@info(name = 'query1') " +
-                        "from inputStream as i join stockAggregation as s " +
-                        "within \"2017-06-** **:**:**\" " +
-                        "per \"seconds\" " +
-                        "select AGG_TIMESTAMP, s.symbol, lastTradeValue, totalPrice " +
-                        "order by AGG_TIMESTAMP " +
-                        "insert all events into outputStream; ";
+                "@info(name = 'query1') " +
+                "from inputStream as i join stockAggregation as s " +
+                "within \"2017-06-** **:**:**\" " +
+                "per \"seconds\" " +
+                "select AGG_TIMESTAMP, s.symbol, lastTradeValue, totalPrice " +
+                "order by AGG_TIMESTAMP " +
+                "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 
@@ -401,9 +401,9 @@ public class AggregationFilterTestCaseIT {
         siddhiManager.shutdown();
     }
 
-    @Test(dependsOnMethods = {"AggregationFilterTestCase3"})
-    public void AggregationFilterTestCase4() throws InterruptedException {
-        LOG.info("AggregationFilterTestCase4");
+    @Test(dependsOnMethods = {"aggregationFilterTestCase3"})
+    public void aggregationFilterTestCase4() throws InterruptedException {
+        LOG.info("incrementalStreamProcessorTest11");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String stockStream =
@@ -412,7 +412,7 @@ public class AggregationFilterTestCaseIT {
         String query = " " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +/**/
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
                 "@purge(enable='false')" +
                 "define aggregation stockAggregation " +
                 "from stockStream " +
@@ -442,22 +442,17 @@ public class AggregationFilterTestCaseIT {
                 "per \"seconds\" " +
                 "select symbol, avgPrice;");
         EventPrinter.print(events);
+        AssertJUnit.assertNotNull(events);
         AssertJUnit.assertEquals(1, events.length);
-        for (int i = 0; i < events.length; i++) {
-            if (i == 0) {
-                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0}, events[i].getData());
-            } else {
-                AssertJUnit.assertEquals(1, events.length);
-            }
-        }
+        AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0}, events[0].getData());
 
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
-    @Test(dependsOnMethods = {"AggregationFilterTestCase4"})
-    public void AggregationFilterTestCase5() throws InterruptedException {
+    @Test(dependsOnMethods = {"aggregationFilterTestCase4"})
+    public void aggregationFilterTestCase5() throws InterruptedException {
         LOG.info("AggregationFilterTestCase5");
         SiddhiManager siddhiManager = new SiddhiManager();
         String stockStream =
@@ -506,17 +501,13 @@ public class AggregationFilterTestCaseIT {
         EventPrinter.print(events);
         AssertJUnit.assertNotNull(events);
         AssertJUnit.assertEquals(1, events.length);
-        for (int i = 0; i < events.length; i++) {
-            if (i == 0) {
-                Object[] copyEventsWithoutTime = new Object[4];
-                System.arraycopy(events[i].getData(), 1, copyEventsWithoutTime, 0, 4);
-                AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, copyEventsWithoutTime);
-            } else {
-                AssertJUnit.assertEquals(1, events.length);
-            }
-        }
+
+        Object[] copyEventsWithoutTime = new Object[4];
+        System.arraycopy(events[0].getData(), 1, copyEventsWithoutTime, 0, 4);
+        AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, copyEventsWithoutTime);
+
+        Thread.sleep(100);
         siddhiAppRuntime.shutdown();
-        siddhiManager.shutdown();
     }
 
 }
