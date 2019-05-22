@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.extension.siddhi.store.rdbms;
+package org.wso2.extension.siddhi.store.rdbms.aggregation;
 
 import org.apache.log4j.Logger;
 import org.testng.Assert;
@@ -42,7 +42,7 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.url
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class IncrementalAggregationTestCaseIT {
-    private static final Logger log = Logger.getLogger(DistributedAggregationTestCaseIT.class);
+    private static final Logger log = Logger.getLogger(IncrementalAggregationTestCaseIT.class);
 
     @BeforeClass
     public static void startTest() {

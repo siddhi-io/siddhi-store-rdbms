@@ -152,11 +152,11 @@ public class RDBMSTableTestUtils {
         try {
             con = getTestDataSource().getConnection();
             con.setAutoCommit(false);
-            stmt = con.prepareStatement("DROP TABLE " + tableName);
+            stmt = con.prepareStatement("DROP TABLE IF EXISTS " + tableName);
             stmt.execute();
             con.commit();
         } catch (SQLException e) {
-            log.debug("Clearing DB table failed due to " + e.getMessage(), e);
+            log.error("Clearing DB table failed due to " + e.getMessage(), e);
         } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, con);
         }
