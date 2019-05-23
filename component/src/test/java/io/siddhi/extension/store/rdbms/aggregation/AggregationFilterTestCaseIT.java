@@ -153,7 +153,7 @@ public class AggregationFilterTestCaseIT {
         // Thursday, June 1, 2017 5:07:56 AM
         stockStreamInputHandler.send(new Object[]{"IBM", 700f, null, 200L, 20, "2017-06-01 05:07:56"});
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
         inputStreamInputHandler.send(new Object[]{"IBM", 1, "2017-06-01 09:35:51 +05:30",
                 "2017-06-01 09:35:52 +05:30", "minutes"});
         Thread.sleep(1000);
@@ -260,7 +260,7 @@ public class AggregationFilterTestCaseIT {
         // Thursday, June 1, 2017 5:07:56 AM
         stockStreamInputHandler.send(new Object[]{"IBM", 700f, null, 200L, 20, "2017-06-01 05:07:56"});
 
-        Thread.sleep(100);
+        Thread.sleep(5000);
         inputStreamInputHandler.send(new Object[]{"IBM", 1, "2017-06-01 09:35:51 +05:30",
                 "2017-06-01 09:35:52 +05:30", "minutes"});
         Thread.sleep(100);
@@ -390,7 +390,7 @@ public class AggregationFilterTestCaseIT {
         // Monday, December 3, 2020 6:07:56 AM
         stockStreamInputHandler.send(new Object[]{"CISCO", 260f, 44f, 200L, 16, 1606975676000L});
 
-        Thread.sleep(100);
+        Thread.sleep(5000);
         inputStreamInputHandler.send(new Object[]{"IBM", 1, "2017-06-01 09:35:51 +05:30",
                 "2017-06-01 09:35:52 +05:30", "seconds"});
         Thread.sleep(100);
