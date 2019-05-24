@@ -1628,7 +1628,12 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 if (!isConnValid) {
                     throw new ConnectionUnavailableException("Failed to execute query for store: " + tableName, e);
                 } else {
-                    throw new RDBMSTableException("Failed to execute query for store: " + tableName, e);
+                    log.error("Failed to execute query '" + query + "' for store: " + tableName);
+                    log.error("Dropped " + records.size() + " records, ");
+                    for (int i = 0; i < records.size(); i++) {
+                        log.error("Record #" + (i + 1) + " : " + Arrays.toString(records.get(i)));
+                    }
+                    throw new RDBMSTableException(e);
                 }
             } catch (SQLException e1) {
                 throw new ConnectionUnavailableException("Error occurred when attempting to check whether " +
