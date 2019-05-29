@@ -256,7 +256,7 @@ public class IncrementalAggregationTestCaseIT {
 
         Event[] query2 = siddhiAppRuntime2
                 .query("from stockAggregation within '" + Calendar.getInstance().get(Calendar.YEAR)
-                        + "-**-** **:**:**' per 'hours' select *");
+                        + "-**-** **:**:**' per 'hours' select symbol, totalPrice, avgPrice");
 
         List<Object[]> outputDataList2 = new ArrayList<>();
         for (Event event : query2) {
