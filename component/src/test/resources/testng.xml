@@ -19,7 +19,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="Generic Integration test suite">
+<suite name="Generic Integration test suite" parallel="tests" thread-count="2">
     <test name="org.wso2.das">
         <classes>
             <class name="org.wso2.extension.siddhi.store.rdbms.DefineRDBMSTableTestCaseIT" />
@@ -32,11 +32,13 @@
             <class name="org.wso2.extension.siddhi.store.rdbms.set.SetUpdateOrInsertRDBMSTableTestCaseIT" />
             <class name="org.wso2.extension.siddhi.store.rdbms.set.SetUpdateRDBMSTableTestCaseIT" />
             <class name="org.wso2.extension.siddhi.store.rdbms.query.StoreQueryTableTestCaseIT"/>
-
-            <class name="org.wso2.extension.siddhi.store.rdbms.aggregation.DistributedAggregationTestCaseIT" />
+        </classes>
+    </test>
+    <test name="Aggregation test cases">
+        <classes>
             <class name="org.wso2.extension.siddhi.store.rdbms.aggregation.IncrementalAggregationTestCaseIT"/>
             <class name="org.wso2.extension.siddhi.store.rdbms.aggregation.AggregationFilterTestCaseIT"/>
-
+            <class name="org.wso2.extension.siddhi.store.rdbms.aggregation.DistributedAggregationTestCaseIT" />
         </classes>
     </test>
 </suite>
