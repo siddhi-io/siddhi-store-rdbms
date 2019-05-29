@@ -64,6 +64,7 @@ public class DistributedAggregationTestCaseIT {
     @Test
     public void partialAggregationTest1() throws InterruptedException {
         log.info("partialAggregationTest1 - Checking minute granularity");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -134,8 +135,10 @@ public class DistributedAggregationTestCaseIT {
                 new Object[]{1496289960000L, "WSO2", 2200.0, 550.0}
         );
 
+        Assert.assertNotNull(events, "Events arrive");
         Assert.assertEquals(events.length, 3, "Number of success events");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
     }
@@ -168,11 +171,8 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2" +
-                "" +
-                "" +
-                "" +
-                ", maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -228,8 +228,10 @@ public class DistributedAggregationTestCaseIT {
                 new Object[]{1496289951000L, 210.0, 105.0}
         );
 
+        Assert.assertNotNull(events, "Events arrive");
         Assert.assertEquals(events.length, 4, "Number of success events");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
@@ -238,6 +240,7 @@ public class DistributedAggregationTestCaseIT {
     @Test(dependsOnMethods = "partialAggregationTest2")
     public void partialAggregationTest3() throws InterruptedException {
         log.info("partialAggregationTest3 - Checking hours granularity");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -317,8 +320,10 @@ public class DistributedAggregationTestCaseIT {
                 new Object[]{1496293200000L, 200.0, 100.0}
         );
 
+        Assert.assertNotNull(events, "Events arrive");
         Assert.assertEquals(events.length, 4, "Number of success events");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
     }
@@ -326,6 +331,7 @@ public class DistributedAggregationTestCaseIT {
     @Test(dependsOnMethods = "partialAggregationTest3")
     public void partialAggregationTest4() throws InterruptedException {
         log.info("partialAggregationTest4 - Checking days granularity");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -402,8 +408,10 @@ public class DistributedAggregationTestCaseIT {
                 new Object[]{1500422400000L, 10.0, 5.0, 288.0f}
         );
 
+        Assert.assertNotNull(events, "Events arrive");
         Assert.assertEquals(events.length, 3, "Number of success events");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
     }
@@ -411,6 +419,7 @@ public class DistributedAggregationTestCaseIT {
     @Test(dependsOnMethods = "partialAggregationTest4")
     public void partialAggregationTest5() throws InterruptedException {
         log.info("partialAggregationTest5 - Checking months granularity");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -491,8 +500,10 @@ public class DistributedAggregationTestCaseIT {
                 new Object[]{1498867200000L, 10.0, 5.0, 288.0f}
         );
 
+        Assert.assertNotNull(events, "Events arrive");
         Assert.assertEquals(events.length, 3, "Number of success events");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
     }
@@ -500,6 +511,7 @@ public class DistributedAggregationTestCaseIT {
     @Test(dependsOnMethods = "partialAggregationTest5")
     public void partialAggregationTest6() throws InterruptedException {
         log.info("partialAggregationTest6 - Checking years granularity");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -587,8 +599,10 @@ public class DistributedAggregationTestCaseIT {
                 new Object[]{1483228800000L, 310.0, 38.75, 768.0f}
         );
 
+        Assert.assertNotNull(events, "Events arrive");
         Assert.assertEquals(events.length, 3, "Number of success events");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
@@ -597,6 +611,7 @@ public class DistributedAggregationTestCaseIT {
     @Test(dependsOnMethods = "partialAggregationTest6")
     public void partialAggregationTest7() throws InterruptedException {
         log.info("partialAggregationTest7 - Checking system timestamp");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -673,8 +688,10 @@ public class DistributedAggregationTestCaseIT {
         List<Object[]> expected = new ArrayList<>();
         expected.add(new Object[]{64.0, 640.0, 18000.0f});
 
+        Assert.assertNotNull(events, "Events arrive");
         Assert.assertEquals(events.length, 1, "Number of success events");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected), "Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
@@ -683,6 +700,7 @@ public class DistributedAggregationTestCaseIT {
     @Test(dependsOnMethods = "partialAggregationTest7")
     public void partialAggregationTest8() throws InterruptedException {
         log.info("partialAggregationTest8 - Checking system timestamp using join");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -783,6 +801,7 @@ public class DistributedAggregationTestCaseIT {
 
         Assert.assertEquals(inEventCount.get(), 1, "Number of success events");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected), "Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
@@ -791,6 +810,7 @@ public class DistributedAggregationTestCaseIT {
     @Test(dependsOnMethods = "partialAggregationTest8")
     public void partialAggregationTest9() throws InterruptedException {
         log.info("partialAggregationTest9 - Checking aggregation group by");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -911,11 +931,14 @@ public class DistributedAggregationTestCaseIT {
         for (Event event : events) {
             eventsList.add(event.getData());
         }
+
+        Assert.assertNotNull(events, "Events arrive");
         Assert.assertEquals(events.length, 5, "Number of success events");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected),
                 "Data Matched from Store Query");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected),
                 "Data Matched from Join Query");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
@@ -924,6 +947,7 @@ public class DistributedAggregationTestCaseIT {
     @Test(dependsOnMethods = "partialAggregationTest9")
     public void partialAggregationTest10() throws InterruptedException {
         log.info("partialAggregationTest10 - Checking group by using system timestamp");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -1032,11 +1056,13 @@ public class DistributedAggregationTestCaseIT {
             eventsList.add(event.getData());
         }
 
+        Assert.assertNotNull(events, "Events arrive");
         Assert.assertEquals(inEventCount.get(), 2, "Number of success events");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected),
                 "Data Matched using Join");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsList, expected),
                 "Data Matched using Store Query");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
@@ -1045,6 +1071,7 @@ public class DistributedAggregationTestCaseIT {
     @Test(dependsOnMethods = "partialAggregationTest10")
     public void partialAggregationTest11() throws InterruptedException {
         log.info("partialAggregationTest11 - Checking out of order events");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -1169,6 +1196,7 @@ public class DistributedAggregationTestCaseIT {
                 "Seconds granularity Data Matched");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsListMinutes, expectedMinutes),
                 "Minutes granularity Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
@@ -1194,6 +1222,7 @@ public class DistributedAggregationTestCaseIT {
         }
         log.info("partialAggregationTest12 - Checking grouped by out of order events with one app having two partial "
                 + "aggregations");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -1328,6 +1357,7 @@ public class DistributedAggregationTestCaseIT {
                 "Sum Agg Data Matched");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsListAvgAgg, expectedAvgAgg),
                 "Avg Agg Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
@@ -1347,6 +1377,7 @@ public class DistributedAggregationTestCaseIT {
         }
 
         log.info("partialAggregationTest13 - Checking normal and partitionbyid aggregations together");
+
         SiddhiManager siddhiManager1 = new SiddhiManager();
         Map<String, String> systemConfigs1 = new HashMap<>();
         systemConfigs1.put("shardId", "node1");
@@ -1470,6 +1501,7 @@ public class DistributedAggregationTestCaseIT {
                 "Partitionbyid Agg Data Matched");
         Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(eventsListNormalAgg, expectedNormalAgg),
                 "Normal Agg Data Matched");
+
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
         siddhiAppRuntime3.shutdown();
