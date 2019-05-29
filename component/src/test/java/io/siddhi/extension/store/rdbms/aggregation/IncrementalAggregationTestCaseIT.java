@@ -46,7 +46,6 @@ public class IncrementalAggregationTestCaseIT {
 
     @BeforeClass
     public static void startTest() {
-        log.info("Test init with url: " + url + " and driverClass: " + driverClassName);
         log.info("== Incremental Aggregation tests started ==");
     }
 
@@ -65,34 +64,35 @@ public class IncrementalAggregationTestCaseIT {
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_DAYS");
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_MONTHS");
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_YEARS");
-
-            //Create Aggregation tables
-            SiddhiManager siddhiManager = new SiddhiManager();
-
-            String streams = "define stream stockStream (symbol string, price float, timestamp long); ";
-            String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                    "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                    "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
-                    "@purge(enable='false')\n" +
-                    "define aggregation stockAggregation\n" +
-                    "from stockStream \n" +
-                    "select symbol, sum(price) as totalPrice,avg(price) as avgPrice \n" +
-                    "group by symbol " +
-                    "aggregate by timestamp every sec...year; ";
-
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-            siddhiAppRuntime.start();
-            siddhiAppRuntime.shutdown();
-            siddhiManager.shutdown();
         } catch (SQLException e) {
-            log.info("Test case ignored due to " + e.getMessage());
+            log.error("Initialising Tables " + e.getMessage());
         }
+
+        //Create Aggregation tables
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "define stream stockStream (symbol string, price float, timestamp long); ";
+        String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "@purge(enable='false')\n" +
+                "define aggregation stockAggregation\n" +
+                "from stockStream \n" +
+                "select symbol, sum(price) as totalPrice,avg(price) as avgPrice \n" +
+                "group by symbol " +
+                "aggregate by timestamp every sec...year; ";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+        siddhiManager.shutdown();
+
     }
 
     @Test
     public void incrementalAggregationTest1() throws InterruptedException {
-
         log.info("incrementalAggregationTest1 - Recreate in-memory after seconds of server shutdown");
+
         RDBMSTableTestUtils.runStatements("INSERT INTO stockAggregation_SECONDS VALUES  " +
                 "(1525786020000, 1525786020000, 'WSO2', 100, 1), (1525786021000, 1525786021000, 'IBM', 100, 1)," +
                 "(1525786081000, 1525786081000, 'IBM', 100, 1);");
@@ -116,10 +116,10 @@ public class IncrementalAggregationTestCaseIT {
         siddhiAppRuntime.start();
         inputStreamInputHandler.send(new Object[]{"WSO2", 100f, System.currentTimeMillis()});
         Thread.sleep(5000);
+
         Event[] query1 = siddhiAppRuntime
                 .query("from stockAggregation within '2018-**-** **:**:**' per 'minutes' select *");
-        Assert.assertNotNull(query1);
-        Assert.assertEquals(query1.length, 3);
+
         List<Object[]> outputDataList = new ArrayList<>();
         for (Event event : query1) {
             outputDataList.add(event.getData());
@@ -129,12 +129,16 @@ public class IncrementalAggregationTestCaseIT {
                 new Object[]{1525786020000L, "WSO2", 100.0, 100.0},
                 new Object[]{1525786020000L, "IBM", 100.0, 100.0}
         );
-        SiddhiTestHelper.isUnsortedEventsMatch(expected, outputDataList);
+
+        Assert.assertNotNull(query1);
+        Assert.assertEquals(query1.length, 3);
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(expected, outputDataList));
         Thread.sleep(65000);
 
         Event[] query2 = siddhiAppRuntime
                 .query("from stockAggregation within '" + Calendar.getInstance().get(Calendar.YEAR)
                         + "-**-** **:**:**' per 'minutes' select *");
+
         Assert.assertNotNull(query2);
         Assert.assertEquals(query2.length, 1);
 
@@ -143,8 +147,8 @@ public class IncrementalAggregationTestCaseIT {
 
     @Test(dependsOnMethods = "incrementalAggregationTest1")
     public void incrementalAggregationTest2() throws InterruptedException {
-
         log.info("incrementalAggregationTest1 - Recreate in-memory after seconds of server shutdown");
+
         RDBMSTableTestUtils.runStatements("INSERT INTO stockAggregation_SECONDS VALUES  " +
                 "(1525786020000, 1525786020000, 'WSO2', 100, 1), (1525786021000, 1525786021000, 'IBM', 100, 1)," +
                 "(1525786081000, 1525786081000, 'IBM', 100, 1);", "INSERT INTO stockAggregation_MINUTES VALUES  " +
@@ -170,10 +174,10 @@ public class IncrementalAggregationTestCaseIT {
         siddhiAppRuntime.start();
         inputStreamInputHandler.send(new Object[]{"WSO2", 100f, System.currentTimeMillis()});
         Thread.sleep(5000);
+
         Event[] query1 = siddhiAppRuntime
                 .query("from stockAggregation within '2018-**-** **:**:**' per 'minutes' select *");
-        Assert.assertNotNull(query1);
-        Assert.assertEquals(query1.length, 3);
+
         List<Object[]> outputDataList = new ArrayList<>();
         for (Event event : query1) {
             outputDataList.add(event.getData());
@@ -183,7 +187,11 @@ public class IncrementalAggregationTestCaseIT {
                 new Object[]{1525786020000L, "WSO2", 100.0, 100.0},
                 new Object[]{1525786020000L, "IBM", 100.0, 100.0}
         );
-        SiddhiTestHelper.isUnsortedEventsMatch(expected, outputDataList);
+
+        Assert.assertNotNull(query1);
+        Assert.assertEquals(query1.length, 3);
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(expected, outputDataList));
+
         Thread.sleep(65000);
 
         Event[] query2 = siddhiAppRuntime
@@ -214,6 +222,7 @@ public class IncrementalAggregationTestCaseIT {
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         InputHandler inputStreamInputHandler = siddhiAppRuntime.getInputHandler("stockStream");
+
         siddhiAppRuntime.start();
         inputStreamInputHandler.send(new Object[]{"IBM", 100f, System.currentTimeMillis()});
         inputStreamInputHandler.send(new Object[]{"WSO2", 100f, System.currentTimeMillis()});
@@ -223,14 +232,13 @@ public class IncrementalAggregationTestCaseIT {
 
         //Recreate restart scenario
         SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler inputStreamInputHandler2 = siddhiAppRuntime.getInputHandler("stockStream");
+        InputHandler inputStreamInputHandler2 = siddhiAppRuntime2.getInputHandler("stockStream");
         siddhiAppRuntime2.start();
 
         Event[] query1 = siddhiAppRuntime2
                 .query("from stockAggregation within '" + Calendar.getInstance().get(Calendar.YEAR) +
                         "-**-** **:**:**' per 'hours' select symbol, totalPrice, avgPrice");
-        Assert.assertNotNull(query1);
-        Assert.assertEquals(query1.length, 2);
+
         List<Object[]> outputDataList = new ArrayList<>();
         for (Event event : query1) {
             outputDataList.add(event.getData());
@@ -239,16 +247,17 @@ public class IncrementalAggregationTestCaseIT {
                 new Object[]{"IBM", 200.0, 100.0},
                 new Object[]{"WSO2", 100.0, 100.0}
         );
-        SiddhiTestHelper.isUnsortedEventsMatch(expected, outputDataList);
+        Assert.assertNotNull(query1);
+        Assert.assertEquals(query1.length, 2);
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(expected, outputDataList));
 
         inputStreamInputHandler2.send(new Object[]{"WSO2", 100f, System.currentTimeMillis()});
         Thread.sleep(5000);
 
         Event[] query2 = siddhiAppRuntime2
                 .query("from stockAggregation within '" + Calendar.getInstance().get(Calendar.YEAR)
-                        + "-**-** **:**:**' per 'hours' select *");
-        Assert.assertNotNull(query2);
-        Assert.assertEquals(query2.length, 2);
+                        + "-**-** **:**:**' per 'hours' select symbol, totalPrice, avgPrice");
+
         List<Object[]> outputDataList2 = new ArrayList<>();
         for (Event event : query2) {
             outputDataList2.add(event.getData());
@@ -257,7 +266,10 @@ public class IncrementalAggregationTestCaseIT {
                 new Object[]{"IBM", 200.0, 100.0},
                 new Object[]{"WSO2", 200.0, 100.0}
         );
-        SiddhiTestHelper.isUnsortedEventsMatch(expected2, outputDataList2);
+
+        Assert.assertNotNull(query2);
+        Assert.assertEquals(query2.length, 2);
+        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(expected2, outputDataList2));
 
         siddhiAppRuntime2.shutdown();
         siddhiManager.shutdown();
