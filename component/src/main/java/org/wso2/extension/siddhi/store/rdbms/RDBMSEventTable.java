@@ -1617,27 +1617,47 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 committed = true;
             }
         } catch (SQLException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Attempted execution of query [" + query + "] produced an exception: " + e.getMessage());
-            }
-            try {
-                boolean isConnValid = conn.isValid(0);
-                if (!autocommit) {
-                    RDBMSTableUtils.rollbackConnection(conn);
-                }
-                if (!isConnValid) {
-                    throw new ConnectionUnavailableException("Failed to execute query for store: " + tableName, e);
-                } else {
-                    log.error("Failed to execute query '" + query + "' for store: " + tableName);
-                    log.error("Dropped " + records.size() + " records, ");
-                    for (int i = 0; i < records.size(); i++) {
-                        log.error("Record #" + (i + 1) + " : " + Arrays.toString(records.get(i)));
+            if (e.getMessage().contains("try restarting transaction") && stmt != null) {
+                log.warn("SQL Exception received instructing to restart the transaction. Hence retrying the query ["
+                        + query + "]. " + e.getMessage());
+                try {
+                    stmt.executeBatch();
+                    if (!autocommit) {
+                        conn.commit();
+                        committed = true;
                     }
-                    throw new RDBMSTableException(e);
+                } catch (SQLException e1) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Reattempted execution of query [" + query + "] produced an exception: " +
+                                e.getMessage());
+                    }
+                    try {
+                        boolean isConnValid = conn.isValid(0);
+                        if (!autocommit) {
+                            RDBMSTableUtils.rollbackConnection(conn);
+                        }
+                        if (!isConnValid) {
+                            throw new ConnectionUnavailableException("Failed to execute query for store: " + tableName,
+                                    e);
+                        } else {
+                            log.error("Failed to execute query '" + query + "' for store: " + tableName);
+                            log.error("Dropped " + records.size() + " records, ");
+                            for (int i = 0; i < records.size(); i++) {
+                                log.error("Record #" + (i + 1) + " : " + Arrays.toString(records.get(i)));
+                            }
+                            throw new RDBMSTableException(e);
+                        }
+                    } catch (SQLException e2) {
+                        throw new ConnectionUnavailableException("Error occurred when attempting to check whether " +
+                                "connection is available for store: " + tableName, e2);
+                    }
                 }
-            } catch (SQLException e1) {
-                throw new ConnectionUnavailableException("Error occurred when attempting to check whether " +
-                        "connection is available for store: " + tableName, e1);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Attempted execution of query [" + query + "] produced an exception: "
+                            + e.getMessage());
+                }
+                throw new RDBMSTableException(e);
             }
         } finally {
             if (!committed) {
