@@ -59,9 +59,6 @@ public class AggregationFilterTestCaseIT {
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_SECONDS");
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_MINUTES");
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_HOURS");
-            RDBMSTableTestUtils.initDatabaseTable("stockAggregation_DAYS");
-            RDBMSTableTestUtils.initDatabaseTable("stockAggregation_MONTHS");
-            RDBMSTableTestUtils.initDatabaseTable("stockAggregation_YEARS");
         } catch (SQLException e) {
             LOG.error("Test case ignored due to " + e.getMessage());
         }
@@ -86,7 +83,7 @@ public class AggregationFilterTestCaseIT {
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) " +
                 "as lastTradeValue  " +
                 "group by symbol " +
-                "aggregate by timestamp every sec...year; " +
+                "aggregate by timestamp every sec...hour; " +
 
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +
@@ -186,14 +183,14 @@ public class AggregationFilterTestCaseIT {
         String query = "" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\")\n" +
+                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
                 "@purge(enable='false')" +
                 "define aggregation stockAggregation " +
                 "from stockStream " +
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) " +
                 "as lastTradeValue  " +
                 "group by symbol " +
-                "aggregate by timestamp every sec...year; " +
+                "aggregate by timestamp every sec...hour; " +
 
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +
@@ -300,7 +297,7 @@ public class AggregationFilterTestCaseIT {
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
                 "(price * quantity) as lastTradeValue " +
                 "group by symbol " +
-                "aggregate by timestamp every sec...year; " +
+                "aggregate by timestamp every sec...hour; " +
 
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +
@@ -426,7 +423,7 @@ public class AggregationFilterTestCaseIT {
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) " +
                 "as lastTradeValue  " +
                 "group by symbol " +
-                "aggregate by timestamp every sec...year ;";
+                "aggregate by timestamp every sec...hour ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 
@@ -474,7 +471,7 @@ public class AggregationFilterTestCaseIT {
                         "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
                         "(price * quantity) as lastTradeValue  " +
                         "group by symbol " +
-                        "aggregate every sec...year ;";
+                        "aggregate every sec...hour ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 
