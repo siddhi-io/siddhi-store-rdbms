@@ -74,7 +74,7 @@ public class IncrementalAggregationTestCaseIT {
         String streams = "define stream stockStream (symbol string, price float, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -103,7 +103,7 @@ public class IncrementalAggregationTestCaseIT {
         String streams = "define stream stockStream (symbol string, price float, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -162,7 +162,7 @@ public class IncrementalAggregationTestCaseIT {
         String streams = "define stream stockStream (symbol string, price float, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -214,7 +214,7 @@ public class IncrementalAggregationTestCaseIT {
         String streams = "define stream stockStream (symbol string, price float, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
