@@ -162,23 +162,6 @@ public class RDBMSTableTestUtils {
         }
     }
 
-    public static void initDatabaseTable(String tableName, TestType testType, String user, String password)
-            throws SQLException {
-        PreparedStatement stmt = null;
-        Connection con = null;
-        try {
-            con = getDataSource().getConnection();
-            con.setAutoCommit(false);
-            stmt = con.prepareStatement("DROP TABLE " + tableName);
-            stmt.execute();
-            con.commit();
-        } catch (SQLException e) {
-            log.debug("Clearing DB table failed due to " + e.getMessage(), e);
-        } finally {
-            RDBMSTableUtils.cleanupConnection(null, stmt, con);
-        }
-    }
-
     public static long getRowsInTable(String tableName) throws SQLException {
         PreparedStatement stmt = null;
         Connection con = null;
