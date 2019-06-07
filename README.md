@@ -80,32 +80,53 @@ database according to the given profile before execute the test suit.
            
     * MSSQL CTP 2.0:
     
-            mvn verify -P local-mssql -f /component/pom.xml -Dskip.surefire.test=true
+            mvn verify -P local-mssql -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
             
     * Oracle 11.2.0.2 Express Edition:
             
-             mvn verify -P local-oracle -f /component/pom.xml -Dskip.surefire.test=true
-            
-3. To run the integration test with DB2, issue the following commands:
-    
-    * Download DB2 driver version 4.19.26 <a target="_blank" href="http://www.ibm.com/eserver/support/fixes/fixcentral/swg/quickorder?brandid=1&productid=IBM+Data+Server+Client+Packages&vrmf=10.5.*&fixes=*jdbc*FP005">db2jcc4.jar</a>
-    
-    * To install the JAR file as a Maven plugin, issue the following command:
-    
-             mvn install:install-file -Dfile=/tmp/db2jcc4.jar -DgroupId=com.ibm.db2 -DartifactId=db2jcc -Dversion=4.19.26 -Dpackaging=jar
+             mvn verify -P local-oracle12 -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+             
+    * Oracle 12.1.0.2 Standard Edition:
          
-    * Uncomment the following test dependency in the /component/pom.xml file as shown below:
+         * Download Oracle driver version 12.1.0.2 <a target="_blank" href="https://www.oracle.com/technetwork/database/features/jdbc/default-2280470.html">ojdbc7.jar</a>
+             
+         * To install the JAR file as a Maven plugin, issue the following command:
+     
+                  mvn install:install-file -Dfile=/tmp/ojdbc7.jar -DgroupId=com.oracle -DartifactId=ojdbc7 -Dversion=12.1.0.2 -Dpackaging=jar
+          
+         * Uncomment the following test dependency in the /component/pom.xml file as shown below:
+     
+                  <dependency>
+                     <groupId>com.oracle</groupId>
+                     <artifactId>ojdbc7</artifactId>
+                     <scope>test</scope>
+                     <version>12.1.0.2</version>
+                  </dependency>
+         
+         * To run the integration test, navigate to siddhi-store-rdbms/ directory and issue the following commands:
+     
+                  mvn verify -P local-oracle12 -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+             
+    * DB2
     
-             <dependency>
-               <groupId>com.ibm.db2</groupId>
-               <artifactId>db2jcc</artifactId>
-               <scope>test</scope>
-               <version>4.19.26</version>
-             </dependency>
+        * Download DB2 driver version 4.19.26 <a target="_blank" href="http://www.ibm.com/eserver/support/fixes/fixcentral/swg/quickorder?brandid=1&productid=IBM+Data+Server+Client+Packages&vrmf=10.5.*&fixes=*jdbc*FP005">db2jcc4.jar</a>
+    
+        * To install the JAR file as a Maven plugin, issue the following command:
+    
+                 mvn install:install-file -Dfile=/tmp/db2jcc4.jar -DgroupId=com.ibm.db2 -DartifactId=db2jcc -Dversion=4.19.26 -Dpackaging=jar
+         
+        * Uncomment the following test dependency in the /component/pom.xml file as shown below:
+    
+                 <dependency>
+                   <groupId>com.ibm.db2</groupId>
+                  <artifactId>db2jcc</artifactId>
+                   <scope>test</scope>
+                   <version>4.19.26</version>
+                 </dependency>
         
-    * To run the integration test, navigate to siddhi-store-rdbms/ directory and issue the following commands:
+        * To run the integration test, navigate to siddhi-store-rdbms/ directory and issue the following commands:
     
-             mvn verify -P local-db2 -f /component/pom.xml -Dskip.surefire.test=true
+                 mvn verify -P local-db2 -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
 
 **Start integration tests in debug mode**
 ```
