@@ -1208,7 +1208,7 @@
                                             <ORACLE_PWD>root</ORACLE_PWD>
                                         </env>
                                         <ports>
-                                            <port>1521:1521</port>
+                                            <port>${siddhi-rdbms-oracle12.port}:1521</port>
                                         </ports>
                                         <wait>
                                             <log>DATABASE IS READY TO USE!</log>
@@ -1245,8 +1245,8 @@
                                 <DATABASE_TYPE>ORACLE</DATABASE_TYPE>
                                 <DATABASE_USER>system</DATABASE_USER>
                                 <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
-                                <DOCKER_HOST_IP>localhost</DOCKER_HOST_IP>
-                                <PORT>1521</PORT>
+                                <DOCKER_HOST_IP>${docker.container.siddhi-rdbms-oracle12.ip}</DOCKER_HOST_IP>
+                                <PORT>${siddhi-rdbms-oracle12.port}</PORT>
                             </environmentVariables>
                             <argLine>-Duser.timezone=GMT</argLine>
                             <suiteXmlFiles>
