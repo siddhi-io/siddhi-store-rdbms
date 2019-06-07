@@ -800,7 +800,11 @@ public class DistributedAggregationTestCaseIT {
         expected.add(new Object[]{64.0, 640.0, 18000.0f});
 
         Assert.assertEquals(inEventCount.get(), 1, "Number of success events");
-        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected), "Data Matched");
+        boolean unsortedEventsMatch = SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected);
+        if (!unsortedEventsMatch) {
+            log.info("Received Event : " + Arrays.toString(inEventsList.toArray()));
+        }
+        Assert.assertTrue(unsortedEventsMatch, "Data Matched");
 
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
