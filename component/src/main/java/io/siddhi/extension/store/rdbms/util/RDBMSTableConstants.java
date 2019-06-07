@@ -121,6 +121,7 @@ public class RDBMSTableConstants {
     public static final String QUERY_WRAPPER_CLAUSE = "queryWrapperClause";
     public static final String LIMIT_WRAPPER_CLAUSE = "limitWrapperClause";
     public static final String OFFSET_WRAPPER_CLAUSE = "offsetWrapperClause";
+    public static final String MICROSOFT_SQL_SERVER_NAME = "Microsoft SQL Server";
 
     private RDBMSTableConstants() {
         //preventing initialization
