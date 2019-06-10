@@ -83,7 +83,7 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -171,7 +171,7 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
@@ -259,7 +259,7 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -350,7 +350,7 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -438,7 +438,7 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -537,7 +537,7 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -637,7 +637,7 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -727,7 +727,7 @@ public class DistributedAggregationTestCaseIT {
                         "quantity int);";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@partitionbyid " +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
@@ -800,7 +800,11 @@ public class DistributedAggregationTestCaseIT {
         expected.add(new Object[]{64.0, 640.0, 18000.0f});
 
         Assert.assertEquals(inEventCount.get(), 1, "Number of success events");
-        Assert.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected), "Data Matched");
+        boolean unsortedEventsMatch = SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected);
+        if (!unsortedEventsMatch) {
+            log.info("Received Event : " + Arrays.toString(inEventsList.toArray()));
+        }
+        Assert.assertTrue(unsortedEventsMatch, "Data Matched");
 
         siddhiAppRuntime1.shutdown();
         siddhiAppRuntime2.shutdown();
@@ -837,7 +841,7 @@ public class DistributedAggregationTestCaseIT {
                         "quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@partitionbyid " +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
@@ -974,7 +978,7 @@ public class DistributedAggregationTestCaseIT {
                         "quantity int); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@partitionbyid " +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation " +
@@ -1097,7 +1101,7 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -1248,7 +1252,7 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockSumAggregation\n" +
                 "from stockStream \n" +
@@ -1258,7 +1262,7 @@ public class DistributedAggregationTestCaseIT {
 
         String query2 = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:1, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAvgAggregation\n" +
                 "from stockStream \n" +
@@ -1403,7 +1407,7 @@ public class DistributedAggregationTestCaseIT {
                 + " quantity int, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" + "@partitionbyid \n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" + "@partitionbyid \n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -1412,7 +1416,7 @@ public class DistributedAggregationTestCaseIT {
 
         String query2 = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockNormalAggregation\n" +
                 "from stockStream \n" +

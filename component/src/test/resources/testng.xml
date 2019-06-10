@@ -19,7 +19,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="Generic Integration test suite" parallel="tests" thread-count="2">
+<suite name="Generic Integration test suite">
     <test name="org.wso2.das">
         <classes>
             <class name="io.siddhi.extension.store.rdbms.DefineRDBMSTableTestCaseIT" />
