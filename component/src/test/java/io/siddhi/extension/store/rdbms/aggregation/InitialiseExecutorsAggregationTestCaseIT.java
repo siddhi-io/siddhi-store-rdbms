@@ -41,8 +41,8 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.password;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.url;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.user;
 
-public class IncrementalAggregationTestCaseIT {
-    private static final Logger log = Logger.getLogger(IncrementalAggregationTestCaseIT.class);
+public class InitialiseExecutorsAggregationTestCaseIT {
+    private static final Logger log = Logger.getLogger(InitialiseExecutorsAggregationTestCaseIT.class);
 
     @BeforeClass
     public static void startTest() {

@@ -36,7 +36,7 @@
     </test>
     <test name="Aggregation test cases">
         <classes>
-            <class name="io.siddhi.extension.store.rdbms.aggregation.IncrementalAggregationTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.aggregation.InitialiseExecutorsAggregationTestCaseIT" />
             <class name="io.siddhi.extension.store.rdbms.aggregation.AggregationFilterTestCaseIT" />
             <class name="io.siddhi.extension.store.rdbms.aggregation.DistributedAggregationTestCaseIT" />
         </classes>
