@@ -79,7 +79,7 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume long);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"itemId:100\")\n" +
+                "\", field.length=\"itemId:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"itemId\")\n" +
                 "define table StockTable (itemId string, type string, volume long);\n";
 
@@ -173,7 +173,7 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume long);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"itemId:100\")\n" +
+                "\", field.length=\"itemId:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"itemId\")\n" +
                 "define table StockTable (itemId string, type string, volume long);\n";
 
@@ -212,7 +212,7 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume long);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"itemId:100\")\n" +
+                "\", field.length=\"itemId:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"itemId\")\n" +
                 "define table StockTable (itemId string, type string, volume long);\n";
 
@@ -298,7 +298,7 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume long);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"itemId:100\")\n" +
+                "\", field.length=\"itemId:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"itemId\")\n" +
                 "define table StockTable (itemId string, type string, volume long);\n";
 
@@ -378,7 +378,7 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "define stream OutputStream (checkName string, checkCategory string, checkVolume double);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"name:100\")\n" +
+                "\", field.length=\"name:100\", pool.properties=\"maximumPoolSize:1\")\n" +
 //                "@PrimaryKey(\"itemId\")\n" +
                 "define table StockTable (name string, type string, volume long);\n";
 
@@ -445,7 +445,7 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "column5 bool, column6 double);\n" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"column1:100\")\n" +
+                "\", field.length=\"column1:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (column1 string, column2 string, column3 string, column4 float, " +
                 "column5 bool, column6 double);\n";
         String streams2 = "" +

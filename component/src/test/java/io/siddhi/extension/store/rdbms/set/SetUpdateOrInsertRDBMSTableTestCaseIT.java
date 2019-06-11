@@ -77,7 +77,8 @@ public class SetUpdateOrInsertRDBMSTableTestCaseIT {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
-                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\")\n" +
+                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\", " +
+                    "pool.properties=\"maximumPoolSize:1\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
                     "define table StockTable (symbol string, price float, volume long); ";
@@ -122,7 +123,8 @@ public class SetUpdateOrInsertRDBMSTableTestCaseIT {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
-                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\")\n" +
+                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\", " +
+                    "pool.properties=\"maximumPoolSize:1\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
                     "define table StockTable (symbol string, price float, volume long); ";
@@ -167,7 +169,8 @@ public class SetUpdateOrInsertRDBMSTableTestCaseIT {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
-                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\")\n" +
+                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\", " +
+                    "pool.properties=\"maximumPoolSize:1\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
                     "define table StockTable (symbol string, price float, volume long); ";
@@ -214,7 +217,8 @@ public class SetUpdateOrInsertRDBMSTableTestCaseIT {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
-                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\")\n" +
+                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\", " +
+                    "pool.properties=\"maximumPoolSize:1\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
                     "define table StockTable (symbol string, price float, volume long); ";
@@ -261,7 +265,8 @@ public class SetUpdateOrInsertRDBMSTableTestCaseIT {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
-                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\")\n" +
+                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\", " +
+                    "pool.properties=\"maximumPoolSize:1\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
                     "define table StockTable (symbol string, price float, volume long); ";
@@ -306,7 +311,8 @@ public class SetUpdateOrInsertRDBMSTableTestCaseIT {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
-                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\")\n" +
+                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\", " +
+                    "pool.properties=\"maximumPoolSize:1\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
                     "define table StockTable (symbol string, price float, volume long); ";
@@ -351,7 +357,8 @@ public class SetUpdateOrInsertRDBMSTableTestCaseIT {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
                     "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
-                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\")\n" +
+                    "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\", " +
+                    "pool.properties=\"maximumPoolSize:1\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
                     "define table StockTable (symbol string, price float, volume long); ";
@@ -395,7 +402,7 @@ public class SetUpdateOrInsertRDBMSTableTestCaseIT {
                 "define stream UpdateStockStream (symbol string, price int, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"symbol:100\")\n" +
+                "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price int, volume long); ";
