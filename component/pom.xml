@@ -253,20 +253,6 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>run-oracle</id>
-                                <phase>integration-test</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>mvn</executable>
-                                    <arguments>
-                                        <argument>verify</argument>
-                                        <argument>-P local-oracle</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                            <execution>
                                 <id>run-mssql</id>
                                 <phase>integration-test</phase>
                                 <goals>
@@ -277,6 +263,20 @@
                                     <arguments>
                                         <argument>verify</argument>
                                         <argument>-P local-mssql</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>run-oracle</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>mvn</executable>
+                                    <arguments>
+                                        <argument>verify</argument>
+                                        <argument>-P local-oracle</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -513,7 +513,7 @@
                             <images>
                                 <image>
                                     <alias>siddhi-rdbms-mysql</alias>
-                                    <name>mysql:5.7</name>
+                                    <name>mysql:5.7.26</name>
                                     <run>
                                         <namingStrategy>alias</namingStrategy>
                                         <env>
