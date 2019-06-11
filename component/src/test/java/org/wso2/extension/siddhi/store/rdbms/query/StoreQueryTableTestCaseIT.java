@@ -77,7 +77,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -126,7 +126,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -182,7 +182,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -239,7 +239,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -279,7 +279,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"symbol\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
 
@@ -310,7 +310,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"symbol\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
 
@@ -342,7 +342,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long);" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -379,7 +379,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long);" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -420,7 +420,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long);" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -465,7 +465,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long);" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -489,8 +489,8 @@ public class StoreQueryTableTestCaseIT {
                 "on price > 53 " +
                 "select symbol, price, sum(volume) as totalVolume, avg(volume) as avgVolume, " +
                 "min(volume) as minVolume, max(volume) as maxVolume " +
-                "group by symbol, price "
-                + "order by price desc";
+                "group by symbol, price " +
+                "order by symbol; ";
         Event[] events = siddhiAppRuntime.query(storeQuery);
         EventPrinter.print(events);
         AssertJUnit.assertEquals(2, events.length);
@@ -531,7 +531,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long);" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String storeQuery = "" +
                 "from StockTable " +
@@ -571,7 +571,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -626,7 +626,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -672,7 +672,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -725,7 +725,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -769,7 +769,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (id int, symbol string, volume int); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (id int, symbol string, volume int); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -826,7 +826,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (id int, symbol string, volume int); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (id int, symbol string, volume int); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -885,7 +885,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (id int, symbol string, volume int); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (id int, symbol string, volume int); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -934,7 +934,7 @@ public class StoreQueryTableTestCaseIT {
                 "define stream StockStream (id int, symbol string, volume int); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "define table StockTable (id int, symbol string, volume int); ";
         String query = "" +
                 "@info(name = 'query1') " +

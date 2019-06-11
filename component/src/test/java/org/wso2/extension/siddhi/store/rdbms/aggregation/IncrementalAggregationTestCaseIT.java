@@ -74,7 +74,7 @@ public class IncrementalAggregationTestCaseIT {
         String streams = "define stream stockStream (symbol string, price float, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -93,16 +93,17 @@ public class IncrementalAggregationTestCaseIT {
     public void incrementalAggregationTest1() throws InterruptedException {
         log.info("incrementalAggregationTest1 - Recreate in-memory after seconds of server shutdown");
 
-        RDBMSTableTestUtils.runStatements("INSERT INTO stockAggregation_SECONDS VALUES  " +
-                "(1525786020000, 1525786020000, 'WSO2', 100, 1), (1525786021000, 1525786021000, 'IBM', 100, 1)," +
-                "(1525786081000, 1525786081000, 'IBM', 100, 1);");
+        RDBMSTableTestUtils.runStatements(
+                "INSERT INTO stockAggregation_SECONDS VALUES (1525786020000, 1525786020000, 'WSO2', 100, 1)",
+                "INSERT INTO stockAggregation_SECONDS VALUES (1525786021000, 1525786021000, 'IBM', 100, 1)",
+                "INSERT INTO stockAggregation_SECONDS VALUES (1525786081000, 1525786081000, 'IBM', 100, 1)");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String streams = "define stream stockStream (symbol string, price float, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -120,6 +121,8 @@ public class IncrementalAggregationTestCaseIT {
 
         Event[] query1 = siddhiAppRuntime
                 .query("from stockAggregation within '2018-**-** **:**:**' per 'minutes' select *");
+        Assert.assertNotNull(query1);
+        Assert.assertEquals(query1.length, 3);
 
         List<Object[]> outputDataList = new ArrayList<>();
         for (Event event : query1) {
@@ -131,8 +134,7 @@ public class IncrementalAggregationTestCaseIT {
                 new Object[]{1525786020000L, "IBM", 100.0, 100.0}
         );
 
-        Assert.assertNotNull(query1);
-        Assert.assertEquals(query1.length, 3);
+
         AssertJUnit.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(expected, outputDataList));
         Thread.sleep(65000);
 
@@ -149,10 +151,11 @@ public class IncrementalAggregationTestCaseIT {
     public void incrementalAggregationTest2() throws InterruptedException {
         log.info("incrementalAggregationTest1 - Recreate in-memory after seconds of server shutdown");
 
-        RDBMSTableTestUtils.runStatements("INSERT INTO stockAggregation_SECONDS VALUES  " +
-                "(1525786020000, 1525786020000, 'WSO2', 100, 1), (1525786021000, 1525786021000, 'IBM', 100, 1)," +
-                "(1525786081000, 1525786081000, 'IBM', 100, 1);", "INSERT INTO stockAggregation_MINUTES VALUES  " +
-                "(1494253173000, 1494253173000, 'WSO2', 100, 1);"
+        RDBMSTableTestUtils.runStatements(
+                "INSERT INTO stockAggregation_SECONDS VALUES (1525786020000, 1525786020000, 'WSO2', 100, 1)",
+                "INSERT INTO stockAggregation_SECONDS VALUES (1525786021000, 1525786021000, 'IBM', 100, 1)",
+                "INSERT INTO stockAggregation_SECONDS VALUES (1525786081000, 1525786081000, 'IBM', 100, 1)",
+                "INSERT INTO stockAggregation_MINUTES VALUES (1494253173000, 1494253173000, 'WSO2', 100, 1)"
         );
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -160,7 +163,7 @@ public class IncrementalAggregationTestCaseIT {
         String streams = "define stream stockStream (symbol string, price float, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
@@ -212,7 +215,7 @@ public class IncrementalAggregationTestCaseIT {
         String streams = "define stream stockStream (symbol string, price float, timestamp long); ";
         String query = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", pool.properties=\"maximumPoolSize:2, maxLifetime:60000\")\n" +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@purge(enable='false')\n" +
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
