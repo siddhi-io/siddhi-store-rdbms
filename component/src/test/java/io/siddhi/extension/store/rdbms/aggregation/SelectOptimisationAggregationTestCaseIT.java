@@ -168,7 +168,7 @@ public class SelectOptimisationAggregationTestCaseIT {
         }
     }
 
-    @Test( dependsOnMethods = "aggregationFunctionTestcase1")
+    @Test(dependsOnMethods = "aggregationFunctionTestcase1")
     public void aggregationFunctionTestcase2() throws InterruptedException {
         LOG.info("aggregationFunctionTestcase1 - external timestamp count w/o group by");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -559,8 +559,8 @@ public class SelectOptimisationAggregationTestCaseIT {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String stockStream =
-                "define stream stockStream (symbol string, name string, price float, lastClosingPrice float, volume long , " +
-                        "quantity int, timestamp long);";
+                "define stream stockStream (symbol string, name string, price float, lastClosingPrice float, " +
+                        "volume long , quantity int, timestamp long);";
         String query =
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
@@ -609,7 +609,7 @@ public class SelectOptimisationAggregationTestCaseIT {
 
             // Thursday, June 1, 2017 4:05:52 AM
             stockStreamInputHandler.send(new Object[]{"WSO2", "WSO21", 60f, 44f, 200L, 56, 1496289952000L});
-            stockStreamInputHandler.send(new Object[]{"WSO2", "WSO22",100f, null, 200L, 16, 1496289952000L});
+            stockStreamInputHandler.send(new Object[]{"WSO2", "WSO22", 100f, null, 200L, 16, 1496289952000L});
 
             // Thursday, June 1, 2017 4:05:54 AM
             stockStreamInputHandler.send(new Object[]{"IBM", "IBM1", 100f, null, 200L, 26, 1496289954000L});
@@ -1180,24 +1180,24 @@ public class SelectOptimisationAggregationTestCaseIT {
                         "quantity int, timestamp long);";
         String query =
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                        "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                        "\", pool.properties=\"maximumPoolSize:1\")\n" +
-                        "@purge(enable='false')" +
-                        "define aggregation stockAggregation " +
-                        "from stockStream " +
-                        "select symbol, sum(price) as sumPrice " +
-                        "group by symbol " +
-                        "aggregate by timestamp every sec...min ;" +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", pool.properties=\"maximumPoolSize:1\")\n" +
+                "@purge(enable='false')" +
+                "define aggregation stockAggregation " +
+                "from stockStream " +
+                "select symbol, sum(price) as sumPrice " +
+                "group by symbol " +
+                "aggregate by timestamp every sec...min ;" +
 
-                        "define stream inputStream (symbol string); " +
+                "define stream inputStream (symbol string); " +
 
-                        "@info(name = 'query1') " +
-                        "from inputStream as i join stockAggregation as s " +
-                        "within 1496200000000L, 1596535449000L " +
-                        "per \"seconds\" " +
-                        "select s.symbol, sum(s.sumPrice) as sumPrice " +
-                        "group by i.symbol, s.symbol " +
-                        "insert all events into outputStream; ";
+                "@info(name = 'query1') " +
+                "from inputStream as i join stockAggregation as s " +
+                "within 1496200000000L, 1596535449000L " +
+                "per \"seconds\" " +
+                "select s.symbol, sum(s.sumPrice) as sumPrice " +
+                "group by i.symbol, s.symbol " +
+                "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 
