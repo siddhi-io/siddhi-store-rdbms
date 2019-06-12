@@ -18,7 +18,8 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
         <artifactId>siddhi-store-rdbms-parent</artifactId>
@@ -101,6 +102,12 @@
             <artifactId>ojdbc6</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--<dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc7</artifactId>
+            <scope>test</scope>
+            <version>12.1.0.2</version>
+        </dependency>-->
         <!--<dependency>-->
             <!--<groupId>com.ibm.db2</groupId>-->
             <!--<artifactId>db2jcc</artifactId>-->
@@ -217,6 +224,20 @@
                                 </configuration>
                             </execution>
                             <execution>
+                                <id>run-mssql</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>mvn</executable>
+                                    <arguments>
+                                        <argument>verify</argument>
+                                        <argument>-P local-mssql</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>run-postgres</id>
                                 <phase>integration-test</phase>
                                 <goals>
@@ -245,7 +266,7 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>run-mssql</id>
+                                <id>run-oracle12</id>
                                 <phase>integration-test</phase>
                                 <goals>
                                     <goal>exec</goal>
@@ -254,7 +275,7 @@
                                     <executable>mvn</executable>
                                     <arguments>
                                         <argument>verify</argument>
-                                        <argument>-P local-mssql</argument>
+                                        <argument>-P local-oracle12</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -1178,7 +1199,7 @@
                                             <port>${siddhi-rdbms-db2.port}:50000</port>
                                         </ports>
                                         <wait>
-                                            <log>SQL1063N  DB2START processing was successful.</log>
+                                            <log>SQL1063N DB2START processing was successful.</log>
                                             <time>10000</time>
                                         </wait>
                                     </run>
@@ -1265,7 +1286,7 @@
                                             <port>${siddhi-rdbms-db2.port}:50000</port>
                                         </ports>
                                         <wait>
-                                            <log>SQL1063N  DB2START processing was successful.</log>
+                                            <log>SQL1063N DB2START processing was successful.</log>
                                             <time>10000</time>
                                         </wait>
                                     </run>
