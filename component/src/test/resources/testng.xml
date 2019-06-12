@@ -38,7 +38,9 @@
         <classes>
             <class name="io.siddhi.extension.store.rdbms.aggregation.InitialiseExecutorsAggregationTestCaseIT" />
             <class name="io.siddhi.extension.store.rdbms.aggregation.AggregationFilterTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.aggregation.LatestAggregationTestCaseIT" />
             <class name="io.siddhi.extension.store.rdbms.aggregation.DistributedAggregationTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.aggregation.SelectOptimisationAggregationTestCaseIT" />
         </classes>
     </test>
 </suite>
