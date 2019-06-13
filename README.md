@@ -83,7 +83,7 @@ database according to the given profile before execute the test suit.
             
     * Oracle 11.2.0.2 Express Edition:
             
-             mvn verify -P local-oracle12 -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+             mvn verify -P local-oracle -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
             
     * Oracle 12.1.0.2 Standard Edition:
              
@@ -104,7 +104,7 @@ database according to the given profile before execute the test suit.
              
              * To run the integration test, navigate to siddhi-store-rdbms/ directory and issue the following commands:
          
-                      mvn verify -P local-oracle12 -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+                      mvn verify -P local-oracle12 -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
     
     * DB2
     
