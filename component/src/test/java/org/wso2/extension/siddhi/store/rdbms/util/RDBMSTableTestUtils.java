@@ -152,7 +152,7 @@ public class RDBMSTableTestUtils {
         try {
             con = getTestDataSource().getConnection();
             con.setAutoCommit(false);
-            stmt = con.prepareStatement("DROP TABLE IF EXISTS " + tableName);
+            stmt = con.prepareStatement("DROP TABLE " + tableName);
             stmt.execute();
             con.commit();
         } catch (SQLException e) {

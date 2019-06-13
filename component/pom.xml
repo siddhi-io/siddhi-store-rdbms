@@ -18,7 +18,8 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
         <artifactId>siddhi-store-rdbms-parent</artifactId>
@@ -57,23 +58,8 @@
             <artifactId>org.wso2.carbon.datasource.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -87,8 +73,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -97,10 +98,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--<dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc7</artifactId>
+            <scope>test</scope>
+            <version>12.1.0.2</version>
+        </dependency>-->
         <!--<dependency>-->
             <!--<groupId>com.ibm.db2</groupId>-->
             <!--<artifactId>db2jcc</artifactId>-->
@@ -217,6 +224,20 @@
                                 </configuration>
                             </execution>
                             <execution>
+                                <id>run-mssql</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>mvn</executable>
+                                    <arguments>
+                                        <argument>verify</argument>
+                                        <argument>-P local-mssql</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>run-postgres</id>
                                 <phase>integration-test</phase>
                                 <goals>
@@ -245,7 +266,7 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>run-mssql</id>
+                                <id>run-oracle12</id>
                                 <phase>integration-test</phase>
                                 <goals>
                                     <goal>exec</goal>
@@ -254,7 +275,7 @@
                                     <executable>mvn</executable>
                                     <arguments>
                                         <argument>verify</argument>
-                                        <argument>-P local-mssql</argument>
+                                        <argument>-P local-oracle12</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -1136,6 +1157,92 @@
             </build>
         </profile>
         <profile>
+            <id>local-oracle12</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>start-docker-for-oracle</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-docker-for-oracle</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                    <goal>remove</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <alias>siddhi-rdbms-oracle12</alias>
+                                    <name>oracle/database:12.1.0.2-se2</name>
+                                    <run>
+                                        <namingStrategy>alias</namingStrategy>
+                                        <env>
+                                            <ORACLE_SID>XE</ORACLE_SID>
+                                            <ORACLE_PDB>root</ORACLE_PDB>
+                                            <ORACLE_PWD>root</ORACLE_PWD>
+                                        </env>
+                                        <ports>
+                                            <port>${siddhi-rdbms-oracle12.port}:1521</port>
+                                        </ports>
+                                        <wait>
+                                            <log>DATABASE IS READY TO USE!</log>
+                                            <time>600000</time>
+                                        </wait>
+                                        <shmSize>2718281829</shmSize>
+                                    </run>
+                                </image>
+                            </images>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <executions>
+                            <execution>
+                                <id>integration-test-for-oracle</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>verify-for-oracle</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <environmentVariables>
+                                <DATABASE_TYPE>ORACLE</DATABASE_TYPE>
+                                <DATABASE_USER>system</DATABASE_USER>
+                                <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
+                                <DOCKER_HOST_IP>${docker.container.siddhi-rdbms-oracle12.ip}</DOCKER_HOST_IP>
+                                <PORT>${siddhi-rdbms-oracle12.port}</PORT>
+                            </environmentVariables>
+                            <argLine>-Duser.timezone=GMT</argLine>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>local-db2</id>
             <build>
                 <plugins>
@@ -1178,7 +1285,7 @@
                                             <port>${siddhi-rdbms-db2.port}:50000</port>
                                         </ports>
                                         <wait>
-                                            <log>SQL1063N  DB2START processing was successful.</log>
+                                            <log>SQL1063N DB2START processing was successful.</log>
                                             <time>10000</time>
                                         </wait>
                                     </run>
@@ -1265,7 +1372,7 @@
                                             <port>${siddhi-rdbms-db2.port}:50000</port>
                                         </ports>
                                         <wait>
-                                            <log>SQL1063N  DB2START processing was successful.</log>
+                                            <log>SQL1063N DB2START processing was successful.</log>
                                             <time>10000</time>
                                         </wait>
                                     </run>
