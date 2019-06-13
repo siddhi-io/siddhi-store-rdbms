@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -463,6 +464,72 @@ public class LatestAggregationTestCaseIT {
         } finally {
             siddhiAppRuntime.shutdown();
         }
+    }
+
+    @Test(dependsOnMethods = {"latestTestCase4"})
+    public void latestTestCase5() throws InterruptedException {
+        LOG.info("latestTestCase5");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String stockStream =
+                "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long , " +
+                        "quantity int, timestamp long);";
+        String query =
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", username=\"" + user + "\", password=\"" + password +
+                "\",jdbc.driver.name=\"" + driverClassName + "\")\n" +
+                "@purge(enable='false')" +
+                "define aggregation stockAggregation " +
+                "from stockStream " +
+                "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
+                "(price * quantity) as lastTradeValue  " +
+                "group by symbol " +
+                "aggregate every sec...min ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
+
+        InputHandler stockStreamInputHandler = siddhiAppRuntime.getInputHandler("stockStream");
+        siddhiAppRuntime.start();
+
+        stockStreamInputHandler.send(new Object[]{"WSO2", 50f, 60f, 90L, 6, 1496289950000L});
+        stockStreamInputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10, 1496289950000L});
+        Thread.sleep(2000);
+
+        stockStreamInputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 56, 1496289952000L});
+        stockStreamInputHandler.send(new Object[]{"WSO2", 100f, null, 200L, 16, 1496289952000L});
+        Thread.sleep(2000);
+
+        stockStreamInputHandler.send(new Object[]{"IBM", 100f, null, 200L, 26, 1496289954000L});
+        stockStreamInputHandler.send(new Object[]{"IBM", 100f, null, 200L, 96, 1496289954000L});
+        Thread.sleep(5000);
+
+        LocalDate currentDate = LocalDate.now();
+        String year = String.valueOf(currentDate.getYear());
+        String month = String.valueOf(currentDate.getMonth().getValue());
+        if (month.length() == 1) {
+            month = "0".concat(month);
+        }
+
+        Event[] events = siddhiAppRuntime.query("from stockAggregation " +
+                "within \"" + year + "-" + month + "-** **:**:** +05:30\" " +
+                "per \"seconds\" " +
+                "select symbol, sum(totalPrice) as totalPrice, lastTradeValue " +
+                "group by symbol; ");
+
+        EventPrinter.print(events);
+        AssertJUnit.assertNotNull(events);
+        AssertJUnit.assertEquals(2, events.length);
+
+        List<Object[]> actual = new ArrayList<>();
+        for (Event event : events) {
+            actual.add(event.getData());
+        }
+
+        List<Object[]> expected = Arrays.asList(
+                new Object[]{"IBM", 200.0, 9600f},
+                new Object[]{"WSO2", 280.0, 1600f}
+        );
+        AssertJUnit.assertTrue(SiddhiTestHelper.isUnsortedEventsMatch(actual, expected));
+
+        siddhiAppRuntime.shutdown();
     }
 
 }
