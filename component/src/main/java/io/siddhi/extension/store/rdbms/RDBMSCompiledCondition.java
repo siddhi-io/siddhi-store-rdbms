@@ -28,16 +28,24 @@ import java.util.SortedMap;
 public class RDBMSCompiledCondition implements CompiledCondition {
 
     private String compiledQuery;
+    private boolean isLatestConditionExist;
+    private String innerQuerySelectors;
+    private String outerCompiledCondition;
     private SortedMap<Integer, Object> parameters;
     private boolean isContainsConditionExist;
     private int ordinalOfContainPattern;
 
     public RDBMSCompiledCondition(String compiledQuery, SortedMap<Integer, Object> parameters,
-                                  boolean isContainsConditionExist, int ordinalOfContainPattern) {
+                                  boolean isContainsConditionExist, int ordinalOfContainPattern,
+                                  boolean isLatestConditionExist, String innerQuerySelectors,
+                                  String outerCompiledCondition) {
         this.compiledQuery = compiledQuery;
         this.parameters = parameters;
         this.isContainsConditionExist = isContainsConditionExist;
         this.ordinalOfContainPattern = ordinalOfContainPattern;
+        this.isLatestConditionExist = isLatestConditionExist;
+        this.innerQuerySelectors = innerQuerySelectors;
+        this.outerCompiledCondition = outerCompiledCondition;
     }
 
     public String getCompiledQuery() {
@@ -46,6 +54,18 @@ public class RDBMSCompiledCondition implements CompiledCondition {
 
     public boolean isContainsConditionExist() {
         return isContainsConditionExist;
+    }
+
+    public boolean isLatestConditionExist() {
+        return isLatestConditionExist;
+    }
+
+    public String getInnerQuerySelectors() {
+        return innerQuerySelectors;
+    }
+
+    public String getOuterCompiledCondition() {
+        return outerCompiledCondition;
     }
 
     public String toString() {

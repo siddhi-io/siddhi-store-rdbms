@@ -27,9 +27,17 @@ import io.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.EQUALS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INNER_QUERY_REF;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.LAST_MAX_FUNCTION;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.OPEN_PARENTHESIS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
 
 
 /**
@@ -52,6 +60,12 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     private boolean nextProcessContainsPattern;
     private int ordinalOfContainPattern = 1;
 
+    private boolean containsAttributeFunction = false;
+    private boolean isLastConditionExist = false;
+    private boolean isNextProcessLastPattern = false;
+    private StringBuilder maxVariableConditionForLast;
+    private StringBuilder outerCompiledCondition;
+
     private String[] supportedFunctions = {"sum", "avg", "min", "max"};
 
     public RDBMSConditionVisitor(String tableName) {
@@ -61,6 +75,8 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         this.constantCount = 0;
         this.placeholders = new HashMap<>();
         this.parameters = new TreeMap<>();
+        this.maxVariableConditionForLast = new StringBuilder();
+        this.outerCompiledCondition = new StringBuilder();
     }
 
     private RDBMSConditionVisitor() {
@@ -70,6 +86,22 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     public String returnCondition() {
         this.parametrizeCondition();
         return this.finalCompiledCondition.trim();
+    }
+
+    public String returnMaxVariableCondition() {
+        return this.maxVariableConditionForLast.toString();
+    }
+
+    public boolean isContainsAttributeFunction() {
+        return containsAttributeFunction;
+    }
+
+    public String getOuterCompiledCondition() {
+        return outerCompiledCondition.toString();
+    }
+
+    public boolean isLastConditionExist() {
+        return isLastConditionExist;
     }
 
     public int getOrdinalOfContainPattern() {
@@ -86,12 +118,12 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitAnd() {
-        condition.append(RDBMSTableConstants.OPEN_PARENTHESIS);
+        condition.append(OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitAnd() {
-        condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS);
+        condition.append(CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -116,12 +148,12 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitOr() {
-        condition.append(RDBMSTableConstants.OPEN_PARENTHESIS);
+        condition.append(OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitOr() {
-        condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS);
+        condition.append(CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -156,12 +188,12 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitCompare(Compare.Operator operator) {
-        condition.append(RDBMSTableConstants.OPEN_PARENTHESIS);
+        condition.append(OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitCompare(Compare.Operator operator) {
-        condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS);
+        condition.append(CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -243,12 +275,12 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitMath(MathOperator mathOperator) {
-        condition.append(RDBMSTableConstants.OPEN_PARENTHESIS);
+        condition.append(OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitMath(MathOperator mathOperator) {
-        condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS);
+        condition.append(CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -293,13 +325,17 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         if (RDBMSTableUtils.isEmpty(namespace) &&
                 (Arrays.stream(supportedFunctions).anyMatch(functionName::equals))) {
             condition.append(functionName).append(RDBMSTableConstants.OPEN_PARENTHESIS);
+            containsAttributeFunction = true;
         } else if (namespace.trim().equals("str") && functionName.equals("contains")) {
-            condition.append("CONTAINS").append(RDBMSTableConstants.OPEN_PARENTHESIS);
+            condition.append("CONTAINS").append(OPEN_PARENTHESIS);
             isContainsConditionExist = true;
             nextProcessContainsPattern = true;
+        } else if (namespace.trim().equals("incrementalAggregator") && functionName.equals("last")) {
+           isLastConditionExist = true;
+           isNextProcessLastPattern = true;
         } else {
             throw new OperationNotSupportedException("The RDBMS Event table does not support functions other than " +
-                    "sum(), avg(), min(), max() and str:contains() but function '" +
+                    "sum(), avg(), min(), max(), str:contains() and incrementalAggregator:last() but function '" +
                     ((RDBMSTableUtils.isEmpty(namespace)) ? "" + functionName : namespace + ":" + functionName) +
                     "' was specified.");
 
@@ -310,10 +346,10 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     public void endVisitAttributeFunction(String namespace, String functionName) {
         if ((namespace.trim().equals("str") && functionName.equals("contains")) ||
                 (Arrays.stream(supportedFunctions).anyMatch(functionName::equals))) {
-            condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS).append(RDBMSTableConstants.WHITESPACE);
-        } else {
+            condition.append(CLOSE_PARENTHESIS).append(RDBMSTableConstants.WHITESPACE);
+        } else if (!(namespace.trim().equals("incrementalAggregator") && functionName.equals("last"))) {
             throw new OperationNotSupportedException("The RDBMS Event table does not support functions other than " +
-                    "sum(), avg(), min(), max() and str:contains() but function '" +
+                    "sum(), avg(), min(), max(), str:contains() and incrementalAggregator:last() but function '" +
                     ((RDBMSTableUtils.isEmpty(namespace)) ? "" + functionName : namespace + ":" + functionName) +
                     "' was specified.");
         }
@@ -349,7 +385,22 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitStoreVariable(String storeId, String attributeName, Attribute.Type type) {
-        condition.append(this.tableName).append(".").append(attributeName).append(RDBMSTableConstants.WHITESPACE);
+        if (!isLastConditionExist) {
+            condition.append(this.tableName).append(".").append(attributeName).append(RDBMSTableConstants.WHITESPACE);
+            outerCompiledCondition.append(this.tableName).append(".").append(attributeName)
+                                            .append(EQUALS).append(INNER_QUERY_REF).append(".").append(attributeName);
+        } else if (isNextProcessLastPattern) {
+            condition.append(this.tableName).append(".").append(attributeName).append(RDBMSTableConstants.WHITESPACE);
+            if (isNextProcessLastPattern) {
+                isNextProcessLastPattern = false;
+            }
+        } else {
+            maxVariableConditionForLast.append(LAST_MAX_FUNCTION).append(OPEN_PARENTHESIS)
+                            .append(this.tableName).append(".").append(attributeName).append(CLOSE_PARENTHESIS)
+                            .append(SQL_AS).append("MAX_").append(attributeName);
+            outerCompiledCondition.append(this.tableName).append(".").append(attributeName).append(EQUALS)
+                            .append(INNER_QUERY_REF).append(".").append("MAX_").append(attributeName);
+        }
     }
 
     @Override

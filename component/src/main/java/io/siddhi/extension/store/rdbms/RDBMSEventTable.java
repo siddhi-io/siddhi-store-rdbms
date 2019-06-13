@@ -97,6 +97,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FLOAT_TYP
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.GROUP_BY_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.HAVING_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INDEX_CREATE_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INNER_QUERY_REF;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INTEGER_TYPE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.IS_LIMIT_BEFORE_OFFSET;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.LIMIT_CLAUSE;
@@ -112,6 +113,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLD
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_CONDITION;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_Q;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_SELECTORS;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_TABLE_NAME;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_VALUES;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PROPERTY_SEPARATOR;
@@ -126,6 +128,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_UP
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_TEMPLATE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SEPARATOR;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AND;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_NOT_NULL;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_PRIMARY_KEY_DEF;
@@ -1095,7 +1098,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
         expressionBuilder.build(visitor);
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters(),
-                visitor.isContainsConditionExist(), visitor.getOrdinalOfContainPattern());
+                visitor.isContainsConditionExist(), visitor.getOrdinalOfContainPattern(), false, null, null);
     }
 
 
@@ -1806,16 +1809,27 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         String selectors = rdbmsCompiledSelection.getCompiledSelectClause().getCompiledQuery();
         String selectClause = rdbmsSelectQueryTemplate.getSelectClause().replace(RDBMSTableConstants.
                 PLACEHOLDER_SELECTORS, selectors);
-        StringBuilder selectQuery = new StringBuilder(selectClause);
+
+        String innerSelectors = rdbmsCompiledSelection.getCompiledSelectClause().getInnerQuerySelectors();
+        String innerSelectClause = rdbmsSelectQueryTemplate.getSelectClause().replace(PLACEHOLDER_SELECTORS,
+                innerSelectors);
+        boolean isContainsLastFunction = rdbmsCompiledSelection.getCompiledSelectClause().isLatestConditionExist();
+
+        StringBuilder selectQuery;
+        if (isContainsLastFunction) {
+            selectQuery = new StringBuilder(innerSelectClause);
+        } else {
+            selectQuery = new StringBuilder(selectClause);
+        }
+
         if (rdbmsCompiledCondition != null) {
             String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
             if (whereClause == null || whereClause.isEmpty()) {
                 throw new QueryableRecordTableException("Where clause is present in query but 'whereClause' has not " +
                         "being configured in RDBMS Event Table query configuration, for store: " + tableName);
             }
-            whereClause = whereClause.replace(
-                    RDBMSTableConstants.PLACEHOLDER_CONDITION, rdbmsCompiledCondition.getCompiledQuery());
-            selectQuery = selectQuery.append(WHITESPACE).append(whereClause);
+            whereClause = whereClause.replace(PLACEHOLDER_CONDITION, rdbmsCompiledCondition.getCompiledQuery());
+            selectQuery.append(WHITESPACE).append(whereClause);
         }
         RDBMSCompiledCondition compiledGroupByClause = rdbmsCompiledSelection.getCompiledGroupByClause();
         if (compiledGroupByClause != null) {
@@ -1824,9 +1838,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 throw new QueryableRecordTableException("Group by clause is present in query but 'groupByClause' has " +
                         "not being configured in RDBMS Event Table query configuration, for store: " + tableName);
             }
-            groupByClause = groupByClause.replace(
-                    RDBMSTableConstants.PLACEHOLDER_COLUMNS, compiledGroupByClause.getCompiledQuery());
-            selectQuery = selectQuery.append(WHITESPACE).append(groupByClause);
+            groupByClause = groupByClause.replace(PLACEHOLDER_COLUMNS, compiledGroupByClause.getCompiledQuery());
+            selectQuery.append(WHITESPACE).append(groupByClause);
         }
         RDBMSCompiledCondition compiledHavingClause = rdbmsCompiledSelection.getCompiledHavingClause();
         if (compiledHavingClause != null) {
@@ -1835,9 +1848,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 throw new QueryableRecordTableException("Having by clause is present in query but 'havingClause' has " +
                         "not being configured in RDBMS Event Table query configuration, for store: " + tableName);
             }
-            havingClause = havingClause.replace(
-                    RDBMSTableConstants.PLACEHOLDER_CONDITION, compiledHavingClause.getCompiledQuery());
-            selectQuery = selectQuery.append(WHITESPACE).append(havingClause);
+            havingClause = havingClause.replace(PLACEHOLDER_CONDITION, compiledHavingClause.getCompiledQuery());
+            selectQuery.append(WHITESPACE).append(havingClause);
         }
         RDBMSCompiledCondition compiledOrderByClause = rdbmsCompiledSelection.getCompiledOrderByClause();
         if (compiledOrderByClause != null) {
@@ -1846,9 +1858,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 throw new QueryableRecordTableException("Order by clause is present in query but 'orderByClause' has " +
                         "not being configured in RDBMS Event Table query configuration, for store: " + tableName);
             }
-            orderByClause = orderByClause.replace(
-                    RDBMSTableConstants.PLACEHOLDER_COLUMNS, compiledOrderByClause.getCompiledQuery());
-            selectQuery = selectQuery.append(WHITESPACE).append(orderByClause);
+            orderByClause = orderByClause.replace(PLACEHOLDER_COLUMNS, compiledOrderByClause.getCompiledQuery());
+            selectQuery.append(WHITESPACE).append(orderByClause);
         }
         Long limit = rdbmsCompiledSelection.getLimit();
         Long offset = rdbmsCompiledSelection.getOffset();
@@ -1913,45 +1924,57 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                 "'isLimitBeforeOffset' has not being configured in RDBMS Event Table query " +
                                 "configuration, for store: " + tableName);
                     }
-                        if (queryConfigurationEntry.getDatabaseName().equalsIgnoreCase(
-                                RDBMSTableConstants.MICROSOFT_SQL_SERVER_NAME) && compiledOrderByClause == null) {
-                                String orderByClause = rdbmsSelectQueryTemplate.getOrderByClause();
-                                orderByClause = orderByClause.replace(
-                                        RDBMSTableConstants.PLACEHOLDER_COLUMNS, SELECT_NULL);
-                                selectQuery = selectQuery.append(WHITESPACE).append(orderByClause);
-                        }
-                        if (isLimitBeforeOffset) {
-                        selectQuery = selectQuery.append(WHITESPACE).append(limitClause)
-                                .append(WHITESPACE).append(offsetClause);
+                    if (queryConfigurationEntry.getDatabaseName().equalsIgnoreCase(
+                            RDBMSTableConstants.MICROSOFT_SQL_SERVER_NAME) && compiledOrderByClause == null) {
+                        String orderByClause = rdbmsSelectQueryTemplate.getOrderByClause();
+                        orderByClause = orderByClause.replace(PLACEHOLDER_COLUMNS, SELECT_NULL);
+                        selectQuery.append(WHITESPACE).append(orderByClause);
+                    }
+                    if (isLimitBeforeOffset) {
+                        selectQuery.append(WHITESPACE).append(limitClause).append(WHITESPACE).append(offsetClause);
                     } else {
-                        selectQuery = selectQuery.append(WHITESPACE).append(offsetClause)
-                                .append(WHITESPACE).append(limitClause);
+                        selectQuery.append(WHITESPACE).append(offsetClause).append(WHITESPACE).append(limitClause);
                     }
                 } else {
-                        if (queryConfigurationEntry.getDatabaseName().equalsIgnoreCase(
-                                RDBMSTableConstants.MICROSOFT_SQL_SERVER_NAME)) {
-                                if (compiledOrderByClause == null) {
-                                        String orderByClause = rdbmsSelectQueryTemplate.getOrderByClause();
-                                        orderByClause = orderByClause.replace(
-                                                RDBMSTableConstants.PLACEHOLDER_COLUMNS, SELECT_NULL);
-                                        selectQuery = selectQuery.append(WHITESPACE).append(orderByClause);
-                                }
-                                String offsetClause = rdbmsSelectQueryTemplate.getOffsetClause();
-                                offsetClause = offsetClause.replace(RDBMSTableConstants.PLACEHOLDER_Q, ZERO);
-                                boolean isLimitBeforeOffset = Boolean.parseBoolean(rdbmsSelectQueryTemplate.
-                                        getIsLimitBeforeOffset());
-                                if (isLimitBeforeOffset) {
-                                        selectQuery = selectQuery.append(WHITESPACE).append(limitClause)
-                                                .append(WHITESPACE).append(offsetClause);
-                                } else {
-                                        selectQuery = selectQuery.append(WHITESPACE).append(offsetClause)
-                                                .append(WHITESPACE).append(limitClause);
-                                }
-                        } else {
-                                selectQuery = selectQuery.append(WHITESPACE).append(limitClause);
+                    if (queryConfigurationEntry.getDatabaseName().equalsIgnoreCase(
+                            RDBMSTableConstants.MICROSOFT_SQL_SERVER_NAME)) {
+                        if (compiledOrderByClause == null) {
+                            String orderByClause = rdbmsSelectQueryTemplate.getOrderByClause();
+                            orderByClause = orderByClause.replace(PLACEHOLDER_COLUMNS, SELECT_NULL);
+                            selectQuery.append(WHITESPACE).append(orderByClause);
                         }
+                        String offsetClause = rdbmsSelectQueryTemplate.getOffsetClause();
+                        offsetClause = offsetClause.replace(RDBMSTableConstants.PLACEHOLDER_Q, ZERO);
+                        boolean isLimitBeforeOffset = Boolean.parseBoolean(rdbmsSelectQueryTemplate.
+                                getIsLimitBeforeOffset());
+                        if (isLimitBeforeOffset) {
+                            selectQuery.append(WHITESPACE).append(limitClause).append(WHITESPACE).append(offsetClause);
+                        } else {
+                            selectQuery.append(WHITESPACE).append(offsetClause).append(WHITESPACE).append(limitClause);
+                        }
+                    } else {
+                        selectQuery.append(WHITESPACE).append(limitClause);
+                    }
                 }
             }
+
+            if (isContainsLastFunction) {
+                StringBuilder aggregationOptimisedQuery = new StringBuilder(selectClause)
+                        .append(SEPARATOR)
+                        .append(OPEN_PARENTHESIS).append(selectQuery).append(CLOSE_PARENTHESIS).append(SQL_AS)
+                        .append(INNER_QUERY_REF);
+                String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
+                if (whereClause == null || whereClause.isEmpty()) {
+                    throw new QueryableRecordTableException("Where clause is present in query but 'whereClause' " +
+                            "has not being configured in RDBMS Event Table query configuration, for store: "
+                            + tableName);
+                }
+                whereClause = whereClause.replace(PLACEHOLDER_CONDITION,
+                                        rdbmsCompiledSelection.getCompiledSelectClause().getOuterCompiledCondition());
+                aggregationOptimisedQuery.append(WHITESPACE).append(whereClause);
+                return aggregationOptimisedQuery.toString();
+            }
+
             return selectQuery.toString();
         }
     }
@@ -1973,20 +1996,61 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     private RDBMSCompiledCondition compileSelectClause(List<SelectAttributeBuilder> selectAttributeBuilders) {
         StringBuilder compiledSelectionList = new StringBuilder();
+        StringBuilder compiledInnerQuerySelection = new StringBuilder();
+        StringBuilder compiledOuterOnCondition = new StringBuilder();
+
         SortedMap<Integer, Object> paramMap = new TreeMap<>();
         int offset = 0;
 
-        for (SelectAttributeBuilder selectAttributeBuilder : selectAttributeBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
-            selectAttributeBuilder.getExpressionBuilder().build(visitor);
+        boolean containsLastFunction = false;
+        List<RDBMSConditionVisitor> conditionVisitorList = new ArrayList<>();
+            for (SelectAttributeBuilder attributeBuilder : selectAttributeBuilders) {
+                    RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
+                    attributeBuilder.getExpressionBuilder().build(visitor);
+                    if (visitor.isLastConditionExist()) {
+                            containsLastFunction = true;
+                    }
+                    conditionVisitorList.add(visitor);
+            }
+
+        boolean isLastFunctionEncountered = false;
+        for (int i = 0; i < conditionVisitorList.size(); i++) {
+            RDBMSConditionVisitor visitor = conditionVisitorList.get(i);
+            SelectAttributeBuilder selectAttributeBuilder = selectAttributeBuilders.get(i);
 
             String compiledCondition = visitor.returnCondition();
-            compiledSelectionList.append(compiledCondition);
-            if (selectAttributeBuilder.getRename() != null && !selectAttributeBuilder.getRename().isEmpty()) {
-                compiledSelectionList.append(SQL_AS).
-                        append(selectAttributeBuilder.getRename());
+
+            if (containsLastFunction) {
+                if (visitor.isLastConditionExist()) {
+                    compiledSelectionList.append(compiledCondition).append(SQL_AS)
+                            .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
+                    if (!isLastFunctionEncountered) {
+                        compiledInnerQuerySelection.append(visitor.returnMaxVariableCondition()).append(SEPARATOR);
+                        compiledOuterOnCondition.append(visitor.getOuterCompiledCondition()).append(SQL_AND);
+                        isLastFunctionEncountered = true;
+                    }
+                } else if (visitor.isContainsAttributeFunction()) {
+                    compiledSelectionList.append(INNER_QUERY_REF).append(".")
+                            .append(selectAttributeBuilder.getRename()).append(SQL_AS)
+                            .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
+                    compiledInnerQuerySelection.append(compiledCondition).append(SQL_AS)
+                                .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
+                } else {
+                    compiledSelectionList.append(compiledCondition).append(SQL_AS)
+                            .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
+                    compiledInnerQuerySelection.append(compiledCondition).append(SQL_AS)
+                            .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
+                    compiledOuterOnCondition.append(visitor.getOuterCompiledCondition()).append(SQL_AND);
+                }
+            } else {
+                compiledSelectionList.append(compiledCondition);
+                if (selectAttributeBuilder.getRename() != null && !selectAttributeBuilder.getRename().isEmpty()) {
+                    compiledSelectionList.append(SQL_AS).
+                            append(selectAttributeBuilder.getRename());
+                }
+                compiledSelectionList.append(SEPARATOR);
             }
-            compiledSelectionList.append(SEPARATOR);
+
             Map<Integer, Object> conditionParamMap = visitor.getParameters();
             int maxOrdinal = 0;
             for (Map.Entry<Integer, Object> entry : conditionParamMap.entrySet()) {
@@ -2002,7 +2066,17 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (compiledSelectionList.length() > 0) {
             compiledSelectionList.setLength(compiledSelectionList.length() - 2); // Removing the last comma separator.
         }
-        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0);
+
+        if (compiledInnerQuerySelection.length() > 0) {
+            compiledInnerQuerySelection.setLength(compiledInnerQuerySelection.length() - 2);
+        }
+
+        if (compiledOuterOnCondition.length() > 0) {
+            compiledOuterOnCondition.setLength(compiledOuterOnCondition.length() - 4);
+        }
+
+        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0, containsLastFunction,
+                compiledInnerQuerySelection.toString(), compiledOuterOnCondition.toString());
     }
 
     private RDBMSCompiledCondition compileClause(List<ExpressionBuilder> expressionBuilders) {
@@ -2032,7 +2106,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (compiledSelectionList.length() > 0) {
             compiledSelectionList.setLength(compiledSelectionList.length() - 2); // Removing the last comma separator.
         }
-        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0);
+        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0, false, null, null);
     }
 
     private RDBMSCompiledCondition compileOrderByClause(List<OrderByAttributeBuilder> orderByAttributeBuilders) {
@@ -2068,7 +2142,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (compiledSelectionList.length() > 0) {
             compiledSelectionList.setLength(compiledSelectionList.length() - 2); // Removing the last comma separator.
         }
-        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0);
+        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0, false, null, null);
     }
 
     private static class DefaultConfigReader implements ConfigReader {
