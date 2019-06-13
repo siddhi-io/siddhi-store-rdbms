@@ -1106,7 +1106,7 @@ public class DistributedAggregationTestCaseIT {
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice \n" +
-                "aggregate by timestamp every sec...year; ";
+                "aggregate by timestamp every sec...hour; ";
 
         SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(streams + query);
         SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager2.createSiddhiAppRuntime(streams + query);
@@ -1374,8 +1374,6 @@ public class DistributedAggregationTestCaseIT {
             RDBMSTableTestUtils.initDatabaseTable("stockNormalAggregation_MINUTES");
             RDBMSTableTestUtils.initDatabaseTable("stockNormalAggregation_HOURS");
             RDBMSTableTestUtils.initDatabaseTable("stockNormalAggregation_DAYS");
-            RDBMSTableTestUtils.initDatabaseTable("stockNormalAggregation_MONTHS");
-            RDBMSTableTestUtils.initDatabaseTable("stockNormalAggregation_YEARS");
         } catch (SQLException e) {
             log.info("Test case ignored due to " + e.getMessage());
         }
@@ -1412,7 +1410,7 @@ public class DistributedAggregationTestCaseIT {
                 "define aggregation stockAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice \n" +
-                "aggregate by timestamp every sec...year; ";
+                "aggregate by timestamp every sec...day; ";
 
         String query2 = "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
@@ -1421,7 +1419,7 @@ public class DistributedAggregationTestCaseIT {
                 "define aggregation stockNormalAggregation\n" +
                 "from stockStream \n" +
                 "select symbol,sum(price) as totalPrice,avg(price) as avgPrice \n" +
-                "aggregate by timestamp every sec...year; ";
+                "aggregate by timestamp every sec...day; ";
 
         SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(streams + query + query2);
         SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager2.createSiddhiAppRuntime(streams + query);

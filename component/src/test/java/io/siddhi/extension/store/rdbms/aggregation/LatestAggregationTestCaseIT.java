@@ -62,7 +62,6 @@ public class LatestAggregationTestCaseIT {
         try {
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_SECONDS");
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_MINUTES");
-            RDBMSTableTestUtils.initDatabaseTable("stockAggregation_HOURS");
         } catch (SQLException e) {
             LOG.error("Test case ignored due to " + e.getMessage());
         }
@@ -85,7 +84,7 @@ public class LatestAggregationTestCaseIT {
                 "define aggregation stockAggregation " +
                 "from stockStream " +
                 "select symbol, avg(price) as avgPrice, (price * quantity) as latestPrice " +
-                "aggregate by timestamp every sec...hour ;" +
+                "aggregate by timestamp every sec...min ;" +
 
                 "define stream inputStream (symbol string); " +
 
@@ -187,7 +186,7 @@ public class LatestAggregationTestCaseIT {
                 "define aggregation stockAggregation " +
                 "from stockStream " +
                 "select symbol, avg(price) as avgPrice, (price * quantity) as latestPrice " +
-                "aggregate by timestamp every sec...hour ;" +
+                "aggregate by timestamp every sec...min ;" +
 
                 "define stream inputStream (symbol string); " +
 
@@ -289,7 +288,7 @@ public class LatestAggregationTestCaseIT {
                 "define aggregation stockAggregation " +
                 "from stockStream " +
                 "select symbol, avg(price) as avgPrice, (price * quantity) as latestPrice " +
-                "aggregate by timestamp every sec...hour ;" +
+                "aggregate by timestamp every sec...min ;" +
 
                 "define stream inputStream (symbol string); " +
 
@@ -392,7 +391,7 @@ public class LatestAggregationTestCaseIT {
                 "define aggregation stockAggregation " +
                 "from stockStream " +
                 "select symbol, avg(price) as avgPrice, (price * quantity) as latestPrice " +
-                "aggregate by timestamp every sec...hour ;" +
+                "aggregate by timestamp every sec...min ;" +
 
                 "define stream inputStream (symbol string); " +
 
