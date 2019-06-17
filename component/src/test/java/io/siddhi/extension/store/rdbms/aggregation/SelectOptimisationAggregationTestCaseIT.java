@@ -730,8 +730,7 @@ public class SelectOptimisationAggregationTestCaseIT {
 
             List<Object[]> expected = Arrays.asList(
                     new Object[]{"WSO2", "WSO22", 4L},
-                    // TODO: 12/06/19 Original assert was  new Object[]{"IBM", "IBM1", 6L},
-                    new Object[]{"IBM", "IBM2", 6L},
+                    new Object[]{"IBM", "IBM1", 6L},
                     new Object[]{"CISCO", "CISCO1", 1L}
             );
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
