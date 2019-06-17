@@ -97,7 +97,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FLOAT_TYP
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.GROUP_BY_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.HAVING_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INDEX_CREATE_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INNER_QUERY_REF;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SUB_SELECT_QUERY_REF;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INTEGER_TYPE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.IS_LIMIT_BEFORE_OFFSET;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.LIMIT_CLAUSE;
@@ -127,7 +127,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_IN
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_SELECT_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_UPDATE_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_FROM_MULTIPLE_TABLE_TEMPLATE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_TEMPLATE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SEPARATOR;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AND;
@@ -1224,11 +1224,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
                                     + SELECT_CLAUSE, rdbmsSelectQueryTemplate.getSelectClause())));
-                    this.rdbmsSelectQueryTemplate.setSelectQueryFromMultipleTables(resolveTableName(
+                    this.rdbmsSelectQueryTemplate.setSelectQueryWithSubSelect(resolveTableName(
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                             PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                            + SELECT_FROM_MULTIPLE_TABLE_TEMPLATE,
-                                    rdbmsSelectQueryTemplate.getSelectQueryFromMultipleTables())));
+                                            + SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE,
+                                    rdbmsSelectQueryTemplate.getSelectQueryWithSubSelect())));
                     this.rdbmsSelectQueryTemplate.setWhereClause(resolveTableName(
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
@@ -1747,9 +1747,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         Connection conn = this.getConnection();
         PreparedStatement stmt;
         String query = getSelectQuery(rdbmsCompiledCondition, rdbmsCompiledSelection);
-        if (log.isDebugEnabled()) {
-            log.debug("Store Query SQL Syntax: '" + query + "'");
-        }
+        log.info("Store Query SQL Syntax: '" + query + "'");
         try {
             stmt = conn.prepareStatement(query);
         } catch (SQLException e) {
@@ -1968,10 +1966,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
             if (isContainsLastFunction) {
 
-                String selectQueryFromMultipleTables = rdbmsSelectQueryTemplate.getSelectQueryFromMultipleTables();
-                if (selectQueryFromMultipleTables == null || selectQueryFromMultipleTables.isEmpty()) {
+                String selectQueryWithSubSelect = rdbmsSelectQueryTemplate.getSelectQueryWithSubSelect();
+                if (selectQueryWithSubSelect == null || selectQueryWithSubSelect.isEmpty()) {
                     throw new QueryableRecordTableException("Select query from two tables for " +
-                            "incrementalAggregator:last() is used in the query but 'selectQueryFromMultipleTables' " +
+                            "incrementalAggregator:last() is used in the query but 'selectQueryWithSubSelect' " +
                             "has not being configured in RDBMS Event Table query configuration, for store: "
                             + tableName);
                 }
@@ -1982,23 +1980,23 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             + tableName);
                 }
 
-                selectQueryFromMultipleTables = selectQueryFromMultipleTables
+                selectQueryWithSubSelect = selectQueryWithSubSelect
                         .replace(PLACEHOLDER_SELECTORS, selectors)
                         .replace(PLACEHOLDER_INNER_QUERY, selectQuery.toString());
 
                 whereClause = whereClause.replace(PLACEHOLDER_CONDITION,
                         rdbmsCompiledSelection.getCompiledSelectClause().getOuterCompiledCondition());
 
-                 selectQueryFromMultipleTables = selectQueryFromMultipleTables + WHITESPACE + whereClause;
+                 selectQueryWithSubSelect = selectQueryWithSubSelect + WHITESPACE + whereClause;
 
                  String groupByClause = rdbmsSelectQueryTemplate.getGroupByClause();
                     if (compiledGroupByClause != null) {
                     groupByClause = groupByClause.replace(PLACEHOLDER_COLUMNS,
                                                                         compiledGroupByClause.getCompiledQuery());
-                    selectQueryFromMultipleTables = selectQueryFromMultipleTables + WHITESPACE + groupByClause;
+                    selectQueryWithSubSelect = selectQueryWithSubSelect + WHITESPACE + groupByClause;
                 }
 
-                return selectQueryFromMultipleTables;
+                return selectQueryWithSubSelect;
             }
 
             return selectQuery.toString();
@@ -2056,7 +2054,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         isLastFunctionEncountered = true;
                     }
                 } else if (visitor.isContainsAttributeFunction()) {
-                    compiledSelectionList.append(INNER_QUERY_REF).append(".")
+                    compiledSelectionList.append(SUB_SELECT_QUERY_REF).append(".")
                             .append(selectAttributeBuilder.getRename()).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                     compiledInnerQuerySelection.append(compiledCondition).append(SQL_AS)

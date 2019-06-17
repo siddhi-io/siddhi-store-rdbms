@@ -33,7 +33,7 @@ import java.util.TreeMap;
 
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.EQUALS;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INNER_QUERY_REF;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SUB_SELECT_QUERY_REF;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.OPEN_PARENTHESIS;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_MAX;
@@ -390,7 +390,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         if (!isLastConditionExist) {
             condition.append(this.tableName).append(".").append(attributeName).append(WHITESPACE);
             outerCompiledCondition.append(this.tableName).append(".").append(attributeName)
-                                            .append(EQUALS).append(INNER_QUERY_REF).append(".").append(attributeName);
+                                            .append(EQUALS).append(SUB_SELECT_QUERY_REF).append(".").append(attributeName);
         } else if (isNextProcessLastPattern) {
             condition.append(this.tableName).append(".").append(attributeName);
             if (isNextProcessLastPattern) {
@@ -401,7 +401,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
                             .append(this.tableName).append(".").append(attributeName).append(CLOSE_PARENTHESIS)
                             .append(SQL_AS).append("MAX_").append(attributeName);
             outerCompiledCondition.append(this.tableName).append(".").append(attributeName).append(EQUALS)
-                            .append(INNER_QUERY_REF).append(".").append("MAX_").append(attributeName);
+                            .append(SUB_SELECT_QUERY_REF).append(".").append("MAX_").append(attributeName);
         }
     }
 

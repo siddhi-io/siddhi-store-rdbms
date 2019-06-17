@@ -69,7 +69,7 @@ public class RDBMSTableConstants {
     public static final String QUESTION_MARK = "?";
     public static final String OPEN_PARENTHESIS = "(";
     public static final String CLOSE_PARENTHESIS = ")";
-    public static final String INNER_QUERY_REF = "t2";
+    public static final String SUB_SELECT_QUERY_REF = "t2";
 
     public static final String CONTAINS_CONDITION_REGEX = "(CONTAINS\\()([a-zA-z.]*)(\\s\\?\\s\\))";
 
@@ -112,7 +112,7 @@ public class RDBMSTableConstants {
     public static final String BATCH_ENABLE = "batchEnable";
     public static final String TRANSACTION_SUPPORTED = "transactionSupported";
     public static final String SELECT_QUERY_TEMPLATE = "selectQueryTemplate";
-    public static final String SELECT_FROM_MULTIPLE_TABLE_TEMPLATE = "selectQueryFromMultipleTables";
+    public static final String SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE = "selectQueryWithSubSelect";
     public static final String SELECT_CLAUSE = "selectClause";
     public static final String WHERE_CLAUSE = "whereClause";
     public static final String GROUP_BY_CLAUSE = "groupByClause";
