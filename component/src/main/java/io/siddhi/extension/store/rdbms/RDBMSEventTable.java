@@ -97,7 +97,6 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FLOAT_TYP
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.GROUP_BY_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.HAVING_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INDEX_CREATE_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SUB_SELECT_QUERY_REF;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INTEGER_TYPE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.IS_LIMIT_BEFORE_OFFSET;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.LIMIT_CLAUSE;
@@ -127,8 +126,8 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_IN
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_SELECT_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_UPDATE_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_TEMPLATE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SEPARATOR;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AND;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
@@ -136,6 +135,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_NOT_N
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_PRIMARY_KEY_DEF;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.STRING_SIZE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.STRING_TYPE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SUB_SELECT_QUERY_REF;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TABLE_CHECK_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TABLE_CREATE_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TRANSACTION_SUPPORTED;
@@ -1747,7 +1747,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         Connection conn = this.getConnection();
         PreparedStatement stmt;
         String query = getSelectQuery(rdbmsCompiledCondition, rdbmsCompiledSelection);
-        log.info("Store Query SQL Syntax: '" + query + "'");
+        if (log.isDebugEnabled()) {
+            log.debug("Store Query SQL Syntax: '" + query + "'");
+        }
         try {
             stmt = conn.prepareStatement(query);
         } catch (SQLException e) {
