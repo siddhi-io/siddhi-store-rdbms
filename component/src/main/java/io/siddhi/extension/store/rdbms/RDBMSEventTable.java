@@ -112,6 +112,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLD
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_VALUES;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_CONDITION;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INNER_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_Q;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_SELECTORS;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_TABLE_NAME;
@@ -127,6 +128,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_SE
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_UPDATE_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_TEMPLATE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_FROM_MULTIPLE_TABLE_TEMPLATE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SEPARATOR;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AND;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
@@ -1222,6 +1224,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
                                     + SELECT_CLAUSE, rdbmsSelectQueryTemplate.getSelectClause())));
+                    this.rdbmsSelectQueryTemplate.setSelectQueryFromMultipleTables(resolveTableName(
+                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                            PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                            + SELECT_FROM_MULTIPLE_TABLE_TEMPLATE,
+                                    rdbmsSelectQueryTemplate.getSelectQueryFromMultipleTables())));
                     this.rdbmsSelectQueryTemplate.setWhereClause(resolveTableName(
                             configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                     PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
@@ -1806,21 +1813,22 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     private String getSelectQuery(RDBMSCompiledCondition rdbmsCompiledCondition,
                                   RDBMSCompiledSelection rdbmsCompiledSelection) {
-        String selectors = rdbmsCompiledSelection.getCompiledSelectClause().getCompiledQuery();
-        String selectClause = rdbmsSelectQueryTemplate.getSelectClause().replace(RDBMSTableConstants.
-                PLACEHOLDER_SELECTORS, selectors);
 
-        String innerSelectors = rdbmsCompiledSelection.getCompiledSelectClause().getInnerQuerySelectors();
-        String innerSelectClause = rdbmsSelectQueryTemplate.getSelectClause().replace(PLACEHOLDER_SELECTORS,
-                innerSelectors);
         boolean isContainsLastFunction = rdbmsCompiledSelection.getCompiledSelectClause().isLatestConditionExist();
 
-        StringBuilder selectQuery;
+        String selectors = rdbmsCompiledSelection.getCompiledSelectClause().getCompiledQuery();
+        String innerSelectors = rdbmsCompiledSelection.getCompiledSelectClause().getInnerQuerySelectors();
+
+        String selectClause;
         if (isContainsLastFunction) {
-            selectQuery = new StringBuilder(innerSelectClause);
+            selectClause = rdbmsSelectQueryTemplate.getSelectClause()
+                    .replace(PLACEHOLDER_SELECTORS, innerSelectors);
         } else {
-            selectQuery = new StringBuilder(selectClause);
+            selectClause = rdbmsSelectQueryTemplate.getSelectClause()
+                    .replace(PLACEHOLDER_SELECTORS, selectors);
         }
+
+        StringBuilder selectQuery = new StringBuilder(selectClause);
 
         if (rdbmsCompiledCondition != null) {
             String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
@@ -1865,7 +1873,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         Long offset = rdbmsCompiledSelection.getOffset();
         if (rdbmsSelectQueryTemplate.getQueryWrapperClause() != null) {
             String queryWrapperClause = rdbmsSelectQueryTemplate.getQueryWrapperClause().replace(
-                    RDBMSTableConstants.PLACEHOLDER_INNER_QUERY, selectQuery.toString());
+                    PLACEHOLDER_INNER_QUERY, selectQuery.toString());
             if (limit != null) {
                 String limitWrapper = rdbmsSelectQueryTemplate.getLimitWrapperClause();
                 if (limitWrapper != null) {
@@ -1959,20 +1967,29 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             }
 
             if (isContainsLastFunction) {
-                StringBuilder aggregationOptimisedQuery = new StringBuilder(selectClause)
-                        .append(SEPARATOR)
-                        .append(OPEN_PARENTHESIS).append(selectQuery).append(CLOSE_PARENTHESIS).append(SQL_AS)
-                        .append(INNER_QUERY_REF);
+
+                String selectQueryFromMultipleTables = rdbmsSelectQueryTemplate.getSelectQueryFromMultipleTables();
+                if (selectQueryFromMultipleTables == null || selectQueryFromMultipleTables.isEmpty()) {
+                    throw new QueryableRecordTableException("Select query from two tables for " +
+                            "incrementalAggregator:last() is used in the query but 'selectQueryFromMultipleTables' " +
+                            "has not being configured in RDBMS Event Table query configuration, for store: "
+                            + tableName);
+                }
                 String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
                 if (whereClause == null || whereClause.isEmpty()) {
                     throw new QueryableRecordTableException("Where clause is present in query but 'whereClause' " +
                             "has not being configured in RDBMS Event Table query configuration, for store: "
                             + tableName);
                 }
+
+                selectQueryFromMultipleTables = selectQueryFromMultipleTables
+                        .replace(PLACEHOLDER_SELECTORS, selectors)
+                        .replace(PLACEHOLDER_INNER_QUERY, selectQuery.toString());
+
                 whereClause = whereClause.replace(PLACEHOLDER_CONDITION,
-                                        rdbmsCompiledSelection.getCompiledSelectClause().getOuterCompiledCondition());
-                aggregationOptimisedQuery.append(WHITESPACE).append(whereClause);
-                return aggregationOptimisedQuery.toString();
+                        rdbmsCompiledSelection.getCompiledSelectClause().getOuterCompiledCondition());
+
+                return selectQueryFromMultipleTables + WHITESPACE + whereClause;
             }
 
             return selectQuery.toString();

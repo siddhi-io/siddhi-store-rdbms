@@ -24,6 +24,7 @@ package io.siddhi.extension.store.rdbms.config;
 public class RDBMSSelectQueryTemplate {
 
     private String selectClause;
+    private String selectQueryFromMultipleTables;
     private String whereClause;
     private String groupByClause;
     private String havingClause;
@@ -121,5 +122,13 @@ public class RDBMSSelectQueryTemplate {
 
     public void setOffsetWrapperClause(String offsetWrapperClause) {
         this.offsetWrapperClause = offsetWrapperClause;
+    }
+
+    public String getSelectQueryFromMultipleTables() {
+        return selectQueryFromMultipleTables;
+    }
+
+    public void setSelectQueryFromMultipleTables(String selectQueryFromMultipleTables) {
+        this.selectQueryFromMultipleTables = selectQueryFromMultipleTables;
     }
 }
