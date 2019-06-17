@@ -28,8 +28,8 @@ import java.util.SortedMap;
 public class RDBMSCompiledCondition implements CompiledCondition {
 
     private String compiledQuery;
-    private boolean isLatestConditionExist;
-    private String innerQuerySelectors;
+    private boolean useSubSelect;
+    private String subSelectQuerySelectors;
     private String outerCompiledCondition;
     private SortedMap<Integer, Object> parameters;
     private boolean isContainsConditionExist;
@@ -37,14 +37,14 @@ public class RDBMSCompiledCondition implements CompiledCondition {
 
     public RDBMSCompiledCondition(String compiledQuery, SortedMap<Integer, Object> parameters,
                                   boolean isContainsConditionExist, int ordinalOfContainPattern,
-                                  boolean isLatestConditionExist, String innerQuerySelectors,
+                                  boolean useSubSelect, String subSelectQuerySelectors,
                                   String outerCompiledCondition) {
         this.compiledQuery = compiledQuery;
         this.parameters = parameters;
         this.isContainsConditionExist = isContainsConditionExist;
         this.ordinalOfContainPattern = ordinalOfContainPattern;
-        this.isLatestConditionExist = isLatestConditionExist;
-        this.innerQuerySelectors = innerQuerySelectors;
+        this.useSubSelect = useSubSelect;
+        this.subSelectQuerySelectors = subSelectQuerySelectors;
         this.outerCompiledCondition = outerCompiledCondition;
     }
 
@@ -56,12 +56,12 @@ public class RDBMSCompiledCondition implements CompiledCondition {
         return isContainsConditionExist;
     }
 
-    public boolean isLatestConditionExist() {
-        return isLatestConditionExist;
+    public boolean isUseSubSelect() {
+        return useSubSelect;
     }
 
-    public String getInnerQuerySelectors() {
-        return innerQuerySelectors;
+    public String getSubSelectQuerySelectors() {
+        return subSelectQuerySelectors;
     }
 
     public String getOuterCompiledCondition() {

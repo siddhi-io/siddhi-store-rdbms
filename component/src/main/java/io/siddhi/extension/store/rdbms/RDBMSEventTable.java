@@ -1814,15 +1814,15 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String getSelectQuery(RDBMSCompiledCondition rdbmsCompiledCondition,
                                   RDBMSCompiledSelection rdbmsCompiledSelection) {
 
-        boolean isContainsLastFunction = rdbmsCompiledSelection.getCompiledSelectClause().isLatestConditionExist();
+        boolean isContainsLastFunction = rdbmsCompiledSelection.getCompiledSelectClause().isUseSubSelect();
 
         String selectors = rdbmsCompiledSelection.getCompiledSelectClause().getCompiledQuery();
-        String innerSelectors = rdbmsCompiledSelection.getCompiledSelectClause().getInnerQuerySelectors();
+        String subSelectQuerySelectors = rdbmsCompiledSelection.getCompiledSelectClause().getSubSelectQuerySelectors();
 
         String selectClause;
         if (isContainsLastFunction) {
             selectClause = rdbmsSelectQueryTemplate.getSelectClause()
-                    .replace(PLACEHOLDER_SELECTORS, innerSelectors);
+                    .replace(PLACEHOLDER_SELECTORS, subSelectQuerySelectors);
         } else {
             selectClause = rdbmsSelectQueryTemplate.getSelectClause()
                     .replace(PLACEHOLDER_SELECTORS, selectors);
@@ -2022,7 +2022,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     private RDBMSCompiledCondition compileSelectClause(List<SelectAttributeBuilder> selectAttributeBuilders) {
         StringBuilder compiledSelectionList = new StringBuilder();
-        StringBuilder compiledInnerQuerySelection = new StringBuilder();
+        StringBuilder compiledSubSelectQuerySelection = new StringBuilder();
         StringBuilder compiledOuterOnCondition = new StringBuilder();
 
         SortedMap<Integer, Object> paramMap = new TreeMap<>();
@@ -2051,7 +2051,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     compiledSelectionList.append(compiledCondition).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                     if (!isLastFunctionEncountered) {
-                        compiledInnerQuerySelection.append(visitor.returnMaxVariableCondition()).append(SEPARATOR);
+                        compiledSubSelectQuerySelection.append(visitor.returnMaxVariableCondition()).append(SEPARATOR);
                         compiledOuterOnCondition.append(visitor.getOuterCompiledCondition()).append(SQL_AND);
                         isLastFunctionEncountered = true;
                     }
@@ -2059,12 +2059,12 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     compiledSelectionList.append(SUB_SELECT_QUERY_REF).append(".")
                             .append(selectAttributeBuilder.getRename()).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
-                    compiledInnerQuerySelection.append(compiledCondition).append(SQL_AS)
+                    compiledSubSelectQuerySelection.append(compiledCondition).append(SQL_AS)
                                 .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                 } else {
                     compiledSelectionList.append(compiledCondition).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
-                    compiledInnerQuerySelection.append(compiledCondition).append(SQL_AS)
+                    compiledSubSelectQuerySelection.append(compiledCondition).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                     compiledOuterOnCondition.append(visitor.getOuterCompiledCondition()).append(SQL_AND);
                 }
@@ -2093,8 +2093,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             compiledSelectionList.setLength(compiledSelectionList.length() - 2); // Removing the last comma separator.
         }
 
-        if (compiledInnerQuerySelection.length() > 0) {
-            compiledInnerQuerySelection.setLength(compiledInnerQuerySelection.length() - 2);
+        if (compiledSubSelectQuerySelection.length() > 0) {
+            compiledSubSelectQuerySelection.setLength(compiledSubSelectQuerySelection.length() - 2);
         }
 
         if (compiledOuterOnCondition.length() > 0) {
@@ -2102,7 +2102,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
 
         return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0, containsLastFunction,
-                compiledInnerQuerySelection.toString(), compiledOuterOnCondition.toString());
+                compiledSubSelectQuerySelection.toString(), compiledOuterOnCondition.toString());
     }
 
     private RDBMSCompiledCondition compileClause(List<ExpressionBuilder> expressionBuilders) {
