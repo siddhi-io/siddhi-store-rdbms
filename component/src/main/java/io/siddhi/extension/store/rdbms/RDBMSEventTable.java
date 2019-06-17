@@ -1970,10 +1970,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
                 String selectQueryWithSubSelect = rdbmsSelectQueryTemplate.getSelectQueryWithSubSelect();
                 if (selectQueryWithSubSelect == null || selectQueryWithSubSelect.isEmpty()) {
-                    throw new QueryableRecordTableException("Select query from two tables for " +
-                            "incrementalAggregator:last() is used in the query but 'selectQueryWithSubSelect' " +
-                            "has not being configured in RDBMS Event Table query configuration, for store: "
-                            + tableName);
+                    throw new QueryableRecordTableException("incrementalAggregator:last() is used in the query but " +
+                            "'selectQueryWithSubSelect' has not being configured in RDBMS Event Table query " +
+                            "configuration, for store: " + tableName);
                 }
                 String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
                 if (whereClause == null || whereClause.isEmpty()) {
