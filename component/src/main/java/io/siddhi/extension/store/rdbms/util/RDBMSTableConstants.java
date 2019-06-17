@@ -62,6 +62,7 @@ public class RDBMSTableConstants {
     public static final String SQL_PRIMARY_KEY_DEF = "PRIMARY KEY";
     public static final String SQL_WHERE = "WHERE";
     public static final String SQL_AS = " AS ";
+    public static final String SQL_MAX = "MAX"; // Used for incrementalAggregator:last()
     public static final String WHITESPACE = " ";
     public static final String SEPARATOR = ", ";
     public static final String EQUALS = "=";
@@ -69,7 +70,6 @@ public class RDBMSTableConstants {
     public static final String OPEN_PARENTHESIS = "(";
     public static final String CLOSE_PARENTHESIS = ")";
     public static final String INNER_QUERY_REF = "t2";
-    public static final String LAST_MAX_FUNCTION = "max"; // Used for incrementalAggregator:last()
 
     public static final String CONTAINS_CONDITION_REGEX = "(CONTAINS\\()([a-zA-z.]*)(\\s\\?\\s\\))";
 

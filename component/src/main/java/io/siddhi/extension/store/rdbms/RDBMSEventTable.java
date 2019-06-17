@@ -127,8 +127,8 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_IN
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_SELECT_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_UPDATE_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_TEMPLATE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_FROM_MULTIPLE_TABLE_TEMPLATE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_TEMPLATE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SEPARATOR;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AND;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
@@ -1989,7 +1989,16 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 whereClause = whereClause.replace(PLACEHOLDER_CONDITION,
                         rdbmsCompiledSelection.getCompiledSelectClause().getOuterCompiledCondition());
 
-                return selectQueryFromMultipleTables + WHITESPACE + whereClause;
+                 selectQueryFromMultipleTables = selectQueryFromMultipleTables + WHITESPACE + whereClause;
+
+                 String groupByClause = rdbmsSelectQueryTemplate.getGroupByClause();
+                    if (compiledGroupByClause != null) {
+                    groupByClause = groupByClause.replace(PLACEHOLDER_COLUMNS,
+                                                                        compiledGroupByClause.getCompiledQuery());
+                    selectQueryFromMultipleTables = selectQueryFromMultipleTables + WHITESPACE + groupByClause;
+                }
+
+                return selectQueryFromMultipleTables;
             }
 
             return selectQuery.toString();
