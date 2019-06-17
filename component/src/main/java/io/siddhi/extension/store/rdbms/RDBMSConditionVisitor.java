@@ -34,9 +34,9 @@ import java.util.TreeMap;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.EQUALS;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INNER_QUERY_REF;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_MAX;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.OPEN_PARENTHESIS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_MAX;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHITESPACE;
 
 
