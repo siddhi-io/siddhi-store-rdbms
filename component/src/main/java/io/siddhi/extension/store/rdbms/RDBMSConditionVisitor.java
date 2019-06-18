@@ -349,7 +349,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
                 (Arrays.stream(supportedFunctions).anyMatch(functionName::equals)) ||
                 (namespace.trim().equals("incrementalAggregator") && functionName.equals("last"))) {
             condition.append(CLOSE_PARENTHESIS).append(WHITESPACE);
-        } else if (!(namespace.trim().equals("incrementalAggregator") && functionName.equals("last"))) {
+        } else {
             throw new OperationNotSupportedException("The RDBMS Event table does not support functions other than " +
                     "sum(), avg(), min(), max(), str:contains() and incrementalAggregator:last() but function '" +
                     ((RDBMSTableUtils.isEmpty(namespace)) ? "" + functionName : namespace + ":" + functionName) +
