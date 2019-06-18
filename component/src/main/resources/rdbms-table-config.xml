@@ -13,6 +13,7 @@
         <recordContainsCondition>{{COLUMNS}} LIKE {{VALUES}}</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -46,6 +47,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -79,6 +81,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) t2 </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -117,6 +120,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) t2 </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -152,6 +156,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -185,6 +190,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -218,6 +224,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -252,6 +259,7 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
