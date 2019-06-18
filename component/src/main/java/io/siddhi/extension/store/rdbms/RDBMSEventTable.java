@@ -131,6 +131,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QU
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SEPARATOR;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AND;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_MAX;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_NOT_NULL;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_PRIMARY_KEY_DEF;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.STRING_SIZE;
@@ -2055,8 +2056,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         isLastFunctionEncountered = true;
                     }
                 } else if (visitor.isContainsAttributeFunction()) {
-                    compiledSelectionList.append(SUB_SELECT_QUERY_REF).append(".")
-                            .append(selectAttributeBuilder.getRename()).append(SQL_AS)
+                    compiledSelectionList.append(SQL_MAX).append(OPEN_PARENTHESIS)
+                            .append(SUB_SELECT_QUERY_REF).append(".").append(selectAttributeBuilder.getRename())
+                            .append(CLOSE_PARENTHESIS).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                     compiledSubSelectQuerySelection.append(compiledCondition).append(SQL_AS)
                                 .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
