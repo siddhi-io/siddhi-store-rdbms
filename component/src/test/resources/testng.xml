@@ -36,7 +36,7 @@
     </test>
     <test name="Aggregation test cases">
         <classes>
-            <class name="org.wso2.extension.siddhi.store.rdbms.aggregation.IncrementalAggregationTestCaseIT"/>
+            <class name="org.wso2.extension.siddhi.store.rdbms.aggregation.InitialiseExecutorsAggregationTestCaseIT"/>
             <class name="org.wso2.extension.siddhi.store.rdbms.aggregation.AggregationFilterTestCaseIT"/>
             <class name="org.wso2.extension.siddhi.store.rdbms.aggregation.DistributedAggregationTestCaseIT" />
         </classes>
