@@ -1908,6 +1908,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             } else {
                 queryWrapperClause = queryWrapperClause.replace(RDBMSTableConstants.PLACEHOLDER_OFFSET_WRAPPER, "");
             }
+
+            if (isContainsLastFunction) {
+                    return getQueryWithSubSelectors(rdbmsCompiledSelection, selectors, queryWrapperClause);
+            }
             return queryWrapperClause;
         } else {
             if (limit != null) {
@@ -1968,41 +1972,47 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             }
 
             if (isContainsLastFunction) {
-
-                String selectQueryWithSubSelect = rdbmsSelectQueryTemplate.getSelectQueryWithSubSelect();
-                if (selectQueryWithSubSelect == null || selectQueryWithSubSelect.isEmpty()) {
-                    throw new QueryableRecordTableException("incrementalAggregator:last() is used in the query but " +
-                            "'selectQueryWithSubSelect' has not being configured in RDBMS Event Table query " +
-                            "configuration, for store: " + tableName);
-                }
-                String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
-                if (whereClause == null || whereClause.isEmpty()) {
-                    throw new QueryableRecordTableException("Where clause is present in query but 'whereClause' " +
-                            "has not being configured in RDBMS Event Table query configuration, for store: "
-                            + tableName);
-                }
-
-                selectQueryWithSubSelect = selectQueryWithSubSelect
-                        .replace(PLACEHOLDER_SELECTORS, selectors)
-                        .replace(PLACEHOLDER_INNER_QUERY, selectQuery.toString());
-
-                whereClause = whereClause.replace(PLACEHOLDER_CONDITION,
-                        rdbmsCompiledSelection.getCompiledSelectClause().getOuterCompiledCondition());
-
-                 selectQueryWithSubSelect = selectQueryWithSubSelect + WHITESPACE + whereClause;
-
-                 String groupByClause = rdbmsSelectQueryTemplate.getGroupByClause();
-                    if (compiledGroupByClause != null) {
-                    groupByClause = groupByClause.replace(PLACEHOLDER_COLUMNS,
-                                                                        compiledGroupByClause.getCompiledQuery());
-                    selectQueryWithSubSelect = selectQueryWithSubSelect + WHITESPACE + groupByClause;
-                }
-
-                return selectQueryWithSubSelect;
+                    return getQueryWithSubSelectors(rdbmsCompiledSelection, selectors, selectQuery.toString());
             }
 
             return selectQuery.toString();
         }
+    }
+
+
+    private String getQueryWithSubSelectors(RDBMSCompiledSelection rdbmsCompiledSelection, String selectors,
+                                            String selectQuery) {
+            String selectQueryWithSubSelect = rdbmsSelectQueryTemplate.getSelectQueryWithSubSelect();
+            if (selectQueryWithSubSelect == null || selectQueryWithSubSelect.isEmpty()) {
+                    throw new QueryableRecordTableException("incrementalAggregator:last() is used in the query but " +
+                            "'selectQueryWithSubSelect' has not being configured in RDBMS Event Table query " +
+                            "configuration, for store: " + tableName);
+            }
+            String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
+            if (whereClause == null || whereClause.isEmpty()) {
+                    throw new QueryableRecordTableException("Where clause is present in query but 'whereClause' " +
+                            "has not being configured in RDBMS Event Table query configuration, for store: "
+                            + tableName);
+            }
+
+            selectQueryWithSubSelect = selectQueryWithSubSelect
+                    .replace(PLACEHOLDER_SELECTORS, selectors)
+                    .replace(PLACEHOLDER_INNER_QUERY, selectQuery);
+
+            whereClause = whereClause.replace(PLACEHOLDER_CONDITION,
+                    rdbmsCompiledSelection.getCompiledSelectClause().getOuterCompiledCondition());
+
+            selectQueryWithSubSelect = selectQueryWithSubSelect + WHITESPACE + whereClause;
+
+            RDBMSCompiledCondition compiledGroupByClause = rdbmsCompiledSelection.getCompiledGroupByClause();
+            String groupByClause = rdbmsSelectQueryTemplate.getGroupByClause();
+            if (compiledGroupByClause != null) {
+                    groupByClause = groupByClause.replace(PLACEHOLDER_COLUMNS,
+                            compiledGroupByClause.getCompiledQuery());
+                    selectQueryWithSubSelect = selectQueryWithSubSelect + WHITESPACE + groupByClause;
+            }
+
+            return selectQueryWithSubSelect;
     }
 
     @Override
