@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.Stack;
 import java.util.TreeMap;
 
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
@@ -61,9 +62,9 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     private int ordinalOfContainPattern = 1;
 
     private boolean containsAttributeFunction = false;
-    private boolean isLastConditionExist = false;
-    private boolean isNextProcessLastPattern = false;
-    private StringBuilder maxVariableConditionForLast;
+    private boolean lastConditionExist = false;
+    private Stack<String> lastConditionParams;
+    private StringBuilder subSelect;
     private StringBuilder outerCompiledCondition;
 
     private String[] supportedFunctions = {"sum", "avg", "min", "max"};
@@ -75,8 +76,9 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         this.constantCount = 0;
         this.placeholders = new HashMap<>();
         this.parameters = new TreeMap<>();
-        this.maxVariableConditionForLast = new StringBuilder();
+        this.subSelect = new StringBuilder();
         this.outerCompiledCondition = new StringBuilder();
+        this.lastConditionParams = new Stack<>();
     }
 
     private RDBMSConditionVisitor() {
@@ -89,7 +91,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     }
 
     public String returnMaxVariableCondition() {
-        return this.maxVariableConditionForLast.toString();
+        return this.subSelect.toString();
     }
 
     public boolean isContainsAttributeFunction() {
@@ -101,7 +103,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     }
 
     public boolean isLastConditionExist() {
-        return isLastConditionExist;
+        return lastConditionExist;
     }
 
     public int getOrdinalOfContainPattern() {
@@ -331,10 +333,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
             isContainsConditionExist = true;
             nextProcessContainsPattern = true;
         } else if (namespace.trim().equals("incrementalAggregator") && functionName.equals("last")) {
-            condition.append(SQL_MAX).append(OPEN_PARENTHESIS);
-            isLastConditionExist = true;
-            isNextProcessLastPattern = true;
-
+            lastConditionExist = true;
         } else {
             throw new OperationNotSupportedException("The RDBMS Event table does not support functions other than " +
                     "sum(), avg(), min(), max(), str:contains() and incrementalAggregator:last() but function '" +
@@ -347,9 +346,21 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     @Override
     public void endVisitAttributeFunction(String namespace, String functionName) {
         if ((namespace.trim().equals("str") && functionName.equals("contains")) ||
-                (Arrays.stream(supportedFunctions).anyMatch(functionName::equals)) ||
-                     (namespace.trim().equals("incrementalAggregator") && functionName.equals("last"))) {
+                (Arrays.stream(supportedFunctions).anyMatch(functionName::equals))) {
             condition.append(CLOSE_PARENTHESIS).append(WHITESPACE);
+        } else if ((namespace.trim().equals("incrementalAggregator") && functionName.equals("last"))) {
+            String maxVariableName = lastConditionParams.pop();
+            subSelect.append(SQL_MAX).append(OPEN_PARENTHESIS)
+                    .append(this.tableName).append(".").append(maxVariableName).append(CLOSE_PARENTHESIS)
+                    .append(SQL_AS).append("MAX_").append(maxVariableName);
+            outerCompiledCondition.append(this.tableName).append(".").append(maxVariableName).append(EQUALS)
+                    .append(SUB_SELECT_QUERY_REF).append(".").append("MAX_").append(maxVariableName);
+
+            String attributeName = lastConditionParams.pop();
+
+            condition.append(SQL_MAX).append(OPEN_PARENTHESIS).append(this.tableName).append(".").append(attributeName)
+                    .append(CLOSE_PARENTHESIS).append(WHITESPACE);
+
         } else {
             throw new OperationNotSupportedException("The RDBMS Event table does not support functions other than " +
                     "sum(), avg(), min(), max(), str:contains() and incrementalAggregator:last() but function '" +
@@ -388,21 +399,12 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void beginVisitStoreVariable(String storeId, String attributeName, Attribute.Type type) {
-        if (!isLastConditionExist) {
+        if (!lastConditionExist) {
             condition.append(this.tableName).append(".").append(attributeName).append(WHITESPACE);
             outerCompiledCondition.append(this.tableName).append(".").append(attributeName).append(EQUALS)
                     .append(SUB_SELECT_QUERY_REF).append(".").append(attributeName);
-        } else if (isNextProcessLastPattern) {
-            condition.append(this.tableName).append(".").append(attributeName);
-            if (isNextProcessLastPattern) {
-                isNextProcessLastPattern = false;
-            }
         } else {
-            maxVariableConditionForLast.append(SQL_MAX).append(OPEN_PARENTHESIS)
-                    .append(this.tableName).append(".").append(attributeName).append(CLOSE_PARENTHESIS)
-                    .append(SQL_AS).append("MAX_").append(attributeName);
-            outerCompiledCondition.append(this.tableName).append(".").append(attributeName).append(EQUALS)
-                    .append(SUB_SELECT_QUERY_REF).append(".").append("MAX_").append(attributeName);
+            lastConditionParams.push(attributeName);
         }
     }
 
