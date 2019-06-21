@@ -2058,14 +2058,19 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
             if (containsLastFunction) {
                 if (visitor.isLastConditionExist()) {
+                    // Add the select columns with function incrementalAggregator:last()
                     compiledSelectionList.append(compiledCondition).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                     if (!isLastFunctionEncountered) {
+                            //Only add max variable for incrementalAggregator:last() once
                         compiledSubSelectQuerySelection.append(visitor.returnMaxVariableCondition()).append(SEPARATOR);
                         compiledOuterOnCondition.append(visitor.getOuterCompiledCondition()).append(SQL_AND);
                         isLastFunctionEncountered = true;
                     }
                 } else if (visitor.isContainsAttributeFunction()) {
+                        //Add columns with attributes function such as sum(), max()
+                        //Add max(variable) by default since oracle all columns not in group by must have
+                        // attribute function
                     compiledSelectionList.append(SQL_MAX).append(OPEN_PARENTHESIS)
                             .append(SUB_SELECT_QUERY_REF).append(".").append(selectAttributeBuilder.getRename())
                             .append(CLOSE_PARENTHESIS).append(SQL_AS)
@@ -2073,6 +2078,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     compiledSubSelectQuerySelection.append(compiledCondition).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                 } else {
+                    // Add group by column
                     compiledSelectionList.append(compiledCondition).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                     compiledSubSelectQuerySelection.append(compiledCondition).append(SQL_AS)
