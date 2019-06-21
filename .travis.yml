@@ -1,0 +1,33 @@
+language: java
+
+services:
+  - docker
+
+install: true
+
+jobs:
+  include:
+    - stage: compile
+      name: compile
+      script:
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+    - stage: test
+      name: H2
+      script: mvn verify -P local-h2 -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+    - stage: test
+      name: MySQL
+      script: mvn verify -P local-mysql -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+    - stage: test
+      name: MSSQL
+      script: mvn verify -P local-mssql -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+    - stage: test
+      name: postgres
+      script: mvn verify -P local-postgres -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+    - stage: test
+      name: OSGi-test
+      before_script:
+        - cd tests/osgi-tests/
+      script: mvn verify
+cache:
+  directories:
+    - $HOME/.m2
