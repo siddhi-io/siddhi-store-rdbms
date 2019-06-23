@@ -562,7 +562,7 @@
                                 <DATABASE_USER>root</DATABASE_USER>
                                 <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
                                 <PORT>${siddhi-rdbms-mysql.port}</PORT>
-                                <DOCKER_HOST_IP>${docker.container.siddhi-rdbms-mysql.ip}</DOCKER_HOST_IP>
+                                <DOCKER_HOST_IP>localhost</DOCKER_HOST_IP>
                             </environmentVariables>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
@@ -734,7 +734,7 @@
                                 <DATABASE_USER>root</DATABASE_USER>
                                 <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
                                 <PORT>${siddhi-rdbms-postgres.port}</PORT>
-                                <DOCKER_HOST_IP>${docker.container.siddhi-rdbms-postgres.ip}</DOCKER_HOST_IP>
+                                <DOCKER_HOST_IP>localhost</DOCKER_HOST_IP>
                             </environmentVariables>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
@@ -905,7 +905,7 @@
                                 <DATABASE_USER>sa</DATABASE_USER>
                                 <DATABASE_PASSWORD>wso2das123#</DATABASE_PASSWORD>
                                 <PORT>${siddhi-rdbms-mssql.port}</PORT>
-                                <DOCKER_HOST_IP>${docker.container.siddhi-rdbms-mssql.ip}</DOCKER_HOST_IP>
+                                <DOCKER_HOST_IP>localhost</DOCKER_HOST_IP>
                             </environmentVariables>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
@@ -1076,7 +1076,7 @@
                                 <DATABASE_USER>system</DATABASE_USER>
                                 <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
                                 <PORT>${siddhi-rdbms-oracle.port}</PORT>
-                                <DOCKER_HOST_IP>${docker.container.siddhi-rdbms-oracle.ip}</DOCKER_HOST_IP>
+                                <DOCKER_HOST_IP>localhost</DOCKER_HOST_IP>
                             </environmentVariables>
                             <argLine>-Duser.timezone=GMT</argLine>
                             <suiteXmlFiles>
@@ -1245,7 +1245,7 @@
                                 <DATABASE_TYPE>ORACLE</DATABASE_TYPE>
                                 <DATABASE_USER>system</DATABASE_USER>
                                 <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
-                                <DOCKER_HOST_IP>${docker.container.siddhi-rdbms-oracle12.ip}</DOCKER_HOST_IP>
+                                <DOCKER_HOST_IP>localhost</DOCKER_HOST_IP>
                                 <PORT>${siddhi-rdbms-oracle12.port}</PORT>
                             </environmentVariables>
                             <argLine>-Duser.timezone=GMT</argLine>
@@ -1334,7 +1334,7 @@
                                 <DATABASE_USER>db2inst1</DATABASE_USER>
                                 <DATABASE_PASSWORD>db2inst1-pwd</DATABASE_PASSWORD>
                                 <PORT>${siddhi-rdbms-db2.port}</PORT>
-                                <DOCKER_HOST_IP>${docker.container.siddhi-rdbms-db2.ip}</DOCKER_HOST_IP>
+                                <DOCKER_HOST_IP>localhost</DOCKER_HOST_IP>
                             </environmentVariables>
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
