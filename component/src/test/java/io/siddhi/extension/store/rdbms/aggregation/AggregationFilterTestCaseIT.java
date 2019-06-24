@@ -58,7 +58,6 @@ public class AggregationFilterTestCaseIT {
         try {
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_SECONDS");
             RDBMSTableTestUtils.initDatabaseTable("stockAggregation_MINUTES");
-            RDBMSTableTestUtils.initDatabaseTable("stockAggregation_HOURS");
         } catch (SQLException e) {
             LOG.error("Test case ignored due to " + e.getMessage());
         }
@@ -83,7 +82,7 @@ public class AggregationFilterTestCaseIT {
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) " +
                 "as lastTradeValue  " +
                 "group by symbol " +
-                "aggregate by timestamp every sec...hour; " +
+                "aggregate by timestamp every sec...min; " +
 
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +
@@ -190,7 +189,7 @@ public class AggregationFilterTestCaseIT {
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) " +
                 "as lastTradeValue  " +
                 "group by symbol " +
-                "aggregate by timestamp every sec...hour; " +
+                "aggregate by timestamp every sec...min; " +
 
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +
@@ -297,7 +296,7 @@ public class AggregationFilterTestCaseIT {
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
                 "(price * quantity) as lastTradeValue " +
                 "group by symbol " +
-                "aggregate by timestamp every sec...hour; " +
+                "aggregate by timestamp every sec...min; " +
 
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +
@@ -423,7 +422,7 @@ public class AggregationFilterTestCaseIT {
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) " +
                 "as lastTradeValue  " +
                 "group by symbol " +
-                "aggregate by timestamp every sec...hour ;";
+                "aggregate by timestamp every sec...min ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 
@@ -471,7 +470,7 @@ public class AggregationFilterTestCaseIT {
                         "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
                         "(price * quantity) as lastTradeValue  " +
                         "group by symbol " +
-                        "aggregate every sec...hour ;";
+                        "aggregate every sec...min ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 

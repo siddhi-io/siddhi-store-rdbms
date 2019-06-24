@@ -28,16 +28,24 @@ import java.util.SortedMap;
 public class RDBMSCompiledCondition implements CompiledCondition {
 
     private String compiledQuery;
+    private boolean useSubSelect;
+    private String subSelectQuerySelectors;
+    private String outerCompiledCondition;
     private SortedMap<Integer, Object> parameters;
     private boolean isContainsConditionExist;
     private int ordinalOfContainPattern;
 
     public RDBMSCompiledCondition(String compiledQuery, SortedMap<Integer, Object> parameters,
-                                  boolean isContainsConditionExist, int ordinalOfContainPattern) {
+                                  boolean isContainsConditionExist, int ordinalOfContainPattern,
+                                  boolean useSubSelect, String subSelectQuerySelectors,
+                                  String outerCompiledCondition) {
         this.compiledQuery = compiledQuery;
         this.parameters = parameters;
         this.isContainsConditionExist = isContainsConditionExist;
         this.ordinalOfContainPattern = ordinalOfContainPattern;
+        this.useSubSelect = useSubSelect;
+        this.subSelectQuerySelectors = subSelectQuerySelectors;
+        this.outerCompiledCondition = outerCompiledCondition;
     }
 
     public String getCompiledQuery() {
@@ -46,6 +54,18 @@ public class RDBMSCompiledCondition implements CompiledCondition {
 
     public boolean isContainsConditionExist() {
         return isContainsConditionExist;
+    }
+
+    public boolean isUseSubSelect() {
+        return useSubSelect;
+    }
+
+    public String getSubSelectQuerySelectors() {
+        return subSelectQuerySelectors;
+    }
+
+    public String getOuterCompiledCondition() {
+        return outerCompiledCondition;
     }
 
     public String toString() {

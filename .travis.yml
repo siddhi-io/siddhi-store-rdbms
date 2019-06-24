@@ -16,6 +16,13 @@ language: java
 
 services:
   - docker
+  
+before_install:
+  # Load cached docker image only if needed
+  - echo "$DOCKER_IMAGE"
+  - >
+    if [[ -d $HOME/docker ]] && [[ ! -z "$DOCKER_IMAGE" ]]; then for file in $HOME/docker/*; do
+    if [[ ${file##*/} == $DOCKER_IMAGE* ]]; then sh -c "docker load -i $file;"; fi done; fi
 
 install: true
 
@@ -30,18 +37,34 @@ jobs:
       script: mvn verify -P local-h2 -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
     - stage: test
       name: MySQL
+      env:
+        - DOCKER_IMAGE=mysql
       script: mvn verify -P local-mysql -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
     - stage: test
       name: MSSQL
+      env:
+        - DOCKER_IMAGE=microsoft
       script: mvn verify -P local-mssql -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
     - stage: test
       name: postgres
+      env:
+        - DOCKER_IMAGE=postgres
       script: mvn verify -P local-postgres -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
     - stage: test
       name: OSGi-test
       before_script:
         - cd tests/osgi-tests/
       script: mvn verify
+      
+
+before_cache:
+  # Save tagged docker images
+  - >
+    mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
+    | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
+      
 cache:
+  bundler: true
   directories:
+    - $HOME/docker
     - $HOME/.m2
