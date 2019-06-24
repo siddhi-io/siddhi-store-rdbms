@@ -18,8 +18,11 @@ services:
   - docker
   
 before_install:
-  # Load cached docker images
-  - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
+  # Load cached docker image only if needed
+  - echo "$DOCKER_IMAGE"
+  - >
+    if [[ -d $HOME/docker ]] && [[ ! -z "$DOCKER_IMAGE" ]]; then for file in $HOME/docker/*; do
+    if [[ ${file##*/} == $DOCKER_IMAGE* ]]; then sh -c "docker load -i $file;"; fi done; fi
 
 install: true
 
@@ -34,12 +37,18 @@ jobs:
       script: mvn verify -P local-h2 -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
     - stage: test
       name: MySQL
+      env:
+        - DOCKER_IMAGE=mysql
       script: mvn verify -P local-mysql -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
     - stage: test
       name: MSSQL
+      env:
+        - DOCKER_IMAGE=microsoft
       script: mvn verify -P local-mssql -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
     - stage: test
       name: postgres
+      env:
+        - DOCKER_IMAGE=postgres
       script: mvn verify -P local-postgres -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
     - stage: test
       name: OSGi-test
