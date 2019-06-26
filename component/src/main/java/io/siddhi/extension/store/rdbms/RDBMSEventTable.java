@@ -1753,21 +1753,6 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
         try {
             stmt = conn.prepareStatement(query);
-        } catch (SQLException e) {
-            try {
-                if (!conn.isValid(0)) {
-                    throw new ConnectionUnavailableException("Connection is closed when preparing to execute " +
-                            "query: '" + query + "' for store: '" + tableName + "'", e);
-                } else {
-                    throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                            + "' on store: '" + this.tableName + "'", e);
-                }
-            } catch (SQLException e1) {
-                throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                        + "' on store: '" + this.tableName + "'", e1);
-            }
-        }
-        try {
             RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0);
         } catch (SQLException e) {
             try {
