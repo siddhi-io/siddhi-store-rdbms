@@ -53,7 +53,7 @@ public class RDBMSTableConstants {
     public static final String SQL_COMPARE_GREATER_THAN_EQUAL = ">=";
     public static final String SQL_COMPARE_EQUAL = "=";
     public static final String SQL_COMPARE_NOT_EQUAL = "<>"; //Using the ANSI SQL-92 standard over '!=' (non-standard)
-    public static final String SQL_AND = "AND";
+    public static final String SQL_AND = " AND ";
     public static final String SQL_OR = "OR";
     public static final String SQL_NOT = "NOT";
     public static final String SQL_IN = "IN";
@@ -62,12 +62,14 @@ public class RDBMSTableConstants {
     public static final String SQL_PRIMARY_KEY_DEF = "PRIMARY KEY";
     public static final String SQL_WHERE = "WHERE";
     public static final String SQL_AS = " AS ";
+    public static final String SQL_MAX = "MAX"; // Used for incrementalAggregator:last()
     public static final String WHITESPACE = " ";
     public static final String SEPARATOR = ", ";
     public static final String EQUALS = "=";
     public static final String QUESTION_MARK = "?";
     public static final String OPEN_PARENTHESIS = "(";
     public static final String CLOSE_PARENTHESIS = ")";
+    public static final String SUB_SELECT_QUERY_REF = "t2";
 
     public static final String CONTAINS_CONDITION_REGEX = "(CONTAINS\\()([a-zA-z.]*)(\\s\\?\\s\\))";
 
@@ -110,6 +112,7 @@ public class RDBMSTableConstants {
     public static final String BATCH_ENABLE = "batchEnable";
     public static final String TRANSACTION_SUPPORTED = "transactionSupported";
     public static final String SELECT_QUERY_TEMPLATE = "selectQueryTemplate";
+    public static final String SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE = "selectQueryWithSubSelect";
     public static final String SELECT_CLAUSE = "selectClause";
     public static final String WHERE_CLAUSE = "whereClause";
     public static final String GROUP_BY_CLAUSE = "groupByClause";

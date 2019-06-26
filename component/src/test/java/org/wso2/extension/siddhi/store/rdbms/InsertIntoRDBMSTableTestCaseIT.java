@@ -77,7 +77,7 @@ public class InsertIntoRDBMSTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
-                + "\", field.length=\"symbol:100\")\n" +
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, volume long); ";
@@ -109,7 +109,7 @@ public class InsertIntoRDBMSTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"symbol:100\")\n" +
+                "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"symbol, price\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -145,7 +145,7 @@ public class InsertIntoRDBMSTableTestCaseIT {
         String table = "" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"symbol:100\")\n" +
+                "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"symbol, price\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long);\n" +
@@ -191,7 +191,7 @@ public class InsertIntoRDBMSTableTestCaseIT {
         String table = "" +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", table.name=\"StockTable\"," +
                 "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
-                "\", field.length=\"symbol:100, message:5000\")\n" +
+                "\", field.length=\"symbol:100, message:5000\", pool.properties=\"maximumPoolSize:1\")\n" +
                 "@PrimaryKey(\"symbol\")" +
                 "define table " + TABLE_NAME + " (symbol string, message string);\n";
 

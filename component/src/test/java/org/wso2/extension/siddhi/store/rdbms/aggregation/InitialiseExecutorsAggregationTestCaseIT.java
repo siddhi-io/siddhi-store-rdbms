@@ -42,8 +42,8 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.pas
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.url;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableTestUtils.user;
 
-public class IncrementalAggregationTestCaseIT {
-    private static final Logger log = Logger.getLogger(IncrementalAggregationTestCaseIT.class);
+public class InitialiseExecutorsAggregationTestCaseIT {
+    private static final Logger log = Logger.getLogger(InitialiseExecutorsAggregationTestCaseIT.class);
 
     @BeforeClass
     public static void startTest() {
