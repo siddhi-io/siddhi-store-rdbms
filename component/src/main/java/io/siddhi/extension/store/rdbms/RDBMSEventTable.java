@@ -143,6 +143,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TRANSACTI
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TYPE_MAPPING;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHERE_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHITESPACE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindConditionWithContainsConditionTemplate;
 
 /**
  * Class representing the RDBMS Event Table implementation.
@@ -602,7 +603,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
         String findCondition;
         if (rdbmsCompiledCondition.isContainsConditionExist()) {
-            findCondition = RDBMSTableUtils.processFindConditionWithContainsConditionTemplate(
+            findCondition = processFindConditionWithContainsConditionTemplate(
                     rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate);
         } else {
             findCondition = rdbmsCompiledCondition.getCompiledQuery();
@@ -1742,6 +1743,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             throws ConnectionUnavailableException {
         RDBMSCompiledSelection rdbmsCompiledSelection = (RDBMSCompiledSelection) compiledSelection;
         RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
+        if (rdbmsCompiledCondition.isContainsConditionExist()) {
+                rdbmsCompiledCondition.setCompiledQuery(processFindConditionWithContainsConditionTemplate(
+                            rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate));
+        }
         if ("?".equals(rdbmsCompiledCondition.getCompiledQuery())) {
             rdbmsCompiledCondition = null;
         }
