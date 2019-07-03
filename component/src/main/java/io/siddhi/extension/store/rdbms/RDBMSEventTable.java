@@ -512,7 +512,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
 public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     private static final Log log = LogFactory.getLog(RDBMSEventTable.class);
-    private static final  String SELECT_NULL = "(SELECT NULL)";
+    private static final String SELECT_NULL = "(SELECT NULL)";
     private static final String ZERO = "0";
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
     private HikariDataSource dataSource;
@@ -1743,9 +1743,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             throws ConnectionUnavailableException {
         RDBMSCompiledSelection rdbmsCompiledSelection = (RDBMSCompiledSelection) compiledSelection;
         RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
-        if (rdbmsCompiledCondition.isContainsConditionExist()) {
-                rdbmsCompiledCondition.setCompiledQuery(processFindConditionWithContainsConditionTemplate(
-                            rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate));
+        boolean containsConditionExist = rdbmsCompiledCondition.isContainsConditionExist();
+        if (containsConditionExist) {
+            rdbmsCompiledCondition.setCompiledQuery(processFindConditionWithContainsConditionTemplate(
+                    rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate));
         }
         if ("?".equals(rdbmsCompiledCondition.getCompiledQuery())) {
             rdbmsCompiledCondition = null;
@@ -1759,7 +1760,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         try {
             stmt = conn.prepareStatement(query);
             RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0,
-                    rdbmsCompiledCondition.isContainsConditionExist());
+                    containsConditionExist);
         } catch (SQLException e) {
             try {
                 if (!conn.isValid(0)) {
