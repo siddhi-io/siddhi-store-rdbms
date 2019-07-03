@@ -1758,7 +1758,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
         try {
             stmt = conn.prepareStatement(query);
-            RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0);
+            RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0,
+                    rdbmsCompiledCondition.isContainsConditionExist());
         } catch (SQLException e) {
             try {
                 if (!conn.isValid(0)) {
