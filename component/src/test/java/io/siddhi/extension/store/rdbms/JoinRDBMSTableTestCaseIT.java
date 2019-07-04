@@ -685,7 +685,7 @@ public class JoinRDBMSTableTestCaseIT {
                 "insert into StockTable ;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from CheckStockStream#window.length(1) left outer join StockTable " +
+                "from CheckStockStream left outer join StockTable " +
                 "on str:contains(StockTable.symbol, CheckStockStream.symbol) " +
                 "and StockTable.volume == CheckStockStream.volume " +
                 "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, " +
@@ -757,7 +757,7 @@ public class JoinRDBMSTableTestCaseIT {
                 "insert into StockTable ;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from CheckStockStream#window.length(1) right outer join StockTable " +
+                "from CheckStockStream right outer join StockTable " +
                 "on str:contains(StockTable.symbol, CheckStockStream.symbol) " +
                 "and CheckStockStream.volume == StockTable.volume " +
                 "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, " +
@@ -826,7 +826,7 @@ public class JoinRDBMSTableTestCaseIT {
                 "insert into StockTable ;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from CheckStockStream#window.length(1) full outer join StockTable " +
+                "from CheckStockStream full outer join StockTable " +
                 "on str:contains(StockTable.symbol, CheckStockStream.symbol) " +
                 "and CheckStockStream.volume == StockTable.volume " +
                 "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, " +
@@ -899,7 +899,7 @@ public class JoinRDBMSTableTestCaseIT {
                 "insert into StockTable ;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from CheckStockStream#window.length(1) join StockTable " +
+                "from CheckStockStream join StockTable " +
                 "on str:contains(StockTable.symbol, 'WSO2') " +
                 "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, " +
                 "StockTable.volume as volume  " +
@@ -971,7 +971,7 @@ public class JoinRDBMSTableTestCaseIT {
                 "insert into StockTable ;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from CheckStockStream#window.length(1) join StockTable " +
+                "from CheckStockStream join StockTable " +
                 "on str:contains(StockTable.symbol, CheckStockStream.symbol) " +
                 "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, " +
                 "StockTable.volume as volume  " +
