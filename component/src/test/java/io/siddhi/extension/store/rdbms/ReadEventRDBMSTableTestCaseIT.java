@@ -89,7 +89,7 @@ public class ReadEventRDBMSTableTestCaseIT {
                 "select *\n" +
                 "insert into StockTable;\n" +
                 "@info(name = 'query2')\n" +
-                "from FooStream#window.length(1) join StockTable on FooStream.name==StockTable.itemId \n" +
+                "from FooStream join StockTable on FooStream.name==StockTable.itemId \n" +
                 "select FooStream.name as checkName, StockTable.type as checkCategory, " +
                 "StockTable.volume as checkVolume\n" +
                 "insert into OutputStream;";
