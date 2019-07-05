@@ -509,4 +509,264 @@ public class ReadEventRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
         siddhiAppRuntime2.shutdown();
     }
+
+
+    @Test(dependsOnMethods = "readEventRDBMSTableTestCase7")
+    public void readEventRDBMSTableTestCase8() throws InterruptedException {
+
+        log.info("readEventRDBMSTableTestCase8");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream FirstStream (column1 string, column2 string, column3 string, column4 float, " +
+                "column5 bool, column6 double);\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"column1:100\", pool.properties=\"maximumPoolSize:1\")\n" +
+                "define table StockTable (column1 string, column2 string, column3 string, column4 float, " +
+                "column5 bool, column6 double);\n";
+        String streams2 = "" +
+                "define stream SecondStream (columnName string, volume float, isValid bool);\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"column1:100\", pool.properties=\"maximumPoolSize:1\")\n" +
+                "define table StockTable (column1 string, column4 float, column5 bool);\n";
+
+        String query = "" +
+                "@info(name = 'query1')\n" +
+                "from FirstStream\n" +
+                "select *\n" +
+                "insert into StockTable;\n";
+        String query2 = "" +
+                "@info(name = 'query2')\n" +
+                "from SecondStream join StockTable on columnName == column1 and volume == column4 " +
+                "and isValid == column5\n" +
+                "select columnName, (volume + 4 ) as volume, isValid\n" +
+                "insert into OutputStream;\n";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager.createSiddhiAppRuntime(streams2 + query2);
+        InputHandler firstStream = siddhiAppRuntime.getInputHandler("FirstStream");
+        InputHandler secondStream = siddhiAppRuntime2.getInputHandler("SecondStream");
+        siddhiAppRuntime2.addCallback("query2", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertEquals(new Object[]{"WSO2", 38.5F, true}, event.getData());
+                                break;
+                            default:
+                                Assert.assertSame(1, inEventCount);
+                        }
+                    }
+                    eventArrived = true;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime2.start();
+
+        firstStream.send(new Object[]{"WSO2", "Castro Street", "Mountain View", 34.5F, true, 500D});
+        Thread.sleep(1000);
+        secondStream.send(new Object[]{"WSO2", 34.5F, true});
+        Thread.sleep(1000);
+
+        Assert.assertEquals(inEventCount, 1, "Number of success events");
+        Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+        Assert.assertEquals(eventArrived, true, "Event arrived");
+        siddhiAppRuntime.shutdown();
+        siddhiAppRuntime2.shutdown();
+    }
+
+    @Test(dependsOnMethods = "readEventRDBMSTableTestCase8")
+    public void readEventRDBMSTableTestCase9() throws InterruptedException {
+
+        log.info("readEventRDBMSTableTestCase9");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream FirstStream (column1 string, column2 string, column3 string, column4 float, " +
+                "column5 bool, column6 double);\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"column1:100\", pool.properties=\"maximumPoolSize:1\")\n" +
+                "define table StockTable (column1 string, column2 string, column3 string, column4 float, " +
+                "column5 bool, column6 double);\n";
+        String streams2 = "" +
+                "define stream SecondStream (columnName string, volume float, isValid bool);\n" +
+                "define stream ThirdStream (columnName string, volume float, isValid bool);\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"column1:100\", pool.properties=\"maximumPoolSize:1\")\n" +
+                "define table StockTable (column1 string, column4 float, column5 bool);\n";
+
+        String query = "" +
+                "@info(name = 'query1')\n" +
+                "from FirstStream\n" +
+                "select *\n" +
+                "insert into StockTable;\n";
+        String query2 = "" +
+                "@info(name = 'query2')\n" +
+                "from SecondStream join StockTable on columnName == column1 and volume == column4 " +
+                "and isValid == column5\n" +
+                "select columnName, (volume + 4 ) as volume, isValid\n" +
+                "insert into OutputStream;\n" +
+
+                "@info(name = 'query3')\n" +
+                "from ThirdStream join StockTable on columnName == column1 " +
+                "select columnName, volume, isValid\n" +
+                "insert into OutputStream;\n";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager.createSiddhiAppRuntime(streams2 + query2);
+        InputHandler firstStream = siddhiAppRuntime.getInputHandler("FirstStream");
+        InputHandler secondStream = siddhiAppRuntime2.getInputHandler("SecondStream");
+        InputHandler thirdStream = siddhiAppRuntime2.getInputHandler("ThirdStream");
+
+        siddhiAppRuntime2.addCallback("query2", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertEquals(new Object[]{"WSO2", 38.5F, true}, event.getData());
+                                break;
+                            default:
+                                Assert.assertSame(1, inEventCount);
+                        }
+                    }
+                    eventArrived = true;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+        });
+
+        siddhiAppRuntime2.addCallback("query3", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        switch (inEventCount) {
+                            case 2:
+                                Assert.assertEquals(new Object[]{"WSO2", 34.5F, true}, event.getData());
+                                break;
+                            default:
+                                Assert.assertSame(2, inEventCount);
+                        }
+                    }
+                    eventArrived = true;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime2.start();
+
+        firstStream.send(new Object[]{"WSO2", "Castro Street", "Mountain View", 34.5F, true, 500D});
+        Thread.sleep(1000);
+        secondStream.send(new Object[]{"WSO2", 34.5F, true});
+        Thread.sleep(5000);
+        thirdStream.send(new Object[]{"WSO2", 34.5F, true});
+        Thread.sleep(1000);
+
+        Assert.assertEquals(inEventCount, 2, "Number of success events");
+        Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+        Assert.assertEquals(eventArrived, true, "Event arrived");
+        siddhiAppRuntime.shutdown();
+        siddhiAppRuntime2.shutdown();
+    }
+
+    @Test(dependsOnMethods = "readEventRDBMSTableTestCase9")
+    public void readEventRDBMSTableTestCase10() throws InterruptedException {
+        log.info("readEventRDBMSTableTestCase10");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream FirstStream (column1 string, column2 string, column3 string, column4 float, " +
+                "column5 bool, column6 double);\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"column1:100\", pool.properties=\"maximumPoolSize:1\")\n" +
+                "define table StockTable (column1 string, column2 string, column3 string, column4 float, " +
+                "column5 bool, column6 double);\n";
+        String streams2 = "" +
+                "define stream SecondStream (columnName string, volume float, isValid bool);\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"column1:100\", pool.properties=\"maximumPoolSize:1\")\n" +
+                "define table StockTable (column1 string, column4 float, column5 bool);\n";
+
+        String query = "" +
+                "@info(name = 'query1')\n" +
+                "from FirstStream\n" +
+                "select *\n" +
+                "insert into StockTable;\n";
+        String query2 = "" +
+                "@info(name = 'query2')\n" +
+                "from SecondStream join StockTable on columnName == column1 and volume == column4 " +
+                "and isValid == column5\n" +
+                "select columnName, volume, ifThenElse(volume>30,'High','Low') as isValid\n" +
+                "insert into OutputStream;\n";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager.createSiddhiAppRuntime(streams2 + query2);
+        InputHandler firstStream = siddhiAppRuntime.getInputHandler("FirstStream");
+        InputHandler secondStream = siddhiAppRuntime2.getInputHandler("SecondStream");
+
+        siddhiAppRuntime2.addCallback("query2", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertEquals(new Object[]{"WSO2", 34.5F, "High"}, event.getData());
+                                break;
+                            default:
+                                Assert.assertSame(1, inEventCount);
+                        }
+                    }
+                    eventArrived = true;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime2.start();
+
+        firstStream.send(new Object[]{"WSO2", "Castro Street", "Mountain View", 34.5F, true, 500D});
+        Thread.sleep(1000);
+        secondStream.send(new Object[]{"WSO2", 34.5F, true});
+        Thread.sleep(1000);
+
+        Assert.assertEquals(inEventCount, 1, "Number of success events");
+        Assert.assertEquals(removeEventCount, 0, "Number of remove events");
+        Assert.assertEquals(eventArrived, true, "Event arrived");
+        siddhiAppRuntime.shutdown();
+        siddhiAppRuntime2.shutdown();
+    }
 }
