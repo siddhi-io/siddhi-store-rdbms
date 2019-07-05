@@ -142,6 +142,7 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TRA
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.TYPE_MAPPING;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.WHERE_CLAUSE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.WHITESPACE;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableUtils.processFindConditionWithContainsConditionTemplate;
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
 
 /**
@@ -602,7 +603,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
         String findCondition;
         if (rdbmsCompiledCondition.isContainsConditionExist()) {
-            findCondition = RDBMSTableUtils.processFindConditionWithContainsConditionTemplate(
+            findCondition = processFindConditionWithContainsConditionTemplate(
                     rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate);
         } else {
             findCondition = rdbmsCompiledCondition.getCompiledQuery();
@@ -1742,6 +1743,12 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             throws ConnectionUnavailableException {
         RDBMSCompiledSelection rdbmsCompiledSelection = (RDBMSCompiledSelection) compiledSelection;
         RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
+        boolean containsConditionExist = rdbmsCompiledCondition.isContainsConditionExist();
+        if (containsConditionExist) {
+                rdbmsCompiledCondition.setCompiledQuery(processFindConditionWithContainsConditionTemplate(
+                        rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate));
+        }
+
         if ("?".equals(rdbmsCompiledCondition.getCompiledQuery())) {
             rdbmsCompiledCondition = null;
         }
@@ -1753,22 +1760,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
         try {
             stmt = conn.prepareStatement(query);
-        } catch (SQLException e) {
-            try {
-                if (!conn.isValid(0)) {
-                    throw new ConnectionUnavailableException("Connection is closed when preparing to execute " +
-                            "query: '" + query + "' for store: '" + tableName + "'", e);
-                } else {
-                    throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                            + "' on store: '" + this.tableName + "'", e);
-                }
-            } catch (SQLException e1) {
-                throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                        + "' on store: '" + this.tableName + "'", e1);
-            }
-        }
-        try {
-            RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0);
+            RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0,
+                    containsConditionExist);
         } catch (SQLException e) {
             try {
                 if (!conn.isValid(0)) {
