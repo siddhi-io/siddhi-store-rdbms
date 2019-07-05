@@ -1099,7 +1099,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     @Override
     protected CompiledCondition compileCondition(ExpressionBuilder expressionBuilder) {
-        RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
+        RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
         expressionBuilder.build(visitor);
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters(),
                 visitor.isContainsConditionExist(), visitor.getOrdinalOfContainPattern(), false, null, null);
@@ -2017,9 +2017,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                                  Long offset) {
         return new RDBMSCompiledSelection(
                 compileSelectClause(selectAttributeBuilders),
-                (groupByExpressionBuilder == null) ? null : compileClause(groupByExpressionBuilder),
+                (groupByExpressionBuilder == null) ? null : compileClause(groupByExpressionBuilder, false),
                 (havingExpressionBuilder == null) ? null :
-                        compileClause(Collections.singletonList(havingExpressionBuilder)),
+                        compileClause(Collections.singletonList(havingExpressionBuilder), true),
                 (orderByAttributeBuilders == null) ? null : compileOrderByClause(orderByAttributeBuilders),
                 limit, offset);
     }
@@ -2034,7 +2034,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         boolean containsLastFunction = false;
         List<RDBMSConditionVisitor> conditionVisitorList = new ArrayList<>();
         for (SelectAttributeBuilder attributeBuilder : selectAttributeBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
             attributeBuilder.getExpressionBuilder().build(visitor);
             if (visitor.isLastConditionExist()) {
                 containsLastFunction = true;
@@ -2115,13 +2115,13 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 compiledSubSelectQuerySelection.toString(), compiledOuterOnCondition.toString());
     }
 
-    private RDBMSCompiledCondition compileClause(List<ExpressionBuilder> expressionBuilders) {
+    private RDBMSCompiledCondition compileClause(List<ExpressionBuilder> expressionBuilders, boolean isHavingClause) {
         StringBuilder compiledSelectionList = new StringBuilder();
         SortedMap<Integer, Object> paramMap = new TreeMap<>();
         int offset = 0;
 
         for (ExpressionBuilder expressionBuilder : expressionBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, isHavingClause);
             expressionBuilder.build(visitor);
 
             String compiledCondition = visitor.returnCondition();
@@ -2151,7 +2151,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         int offset = 0;
 
         for (OrderByAttributeBuilder orderByAttributeBuilder : orderByAttributeBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
             orderByAttributeBuilder.getExpressionBuilder().build(visitor);
 
             String compiledCondition = visitor.returnCondition();

@@ -50,6 +50,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     private StringBuilder condition;
     private String finalCompiledCondition;
     private String tableName;
+    private boolean isAfterSelectClause;
 
     private Map<String, Object> placeholders;
     private SortedMap<Integer, Object> parameters;
@@ -69,7 +70,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     private String[] supportedFunctions = {"sum", "avg", "min", "max"};
 
-    public RDBMSConditionVisitor(String tableName) {
+    public RDBMSConditionVisitor(String tableName, boolean isAfterSelectClause) {
         this.tableName = tableName;
         this.condition = new StringBuilder();
         this.streamVarCount = 0;
@@ -79,6 +80,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         this.subSelect = new StringBuilder();
         this.outerCompiledCondition = new StringBuilder();
         this.lastConditionParams = new Stack<>();
+        this.isAfterSelectClause = isAfterSelectClause;
     }
 
     private RDBMSConditionVisitor() {
@@ -400,9 +402,13 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     @Override
     public void beginVisitStoreVariable(String storeId, String attributeName, Attribute.Type type) {
         if (!lastConditionExist) {
-            condition.append(this.tableName).append(".").append(attributeName).append(WHITESPACE);
-            outerCompiledCondition.append(this.tableName).append(".").append(attributeName).append(EQUALS)
-                    .append(SUB_SELECT_QUERY_REF).append(".").append(attributeName);
+            if (!isAfterSelectClause) {
+                condition.append(this.tableName).append(".").append(attributeName).append(WHITESPACE);
+                outerCompiledCondition.append(this.tableName).append(".").append(attributeName).append(EQUALS)
+                        .append(SUB_SELECT_QUERY_REF).append(".").append(attributeName);
+            } else {
+                condition.append(attributeName).append(WHITESPACE);
+            }
         } else {
             lastConditionParams.push(attributeName);
         }
