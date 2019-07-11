@@ -966,8 +966,9 @@ public class StoreQueryTableTestCaseIT {
         Assert.assertEquals(allEvents[0].getData()[0], 2);
     }
 
-    @Test
+    @Test(enabled = false)
     public void test22() throws InterruptedException {
+        // Fix for the test case is in https://github.com/siddhi-io/siddhi/pull/1382
         log.info("Test9 table");
 
         SiddhiManager siddhiManager = new SiddhiManager();
