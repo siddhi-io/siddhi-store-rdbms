@@ -190,12 +190,18 @@ public class RDBMSTableUtils {
 
     public static void resolveQuery(PreparedStatement stmt, RDBMSCompiledSelection rdbmsCompiledSelection,
                                     RDBMSCompiledCondition rdbmsCompiledCondition,
-                                    Map<String, Object> conditionParameterMap, int seed) throws SQLException {
+                                    Map<String, Object> conditionParameterMap, int seed,
+                                    boolean isContainsConditionExist) throws SQLException {
         seed = seed + resolveCondition(stmt, rdbmsCompiledSelection.getCompiledSelectClause(),
                 conditionParameterMap, seed);
 
         if (rdbmsCompiledCondition != null) {
-            seed = seed + resolveCondition(stmt, rdbmsCompiledCondition, conditionParameterMap, seed);
+            if (isContainsConditionExist) {
+                seed = seed + resolveConditionForContainsCheck(stmt, rdbmsCompiledCondition, conditionParameterMap,
+                        seed);
+            } else {
+                seed = seed + resolveCondition(stmt, rdbmsCompiledCondition, conditionParameterMap, seed);
+            }
         }
 
         RDBMSCompiledCondition groupByClause = rdbmsCompiledSelection.getCompiledGroupByClause();
@@ -214,13 +220,18 @@ public class RDBMSTableUtils {
         }
     }
 
-    public static void resolveConditionForContainsCheck(PreparedStatement stmt,
+    public static int resolveConditionForContainsCheck(PreparedStatement stmt,
                                                         RDBMSCompiledCondition compiledCondition,
                                                         Map<String, Object> conditionParameterMap, int seed)
             throws SQLException {
+        int maxOrdinal = 0;
         SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
         for (Map.Entry<Integer, Object> entry : parameters.entrySet()) {
             Object parameter = entry.getValue();
+            int ordinal = entry.getKey();
+            if (ordinal > maxOrdinal) {
+                maxOrdinal = ordinal;
+            }
             if (parameter instanceof Constant) {
                 Constant constant = (Constant) parameter;
                 if (entry.getKey().equals(compiledCondition.getOrdinalOfContainPattern())) {
@@ -242,6 +253,7 @@ public class RDBMSTableUtils {
 
             }
         }
+        return maxOrdinal;
     }
 
     public static int enumerateUpdateSetEntries(Map<String, CompiledExpression> updateSetExpressions,

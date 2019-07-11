@@ -67,6 +67,10 @@ public class RDBMSCompiledCondition implements CompiledCondition {
         return outerCompiledCondition;
     }
 
+    public void setCompiledQuery(String compiledQuery) {
+        this.compiledQuery = compiledQuery;
+    }
+
     public String getCompiledQuery() {
         return compiledQuery;
     }
