@@ -2151,7 +2151,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         int offset = 0;
 
         for (OrderByAttributeBuilder orderByAttributeBuilder : orderByAttributeBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, true);
             orderByAttributeBuilder.getExpressionBuilder().build(visitor);
 
             String compiledCondition = visitor.returnCondition();

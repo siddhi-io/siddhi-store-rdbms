@@ -965,4 +965,45 @@ public class StoreQueryTableTestCaseIT {
         Assert.assertEquals(allEvents.length, 1);
         Assert.assertEquals(allEvents[0].getData()[0], 2);
     }
+
+    @Test
+    public void test22() throws InterruptedException {
+        log.info("Test9 table");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long);" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName
+                + "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+
+        siddhiAppRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        Thread.sleep(500);
+
+        Event[] events = siddhiAppRuntime.query("" +
+                "from StockTable " +
+                "on volume > 10 " +
+                "select symbol, price as priceSel, volume " +
+                "order by priceSel " +
+                "limit 2 ");
+        EventPrinter.print(events);
+        AssertJUnit.assertEquals(2, events.length);
+        AssertJUnit.assertEquals(55.6F, events[0].getData()[1]);
+        AssertJUnit.assertEquals(57.6f, events[1].getData()[1]);
+    }
+
 }
