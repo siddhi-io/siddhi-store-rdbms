@@ -133,9 +133,9 @@
     </properties>
 
     <scm>
-        <connection>scm:git:https://github.com/wso2-extensions/siddhi-eventtable-rdbms.git</connection>
-        <url>https://github.com/wso2-extensions/siddhi-eventtable-rdbms.git</url>
-        <developerConnection>scm:git:https://github.com/wso2-extensions/siddhi-eventtable-rdbms.git
+        <connection>scm:git:https://github.com/siddhi-io/siddhi-eventtable-rdbms.git</connection>
+        <url>https://github.com/siddhi-io/siddhi-eventtable-rdbms.git</url>
+        <developerConnection>scm:git:https://github.com/siddhi-io/siddhi-eventtable-rdbms.git
         </developerConnection>
         <tag>HEAD</tag>
     </scm>

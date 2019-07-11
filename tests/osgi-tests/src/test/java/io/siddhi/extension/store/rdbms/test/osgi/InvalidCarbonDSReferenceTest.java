@@ -79,7 +79,7 @@ public class InvalidCarbonDSReferenceTest {
 
     @Test(enabled = false)
     public void testInvalidDataSourceReference() throws SQLException {
-        // TODO: 11/21/17 To be enabled after solving https://github.com/wso2-extensions/siddhi-store-rdbms/issues/34
+        // TODO: 11/21/17 To be enabled after solving https://github.com/siddhi-io/siddhi-store-rdbms/issues/34
         URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 9090));
         String path = "/simulation/single";
         String contentType = "text/plain";
