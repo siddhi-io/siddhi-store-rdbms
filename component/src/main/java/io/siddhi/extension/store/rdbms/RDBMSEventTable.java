@@ -143,6 +143,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TRANSACTI
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TYPE_MAPPING;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHERE_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHITESPACE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindConditionWithContainsConditionTemplate;
 
 /**
  * Class representing the RDBMS Event Table implementation.
@@ -511,7 +512,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHITESPAC
 public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     private static final Log log = LogFactory.getLog(RDBMSEventTable.class);
-    private static final  String SELECT_NULL = "(SELECT NULL)";
+    private static final String SELECT_NULL = "(SELECT NULL)";
     private static final String ZERO = "0";
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
     private HikariDataSource dataSource;
@@ -602,7 +603,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
         String findCondition;
         if (rdbmsCompiledCondition.isContainsConditionExist()) {
-            findCondition = RDBMSTableUtils.processFindConditionWithContainsConditionTemplate(
+            findCondition = processFindConditionWithContainsConditionTemplate(
                     rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate);
         } else {
             findCondition = rdbmsCompiledCondition.getCompiledQuery();
@@ -1098,7 +1099,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     @Override
     protected CompiledCondition compileCondition(ExpressionBuilder expressionBuilder) {
-        RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
+        RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
         expressionBuilder.build(visitor);
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters(),
                 visitor.isContainsConditionExist(), visitor.getOrdinalOfContainPattern(), false, null, null);
@@ -1742,6 +1743,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             throws ConnectionUnavailableException {
         RDBMSCompiledSelection rdbmsCompiledSelection = (RDBMSCompiledSelection) compiledSelection;
         RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
+        boolean containsConditionExist = rdbmsCompiledCondition.isContainsConditionExist();
+        if (containsConditionExist) {
+            rdbmsCompiledCondition.setCompiledQuery(processFindConditionWithContainsConditionTemplate(
+                    rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate));
+        }
         if ("?".equals(rdbmsCompiledCondition.getCompiledQuery())) {
             rdbmsCompiledCondition = null;
         }
@@ -1753,22 +1759,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
         try {
             stmt = conn.prepareStatement(query);
-        } catch (SQLException e) {
-            try {
-                if (!conn.isValid(0)) {
-                    throw new ConnectionUnavailableException("Connection is closed when preparing to execute " +
-                            "query: '" + query + "' for store: '" + tableName + "'", e);
-                } else {
-                    throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                            + "' on store: '" + this.tableName + "'", e);
-                }
-            } catch (SQLException e1) {
-                throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                        + "' on store: '" + this.tableName + "'", e1);
-            }
-        }
-        try {
-            RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0);
+            RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0,
+                    containsConditionExist);
         } catch (SQLException e) {
             try {
                 if (!conn.isValid(0)) {
@@ -2023,9 +2015,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                                  Long offset) {
         return new RDBMSCompiledSelection(
                 compileSelectClause(selectAttributeBuilders),
-                (groupByExpressionBuilder == null) ? null : compileClause(groupByExpressionBuilder),
+                (groupByExpressionBuilder == null) ? null : compileClause(groupByExpressionBuilder, false),
                 (havingExpressionBuilder == null) ? null :
-                        compileClause(Collections.singletonList(havingExpressionBuilder)),
+                        compileClause(Collections.singletonList(havingExpressionBuilder), true),
                 (orderByAttributeBuilders == null) ? null : compileOrderByClause(orderByAttributeBuilders),
                 limit, offset);
     }
@@ -2041,7 +2033,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         boolean containsLastFunction = false;
         List<RDBMSConditionVisitor> conditionVisitorList = new ArrayList<>();
             for (SelectAttributeBuilder attributeBuilder : selectAttributeBuilders) {
-                    RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
+                    RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
                     attributeBuilder.getExpressionBuilder().build(visitor);
                     if (visitor.isLastConditionExist()) {
                             containsLastFunction = true;
@@ -2103,7 +2095,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     maxOrdinal = ordinal;
                 }
             }
-            offset = maxOrdinal;
+            offset = offset + maxOrdinal;
         }
 
         if (compiledSelectionList.length() > 0) {
@@ -2122,13 +2114,13 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 compiledSubSelectQuerySelection.toString(), compiledOuterOnCondition.toString());
     }
 
-    private RDBMSCompiledCondition compileClause(List<ExpressionBuilder> expressionBuilders) {
+    private RDBMSCompiledCondition compileClause(List<ExpressionBuilder> expressionBuilders, boolean isHavingClause) {
         StringBuilder compiledSelectionList = new StringBuilder();
         SortedMap<Integer, Object> paramMap = new TreeMap<>();
         int offset = 0;
 
         for (ExpressionBuilder expressionBuilder : expressionBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, isHavingClause);
             expressionBuilder.build(visitor);
 
             String compiledCondition = visitor.returnCondition();
@@ -2143,7 +2135,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     maxOrdinal = ordinal;
                 }
             }
-            offset = maxOrdinal;
+            offset = offset + maxOrdinal;
         }
 
         if (compiledSelectionList.length() > 0) {
@@ -2158,7 +2150,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         int offset = 0;
 
         for (OrderByAttributeBuilder orderByAttributeBuilder : orderByAttributeBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, true);
             orderByAttributeBuilder.getExpressionBuilder().build(visitor);
 
             String compiledCondition = visitor.returnCondition();
@@ -2179,7 +2171,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     maxOrdinal = ordinal;
                 }
             }
-            offset = maxOrdinal;
+            offset = offset + maxOrdinal;
         }
 
         if (compiledSelectionList.length() > 0) {
