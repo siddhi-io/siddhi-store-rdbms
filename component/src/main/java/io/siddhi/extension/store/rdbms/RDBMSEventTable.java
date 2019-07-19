@@ -93,6 +93,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BIG_STRIN
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BINARY_TYPE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BOOLEAN_TYPE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.COLLATION;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.DOUBLE_TYPE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FIELD_SIZE_LIMIT;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FLOAT_TYPE;
@@ -134,6 +135,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QU
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SEPARATOR;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AND;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_COLLATE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_MAX;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_NOT_NULL;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_PRIMARY_KEY_DEF;
@@ -215,7 +217,15 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = "The tableCheckQuery which define in store rdbms configs"
-                )
+                ),
+                @Parameter(name = "use.collation",
+                        description = "This property allows users to use collation for string attirbutes. By " +
+                                "default it's false and binary collation is not used. Currently 'latin1_bin' and " +
+                                "'SQL_Latin1_General_CP1_CS_AS' are used as collations for MySQL and " +
+                                "Microsoft SQL database types respectively.",
+                        type = {DataType.BOOL},
+                        optional = true,
+                        defaultValue = "false")
         },
         examples = {
                 @Example(
@@ -586,11 +596,15 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String stringSize;
     private String recordContainsConditionTemplate;
     private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate;
+    private boolean useCollation = false;
+    private String collation;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
         attributes = tableDefinition.getAttributeList();
         storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
+        useCollation = Boolean.parseBoolean(storeAnnotation.getElement(RDBMSTableConstants
+                .USE_COLLATION));
         primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
         indices = AnnotationHelper.getAnnotations(SiddhiConstants.ANNOTATION_INDEX,
@@ -1122,6 +1136,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
                                 TRANSACTION_SUPPORTED, String.valueOf(
                                 this.queryConfigurationEntry.isTransactionSupported())));
+                collation = configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
+                                COLLATION, String.valueOf(this.queryConfigurationEntry.getCollation()));
                 RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRdbmsTypeMapping();
                 booleanType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BOOLEAN_TYPE,
@@ -1442,6 +1459,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             builder.append(fieldLengths.getOrDefault(attribute.getName(), stringSize));
                             builder.append(CLOSE_PARENTHESIS);
                         }
+                    }
+                    if (useCollation && collation != null) {
+                        builder.append(WHITESPACE).append(SQL_COLLATE).append(WHITESPACE).append(collation);
                     }
                     break;
             }
