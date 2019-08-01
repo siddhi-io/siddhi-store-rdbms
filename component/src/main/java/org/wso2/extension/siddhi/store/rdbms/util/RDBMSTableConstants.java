@@ -78,6 +78,7 @@ public class RDBMSTableConstants {
     public static final String ANNOTATION_ELEMENT_USERNAME = "username";
     public static final String ANNOTATION_ELEMENT_PASSWORD = "password";
     public static final String ANNOTATION_ELEMENT_TABLE_NAME = "table.name";
+    public static final String ANNOTATION_ELEMENT_TABLE_CHECK_QUERY = "table.check.query";
     public static final String ANNOTATION_ELEMENT_FIELD_LENGTHS = "field.length";
     public static final String ANNOTATION_ELEMENT_POOL_PROPERTIES = "pool.properties";
     public static final String ANNOTATION_ELEMENT_JNDI_RESOURCE = "jndi.resource";
