@@ -184,7 +184,7 @@ insert into recordStream;
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@Store(type="rdbms", jdbc.url="<STRING>", username="<STRING>", password="<STRING>", jdbc.driver.name="<STRING>", pool.properties="<STRING>", jndi.resource="<STRING>", datasource="<STRING>", table.name="<STRING>", field.length="<STRING>")
+@Store(type="rdbms", jdbc.url="<STRING>", username="<STRING>", password="<STRING>", jdbc.driver.name="<STRING>", pool.properties="<STRING>", jndi.resource="<STRING>", datasource="<STRING>", table.name="<STRING>", field.length="<STRING>", use.collation="<BOOL>", table.check.query="<STRING>")
 @PrimaryKey("PRIMARY_KEY")
 @Index("INDEX")
 ```
@@ -271,6 +271,14 @@ insert into recordStream;
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
+     <tr>
+            <td style="vertical-align: top">table.check.query</td>
+            <td style="vertical-align: top; word-wrap: break-word">This query will be used to check whether the table is exist in the given database. But the provided query should return an SQLException if the table does not exist in the database. Furthermore if the provided table is a database view, and it is not exists in the database a table from given name will be created in the database</td>
+            <td style="vertical-align: top">The tableCheckQuery which define in store rdbms configs</td>
+            <td style="vertical-align: top">STRING</td>
+            <td style="vertical-align: top">Yes</td>
+            <td style="vertical-align: top">No</td>
+        </tr>
 </table>
 
 <span id="system-parameters" class="md-typeset" style="display: block; font-weight: bold;">System Parameters</span>
@@ -424,7 +432,7 @@ insert into recordStream;
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-@Store(type="rdbms", jdbc.url="jdbc:mysql://localhost:3306/das", username="root", password="root" , jdbc.driver.name="org.h2.Driver",field.length="symbol:100")
+@Store(type="rdbms", jdbc.url="jdbc:mysql://localhost:3306/stocks", username="root", password="root", jdbc.driver.name="com.mysql.jdbc.Driver",field.length="symbol:100")
 @PrimaryKey("symbol")
 @Index("volume")
 define table StockTable (symbol string, price float, volume long);
@@ -434,6 +442,19 @@ define table StockTable (symbol string, price float, volume long);
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
 @Store(type="rdbms", jdbc.url="jdbc:mysql://localhost:3306/das", username="root", password="root" , jdbc.driver.name="org.h2.Driver",field.length="symbol:100")
+@PrimaryKey("symbol")
+@Index("symbol")
+define table StockTable (symbol string, price float, volume long);
+define stream InputStream (symbol string, volume long);
+from InputStream as a join StockTable as b on str:contains(b.symbol, a.symbol)
+select a.symbol as symbol, b.volume as volume
+insert into FooStream;
+```
+<p style="word-wrap: break-word">The above example creates an event table named 'StockTable' in the database if it does not already exist (with three attributes named 'symbol', 'price', and 'volume' of the types 'string', 'float' and 'long' respectively). Then the table is joined with a stream named 'InputStream' based on a condition. The following operations are included in the condition:<br>[ AND, OR, Comparisons( &lt;  &lt;=  &gt;  &gt;=  == !=), IS NULL, NOT, str:contains(Table&lt;Column&gt;, Stream&lt;Attribute&gt; or Search.String)]</p>
+
+<span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
+```
+@Store(type="rdbms", jdbc.url="jdbc:mysql://localhost:3306/das", table.name="StockTable", username="root", password="root" , jdbc.driver.name="org.h2.Driver", field.length="symbol:100", table.check.query=">SELECT 1 FROM StockTable LIMIT 1")
 @PrimaryKey("symbol")
 @Index("symbol")
 define table StockTable (symbol string, price float, volume long);
