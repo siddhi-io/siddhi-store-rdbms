@@ -247,6 +247,26 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                                 "operations are included in the condition:\n" +
                                 "[ AND, OR, Comparisons( <  <=  >  >=  == !=), IS NULL, " +
                                 "NOT, str:contains(Table<Column>, Stream<Attribute> or Search.String)]"
+                ),
+                @Example(
+                        syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                                "table.name=\"StockTable\", username=\"root\", password=\"root\" , jdbc.driver" +
+                                ".name=\"org.h2.Driver\", field.length=\"symbol:100\", table.check" +
+                                ".query=\"SELECT 1 FROM StockTable LIMIT 1\")\n" +
+                                "@PrimaryKey(\"symbol\")\n" +
+                                "@Index(\"symbol\")\n" +
+                                "define table StockTable (symbol string, price float, volume long);\n" +
+                                "define stream InputStream (symbol string, volume long);\n" +
+                                "from InputStream as a join StockTable as b on str:contains(b.symbol, a.symbol)\n" +
+                                "select a.symbol as symbol, b.volume as volume\n" +
+                                "insert into FooStream;",
+                        description = "The above example creates an event table named 'StockTable' in the database if" +
+                                " it does not already exist (with three attributes named 'symbol', 'price', and " +
+                                "'volume' of the types 'string', 'float' and 'long' respectively). Then the table is " +
+                                "joined with a stream named 'InputStream' based on a condition. The following " +
+                                "operations are included in the condition:\n" +
+                                "[ AND, OR, Comparisons( <  <=  >  >=  == !=), IS NULL, " +
+                                "NOT, str:contains(Table<Column>, Stream<Attribute> or Search.String)]"
                 )
         },
         systemParameter = {
@@ -594,7 +614,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         String tableName = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_NAME);
         this.tableName = RDBMSTableUtils.isEmpty(tableName) ? tableDefinition.getId() : tableName;
         String tableCheckQuery = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_CHECK_QUERY);
-        this.tableCheckQuery = RDBMSTableUtils.isEmpty(tableCheckQuery) ? tableDefinition.getId() : tableCheckQuery;
+        this.tableCheckQuery = RDBMSTableUtils.isEmpty(tableCheckQuery) ? null : tableCheckQuery;
     }
 
     @Override
