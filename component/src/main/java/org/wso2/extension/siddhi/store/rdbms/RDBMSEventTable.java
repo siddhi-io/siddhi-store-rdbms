@@ -81,6 +81,7 @@ import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANN
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_JNDI_RESOURCE;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_PASSWORD;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_POOL_PROPERTIES;
+import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_CHECK_QUERY;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_NAME;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_URL;
 import static org.wso2.extension.siddhi.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_USERNAME;
@@ -202,7 +203,17 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                                 "type is considered.",
                         type = {DataType.STRING},
                         optional = true,
-                        defaultValue = "null")
+                        defaultValue = "null"),
+                @Parameter(name = "table.check.query",
+                        description = "This query will be used to check whether the table is exist in the given " +
+                                "database. But the provided query should return an SQLException if the table does " +
+                                "not exist in the database. Furthermore if the provided table is a database view, " +
+                                "and it is not exists in the database a table from given name will be created in the " +
+                                "database",
+                        type = {DataType.STRING},
+                        optional = true,
+                        defaultValue = "The tableCheckQuery which define in store rdbms configs"
+                )
         },
         examples = {
                 @Example(
@@ -222,6 +233,26 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
                         syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
                                 "username=\"root\", password=\"root\" , jdbc.driver.name=\"org.h2.Driver\"," +
                                 "field.length=\"symbol:100\")\n" +
+                                "@PrimaryKey(\"symbol\")\n" +
+                                "@Index(\"symbol\")\n" +
+                                "define table StockTable (symbol string, price float, volume long);\n" +
+                                "define stream InputStream (symbol string, volume long);\n" +
+                                "from InputStream as a join StockTable as b on str:contains(b.symbol, a.symbol)\n" +
+                                "select a.symbol as symbol, b.volume as volume\n" +
+                                "insert into FooStream;",
+                        description = "The above example creates an event table named 'StockTable' in the database if" +
+                                " it does not already exist (with three attributes named 'symbol', 'price', and " +
+                                "'volume' of the types 'string', 'float' and 'long' respectively). Then the table is " +
+                                "joined with a stream named 'InputStream' based on a condition. The following " +
+                                "operations are included in the condition:\n" +
+                                "[ AND, OR, Comparisons( <  <=  >  >=  == !=), IS NULL, " +
+                                "NOT, str:contains(Table<Column>, Stream<Attribute> or Search.String)]"
+                ),
+                @Example(
+                        syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                                "table.name=\"StockTable\", username=\"root\", password=\"root\" , jdbc.driver" +
+                                ".name=\"org.h2.Driver\", field.length=\"symbol:100\", table.check" +
+                                ".query=\"SELECT 1 FROM StockTable LIMIT 1\")\n" +
                                 "@PrimaryKey(\"symbol\")\n" +
                                 "@Index(\"symbol\")\n" +
                                 "define table StockTable (symbol string, price float, volume long);\n" +
@@ -582,6 +613,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
         String tableName = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_NAME);
         this.tableName = RDBMSTableUtils.isEmpty(tableName) ? tableDefinition.getId() : tableName;
+        String tableCheckQuery = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_CHECK_QUERY);
+        this.tableCheckQuery = RDBMSTableUtils.isEmpty(tableCheckQuery) ? null : tableCheckQuery;
     }
 
     @Override
@@ -1169,9 +1202,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     recordUpdateQuery = this.resolveTableName(configReader.readConfig(
                             this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_UPDATE_QUERY,
                             this.queryConfigurationEntry.getRecordUpdateQuery()));
-                    tableCheckQuery = this.resolveTableName(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CHECK_QUERY,
-                            this.queryConfigurationEntry.getTableCheckQuery()));
+                    if (tableCheckQuery == null) {
+                        tableCheckQuery = this.resolveTableName(configReader.readConfig(
+                                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CHECK_QUERY,
+                                this.queryConfigurationEntry.getTableCheckQuery()));
+                    }
                     createQuery = this.resolveTableName(configReader.readConfig(
                             this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CREATE_QUERY,
                             this.queryConfigurationEntry.getTableCreateQuery()));
@@ -1745,8 +1780,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         RDBMSCompiledCondition rdbmsCompiledCondition = (RDBMSCompiledCondition) compiledCondition;
         boolean containsConditionExist = rdbmsCompiledCondition.isContainsConditionExist();
         if (containsConditionExist) {
-                rdbmsCompiledCondition.setCompiledQuery(processFindConditionWithContainsConditionTemplate(
-                        rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate));
+            rdbmsCompiledCondition.setCompiledQuery(processFindConditionWithContainsConditionTemplate(
+                    rdbmsCompiledCondition.getCompiledQuery(), this.recordContainsConditionTemplate));
         }
 
         if ("?".equals(rdbmsCompiledCondition.getCompiledQuery())) {
@@ -2055,15 +2090,15 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     compiledSelectionList.append(compiledCondition).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                     if (!isLastFunctionEncountered) {
-                            //Only add max variable for incrementalAggregator:last() once
+                        //Only add max variable for incrementalAggregator:last() once
                         compiledSubSelectQuerySelection.append(visitor.returnMaxVariableCondition()).append(SEPARATOR);
                         compiledOuterOnCondition.append(visitor.getOuterCompiledCondition()).append(SQL_AND);
                         isLastFunctionEncountered = true;
                     }
                 } else if (visitor.isContainsAttributeFunction()) {
-                        //Add columns with attributes function such as sum(), max()
-                        //Add max(variable) by default since oracle all columns not in group by must have
-                        // attribute function
+                    //Add columns with attributes function such as sum(), max()
+                    //Add max(variable) by default since oracle all columns not in group by must have
+                    // attribute function
                     compiledSelectionList.append(SQL_MAX).append(OPEN_PARENTHESIS)
                             .append(SUB_SELECT_QUERY_REF).append(".").append(selectAttributeBuilder.getRename())
                             .append(CLOSE_PARENTHESIS).append(SQL_AS)

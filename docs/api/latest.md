@@ -184,7 +184,7 @@ insert into recordStream;
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@Store(type="rdbms", jdbc.url="<STRING>", username="<STRING>", password="<STRING>", jdbc.driver.name="<STRING>", pool.properties="<STRING>", jndi.resource="<STRING>", datasource="<STRING>", table.name="<STRING>", field.length="<STRING>")
+@Store(type="rdbms", jdbc.url="<STRING>", username="<STRING>", password="<STRING>", jdbc.driver.name="<STRING>", pool.properties="<STRING>", jndi.resource="<STRING>", datasource="<STRING>", table.name="<STRING>", field.length="<STRING>", table.check.query="<STRING>")
 @PrimaryKey("PRIMARY_KEY")
 @Index("INDEX")
 ```
@@ -267,6 +267,14 @@ insert into recordStream;
         <td style="vertical-align: top">field.length</td>
         <td style="vertical-align: top; word-wrap: break-word">The number of characters that the values for fields of the 'STRING' type in the table definition must contain. Each required field must be provided as a comma-separated list of key-value pairs in the '&lt;field.name&gt;:&lt;length&gt;' format. If this is not specified, the default number of characters specific to the database type is considered.</td>
         <td style="vertical-align: top">null</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">table.check.query</td>
+        <td style="vertical-align: top; word-wrap: break-word">This query will be used to check whether the table is exist in the given database. But the provided query should return an SQLException if the table does not exist in the database. Furthermore if the provided table is a database view, and it is not exists in the database a table from given name will be created in the database</td>
+        <td style="vertical-align: top">The tableCheckQuery which define in store rdbms configs</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
