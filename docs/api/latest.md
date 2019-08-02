@@ -1,4 +1,4 @@
-# API Docs - v4.0.52
+# API Docs - v4.0.53-SNAPSHOT
 
 ## Rdbms
 
@@ -184,7 +184,7 @@ insert into recordStream;
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@Store(type="rdbms", jdbc.url="<STRING>", username="<STRING>", password="<STRING>", jdbc.driver.name="<STRING>", pool.properties="<STRING>", jndi.resource="<STRING>", datasource="<STRING>", table.name="<STRING>", field.length="<STRING>", use.collation="<BOOL>", table.check.query="<STRING>")
+@Store(type="rdbms", jdbc.url="<STRING>", username="<STRING>", password="<STRING>", jdbc.driver.name="<STRING>", pool.properties="<STRING>", jndi.resource="<STRING>", datasource="<STRING>", table.name="<STRING>", field.length="<STRING>", table.check.query="<STRING>")
 @PrimaryKey("PRIMARY_KEY")
 @Index("INDEX")
 ```
@@ -271,14 +271,14 @@ insert into recordStream;
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
-     <tr>
-            <td style="vertical-align: top">table.check.query</td>
-            <td style="vertical-align: top; word-wrap: break-word">This query will be used to check whether the table is exist in the given database. But the provided query should return an SQLException if the table does not exist in the database. Furthermore if the provided table is a database view, and it is not exists in the database a table from given name will be created in the database</td>
-            <td style="vertical-align: top">The tableCheckQuery which define in store rdbms configs</td>
-            <td style="vertical-align: top">STRING</td>
-            <td style="vertical-align: top">Yes</td>
-            <td style="vertical-align: top">No</td>
-        </tr>
+    <tr>
+        <td style="vertical-align: top">table.check.query</td>
+        <td style="vertical-align: top; word-wrap: break-word">This query will be used to check whether the table is exist in the given database. But the provided query should return an SQLException if the table does not exist in the database. Furthermore if the provided table is a database view, and it is not exists in the database a table from given name will be created in the database</td>
+        <td style="vertical-align: top">The tableCheckQuery which define in store rdbms configs</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
 </table>
 
 <span id="system-parameters" class="md-typeset" style="display: block; font-weight: bold;">System Parameters</span>
@@ -432,7 +432,7 @@ insert into recordStream;
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-@Store(type="rdbms", jdbc.url="jdbc:mysql://localhost:3306/stocks", username="root", password="root", jdbc.driver.name="com.mysql.jdbc.Driver",field.length="symbol:100")
+@Store(type="rdbms", jdbc.url="jdbc:mysql://localhost:3306/das", username="root", password="root" , jdbc.driver.name="org.h2.Driver",field.length="symbol:100")
 @PrimaryKey("symbol")
 @Index("volume")
 define table StockTable (symbol string, price float, volume long);
