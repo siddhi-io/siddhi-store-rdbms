@@ -19,13 +19,13 @@ For information on <a target="_blank" href="https://siddhi.io/">Siddhi</a> and i
 
 ## Latest API Docs 
 
-Latest API Docs is <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.2">6.0.2</a>.
+Latest API Docs is <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.3">6.0.3</a>.
 
 ## Features
 
-* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.2/#cud-stream-processor">cud</a> *<a target="_blank" href="https://siddhi.io/en/v5.0/docs/query-guide/#stream-processor">(Stream Processor)</a>*<br><div style="padding-left: 1em;"><p>This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.<br></p></div>
-* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.2/#query-stream-processor">query</a> *<a target="_blank" href="https://siddhi.io/en/v5.0/docs/query-guide/#stream-processor">(Stream Processor)</a>*<br><div style="padding-left: 1em;"><p>This function performs SQL retrieval queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.</p></div>
-* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.2/#rdbms-store">rdbms</a> *<a target="_blank" href="https://siddhi.io/en/v5.0/docs/query-guide/#store">(Store)</a>*<br><div style="padding-left: 1em;"><p>This extension assigns data sources and connection instructions to event tables. It also implements read-write operations on connected datasources.</p></div>
+* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.3/#cud-stream-processor">cud</a> *(<a target="_blank" href="http://siddhi.io/en/v5.0/docs/query-guide/#stream-processor">Stream Processor</a>)*<br> <div style="padding-left: 1em;"><p>This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.<br></p></div>
+* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.3/#query-stream-processor">query</a> *(<a target="_blank" href="http://siddhi.io/en/v5.0/docs/query-guide/#stream-processor">Stream Processor</a>)*<br> <div style="padding-left: 1em;"><p>This function performs SQL retrieval queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.</p></div>
+* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.3/#rdbms-store">rdbms</a> *(<a target="_blank" href="http://siddhi.io/en/v5.0/docs/query-guide/#store">Store</a>)*<br> <div style="padding-left: 1em;"><p>This extension assigns data sources and connection instructions to event tables. It also implements read-write operations on connected datasources.</p></div>
 
 ## Dependencies 
 
