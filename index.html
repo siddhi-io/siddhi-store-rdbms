@@ -313,6 +313,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#running-integration-tests-in-docker-containersoptional" title="Running Integration tests in docker containers(Optional)" class="md-nav__link">
+    Running Integration tests in docker containers(Optional)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#support-and-contribution" title="Support and Contribution" class="md-nav__link">
     Support and Contribution
   </a>
@@ -357,6 +364,18 @@
   <li class="md-nav__item">
     <a href="api/latest/" title="latest" class="md-nav__link">
       latest
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="api/6.0.3/" title="6.0.3" class="md-nav__link">
+      6.0.3
     </a>
   </li>
 
@@ -1178,6 +1197,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#running-integration-tests-in-docker-containersoptional" title="Running Integration tests in docker containers(Optional)" class="md-nav__link">
+    Running Integration tests in docker containers(Optional)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#support-and-contribution" title="Support and Contribution" class="md-nav__link">
     Support and Contribution
   </a>
@@ -1218,17 +1244,133 @@
 <li>Versions 5.x and lower with group id <code>org.wso2.extension.siddhi.*</code> from <a target="_blank" href="https://mvnrepository.com/artifact/org.wso2.extension.siddhi.store.rdbms/siddhi-store-rdbms">here</a>.</li>
 </ul>
 <h2 id="latest-api-docs">Latest API Docs</h2>
-<p>Latest API Docs is <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.2">6.0.2</a>.</p>
+<p>Latest API Docs is <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.3">6.0.3</a>.</p>
 <h2 id="features">Features</h2>
 <ul>
-<li><a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.2/#cud-stream-processor">cud</a> <em><a target="_blank" href="https://siddhi.io/en/v5.0/docs/query-guide/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.<br></p></div></li>
-<li><a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.2/#query-stream-processor">query</a> <em><a target="_blank" href="https://siddhi.io/en/v5.0/docs/query-guide/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This function performs SQL retrieval queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.</p></div></li>
-<li><a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.2/#rdbms-store">rdbms</a> <em><a target="_blank" href="https://siddhi.io/en/v5.0/docs/query-guide/#store">(Store)</a></em><br><div style="padding-left: 1em;"><p>This extension assigns data sources and connection instructions to event tables. It also implements read-write operations on connected datasources.</p></div></li>
+<li><a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.3/#cud-stream-processor">cud</a> <em>(<a target="_blank" href="http://siddhi.io/en/v5.0/docs/query-guide/#stream-processor">Stream Processor</a>)</em><br> <div style="padding-left: 1em;"><p>This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.<br></p></div></li>
+<li><a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.3/#query-stream-processor">query</a> <em>(<a target="_blank" href="http://siddhi.io/en/v5.0/docs/query-guide/#stream-processor">Stream Processor</a>)</em><br> <div style="padding-left: 1em;"><p>This function performs SQL retrieval queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.</p></div></li>
+<li><a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.3/#rdbms-store">rdbms</a> <em>(<a target="_blank" href="http://siddhi.io/en/v5.0/docs/query-guide/#store">Store</a>)</em><br> <div style="padding-left: 1em;"><p>This extension assigns data sources and connection instructions to event tables. It also implements read-write operations on connected datasources.</p></div></li>
 </ul>
 <h2 id="dependencies">Dependencies</h2>
 <p>JDBC connector jar should be added to the runtime. Download the JDBC connector jar based on the RDBMS type that is connected through the Siddhi store. </p>
 <h2 id="installation">Installation</h2>
 <p>For installing this extension on various siddhi execution environments refer Siddhi documentation section on <a target="_blank" href="https://siddhi.io/redirect/add-extensions.html">adding extensions</a>.</p>
+<h2 id="running-integration-tests-in-docker-containersoptional">Running Integration tests in docker containers(Optional)</h2>
+<p>The RDBMS functionality are tested with the docker base integration test framework, except the H2 default 
+embedded database is not uses external docker container. The test framework initialize the docker container for each 
+database according to the given profile before execute the test suit.</p>
+<p><strong>Start integration tests</strong></p>
+<ol>
+<li>
+<p>Install and run docker in daemon mode.</p>
+<ul>
+<li>
+<p>Installing docker on Linux,<br>
+   Note:<br>    These commands retrieve content from get.docker.com web in a quiet output-document mode and install.</p>
+<pre><code>wget -qO- https://get.docker.com/ | sh
+</code></pre>
+</li>
+<li>
+<p>On installing docker on Mac, see <a target="_blank" href="https://docs.docker.com/docker-for-mac/">Get started with Docker for Mac</a></p>
+</li>
+<li>
+<p>On installing docker on Windows, see <a target="_blank" href="https://docs.docker.com/docker-for-windows/">Get started with Docker for Windows</a></p>
+</li>
+</ul>
+</li>
+<li>
+<p>To run the integration test, navigate to the siddhi-store-rdbms/ directory and issue the following commands.</p>
+<ul>
+<li>
+<p>H2 default:</p>
+<pre><code>mvn clean install
+</code></pre>
+<p><strong>Note</strong> : h2 is the default activated profile as it is not used docker.</p>
+</li>
+<li>
+<p>MySQL 5.7:</p>
+<pre><code>mvn verify -P local-mysql -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+</code></pre>
+</li>
+<li>
+<p>Postgres 9.6:</p>
+<pre><code> mvn verify -P local-postgres -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+</code></pre>
+</li>
+<li>
+<p>MSSQL CTP 2.0:</p>
+<pre><code>mvn verify -P local-mssql -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+</code></pre>
+</li>
+<li>
+<p>Oracle 11.2.0.2 Express Edition:</p>
+<pre><code> mvn verify -P local-oracle -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+</code></pre>
+</li>
+<li>
+<p>Oracle 12.1.0.2 Standard Edition:</p>
+<ul>
+<li>
+<p>Download Oracle driver version 12.1.0.2 <a target="_blank" href="https://www.oracle.com/technetwork/database/features/jdbc/default-2280470.html">ojdbc7.jar</a></p>
+</li>
+<li>
+<p>To install the JAR file as a Maven plugin, issue the following command:</p>
+<pre><code>  mvn install:install-file -Dfile=/tmp/ojdbc7.jar -DgroupId=com.oracle -DartifactId=ojdbc7 -Dversion=12.1.0.2 -Dpackaging=jar
+</code></pre>
+</li>
+<li>
+<p>Uncomment the following test dependency in the /component/pom.xml file as shown below:</p>
+<pre><code>  &lt;dependency&gt;
+     &lt;groupId&gt;com.oracle&lt;/groupId&gt;
+     &lt;artifactId&gt;ojdbc7&lt;/artifactId&gt;
+     &lt;scope&gt;test&lt;/scope&gt;
+     &lt;version&gt;12.1.0.2&lt;/version&gt;
+  &lt;/dependency&gt;
+</code></pre>
+</li>
+<li>
+<p>To run the integration test, navigate to siddhi-store-rdbms/ directory and issue the following commands:</p>
+<pre><code>  mvn verify -P local-oracle12 -f component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>DB2</p>
+<ul>
+<li>
+<p>Download DB2 driver version 4.19.26 <a target="_blank" href="http://www.ibm.com/eserver/support/fixes/fixcentral/swg/quickorder?brandid=1&productid=IBM+Data+Server+Client+Packages&vrmf=10.5.*&fixes=*jdbc*FP005">db2jcc4.jar</a></p>
+</li>
+<li>
+<p>To install the JAR file as a Maven plugin, issue the following command:</p>
+<pre><code> mvn install:install-file -Dfile=/tmp/db2jcc4.jar -DgroupId=com.ibm.db2 -DartifactId=db2jcc -Dversion=4.19.26 -Dpackaging=jar
+</code></pre>
+</li>
+<li>
+<p>Uncomment the following test dependency in the /component/pom.xml file as shown below:</p>
+<pre><code> &lt;dependency&gt;
+   &lt;groupId&gt;com.ibm.db2&lt;/groupId&gt;
+  &lt;artifactId&gt;db2jcc&lt;/artifactId&gt;
+   &lt;scope&gt;test&lt;/scope&gt;
+   &lt;version&gt;4.19.26&lt;/version&gt;
+ &lt;/dependency&gt;
+</code></pre>
+</li>
+<li>
+<p>To run the integration test, navigate to siddhi-store-rdbms/ directory and issue the following commands:</p>
+<pre><code> mvn verify -P local-db2 -f /component/pom.xml -Dskip.surefire.test=true -Ddocker.removeVolumes=true
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>Start integration tests in debug mode</strong></p>
+<pre><code>mvn -P local-mysql -Dmaven.failsafe.debug verify
+Note: local-mysql is the profile. Use other profiles accordingly.
+</code></pre>
+
 <h2 id="support-and-contribution">Support and Contribution</h2>
 <ul>
 <li>
