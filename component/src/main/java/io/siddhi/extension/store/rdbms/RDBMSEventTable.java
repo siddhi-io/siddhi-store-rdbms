@@ -1177,140 +1177,140 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         this.initializeDatasource(storeAnnotation);
                     }
                 }
-                if (this.queryConfigurationEntry == null) {
-                    this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource,
-                            this.configReader);
-                    selectQuery = this.resolveTableName(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_SELECT_QUERY,
-                            this.queryConfigurationEntry.getRecordSelectQuery()));
-                    containsQuery = this.resolveTableName(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_EXISTS_QUERY,
-                            this.queryConfigurationEntry.getRecordExistsQuery()));
-                    deleteQuery = this.resolveTableName(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_DELETE_QUERY,
-                            this.queryConfigurationEntry.getRecordDeleteQuery()));
-                    batchSize = Integer.parseInt(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
-                            String.valueOf(this.queryConfigurationEntry.getBatchSize())));
-                    fieldSizeLimit = Integer.parseInt(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + FIELD_SIZE_LIMIT,
-                            String.valueOf(this.queryConfigurationEntry.getFieldSizeLimit())));
-                    insertQuery = this.resolveTableName(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_INSERT_QUERY,
-                            this.queryConfigurationEntry.getRecordInsertQuery()));
-                    insertQuery = this.insertColumnNames();
-                    recordUpdateQuery = this.resolveTableName(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_UPDATE_QUERY,
-                            this.queryConfigurationEntry.getRecordUpdateQuery()));
-                    if (tableCheckQuery == null) {
-                        tableCheckQuery = this.resolveTableName(configReader.readConfig(
-                                this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CHECK_QUERY,
-                                this.queryConfigurationEntry.getTableCheckQuery()));
-                    }
-                    createQuery = this.resolveTableName(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CREATE_QUERY,
-                            this.queryConfigurationEntry.getTableCreateQuery()));
-                    indexQuery = this.resolveTableName(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + INDEX_CREATE_QUERY,
-                            this.queryConfigurationEntry.getIndexCreateQuery()));
-                    batchEnable = Boolean.parseBoolean(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
-                                    BATCH_ENABLE, String.valueOf(this.queryConfigurationEntry.getBatchEnable())));
-                    transactionSupported = Boolean.parseBoolean(configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
-                                    TRANSACTION_SUPPORTED, String.valueOf(
-                                    this.queryConfigurationEntry.isTransactionSupported())));
-                    RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRdbmsTypeMapping();
-                    booleanType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BOOLEAN_TYPE,
-                            typeMapping.getBooleanType());
-                    doubleType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + DOUBLE_TYPE,
-                            typeMapping.getDoubleType());
-                    floatType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + FLOAT_TYPE,
-                            typeMapping.getFloatType());
-                    integerType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + INTEGER_TYPE,
-                            typeMapping.getIntegerType());
-                    longType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + LONG_TYPE,
-                            typeMapping.getLongType());
-                    binaryType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BINARY_TYPE,
-                            typeMapping.getBinaryType());
-                    stringType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + STRING_TYPE,
-                            typeMapping.getStringType());
-                    bigStringType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BIG_STRING_TYPE,
-                            typeMapping.getBigStringType());
-                    stringSize = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + STRING_SIZE,
-                            this.queryConfigurationEntry.getStringSize());
-                    recordContainsConditionTemplate = configReader.readConfig(
-                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
-                                    RECORD_CONTAINS_CONDITION, this.queryConfigurationEntry.
-                                    getRecordContainsCondition()).replace(PLACEHOLDER_VALUES, QUESTION_MARK);
-
-                    RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate =
-                            this.queryConfigurationEntry.getRdbmsSelectQueryTemplate();
-                    this.rdbmsSelectQueryTemplate = new RDBMSSelectQueryTemplate();
-
-                    this.rdbmsSelectQueryTemplate.setSelectClause(resolveTableName(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                    + SELECT_CLAUSE, rdbmsSelectQueryTemplate.getSelectClause())));
-                    this.rdbmsSelectQueryTemplate.setSelectQueryWithSubSelect(resolveTableName(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                            PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                            + SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE,
-                                    rdbmsSelectQueryTemplate.getSelectQueryWithSubSelect())));
-                    this.rdbmsSelectQueryTemplate.setWhereClause(resolveTableName(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                    + WHERE_CLAUSE, rdbmsSelectQueryTemplate.getWhereClause())));
-                    this.rdbmsSelectQueryTemplate.setGroupByClause(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                    + GROUP_BY_CLAUSE, rdbmsSelectQueryTemplate.getGroupByClause()));
-                    this.rdbmsSelectQueryTemplate.setHavingClause(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                    + HAVING_CLAUSE, rdbmsSelectQueryTemplate.getHavingClause()));
-                    this.rdbmsSelectQueryTemplate.setOrderByClause(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                    + ORDER_BY_CLAUSE, rdbmsSelectQueryTemplate.getOrderByClause()));
-                    this.rdbmsSelectQueryTemplate.setLimitClause(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                    + LIMIT_CLAUSE, rdbmsSelectQueryTemplate.getLimitClause()));
-                    this.rdbmsSelectQueryTemplate.setOffsetClause(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                    PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                    + OFFSET_CLAUSE, rdbmsSelectQueryTemplate.getOffsetClause()));
-                    this.rdbmsSelectQueryTemplate.setIsLimitBeforeOffset(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                            PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                            + IS_LIMIT_BEFORE_OFFSET,
-                                    rdbmsSelectQueryTemplate.getIsLimitBeforeOffset()));
-                    this.rdbmsSelectQueryTemplate.setQueryWrapperClause(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                            PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                            + QUERY_WRAPPER_CLAUSE,
-                                    rdbmsSelectQueryTemplate.getQueryWrapperClause()));
-                    this.rdbmsSelectQueryTemplate.setLimitWrapperClause(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                            PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                            + LIMIT_WRAPPER_CLAUSE,
-                                    rdbmsSelectQueryTemplate.getLimitWrapperClause()));
-                    this.rdbmsSelectQueryTemplate.setOffsetWrapperClause(
-                            configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
-                                            PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
-                                            + OFFSET_WRAPPER_CLAUSE,
-                                    rdbmsSelectQueryTemplate.getOffsetWrapperClause()));
+            }
+            if (this.queryConfigurationEntry == null) {
+                this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource,
+                        this.configReader);
+                selectQuery = this.resolveTableName(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_SELECT_QUERY,
+                        this.queryConfigurationEntry.getRecordSelectQuery()));
+                containsQuery = this.resolveTableName(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_EXISTS_QUERY,
+                        this.queryConfigurationEntry.getRecordExistsQuery()));
+                deleteQuery = this.resolveTableName(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_DELETE_QUERY,
+                        this.queryConfigurationEntry.getRecordDeleteQuery()));
+                batchSize = Integer.parseInt(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + BATCH_SIZE,
+                        String.valueOf(this.queryConfigurationEntry.getBatchSize())));
+                fieldSizeLimit = Integer.parseInt(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + FIELD_SIZE_LIMIT,
+                        String.valueOf(this.queryConfigurationEntry.getFieldSizeLimit())));
+                insertQuery = this.resolveTableName(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_INSERT_QUERY,
+                        this.queryConfigurationEntry.getRecordInsertQuery()));
+                insertQuery = this.insertColumnNames();
+                recordUpdateQuery = this.resolveTableName(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + RECORD_UPDATE_QUERY,
+                        this.queryConfigurationEntry.getRecordUpdateQuery()));
+                if (tableCheckQuery == null) {
+                    tableCheckQuery = this.resolveTableName(configReader.readConfig(
+                            this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CHECK_QUERY,
+                            this.queryConfigurationEntry.getTableCheckQuery()));
                 }
+                createQuery = this.resolveTableName(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + TABLE_CREATE_QUERY,
+                        this.queryConfigurationEntry.getTableCreateQuery()));
+                indexQuery = this.resolveTableName(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR + INDEX_CREATE_QUERY,
+                        this.queryConfigurationEntry.getIndexCreateQuery()));
+                batchEnable = Boolean.parseBoolean(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
+                                BATCH_ENABLE, String.valueOf(this.queryConfigurationEntry.getBatchEnable())));
+                transactionSupported = Boolean.parseBoolean(configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
+                                TRANSACTION_SUPPORTED, String.valueOf(
+                                this.queryConfigurationEntry.isTransactionSupported())));
+                RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRdbmsTypeMapping();
+                booleanType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BOOLEAN_TYPE,
+                        typeMapping.getBooleanType());
+                doubleType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + DOUBLE_TYPE,
+                        typeMapping.getDoubleType());
+                floatType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + FLOAT_TYPE,
+                        typeMapping.getFloatType());
+                integerType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + INTEGER_TYPE,
+                        typeMapping.getIntegerType());
+                longType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + LONG_TYPE,
+                        typeMapping.getLongType());
+                binaryType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BINARY_TYPE,
+                        typeMapping.getBinaryType());
+                stringType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + STRING_TYPE,
+                        typeMapping.getStringType());
+                bigStringType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BIG_STRING_TYPE,
+                        typeMapping.getBigStringType());
+                stringSize = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + STRING_SIZE,
+                        this.queryConfigurationEntry.getStringSize());
+                recordContainsConditionTemplate = configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
+                                RECORD_CONTAINS_CONDITION, this.queryConfigurationEntry.
+                                getRecordContainsCondition()).replace(PLACEHOLDER_VALUES, QUESTION_MARK);
+
+                RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate =
+                        this.queryConfigurationEntry.getRdbmsSelectQueryTemplate();
+                this.rdbmsSelectQueryTemplate = new RDBMSSelectQueryTemplate();
+
+                this.rdbmsSelectQueryTemplate.setSelectClause(resolveTableName(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                + SELECT_CLAUSE, rdbmsSelectQueryTemplate.getSelectClause())));
+                this.rdbmsSelectQueryTemplate.setSelectQueryWithSubSelect(resolveTableName(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                        PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                        + SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE,
+                                rdbmsSelectQueryTemplate.getSelectQueryWithSubSelect())));
+                this.rdbmsSelectQueryTemplate.setWhereClause(resolveTableName(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                + WHERE_CLAUSE, rdbmsSelectQueryTemplate.getWhereClause())));
+                this.rdbmsSelectQueryTemplate.setGroupByClause(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                + GROUP_BY_CLAUSE, rdbmsSelectQueryTemplate.getGroupByClause()));
+                this.rdbmsSelectQueryTemplate.setHavingClause(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                + HAVING_CLAUSE, rdbmsSelectQueryTemplate.getHavingClause()));
+                this.rdbmsSelectQueryTemplate.setOrderByClause(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                + ORDER_BY_CLAUSE, rdbmsSelectQueryTemplate.getOrderByClause()));
+                this.rdbmsSelectQueryTemplate.setLimitClause(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                + LIMIT_CLAUSE, rdbmsSelectQueryTemplate.getLimitClause()));
+                this.rdbmsSelectQueryTemplate.setOffsetClause(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                + OFFSET_CLAUSE, rdbmsSelectQueryTemplate.getOffsetClause()));
+                this.rdbmsSelectQueryTemplate.setIsLimitBeforeOffset(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                        PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                        + IS_LIMIT_BEFORE_OFFSET,
+                                rdbmsSelectQueryTemplate.getIsLimitBeforeOffset()));
+                this.rdbmsSelectQueryTemplate.setQueryWrapperClause(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                        PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                        + QUERY_WRAPPER_CLAUSE,
+                                rdbmsSelectQueryTemplate.getQueryWrapperClause()));
+                this.rdbmsSelectQueryTemplate.setLimitWrapperClause(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                        PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                        + LIMIT_WRAPPER_CLAUSE,
+                                rdbmsSelectQueryTemplate.getLimitWrapperClause()));
+                this.rdbmsSelectQueryTemplate.setOffsetWrapperClause(
+                        configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
+                                        PROPERTY_SEPARATOR + SELECT_QUERY_TEMPLATE + PROPERTY_SEPARATOR
+                                        + OFFSET_WRAPPER_CLAUSE,
+                                rdbmsSelectQueryTemplate.getOffsetWrapperClause()));
             }
             if (!this.tableExists()) {
                 this.createTable(storeAnnotation, primaryKeys, indices);
@@ -1937,7 +1937,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             }
 
             if (isContainsLastFunction) {
-                    return getQueryWithSubSelectors(rdbmsCompiledSelection, selectors, queryWrapperClause);
+                return getQueryWithSubSelectors(rdbmsCompiledSelection, selectors, queryWrapperClause);
             }
             return queryWrapperClause;
         } else {
@@ -1999,7 +1999,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             }
 
             if (isContainsLastFunction) {
-                    return getQueryWithSubSelectors(rdbmsCompiledSelection, selectors, selectQuery.toString());
+                return getQueryWithSubSelectors(rdbmsCompiledSelection, selectors, selectQuery.toString());
             }
 
             return selectQuery.toString();
@@ -2009,37 +2009,37 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     private String getQueryWithSubSelectors(RDBMSCompiledSelection rdbmsCompiledSelection, String selectors,
                                             String selectQuery) {
-            String selectQueryWithSubSelect = rdbmsSelectQueryTemplate.getSelectQueryWithSubSelect();
-            if (selectQueryWithSubSelect == null || selectQueryWithSubSelect.isEmpty()) {
-                    throw new QueryableRecordTableException("incrementalAggregator:last() is used in the query but " +
-                            "'selectQueryWithSubSelect' has not being configured in RDBMS Event Table query " +
-                            "configuration, for store: " + tableName);
-            }
-            String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
-            if (whereClause == null || whereClause.isEmpty()) {
-                    throw new QueryableRecordTableException("Where clause is present in query but 'whereClause' " +
-                            "has not being configured in RDBMS Event Table query configuration, for store: "
-                            + tableName);
-            }
+        String selectQueryWithSubSelect = rdbmsSelectQueryTemplate.getSelectQueryWithSubSelect();
+        if (selectQueryWithSubSelect == null || selectQueryWithSubSelect.isEmpty()) {
+            throw new QueryableRecordTableException("incrementalAggregator:last() is used in the query but " +
+                    "'selectQueryWithSubSelect' has not being configured in RDBMS Event Table query " +
+                    "configuration, for store: " + tableName);
+        }
+        String whereClause = rdbmsSelectQueryTemplate.getWhereClause();
+        if (whereClause == null || whereClause.isEmpty()) {
+            throw new QueryableRecordTableException("Where clause is present in query but 'whereClause' " +
+                    "has not being configured in RDBMS Event Table query configuration, for store: "
+                    + tableName);
+        }
 
-            selectQueryWithSubSelect = selectQueryWithSubSelect
-                    .replace(PLACEHOLDER_SELECTORS, selectors)
-                    .replace(PLACEHOLDER_INNER_QUERY, selectQuery);
+        selectQueryWithSubSelect = selectQueryWithSubSelect
+                .replace(PLACEHOLDER_SELECTORS, selectors)
+                .replace(PLACEHOLDER_INNER_QUERY, selectQuery);
 
-            whereClause = whereClause.replace(PLACEHOLDER_CONDITION,
-                    rdbmsCompiledSelection.getCompiledSelectClause().getOuterCompiledCondition());
+        whereClause = whereClause.replace(PLACEHOLDER_CONDITION,
+                rdbmsCompiledSelection.getCompiledSelectClause().getOuterCompiledCondition());
 
-            selectQueryWithSubSelect = selectQueryWithSubSelect + WHITESPACE + whereClause;
+        selectQueryWithSubSelect = selectQueryWithSubSelect + WHITESPACE + whereClause;
 
-            RDBMSCompiledCondition compiledGroupByClause = rdbmsCompiledSelection.getCompiledGroupByClause();
-            String groupByClause = rdbmsSelectQueryTemplate.getGroupByClause();
-            if (compiledGroupByClause != null) {
-                    groupByClause = groupByClause.replace(PLACEHOLDER_COLUMNS,
-                            compiledGroupByClause.getCompiledQuery());
-                    selectQueryWithSubSelect = selectQueryWithSubSelect + WHITESPACE + groupByClause;
-            }
+        RDBMSCompiledCondition compiledGroupByClause = rdbmsCompiledSelection.getCompiledGroupByClause();
+        String groupByClause = rdbmsSelectQueryTemplate.getGroupByClause();
+        if (compiledGroupByClause != null) {
+            groupByClause = groupByClause.replace(PLACEHOLDER_COLUMNS,
+                    compiledGroupByClause.getCompiledQuery());
+            selectQueryWithSubSelect = selectQueryWithSubSelect + WHITESPACE + groupByClause;
+        }
 
-            return selectQueryWithSubSelect;
+        return selectQueryWithSubSelect;
     }
 
     @Override
@@ -2067,14 +2067,14 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
         boolean containsLastFunction = false;
         List<RDBMSConditionVisitor> conditionVisitorList = new ArrayList<>();
-            for (SelectAttributeBuilder attributeBuilder : selectAttributeBuilders) {
-                    RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
-                    attributeBuilder.getExpressionBuilder().build(visitor);
-                    if (visitor.isLastConditionExist()) {
-                            containsLastFunction = true;
-                    }
-                    conditionVisitorList.add(visitor);
+        for (SelectAttributeBuilder attributeBuilder : selectAttributeBuilders) {
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
+            attributeBuilder.getExpressionBuilder().build(visitor);
+            if (visitor.isLastConditionExist()) {
+                containsLastFunction = true;
             }
+            conditionVisitorList.add(visitor);
+        }
 
         boolean isLastFunctionEncountered = false;
         for (int i = 0; i < conditionVisitorList.size(); i++) {
@@ -2103,7 +2103,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             .append(CLOSE_PARENTHESIS).append(SQL_AS)
                             .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                     compiledSubSelectQuerySelection.append(compiledCondition).append(SQL_AS)
-                                .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
+                            .append(selectAttributeBuilder.getRename()).append(SEPARATOR);
                 } else {
                     // Add group by column
                     compiledSelectionList.append(compiledCondition).append(SQL_AS)
