@@ -26,14 +26,15 @@ extra:
   - type: linkedin
     link: https://www.linkedin.com/groups/13553064
 markdown_extensions:
-  - admonition
-  - codehilite:
-      guess_lang: false
-  - toc:
-      permalink: true
+- admonition
+- codehilite:
+    guess_lang: false
+- toc:
+    permalink: true
 pages:
 - Welcome: index.md
 - API Docs:
+  - 4.0.53: api/4.0.53.md
   - 4.0.52: api/4.0.52.md
   - 4.0.49: api/4.0.49.md
   - 4.0.48: api/4.0.48.md
