@@ -376,7 +376,7 @@ public class LatestAggregationTestCaseIT {
         }
     }
 
-    @Test(dependsOnMethods = "latestTestCase3")
+    @Test(dependsOnMethods = "latestTestCase3", enabled = false)
     public void latestTestCase4() throws InterruptedException {
         LOG.info("latestTestCase4: testing latest incremental aggregator - different group by");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -466,7 +466,7 @@ public class LatestAggregationTestCaseIT {
         }
     }
 
-    @Test(dependsOnMethods = {"latestTestCase4"})
+    @Test(dependsOnMethods = {"latestTestCase3"})
     public void latestTestCase5() throws InterruptedException {
         LOG.info("latestTestCase5");
         SiddhiManager siddhiManager = new SiddhiManager();
