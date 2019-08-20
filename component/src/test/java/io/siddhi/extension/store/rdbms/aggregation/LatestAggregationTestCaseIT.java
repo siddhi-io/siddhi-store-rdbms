@@ -400,7 +400,7 @@ public class LatestAggregationTestCaseIT {
                 "from inputStream as i join stockAggregation as s " +
                 "within 1496200000000L, 1596535449000L " +
                 "per \"seconds\" " +
-                "select s.symbol, s.latestPrice, sum(s.avgPrice) as totalAvg " +
+                "select s.symbol, s.latestPrice " +
                 "group by s.symbol " +
                 "order by AGG_TIMESTAMP " +
                 "insert all events into outputStream; ";
@@ -450,9 +450,9 @@ public class LatestAggregationTestCaseIT {
             Thread.sleep(100);
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"WSO22", 750f, 65.0},
-                    new Object[]{"WSO24", 1600f, 80.0},
-                    new Object[]{"IBM1", 3500f, 801.5}
+                    new Object[]{"WSO22", 750f},
+                    new Object[]{"WSO24", 1600f},
+                    new Object[]{"IBM1", 3500f}
             );
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 10000);
 
