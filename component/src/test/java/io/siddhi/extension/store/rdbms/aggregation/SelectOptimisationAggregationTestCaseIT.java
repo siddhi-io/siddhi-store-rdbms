@@ -1284,13 +1284,13 @@ public class SelectOptimisationAggregationTestCaseIT {
 
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +
-
                 "@info(name = 'query1') " +
-                "from inputStream as i join stockAggregation  " +
-                "on i.symbol == stockAggregation.symbol " +
+                "from inputStream join stockAggregation  " +
+                "on inputStream.symbol == stockAggregation.symbol " +
                 "within \"2017-06-01 04:05:**\" " +
                 "per \"seconds\" " +
-                "select AGG_TIMESTAMP, stockAggregation.avgPrice, totalPrice, lastTradeValue, count " +
+                "select stockAggregation.symbol, sum(totalPrice) as totalPrice " +
+                "group by stockAggregation.symbol " +
                 "order by AGG_TIMESTAMP " +
                 "insert all events into outputStream; ";
 
@@ -1340,15 +1340,11 @@ public class SelectOptimisationAggregationTestCaseIT {
                     "2017-06-01 09:35:52 +05:30", "seconds"});
             Thread.sleep(100);
 
-            List<Object[]> expected = Arrays.asList(
-                    new Object[]{1496289946000L, 400.0, 400.0, 3600f, 1L},
-                    new Object[]{1496289947000L, 700.0, 1400.0, 3500f, 2L},
-                    new Object[]{1496289948000L, 100.0, 200.0, 9600f, 2L}
-            );
-            SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
+            SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
             AssertJUnit.assertTrue("Event arrived", eventArrived);
-            AssertJUnit.assertEquals("Number of success events", 3, inEventCount.get());
-            AssertJUnit.assertTrue("In events matched", SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 1, inEventCount.get());
+            AssertJUnit.assertEquals("In events matched", "IBM", inEventsList.get(0)[0]);
+            AssertJUnit.assertEquals("In events matched", 2000.0, inEventsList.get(0)[1]);
         } finally {
             siddhiAppRuntime.shutdown();
         }
