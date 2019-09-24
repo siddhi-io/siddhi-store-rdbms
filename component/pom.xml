@@ -101,6 +101,11 @@
             <artifactId>ojdbc6</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.siddhi.extension.execution.string</groupId>
+            <artifactId>siddhi-execution-string</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!--<dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc7</artifactId>

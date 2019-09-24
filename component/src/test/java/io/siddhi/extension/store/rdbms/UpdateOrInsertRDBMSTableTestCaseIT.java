@@ -1298,6 +1298,139 @@ public class UpdateOrInsertRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
+
+    @Test
+    public void updateOrInsertTableTest19() throws InterruptedException, SQLException {
+        log.info("updateOrInsertTableTest19");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream UpdateStockStream (symbol string, price int, volume long); " +
+                "define stream SearchStream (symbol string); " +
+                "" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
+                "define table StockTable (symbol string, price int, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from UpdateStockStream " +
+                "update or insert into StockTable " +
+                "   on StockTable.symbol == symbol ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from SearchStream#window.length(1) join StockTable on StockTable.symbol == SearchStream.symbol " +
+                "select StockTable.symbol as symbol, price, volume " +
+                "insert into OutStream;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+        InputHandler searchStream = siddhiAppRuntime.getInputHandler("SearchStream");
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", 155, 200L});
+                                break;
+                            case 2:
+                                Assert.assertEquals(event.getData(), new Object[]{"IBM", 155, 200L});
+                                break;
+                            default:
+                                Assert.assertSame(inEventCount, 2);
+                        }
+                    }
+                }
+            }
+
+        });
+        siddhiAppRuntime.start();
+        Event[] events = new Event[4];
+        events[0] = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55, 100L});
+        events[1] = new Event(System.currentTimeMillis(), new Object[]{"IBM", 55, 100L});
+        events[2] = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 155, 200L});
+        events[3] = new Event(System.currentTimeMillis(), new Object[]{"IBM", 155, 200L});
+        updateStockStream.send(events);
+        searchStream.send(new Object[]{"WSO2"});
+        searchStream.send(new Object[]{"IBM"});
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+
+        siddhiAppRuntime.shutdown();
+    }
+
+
+    @Test
+    public void updateOrInsertTableTest20() throws InterruptedException, SQLException {
+        log.info("updateOrInsertTableTest20");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream UpdateStockStream (symbol string, price int, volume long); " +
+                "define stream SearchStream (symbol string); " +
+                "" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\", pool.properties=\"maximumPoolSize:1\")\n" +
+                "@PrimaryKey(\"symbol\")" +
+                "define table StockTable (symbol string, price int, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from UpdateStockStream " +
+                "update or insert into StockTable " +
+                "   on StockTable.symbol == symbol ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from SearchStream#window.length(1) join StockTable on StockTable.symbol == SearchStream.symbol " +
+                "select StockTable.symbol as symbol, price, volume " +
+                "insert into OutStream;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
+        InputHandler searchStream = siddhiAppRuntime.getInputHandler("SearchStream");
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", 155, 200L});
+                                break;
+                            case 2:
+                                Assert.assertEquals(event.getData(), new Object[]{"IBM", 155, 200L});
+                                break;
+                            default:
+                                Assert.assertSame(inEventCount, 2);
+                        }
+                    }
+                }
+            }
+
+        });
+        siddhiAppRuntime.start();
+        Event[] events = new Event[4];
+        events[0] = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55, 100L});
+        events[1] = new Event(System.currentTimeMillis(), new Object[]{"IBM", 55, 100L});
+        events[2] = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 155, 200L});
+        events[3] = new Event(System.currentTimeMillis(), new Object[]{"IBM", 155, 200L});
+        updateStockStream.send(events);
+        searchStream.send(new Object[]{"WSO2"});
+        searchStream.send(new Object[]{"IBM"});
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+
+        siddhiAppRuntime.shutdown();
+    }
+
     private static void waitTillVariableCountMatches(long expected, Duration duration) {
         Awaitility.await().atMost(duration).until(() -> {
             return actualEventCount.get() == expected;
