@@ -27,6 +27,7 @@ import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.exception.CannotLoadConfigurationException;
 import io.siddhi.core.exception.ConnectionUnavailableException;
 import io.siddhi.core.exception.QueryableRecordTableException;
+import io.siddhi.core.executor.ExpressionExecutor;
 import io.siddhi.core.table.record.AbstractQueryableRecordTable;
 import io.siddhi.core.table.record.ExpressionBuilder;
 import io.siddhi.core.table.record.RecordIterator;
@@ -64,7 +65,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -551,7 +552,6 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String dataSourceName;
     private String tableName;
     private List<Attribute> attributes;
-    private List<Integer> primaryKeyAttributePositionsList;
     private ConfigReader configReader;
     private String jndiResourceName;
     private Annotation storeAnnotation;
@@ -580,8 +580,6 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String stringSize;
     private String recordContainsConditionTemplate;
     private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate;
-    private boolean primaryKeysEnabled;
-    private Map<String, Integer> nonDuplicateRecordIdMap = new LinkedHashMap<>();
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -589,17 +587,6 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
         primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
-        primaryKeyAttributePositionsList = new ArrayList<>();
-        if (primaryKeys != null) {
-            primaryKeysEnabled = true;
-            primaryKeys.getElements().forEach(elem -> {
-                for (int i = 0; i < this.attributes.size(); i++) {
-                    if (this.attributes.get(i).getName().equalsIgnoreCase(elem.getValue())) {
-                        primaryKeyAttributePositionsList.add(i);
-                    }
-                }
-            });
-        }
         indices = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX,
                 tableDefinition.getAnnotations());
         RDBMSTableUtils.validateAnnotation(primaryKeys);
@@ -855,26 +842,19 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     updateSetExpressions, updateSetParameterMaps);
         }
         if (!recordInsertIndexList.isEmpty()) {
-            //Batch process the non-existing records by inserting into the table.
-            //Returns the retry update list, if there are any events to update after the non-existing
-            // insertion process.
-            List<Integer> retryUpdateOrdinalList = batchProcessInsert(addingRecords, recordInsertIndexList);
-            if (!retryUpdateOrdinalList.isEmpty()) {
-                List<Map<String, Object>> retryUpdateConditionParameterMaps = new ArrayList<>();
-                List<Map<String, Object>> retryUpdateSetParameterMaps = new ArrayList<>();
-                for (Integer ordinal : retryUpdateOrdinalList) {
-                    retryUpdateConditionParameterMaps.add(updateConditionParameterMaps.get(ordinal));
-                    retryUpdateSetParameterMaps.add(updateSetParameterMaps.get(ordinal));
-                }
-                //Retry the update operation
-                if (batchEnable) {
-                    batchProcessUpdate(retryUpdateConditionParameterMaps, compiledCondition,
-                            updateSetExpressions, retryUpdateSetParameterMaps);
-                } else {
-                    sequentialProcessUpdate(retryUpdateConditionParameterMaps, compiledCondition,
-                            updateSetExpressions, retryUpdateSetParameterMaps);
-                }
+            List<Object[]> recordInsertList = new LinkedList<>();
+            for (Integer ordinal : recordInsertIndexList) {
+                recordInsertList.add(addingRecords.get(ordinal));
             }
+            Map<String, ExpressionExecutor> inMemorySetExpressionExecutors = new HashMap<>();
+            for (Map.Entry<String, CompiledExpression> entry : updateSetExpressions.entrySet()) {
+                inMemorySetExpressionExecutors.put(
+                        entry.getKey(),
+                        ((RDBMSCompiledCondition) entry.getValue()).getInMemorySetExpressionExecutor());
+            }
+            List<Object[]> reducedRecordInsertList = ((RDBMSCompiledCondition) compiledCondition).
+                    getUpdateOrInsertReducer().reduceEventsForInsert(recordInsertList, inMemorySetExpressionExecutors);
+            batchProcessInsert(reducedRecordInsertList);
         }
     }
 
@@ -977,130 +957,44 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
     }
 
-    private List<Integer> batchProcessInsert(List<Object[]> addingRecords,
-                                             List<Integer> recordInsertIndexList)
-            throws ConnectionUnavailableException {
+    private void batchProcessInsert(List<Object[]> addingRecords) throws ConnectionUnavailableException {
         String query = this.composeInsertQuery();
         Connection conn = this.getConnection(false);
         PreparedStatement insertStmt = null;
-        List<Integer> retryUpdateOrdinalList = new ArrayList<>();
         try {
             insertStmt = conn.prepareStatement(query);
-            if (!primaryKeysEnabled) {
-                //Default Scenario: If the primary keys are disabled, then insert all the records into the table.
-                int counter = 0;
-                for (Integer ordinal : recordInsertIndexList) {
-                    Object[] record = addingRecords.get(ordinal);
-                    this.populateStatement(record, insertStmt);
-                    try {
-                        insertStmt.addBatch();
-                        if (counter % batchSize == (batchSize - 1)) {
-                            insertStmt.executeBatch();
-                            conn.commit();
-                            insertStmt.clearBatch();
-                        }
-                    } catch (SQLException e) {
-                        try {
-                            boolean isConnInvalid = conn.isValid(0);
-                            RDBMSTableUtils.rollbackConnection(conn);
-                            if (!isConnInvalid) {
-                                throw new ConnectionUnavailableException("Could not execute insert operation. " +
-                                        "Connection is closed for store: '" + tableName + "'", e);
-                            } else {
-                                throw new RDBMSTableException("Could not execute insert operation " +
-                                        "for store '" + this.tableName + "'", e);
-                            }
-                        } catch (SQLException e1) {
-                            throw new RDBMSTableException("Could not execute insert operation  " +
-                                    "for store: '" + tableName + "'", e1);
-                        }
-                    }
-                    counter++;
-                    if (counter % batchSize > 0) {
-                        insertStmt.executeBatch();
-                        conn.commit();
-                    }
-                }
-            } else {
-                // If the primary keys are enabled, add records into a map with keys as a combination of primary keys,
-                // values as ordinal of the recordInsertIndexList.
-                // If the key already available in the map, then its copy the relevant updateSetParameter entry into
-                // retryUpdateSetParameterMaps, where it will be process again with update operation.
-                // Finally insert records from recordInsertIndexList into database table.
-                for (Integer ordinal : recordInsertIndexList) {
-                    StringBuilder primaryKeyHashBuilder = new StringBuilder();
-                    for (Integer primaryKeyAttributePosition : primaryKeyAttributePositionsList) {
-                        Attribute attribute = attributes.get(primaryKeyAttributePosition);
-                        Object recordAttribute = addingRecords.get(ordinal)[primaryKeyAttributePosition];
-                        switch (attribute.getType()) {
-                            case BOOL:
-                                primaryKeyHashBuilder.append(Boolean.toString((Boolean) recordAttribute));
-                                break;
-                            case DOUBLE:
-                                primaryKeyHashBuilder.append(Double.toString((Double) recordAttribute));
-                                break;
-                            case FLOAT:
-                                primaryKeyHashBuilder.append(Float.toString((Float) recordAttribute));
-                                break;
-                            case INT:
-                                primaryKeyHashBuilder.append(Integer.toString((Integer) recordAttribute));
-                                break;
-                            case LONG:
-                                primaryKeyHashBuilder.append(Long.toString((Long) recordAttribute));
-                                break;
-                            case OBJECT:
-                                primaryKeyHashBuilder.append(recordAttribute.toString());
-                                break;
-                            case STRING:
-                                primaryKeyHashBuilder.append((String) recordAttribute);
-                                break;
-                        }
-                    }
-                    if (!nonDuplicateRecordIdMap.containsKey(primaryKeyHashBuilder.toString())) {
-                        nonDuplicateRecordIdMap.put(primaryKeyHashBuilder.toString(), ordinal);
-                    } else {
-                        //Add the record insert index ordinal to retry update
-                        retryUpdateOrdinalList.add(ordinal);
-                    }
-                }
+            int counter = 0;
+            for (Object[] record : addingRecords) {
+                this.populateStatement(record, insertStmt);
                 try {
-                    int counter = 0;
-                    for (Map.Entry<String, Integer> record : nonDuplicateRecordIdMap.entrySet()) {
-                        this.populateStatement(addingRecords.get(record.getValue()), insertStmt);
-                        try {
-                            insertStmt.addBatch();
-                            if (counter % batchSize == (batchSize - 1)) {
-                                insertStmt.executeBatch();
-                                conn.commit();
-                                insertStmt.clearBatch();
-                            }
-                        } catch (SQLException e) {
-                            try {
-                                boolean isConnInvalid = conn.isValid(0);
-                                RDBMSTableUtils.rollbackConnection(conn);
-                                if (!isConnInvalid) {
-                                    throw new ConnectionUnavailableException("Could not execute insert operation. " +
-                                            "Connection is closed for store: '" + tableName + "'", e);
-                                } else {
-                                    throw new RDBMSTableException("Could not execute insert operation " +
-                                            "for store '" + this.tableName + "'", e);
-                                }
-                            } catch (SQLException e1) {
-                                throw new RDBMSTableException("Could not execute insert operation  " +
-                                        "for store: '" + tableName + "'", e1);
-                            }
-                        }
-                        counter++;
-                    }
-                    if (counter % batchSize > 0) {
+                    insertStmt.addBatch();
+                    if (counter % batchSize == (batchSize - 1)) {
                         insertStmt.executeBatch();
                         conn.commit();
+                        insertStmt.clearBatch();
                     }
-                } finally {
-                    nonDuplicateRecordIdMap.clear();
+                } catch (SQLException e) {
+                    try {
+                        boolean isConnInvalid = conn.isValid(0);
+                        RDBMSTableUtils.rollbackConnection(conn);
+                        if (!isConnInvalid) {
+                            throw new ConnectionUnavailableException("Could not execute insert operation. " +
+                                    "Connection is closed for store: '" + tableName + "'", e);
+                        } else {
+                            throw new RDBMSTableException("Could not execute insert operation " +
+                                    "for store '" + this.tableName + "'", e);
+                        }
+                    } catch (SQLException e1) {
+                        throw new RDBMSTableException("Could not execute insert operation  " +
+                                "for store: '" + tableName + "'", e1);
+                    }
+                }
+                counter++;
+                if (counter % batchSize > 0) {
+                    insertStmt.executeBatch();
+                    conn.commit();
                 }
             }
-            return retryUpdateOrdinalList;
         } catch (SQLException e) {
             try {
                 if (!conn.isValid(0)) {
@@ -1135,7 +1029,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
         expressionBuilder.build(visitor);
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters(),
-                visitor.isContainsConditionExist(), visitor.getOrdinalOfContainPattern(), false, null, null);
+                visitor.isContainsConditionExist(), visitor.getOrdinalOfContainPattern(), false, null, null,
+                expressionBuilder.getUpdateOrInsertReducer(), expressionBuilder.getInMemorySetExpressionExecutor());
     }
 
 
@@ -2146,7 +2041,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
 
         return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0, containsLastFunction,
-                compiledSubSelectQuerySelection.toString(), compiledOuterOnCondition.toString());
+                compiledSubSelectQuerySelection.toString(), compiledOuterOnCondition.toString(), null, null);
     }
 
     private RDBMSCompiledCondition compileClause(List<ExpressionBuilder> expressionBuilders, boolean isHavingClause) {
@@ -2176,7 +2071,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (compiledSelectionList.length() > 0) {
             compiledSelectionList.setLength(compiledSelectionList.length() - 2); // Removing the last comma separator.
         }
-        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0, false, null, null);
+        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false,
+                0, false, null, null, null, null);
     }
 
     private RDBMSCompiledCondition compileOrderByClause(List<OrderByAttributeBuilder> orderByAttributeBuilders) {
@@ -2212,7 +2108,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (compiledSelectionList.length() > 0) {
             compiledSelectionList.setLength(compiledSelectionList.length() - 2); // Removing the last comma separator.
         }
-        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0, false, null, null);
+        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false,
+                0, false, null, null, null, null);
     }
 
     private static class DefaultConfigReader implements ConfigReader {

@@ -17,6 +17,8 @@
 */
 package io.siddhi.extension.store.rdbms;
 
+import io.siddhi.core.executor.ExpressionExecutor;
+import io.siddhi.core.table.record.UpdateOrInsertReducer;
 import io.siddhi.core.util.collection.operator.CompiledCondition;
 
 import java.util.SortedMap;
@@ -31,6 +33,8 @@ public class RDBMSCompiledCondition implements CompiledCondition {
     private boolean useSubSelect;
     private String subSelectQuerySelectors;
     private String outerCompiledCondition;
+    private UpdateOrInsertReducer updateOrInsertReducer;
+    private ExpressionExecutor inMemorySetExpressionExecutor;
     private SortedMap<Integer, Object> parameters;
     private boolean isContainsConditionExist;
     private int ordinalOfContainPattern;
@@ -38,7 +42,8 @@ public class RDBMSCompiledCondition implements CompiledCondition {
     public RDBMSCompiledCondition(String compiledQuery, SortedMap<Integer, Object> parameters,
                                   boolean isContainsConditionExist, int ordinalOfContainPattern,
                                   boolean useSubSelect, String subSelectQuerySelectors,
-                                  String outerCompiledCondition) {
+                                  String outerCompiledCondition, UpdateOrInsertReducer updateOrInsertReducer,
+                                  ExpressionExecutor inMemorySetExpressionExecutor) {
         this.compiledQuery = compiledQuery;
         this.parameters = parameters;
         this.isContainsConditionExist = isContainsConditionExist;
@@ -46,6 +51,8 @@ public class RDBMSCompiledCondition implements CompiledCondition {
         this.useSubSelect = useSubSelect;
         this.subSelectQuerySelectors = subSelectQuerySelectors;
         this.outerCompiledCondition = outerCompiledCondition;
+        this.updateOrInsertReducer = updateOrInsertReducer;
+        this.inMemorySetExpressionExecutor = inMemorySetExpressionExecutor;
     }
 
     public void setCompiledQuery(String compiledQuery) {
@@ -82,5 +89,13 @@ public class RDBMSCompiledCondition implements CompiledCondition {
 
     public int getOrdinalOfContainPattern() {
         return ordinalOfContainPattern;
+    }
+
+    public UpdateOrInsertReducer getUpdateOrInsertReducer() {
+        return updateOrInsertReducer;
+    }
+
+    public ExpressionExecutor getInMemorySetExpressionExecutor() {
+        return inMemorySetExpressionExecutor;
     }
 }
