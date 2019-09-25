@@ -47,7 +47,6 @@ import java.util.Locale;
 public class RDBMSStreamProcessorUtil {
     private static final Logger LOG = LoggerFactory.getLogger(RDBMSStreamProcessorUtil.class);
     private static final String[] OPERATIONS = new String[]{"DROP", "ALTER"};
-    private static final String[] MANIPULATION_OPERATIONS = new String[]{"INSERT", "UPDATE", "DELETE", "DROP", "ALTER"};
 
     /**
      * Method which can be used to clear up and ephemeral SQL connectivity artifacts.
@@ -137,18 +136,12 @@ public class RDBMSStreamProcessorUtil {
     /**
      * Utility function for validating the query.
      *
-     * @param isRetrievalQuery Is it a retrieval query
      * @param query Query that is to be validated
      * @return true when query has unauthorised operations
      */
-    public static boolean queryContainsCheck(boolean isRetrievalQuery, String query) {
-        if (isRetrievalQuery) {
-            return Arrays.stream(RDBMSStreamProcessorUtil.MANIPULATION_OPERATIONS)
-                    .parallel().anyMatch(query.toUpperCase(Locale.getDefault())::contains);
-        } else {
-            return Arrays.stream(RDBMSStreamProcessorUtil.OPERATIONS)
-                    .parallel().anyMatch(query.toUpperCase(Locale.getDefault())::contains);
-        }
+    public static boolean queryContainsCheck(String query) {
+        return Arrays.stream(RDBMSStreamProcessorUtil.OPERATIONS)
+                .parallel().anyMatch(query.toUpperCase(Locale.getDefault())::contains);
     }
 
     /**
