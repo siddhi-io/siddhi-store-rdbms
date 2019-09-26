@@ -34,7 +34,6 @@ pages:
 - Information: index.md
 - API Docs:
   - latest: api/latest.md
-  - 6.0.4: api/6.0.4-SNAPSHOT.md
   - 6.0.3: api/6.0.3.md
   - 6.0.2: api/6.0.2.md
   - 6.0.1: api/6.0.1.md
