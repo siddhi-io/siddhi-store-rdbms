@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.SystemParameter;
 import io.siddhi.annotation.util.DataType;
@@ -74,10 +75,24 @@ import java.util.List;
                         type = DataType.STRING
                 ),
                 @Parameter(
-                        name = "parameter.n",
+                        name = "parameter",
                         description = "If the second parameter is a parametrised SQL query, then siddhi attributes " +
                                 "can be passed to set the values of the parameters",
-                        type = DataType.STRING
+                        type = {DataType.STRING, DataType.BOOL, DataType.INT, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.LONG},
+                        optional = true,
+                        defaultValue = "<Empty_String>"
+                )
+        },
+        parameterOverloads = {
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "query"}
+                ),
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "parameter"}
+                ),
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "parameter", "..."}
                 )
         },
         systemParameter = {
@@ -197,7 +212,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                 if (!streamEventChunk.hasNext() && !isVaryingQuery) {
                     stmt.addBatch();
                 }
-                if (RDBMSStreamProcessorUtil.queryContainsCheck(false, query)) {
+                if (RDBMSStreamProcessorUtil.queryContainsCheck(query)) {
                     throw new SiddhiAppRuntimeException("Dropping event since the query has " +
                             "unauthorised operations, '" + query + "'. Event: '" + event + "'.");
                 }

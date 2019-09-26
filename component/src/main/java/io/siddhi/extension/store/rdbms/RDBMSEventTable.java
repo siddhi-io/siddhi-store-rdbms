@@ -221,14 +221,19 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
                         syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/stocks\", " +
                                 "username=\"root\", password=\"root\", jdbc.driver.name=\"com.mysql.jdbc.Driver\"," +
                                 "field.length=\"symbol:100\")\n" +
-                                "@PrimaryKey(\"symbol\")\n" +
+                                "@PrimaryKey(\"id\", \"symbol\")\n" +
                                 "@Index(\"volume\")\n" +
-                                "define table StockTable (symbol string, price float, volume long);",
+                                "define table StockTable (id string, symbol string, price float, volume long);",
                         description = "The above example creates an event table named 'StockTable' in the database if" +
-                                " it does not already exist (with three attributes named 'symbol', 'price', and " +
-                                "'volume' of the types 'string', 'float', and 'long' respectively). The connection " +
-                                "is made as specified by the parameters configured for the '@Store' annotation. The " +
-                                "'symbol' attribute is considered a unique field, and a DB index is created for it."
+                                " it does not already exist (with four attributes named `id`, `symbol`, `price`, and " +
+                                "`volume` of the types 'string', 'string', 'float', and 'long' respectively). " +
+                                "The connection is made as specified by the parameters configured for the " +
+                                "'@Store' annotation.\n\n " +
+                                "The @PrimaryKey() and @Index() annotations can be used to define primary keys or " +
+                                "indexes for the table and they follow Siddhi query syntax. RDBMS store supports " +
+                                "having more than one `attributes` in the @PrimaryKey or @Index annotations.\n " +
+                                "In this example a composite Primary key of both attributes `id` and `symbol` " +
+                                "will be created."
                 ),
                 @Example(
                         syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
