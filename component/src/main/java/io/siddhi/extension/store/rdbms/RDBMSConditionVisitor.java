@@ -434,10 +434,10 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
                 String candidate = token.substring(0, token.indexOf("]"));
                 if (this.placeholders.containsKey(candidate)) {
                     this.parameters.put(ordinal, this.placeholders.get(candidate));
-                    ordinal++;
-                    if (candidate.equals("pattern-value")) {
+                    if (candidate.contains("pattern-value")) {
                         ordinalOfContainPattern = ordinal;
                     }
+                    ordinal++;
                 }
             }
         }
