@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -72,13 +73,17 @@ import java.util.stream.Collectors;
                         name = "query",
                         description = "The select query(formatted according to " +
                                 "the relevant database type) that needs to be performed",
-                        type = DataType.STRING
+                        type = DataType.STRING,
+                        dynamic = true
                 ),
                 @Parameter(
-                        name = "parameter.n",
+                        name = "parameter",
                         description = "If the second parameter is a parametrised SQL query, then siddhi attributes " +
                                 "can be passed to set the values of the parameters",
-                        type = DataType.STRING
+                        type = {DataType.STRING, DataType.BOOL, DataType.INT, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.LONG},
+                        optional = true,
+                        defaultValue = "<Empty_String>"
                 ),
                 @Parameter(
                         name = "attribute.definition.list",
@@ -98,6 +103,17 @@ import java.util.stream.Collectors;
                                 "`FLOAT`&nbsp;&nbsp;&nbsp;->`REAL`\n" +
                                 "`BOOL`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;->`BIT`\n",
                         type = DataType.STRING
+                )
+        },
+        parameterOverloads = {
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "attribute.definition.list"}
+                ),
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "parameter", "attribute.definition.list"}
+                ),
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "parameter", "...", "attribute.definition.list"}
                 )
         },
         returnAttributes = {
