@@ -80,6 +80,7 @@ import java.util.List;
                                 "can be passed to set the values of the parameters",
                         type = {DataType.STRING, DataType.BOOL, DataType.INT, DataType.DOUBLE, DataType.FLOAT,
                                 DataType.LONG},
+                        dynamic = true, 
                         optional = true,
                         defaultValue = "<Empty_String>"
                 )
