@@ -103,8 +103,7 @@ public class RDBMSCUDTestCase {
         String sqlQuery;
         if (type.equals(RDBMSTableTestUtils.TestType.ORACLE)) {
             sqlQuery = "UPDATE " + TABLE_NAME + " SET symbol = 'WSO22' WHERE symbol = 'WSO2'";
-            isOracle11 = Boolean.parseBoolean(System.getenv("ORACLE_VERSION"));
-
+            isOracle11 = Boolean.parseBoolean(System.getenv("IS_ORACLE_11"));
         } else {
             sqlQuery = "UPDATE " + TABLE_NAME + " SET symbol = 'WSO22' WHERE symbol = 'WSO2';";
         }
