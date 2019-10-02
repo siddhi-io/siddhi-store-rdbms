@@ -86,7 +86,7 @@ public class RDBMSTableTestUtils {
         return testDataSource;
     }
 
-    private static DataSource initDataSource() {
+    public static DataSource initDataSource() {
         String databaseType = System.getenv("DATABASE_TYPE");
         if (databaseType == null) {
             databaseType = TestType.H2.toString();
@@ -141,7 +141,7 @@ public class RDBMSTableTestUtils {
         connectionProperties.setProperty("dataSource.user", user);
         connectionProperties.setProperty("dataSource.password", password);
         connectionProperties.setProperty("poolName", "Test_Pool");
-        connectionProperties.setProperty("maximumPoolSize", "10");
+        connectionProperties.setProperty("maximumPoolSize", "4");
         HikariConfig config = new HikariConfig(connectionProperties);
         return new HikariDataSource(config);
     }
