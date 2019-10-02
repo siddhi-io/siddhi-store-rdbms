@@ -154,7 +154,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
         name = "rdbms",
         namespace = "store",
         description = "This extension assigns data sources and connection instructions to event tables. It also " +
-                "implements read-write operations on connected datasources.",
+                "implements read-write operations on connected data sources.",
         parameters = {
                 @Parameter(name = "jdbc.url",
                         description = "The JDBC URL via which the RDBMS data store is accessed.",
@@ -185,7 +185,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
                         description = "The name of the Carbon datasource that should be used for creating the " +
                                 "connection with the database. If this is found, neither the pool properties nor the " +
                                 "JNDI resource name described above are taken into account and the connection " +
-                                "is attempted via Carbon datasources instead. ",
+                                "is attempted via Carbon datasources instead. Only works in Siddhi Distribution ",
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = "null"),
