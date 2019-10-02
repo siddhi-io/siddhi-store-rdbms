@@ -33,13 +33,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import javax.sql.DataSource;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.sql.DataSource;
 
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.TABLE_NAME;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.driverClassName;
@@ -232,7 +231,6 @@ public class RDBMSQueryTestCase {
         Assert.assertTrue(isEventArrived, "Event Not Arrived");
         Assert.assertTrue(SiddhiTestHelper.isEventsMatch(actualData, expected), "Event output does not match.");
     }
-
 
 
     @Test(dependsOnMethods = "rdbmsQuery3")

@@ -25,8 +25,6 @@ import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.stream.output.StreamCallback;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.SiddhiTestHelper;
-import io.siddhi.core.util.config.InMemoryConfigManager;
-import io.siddhi.core.util.config.InMemoryConfigReader;
 import io.siddhi.core.util.config.YAMLConfigManager;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
 import org.apache.log4j.Logger;
@@ -36,12 +34,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.sql.DataSource;
 
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.TABLE_NAME;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.driverClassName;
@@ -97,12 +94,12 @@ public class RDBMSCUDTestCase {
         log.info("rdbmsCUD1 - Test Update");
 
         YAMLConfigManager yamlConfigManager = new YAMLConfigManager(
-                "extensions: \n"+
+                "extensions: \n" +
                 "  - extension: \n" +
                 "      namespace: rdbms\n" +
                 "      name: cud\n" +
                 "      properties:\n" +
-                "        perform.CUD.operations: true" );
+                "        perform.CUD.operations: true");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(yamlConfigManager);
