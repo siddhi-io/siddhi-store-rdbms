@@ -113,7 +113,7 @@ public class RDBMSCUDTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream#rdbms:cud(\"TEST_DATASOURCE\", \"UPDATE " + TABLE_NAME + " SET " +
-                "`symbol` = 'WSO22' WHERE `symbol` = 'WSO2';\") " +
+                "symbol = 'WSO22' WHERE symbol = 'WSO2';\") " +
                 "select numRecords " +
                 "insert into OutputStream ;";
 
