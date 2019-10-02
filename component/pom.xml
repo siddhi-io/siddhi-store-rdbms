@@ -1082,6 +1082,7 @@
                                 <DATABASE_PASSWORD>root</DATABASE_PASSWORD>
                                 <PORT>${siddhi-rdbms-oracle.port}</PORT>
                                 <DOCKER_HOST_IP>localhost</DOCKER_HOST_IP>
+                                <ORACLE_VERSION>11</ORACLE_VERSION>
                             </environmentVariables>
                             <argLine>-Duser.timezone=GMT</argLine>
                             <suiteXmlFiles>

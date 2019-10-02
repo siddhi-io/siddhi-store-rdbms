@@ -99,9 +99,12 @@ public class RDBMSCUDTestCase {
         }
         RDBMSTableTestUtils.TestType type = RDBMSTableTestUtils.TestType.valueOf(databaseType);
 
+        boolean isOracle11 = false;
         String sqlQuery;
         if (type.equals(RDBMSTableTestUtils.TestType.ORACLE)) {
             sqlQuery = "UPDATE " + TABLE_NAME + " SET symbol = 'WSO22' WHERE symbol = 'WSO2'";
+            isOracle11 = Boolean.parseBoolean(System.getenv("ORACLE_VERSION"));
+
         } else {
             sqlQuery = "UPDATE " + TABLE_NAME + " SET symbol = 'WSO22' WHERE symbol = 'WSO2';";
         }
@@ -152,7 +155,11 @@ public class RDBMSCUDTestCase {
 
         Assert.assertTrue(isEventArrived, "Event Not Arrived");
         Assert.assertEquals(1, eventCount.get(), "Event count did not match");
-        Assert.assertEquals(1, actualData.get(0)[0]);
 
+        if (isOracle11) {
+            Assert.assertEquals(-2, actualData.get(0)[0]);
+        } else {
+            Assert.assertEquals(1, actualData.get(0)[0]);
+        }
     }
 }
