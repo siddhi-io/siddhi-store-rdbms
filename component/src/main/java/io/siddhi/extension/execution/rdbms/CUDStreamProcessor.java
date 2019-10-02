@@ -17,7 +17,6 @@
  */
 package io.siddhi.extension.execution.rdbms;
 
-import com.zaxxer.hikari.HikariDataSource;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
@@ -25,6 +24,7 @@ import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.SystemParameter;
 import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiContext;
 import io.siddhi.core.config.SiddhiQueryContext;
 import io.siddhi.core.event.ComplexEventChunk;
 import io.siddhi.core.event.stream.MetaStreamEvent;
@@ -46,6 +46,7 @@ import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -55,17 +56,19 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This extension can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a WSO2 datasource.
+ * This extension can be used to perform SQL CUD (INSERT, UPDATE, DELETE) queries on a datasource.
  */
 @Extension(
         name = "cud",
         namespace = "rdbms",
-        description = "This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on WSO2 " +
-                "datasources. \nNote: This function is only available when running Siddhi with WSO2 SP.\n",
+        description = "This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on " +
+                "data sources. \nNote: This function to work data sources should be set at the Siddhi Manager level.\n",
         parameters = {
                 @Parameter(
                         name = "datasource.name",
-                        description = "The name of the WSO2 datasource for which the query should be performed.",
+                        description = "The name of the datasource for which the query should be performed. If Siddhi " +
+                                "is used as a Java/Python library the datasource should be explicitly set in the " +
+                                "siddhi manager in order for the function to work.",
                         type = DataType.STRING
                 ),
                 @Parameter(
@@ -136,8 +139,9 @@ import java.util.List;
         }
 )
 public class CUDStreamProcessor extends StreamProcessor<State> {
+    private SiddhiContext siddhiContext;
     private String dataSourceName;
-    private HikariDataSource dataSource;
+    private DataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
     private boolean isVaryingQuery;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
@@ -145,7 +149,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
 
 
     @Override
-    protected StateFactory init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
+    protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
                                 ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                 StreamEventClonerHolder streamEventClonerHolder, boolean outputExpectsExpiredEvents,
                                 boolean findToBeExecuted, SiddhiQueryContext siddhiQueryContext) {
@@ -271,7 +275,10 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
 
     @Override
     public void start() {
-        this.dataSource = RDBMSStreamProcessorUtil.getDataSourceService(this.dataSourceName);
+        this.dataSource = this.siddhiContext.getSiddhiDataSource(this.dataSourceName);
+        if (this.dataSource == null) {
+            this.dataSource = RDBMSStreamProcessorUtil.getDataSourceService(this.dataSourceName);
+        }
     }
 
     @Override

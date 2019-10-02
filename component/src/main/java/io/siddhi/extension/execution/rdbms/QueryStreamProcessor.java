@@ -17,13 +17,13 @@
  */
 package io.siddhi.extension.execution.rdbms;
 
-import com.zaxxer.hikari.HikariDataSource;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
 import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiContext;
 import io.siddhi.core.config.SiddhiQueryContext;
 import io.siddhi.core.event.ComplexEventChunk;
 import io.siddhi.core.event.stream.MetaStreamEvent;
@@ -46,6 +46,7 @@ import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -56,17 +57,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This extension function can be used to perform SQL retrieval queries on a WSO2 datasource.
+ * This extension function can be used to perform SQL retrieval queries on a datasource.
  */
 @Extension(
         name = "query",
         namespace = "rdbms",
-        description = "This function performs SQL retrieval queries on WSO2 datasources. \n" +
-                "Note: This function is only available when running Siddhi with WSO2 SP.",
+        description = "This function performs SQL retrieval queries on data sources. \n" +
+                "Note: This function to work data sources should be set at the Siddhi Manager level.",
         parameters = {
                 @Parameter(
                         name = "datasource.name",
-                        description = "The name of the WSO2 datasource for which the query should be performed.",
+                        description = "The name of the datasource for which the query should be performed. If Siddhi " +
+                                "is used as a Java/Python library the datasource should be explicitly set in the " +
+                                "siddhi manager in order for the function to work.",
                         type = DataType.STRING
                 ),
                 @Parameter(
@@ -153,8 +156,9 @@ import java.util.stream.Collectors;
         }
 )
 public class QueryStreamProcessor extends StreamProcessor<State> {
+    private SiddhiContext siddhiContext;
     private String dataSourceName;
-    private HikariDataSource dataSource;
+    private DataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
     private List<Attribute> attributeList = new ArrayList<>();
     private boolean isVaryingQuery;
@@ -310,7 +314,10 @@ public class QueryStreamProcessor extends StreamProcessor<State> {
 
     @Override
     public void start() {
-        this.dataSource = RDBMSStreamProcessorUtil.getDataSourceService(this.dataSourceName);
+        this.dataSource = siddhiContext.getSiddhiDataSource(this.dataSourceName);
+        if (this.dataSource == null) {
+            this.dataSource = RDBMSStreamProcessorUtil.getDataSourceService(this.dataSourceName);
+        }
     }
 
     @Override
