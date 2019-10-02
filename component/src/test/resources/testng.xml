@@ -43,4 +43,11 @@
             <class name="io.siddhi.extension.store.rdbms.aggregation.SelectOptimisationAggregationTestCaseIT" />
         </classes>
     </test>
+
+    <test name="Aggregation test cases" parallel="false">
+        <classes>
+            <class name="io.siddhi.extension.execution.rdbms.RDBMSQueryTestCase" />
+            <class name="io.siddhi.extension.execution.rdbms.RDBMSCUDTestCase" />
+        </classes>
+    </test>
 </suite>
