@@ -635,7 +635,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\"," +
-                "pool.properties=\"maximumPoolSize:50,maxWSO2:60000\")\n" +
+                "pool.properties=\"maximumPoolSize:5,maxWSO2:60000\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";
@@ -671,7 +671,7 @@ public class DefineRDBMSTableTestCaseIT {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
                 "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\"," +
-                "pool.properties=\"maximumPoolSize:50, maxLifetime:WSO2\")\n" +
+                "pool.properties=\"maximumPoolSize:5, maxLifetime:WSO2\")\n" +
                 //"@PrimaryKey(\"symbol\")" +
                 //"@Index(\"volume\")" +
                 "define table StockTable (symbol string, price float, volume long); ";

@@ -20,7 +20,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="Generic Integration test suite">
-    <test name="org.wso2.das">
+    <test name="siddhi-store-rdbms">
         <classes>
             <class name="io.siddhi.extension.store.rdbms.DefineRDBMSTableTestCaseIT" />
             <class name="io.siddhi.extension.store.rdbms.DeleteFromRDBMSTableTestCaseIT" />
@@ -41,6 +41,13 @@
             <class name="io.siddhi.extension.store.rdbms.aggregation.LatestAggregationTestCaseIT" />
             <class name="io.siddhi.extension.store.rdbms.aggregation.DistributedAggregationTestCaseIT" />
             <class name="io.siddhi.extension.store.rdbms.aggregation.SelectOptimisationAggregationTestCaseIT" />
+        </classes>
+    </test>
+
+    <test name="rdbms-query-test-cases" parallel="false">
+        <classes>
+            <class name="io.siddhi.extension.execution.rdbms.RDBMSQueryTestCase" />
+            <class name="io.siddhi.extension.execution.rdbms.RDBMSCUDTestCase" />
         </classes>
     </test>
 </suite>
