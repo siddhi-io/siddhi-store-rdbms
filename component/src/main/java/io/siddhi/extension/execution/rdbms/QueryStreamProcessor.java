@@ -73,6 +73,25 @@ import java.util.stream.Collectors;
                         type = DataType.STRING
                 ),
                 @Parameter(
+                        name = "attribute.definition.list",
+                        description = "This is provided as a comma-separated list in the " +
+                                "'<AttributeName AttributeType>' format. " +
+                                "The SQL query is expected to return the attributes in the given order. e.g., If one " +
+                                "attribute is defined here, the SQL query should return one column result set. " +
+                                "If more than one column is returned, then the first column is processed. The " +
+                                "Siddhi data types supported are 'STRING', 'INT', 'LONG', 'DOUBLE', 'FLOAT', and " +
+                                "'BOOL'. \n Mapping of the Siddhi data type to the database data type can be done as " +
+                                "follows, \n" +
+                                "*Siddhi Datatype* -> *Datasource Datatype*\n" +
+                                "`STRING` -> `CHAR`,`VARCHAR`,`LONGVARCHAR`\n" +
+                                "`INT`\t-> `INTEGER`\n" +
+                                "`LONG`\t-> `BIGINT`\n" +
+                                "`DOUBLE`-> `DOUBLE`\n" +
+                                "`FLOAT`\t-> `REAL`\n" +
+                                "`BOOL`\t-> `BIT`\n",
+                        type = DataType.STRING
+                ),
+                @Parameter(
                         name = "query",
                         description = "The select query(formatted according to " +
                                 "the relevant database type) that needs to be performed",
@@ -86,37 +105,19 @@ import java.util.stream.Collectors;
                         type = {DataType.STRING, DataType.BOOL, DataType.INT, DataType.DOUBLE, DataType.FLOAT,
                                 DataType.LONG},
                         optional = true,
-                        defaultValue = "<Empty_String>"
-                ),
-                @Parameter(
-                        name = "attribute.definition.list",
-                        description = "This is provided as a comma-separated list in the " +
-                                "'<AttributeName AttributeType>' format. " +
-                                "The SQL query is expected to return the attributes in the given order. e.g., If one " +
-                                "attribute is defined here, the SQL query should return one column result set. " +
-                                "If more than one column is returned, then the first column is processed. The " +
-                                "Siddhi data types supported are 'STRING', 'INT', 'LONG', 'DOUBLE', 'FLOAT', and " +
-                                "'BOOL'. \n Mapping of the Siddhi data type to the database data type can be done as " +
-                                "follows, \n" +
-                                "*Siddhi Datatype*->*Datasource Datatype*\n" +
-                                "`STRING`->`CHAR`,`VARCHAR`,`LONGVARCHAR`\n" +
-                                "`INT`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;->`INTEGER`\n" +
-                                "`LONG`&nbsp;&nbsp;&nbsp;&nbsp;->`BIGINT`\n" +
-                                "`DOUBLE`->`DOUBLE`\n" +
-                                "`FLOAT`&nbsp;&nbsp;&nbsp;->`REAL`\n" +
-                                "`BOOL`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;->`BIT`\n",
-                        type = DataType.STRING
+                        defaultValue = "<Empty_String>",
+                        dynamic = true
                 )
         },
         parameterOverloads = {
                 @ParameterOverload(
-                        parameterNames = {"datasource.name", "query", "attribute.definition.list"}
+                        parameterNames = {"datasource.name", "attribute.definition.list", "query"}
                 ),
                 @ParameterOverload(
-                        parameterNames = {"datasource.name", "query", "parameter", "attribute.definition.list"}
+                        parameterNames = {"datasource.name", "attribute.definition.list", "query", "parameter"}
                 ),
                 @ParameterOverload(
-                        parameterNames = {"datasource.name", "query", "parameter", "...", "attribute.definition.list"}
+                        parameterNames = {"datasource.name", "attribute.definition.list", "query", "parameter", "..."}
                 )
         },
         returnAttributes = {
@@ -130,9 +131,8 @@ import java.util.stream.Collectors;
         },
         examples = {
                 @Example(
-                        syntax = "from TriggerStream#rdbms:query('SAMPLE_DB', 'select * from " +
-                                "Transactions_Table', 'creditcardno string, country string, transaction string," +
-                                " amount int') \n" +
+                        syntax = "from TriggerStream#rdbms:query('SAMPLE_DB', 'creditcardno string, country string, " +
+                                "transaction string, amount int', 'select * from Transactions_Table') \n" +
                                 "select creditcardno, country, transaction, amount \n" +
                                 "insert into recordStream;",
                         description = "Events inserted into recordStream includes all records matched for the query " +
@@ -141,9 +141,9 @@ import java.util.stream.Collectors;
                                 "`attribute.definition.list`(creditcardno, country, transaction, amount)."
                 ),
                 @Example(
-                        syntax = "from TriggerStream#rdbms:query('SAMPLE_DB', 'select * from " +
-                                "where country=? ', countrySearchWord, 'creditcardno string, country string, " +
-                                "transaction string, amount int') \n" +
+                        syntax = "from TriggerStream#rdbms:query('SAMPLE_DB', 'creditcardno string, country string," +
+                                "transaction string, amount int', 'select * from where country=?', " +
+                                "countrySearchWord) " +
                                 "select creditcardno, country, transaction, amount \n" +
                                 "insert into recordStream;",
                         description = "Events inserted into recordStream includes all records matched for the query " +
@@ -161,61 +161,22 @@ public class QueryStreamProcessor extends StreamProcessor<State> {
     private DataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
     private List<Attribute> attributeList = new ArrayList<>();
-    private boolean isVaryingQuery;
+    private boolean isQueryParameterised = false;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
 
 
     @Override
-    protected StateFactory init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
+    protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
                                 ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                 StreamEventClonerHolder streamEventClonerHolder, boolean outputExpectsExpiredEvents,
                                 boolean findToBeExecuted, SiddhiQueryContext siddhiQueryContext) {
 
         int attributesLength = attributeExpressionExecutors.length;
-        if ((attributesLength < 3)) {
-            throw new SiddhiAppValidationException("rdbms query function  should have at least 3 parameters , " +
-                    "but found '" + attributesLength + "' parameters.");
-        }
-
         this.dataSourceName = RDBMSStreamProcessorUtil.validateDatasourceName(attributeExpressionExecutors[0]);
+        this.siddhiContext = siddhiQueryContext.getSiddhiAppContext().getSiddhiContext();
 
-        if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.STRING) {
-            queryExpressionExecutor = attributeExpressionExecutors[1];
-        } else {
-            throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
-                    "function should be of type STRING, but found a parameter with type '" +
-                    attributeExpressionExecutors[1].getReturnType() + "'.");
-        }
-
-        ExpressionExecutor streamDefExecutor;
-        if (attributesLength == 3) {
-            streamDefExecutor = attributeExpressionExecutors[2];
-            this.isVaryingQuery = false;
-        } else {
-            this.isVaryingQuery = true;
-            //Process the query conditions through stream attributes
-            long attributeCount;
-            if (queryExpressionExecutor instanceof ConstantExpressionExecutor) {
-                String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
-                attributeCount = query.chars().filter(ch -> ch == '?').count();
-            } else {
-                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
-                        "function should be a constant, but found a parameter of instance '" +
-                        attributeExpressionExecutors[1].getClass().getName() + "'.");
-            }
-            if (attributeCount == attributesLength - 3) {
-                this.expressionExecutors.addAll(
-                        Arrays.asList(attributeExpressionExecutors).subList(2, attributesLength - 1));
-            } else {
-                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
-                        "function contains '" + attributeCount + "' ordinals, but found siddhi attributes of count '" +
-                        (attributesLength - 3) + "'.");
-            }
-            streamDefExecutor = attributeExpressionExecutors[attributesLength - 1];
-        }
-
-        if (streamDefExecutor instanceof ConstantExpressionExecutor) {
-            String attributeDefinition = ((ConstantExpressionExecutor) streamDefExecutor)
+        if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
+            String attributeDefinition = ((ConstantExpressionExecutor) attributeExpressionExecutors[1])
                     .getValue().toString();
             this.attributeList = Arrays.stream(attributeDefinition.split(","))
                     .map((String attributeExp) -> {
@@ -253,11 +214,32 @@ public class QueryStreamProcessor extends StreamProcessor<State> {
                         return new Attribute(splitAttributeDef[0], attributeType);
                     }).collect(Collectors.toList());
         } else {
-            throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function should be a " +
-                    "constant, but found a dynamic attribute of type '" +
+            throw new SiddhiAppValidationException("The parameter 'attribute.definition.list' in rdbms query " +
+                    "function should be a constant, but found a dynamic attribute of type '" +
                     queryExpressionExecutor.getClass().getCanonicalName() + "'.");
         }
 
+        this.queryExpressionExecutor = attributeExpressionExecutors[2];
+
+        if (attributesLength > 3) {
+            this.isQueryParameterised = true;
+            this.expressionExecutors.addAll(
+                    Arrays.asList(attributeExpressionExecutors).subList(3, attributeExpressionExecutors.length));
+
+            if (queryExpressionExecutor instanceof ConstantExpressionExecutor) {
+                String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
+                long attributeCount = query.chars().filter(ch -> ch == '?').count();
+                if (attributeCount != attributesLength - 3) {
+                    throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function " +
+                            "contains '" + attributeCount + "' ordinals, but found siddhi attributes of count '" +
+                            (attributesLength - 3) + "'.");
+                }
+            } else {
+                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
+                        "function should be a constant, but found a parameter of instance '" +
+                        attributeExpressionExecutors[1].getClass().getName() + "'.");
+            }
+        }
         return null;
     }
 
@@ -274,7 +256,7 @@ public class QueryStreamProcessor extends StreamProcessor<State> {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
                 stmt = conn.prepareStatement(query);
-                if (isVaryingQuery) {
+                if (isQueryParameterised) {
                     for (int i = 0; i < this.expressionExecutors.size(); i++) {
                         ExpressionExecutor attributeExpressionExecutor = this.expressionExecutors.get(i);
                         RDBMSStreamProcessorUtil.populateStatementWithSingleElement(stmt, i + 1,

@@ -75,7 +75,8 @@ import java.util.List;
                         name = "query",
                         description = "The update, delete, or insert query(formatted according to " +
                                 "the relevant database type) that needs to be performed.",
-                        type = DataType.STRING
+                        type = DataType.STRING,
+                        dynamic = true
                 ),
                 @Parameter(
                         name = "parameter",
@@ -84,7 +85,8 @@ import java.util.List;
                         type = {DataType.STRING, DataType.BOOL, DataType.INT, DataType.DOUBLE, DataType.FLOAT,
                                 DataType.LONG},
                         optional = true,
-                        defaultValue = "<Empty_String>"
+                        defaultValue = "<Empty_String>",
+                        dynamic = true
                 )
         },
         parameterOverloads = {
@@ -143,7 +145,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
     private String dataSourceName;
     private DataSource dataSource;
     private ExpressionExecutor queryExpressionExecutor;
-    private boolean isVaryingQuery;
+    private boolean isQueryParameterised;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
     private List<Attribute> attributeList = new ArrayList<>();
 
@@ -158,43 +160,32 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
         if (!performCUDOps) {
             throw new SiddhiAppValidationException("Performing CUD operations through " +
                     "rdbms cud function is disabled. This is configured through system parameter, " +
-                    "'perform.CUD.operations' in '<SP_HOME>/conf/<profile>/deployment.yaml'");
-        }
-
-        if ((attributeExpressionExecutors.length < 2)) {
-            throw new SiddhiAppValidationException("rdbms cud function " +
-                    "should have 2 parameters , but found '" + attributeExpressionExecutors.length + "' parameters.");
+                    "'perform.CUD.operations' in '<SIDDHI_HOME>/conf/<profile>/deployment.yaml'");
         }
 
         this.dataSourceName = RDBMSStreamProcessorUtil.validateDatasourceName(attributeExpressionExecutors[0]);
+        this.siddhiContext = siddhiQueryContext.getSiddhiAppContext().getSiddhiContext();
 
-        if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.STRING) {
-            queryExpressionExecutor = attributeExpressionExecutors[1];
-        } else {
-            throw new SiddhiAppValidationException("The parameter 'query' in rdbms cud " +
-                    "function should be of type STRING, but found a parameter with type '" +
-                    attributeExpressionExecutors[1].getReturnType() + "'.");
-        }
-
+        this.queryExpressionExecutor = attributeExpressionExecutors[1];
         if (attributeExpressionExecutors.length > 2) {
-            this.isVaryingQuery = true;
+            this.isQueryParameterised = true;
+            this.expressionExecutors.addAll(
+                    Arrays.asList(attributeExpressionExecutors).subList(2, attributeExpressionExecutors.length));
+
             //Process the query conditions through stream attributes
             long attributeCount;
             if (queryExpressionExecutor instanceof ConstantExpressionExecutor) {
                 String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
                 attributeCount = query.chars().filter(ch -> ch == '?').count();
+                if (attributeCount != attributeExpressionExecutors.length - 2) {
+                    throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function contains '" +
+                            attributeCount + "' ordinals, but found siddhi attributes of count '" +
+                            (attributeExpressionExecutors.length - 2) + "'.");
+                }
             } else {
                 throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
                         "function should be a constant, but found a parameter of instance '" +
                         attributeExpressionExecutors[1].getClass().getName() + "'.");
-            }
-            if (attributeCount == attributeExpressionExecutors.length - 2) {
-                this.expressionExecutors.addAll(
-                        Arrays.asList(attributeExpressionExecutors).subList(2, attributeExpressionExecutors.length));
-            } else {
-                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
-                        "function contains '" + attributeCount + "' ordinals, but found siddhi attributes of count '" +
-                        (attributeExpressionExecutors.length - 2) + "'.");
             }
         }
 
@@ -213,7 +204,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
                 stmt = conn.prepareStatement(query);
-                if (!streamEventChunk.hasNext() && !isVaryingQuery) {
+                if (!streamEventChunk.hasNext() && !isQueryParameterised) {
                     stmt.addBatch();
                 }
                 if (RDBMSStreamProcessorUtil.queryContainsCheck(query)) {
@@ -224,7 +215,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             streamEventChunk.reset();
             while (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
-                if (isVaryingQuery) {
+                if (isQueryParameterised) {
                     if (conn.getAutoCommit()) {
                         //commit transaction manually
                         conn.setAutoCommit(false);
