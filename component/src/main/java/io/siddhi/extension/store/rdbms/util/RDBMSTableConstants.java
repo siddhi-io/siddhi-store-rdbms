@@ -40,6 +40,7 @@ public class RDBMSTableConstants {
     public static final String PLACEHOLDER_INNER_QUERY = "{{INNER_QUERY}}";
     public static final String PLACEHOLDER_LIMIT_WRAPPER = "{{LIMIT_WRAPPER}}";
     public static final String PLACEHOLDER_OFFSET_WRAPPER = "{{OFFSET_WRAPPER}}";
+    public static final String PLACEHOLDER_INDEX_NUMBER = "{{INDEX_NUM}}";
 
     //Miscellaneous SQL constants
     public static final String SQL_MATH_ADD = "+";

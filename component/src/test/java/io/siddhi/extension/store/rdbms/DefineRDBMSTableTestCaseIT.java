@@ -101,7 +101,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest1")
     public void rdbmstabledefinitiontest2() throws InterruptedException, SQLException {
         //Testing table creation with a invalid primary key normal insertion.
         log.info("rdbmstabledefinitiontest2");
@@ -697,7 +697,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest18")
     public void rdbmstabledefinitiontest19() throws InterruptedException, SQLException {
         //Defining a RDBMS table with table.name.
         log.info("rdbmstabledefinitiontest19");
@@ -735,7 +735,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest19")
     public void rdbmstabledefinitiontest20() throws InterruptedException, SQLException {
         //This testcase verified that defining a RDBMS table without defining a value for table.name
         // will be successfully create the table.
@@ -769,7 +769,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest20")
     public void rdbmstabledefinitiontest21() throws InterruptedException, SQLException {
         //Defining a RDBMS table with table.name.
         log.info("rdbmstabledefinitiontest21");
@@ -856,7 +856,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(testName = "rdbmstabledefinitiontest23", description = "Testing table creation.")
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest21")
     public void rdbmstabledefinitiontest23() throws InterruptedException, SQLException {
         //Testing table creation
         log.info("rdbmstabledefinitiontest23");
@@ -898,7 +898,7 @@ public class DefineRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(testName = "rdbmstabledefinitiontest24", description = "Testing table creation with custom table check query")
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest23")
     public void rdbmstabledefinitiontest24() throws InterruptedException, SQLException {
         //Testing table creation with custom table check query
         log.info("rdbmstabledefinitiontest24");
@@ -938,6 +938,44 @@ public class DefineRDBMSTableTestCaseIT {
 
         long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
         Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(dependsOnMethods = "rdbmstabledefinitiontest24")
+    public void rdbmstabledefinitiontest25() throws InterruptedException, SQLException {
+        //Testing table creation
+        log.info("rdbmstabledefinitiontest25");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\", " +
+                "username=\"" + user + "\", password=\"" + password + "\",field.length=\"symbol:100\", " +
+                "pool.properties=\"maximumPoolSize:1\")\n" +
+                "@PrimaryKey(\"symbol\")" +
+                "@Index(\"volume\")" +
+                "@Index(\"symbol\", \"volume\")" +
+                "define table StockTable (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "insert into StockTable ;";
+
+        log.info(streams + query);
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6F, 100L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 100L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        long totalIndexInTable = RDBMSTableTestUtils.getIndexesInTable(TABLE_NAME.toUpperCase());
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        Assert.assertEquals(totalIndexInTable, 3, "Indices creation failed");
         siddhiAppRuntime.shutdown();
     }
 }
