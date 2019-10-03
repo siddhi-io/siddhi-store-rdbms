@@ -68,6 +68,7 @@ public class RDBMSTableTestUtils {
     public static String driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
     public static String user = USERNAME;
     public static String password = PASSWORD;
+    public static RDBMSTableTestUtils.TestType testDatabaseType = TestType.H2;
     private static DataSource testDataSource;
     public static String wrongUsernameRegex = WRONG_USER_NAME_REGEX_H2;
 
@@ -98,12 +99,14 @@ public class RDBMSTableTestUtils {
         Properties connectionProperties = new Properties();
         switch (type) {
             case MySQL:
+                testDatabaseType = TestType.MySQL;
                 url = connectionUrlMysql.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_NAME_MYSQL;
                 wrongUsernameRegex = WRONG_USER_NAME_REGEX_MYSQL;
                 break;
             case H2:
+                testDatabaseType = TestType.H2;
                 url = CONNECTION_URL_H2;
                 driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
                 user = USERNAME;
@@ -111,24 +114,28 @@ public class RDBMSTableTestUtils {
                 wrongUsernameRegex = WRONG_USER_NAME_REGEX_H2;
                 break;
             case POSTGRES:
+                testDatabaseType = TestType.POSTGRES;
                 url = connectionUrlPostgres.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_POSTGRES;
                 wrongUsernameRegex = WRONG_USER_NAME_REGEX_POSTGRES;
                 break;
             case ORACLE:
+                testDatabaseType = TestType.ORACLE;
                 url = connectionUrlOracle.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_NAME_ORACLE;
                 wrongUsernameRegex = WRONG_USER_NAME_REGEX_ORACLE;
                 break;
             case MSSQL:
+                testDatabaseType = TestType.MSSQL;
                 url = connectionUrlMsSQL.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_MSSQL;
                 wrongUsernameRegex = WRONG_USER_NAME_REGEX_MSSQL;
                 break;
             case DB2:
+                testDatabaseType = TestType.DB2;
                 url = connectionUrlDB2.replace("{{container.ip}}", getIpAddressOfContainer()).
                         replace("{{container.port}}", port);
                 driverClassName = JDBC_DRIVER_CLASS_DB2;
@@ -181,6 +188,54 @@ public class RDBMSTableTestUtils {
             RDBMSTableUtils.cleanupConnection(null, stmt, con);
         }
     }
+
+    public static long getIndexesInTable(String tableName) throws SQLException {
+
+        String indexCountQuery;
+        switch (testDatabaseType) {
+            case H2:
+                indexCountQuery = "SELECT count(distinct(INDEX_NAME)) as indexCount " +
+                        "FROM information_schema.INDEXES where TABLE_NAME = '" + tableName.toUpperCase() + "'";
+                break;
+            case MySQL:
+                indexCountQuery = "select count(distinct(INDEX_NAME)) as indexCount " +
+                        "from information_schema.statistics where TABLE_NAME='" + tableName + "';";
+                break;
+            case MSSQL:
+                indexCountQuery = "select count(distinct(name)) as indexCount " +
+                        "from sys.indexes where object_id= OBJECT_ID('dbo." + tableName + "');";
+                break;
+            case POSTGRES:
+                indexCountQuery = "select count(distinct(indexname)) as indexCount " +
+                        "from pg_indexes where TABLENAME='" + tableName.toLowerCase() + "';";
+                break;
+            case ORACLE:
+                indexCountQuery = "select count(distinct(index_name)) as indexCount " +
+                        "from SYS.ALL_INDEXES where TABLE_NAME ='" + tableName.toUpperCase() + "'";
+                break;
+            default:
+                indexCountQuery = "SELECT count(distinct(INDEX_NAME)) as indexCount " +
+                        "FROM information_schema.INDEXES where TABLE_NAME = '" + tableName + "'";
+        }
+
+        PreparedStatement stmt = null;
+        Connection con = null;
+        try {
+            con = getTestDataSource().getConnection();
+            stmt = con.prepareStatement(indexCountQuery);
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            log.error("Getting rows in DB table failed due to " + e.getMessage(), e);
+            throw e;
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, stmt, con);
+        }
+    }
+
 
     public enum TestType {
         MySQL, H2, ORACLE, MSSQL, DB2, POSTGRES

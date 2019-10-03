@@ -93,6 +93,21 @@ public class RDBMSCUDTestCase {
         //Testing table query
         log.info("rdbmsCUD1 - Test Update");
 
+        String databaseType = System.getenv("DATABASE_TYPE");
+        if (databaseType == null) {
+            databaseType = RDBMSTableTestUtils.TestType.H2.toString();
+        }
+        RDBMSTableTestUtils.TestType type = RDBMSTableTestUtils.TestType.valueOf(databaseType);
+
+        boolean isOracle11 = false;
+        String sqlQuery;
+        if (type.equals(RDBMSTableTestUtils.TestType.ORACLE)) {
+            sqlQuery = "UPDATE " + TABLE_NAME + " SET symbol = 'WSO22' WHERE symbol = 'WSO2'";
+            isOracle11 = Boolean.parseBoolean(System.getenv("IS_ORACLE_11"));
+        } else {
+            sqlQuery = "UPDATE " + TABLE_NAME + " SET symbol = 'WSO22' WHERE symbol = 'WSO2';";
+        }
+
         YAMLConfigManager yamlConfigManager = new YAMLConfigManager(
                 "extensions: \n" +
                 "  - extension: \n" +
@@ -112,8 +127,7 @@ public class RDBMSCUDTestCase {
 
         String query = "" +
                 "@info(name = 'query1') " +
-                "from StockStream#rdbms:cud(\"TEST_DATASOURCE\", \"UPDATE " + TABLE_NAME + " SET " +
-                "symbol = 'WSO22' WHERE symbol = 'WSO2';\") " +
+                "from StockStream#rdbms:cud(\"TEST_DATASOURCE\", \"" + sqlQuery + "\") " +
                 "select numRecords " +
                 "insert into OutputStream ;";
 
@@ -140,7 +154,11 @@ public class RDBMSCUDTestCase {
 
         Assert.assertTrue(isEventArrived, "Event Not Arrived");
         Assert.assertEquals(1, eventCount.get(), "Event count did not match");
-        Assert.assertEquals(1, actualData.get(0)[0]);
 
+        if (isOracle11) {
+            Assert.assertEquals(-2, actualData.get(0)[0]);
+        } else {
+            Assert.assertEquals(1, actualData.get(0)[0]);
+        }
     }
 }

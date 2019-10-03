@@ -113,6 +113,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLD
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_VALUES;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_CONDITION;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX_NUMBER;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INNER_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_Q;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_SELECTORS;
@@ -561,7 +562,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String jndiResourceName;
     private Annotation storeAnnotation;
     private Annotation primaryKeys;
-    private Annotation indices;
+    private List<Annotation> indices;
     private String selectQuery;
     private String containsQuery;
     private String deleteQuery;
@@ -592,10 +593,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
         primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
-        indices = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX,
+        indices = AnnotationHelper.getAnnotations(SiddhiConstants.ANNOTATION_INDEX,
                 tableDefinition.getAnnotations());
         RDBMSTableUtils.validateAnnotation(primaryKeys);
-        RDBMSTableUtils.validateAnnotation(indices);
+        indices.forEach(RDBMSTableUtils::validateAnnotation);
         jndiResourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_JNDI_RESOURCE);
         dataSourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_DATASOURCE);
         if (null != configReader) {
@@ -1395,11 +1396,15 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      * @param primaryKeys     the unique keys that should be set for the table.
      * @param indices         the DB indices that should be set for the table.
      */
-    private void createTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices)
+    private void createTable(Annotation storeAnnotation, Annotation primaryKeys, List<Annotation> indices)
             throws ConnectionUnavailableException {
         StringBuilder builder = new StringBuilder();
         List<Element> primaryKeyList = (primaryKeys == null) ? new ArrayList<>() : primaryKeys.getElements();
-        List<Element> indexElementList = (indices == null) ? new ArrayList<>() : indices.getElements();
+        List<List<Element>> indexElementList = new ArrayList<>();
+        if (indices != null) {
+            indices.forEach((index) -> indexElementList.add(index.getElements()));
+        }
+
         List<String> queries = new ArrayList<>();
         Map<String, String> fieldLengths = RDBMSTableUtils.processFieldLengths(storeAnnotation.getElement(
                 ANNOTATION_ELEMENT_FIELD_LENGTHS));
@@ -1454,9 +1459,15 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     .append(CLOSE_PARENTHESIS);
         }
         queries.add(createQuery.replace(PLACEHOLDER_COLUMNS_FOR_CREATE, builder.toString()));
-        if (indexElementList != null && !indexElementList.isEmpty()) {
-            queries.add(indexQuery.replace(PLACEHOLDER_INDEX,
-                    RDBMSTableUtils.flattenAnnotatedElements(indexElementList)));
+        if (!indexElementList.isEmpty()) {
+            for (int i = 0; i < indexElementList.size(); i++) {
+                if (!indexElementList.get(i).isEmpty()) {
+                    String query = indexQuery.replace(PLACEHOLDER_INDEX,
+                            RDBMSTableUtils.flattenAnnotatedElements(indexElementList.get(i)));
+                    query = query.replace(PLACEHOLDER_INDEX_NUMBER, String.valueOf(i + 1));
+                    queries.add(query);
+                }
+            }
         }
         try {
             // Setting autocommit to true if the JDBC connection does not support transactions.
