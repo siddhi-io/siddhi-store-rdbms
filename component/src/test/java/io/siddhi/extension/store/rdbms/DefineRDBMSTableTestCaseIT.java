@@ -973,7 +973,7 @@ public class DefineRDBMSTableTestCaseIT {
         Thread.sleep(1000);
 
         long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
-        long totalIndexInTable = RDBMSTableTestUtils.getIndexesInTable(TABLE_NAME.toUpperCase());
+        long totalIndexInTable = RDBMSTableTestUtils.getIndexesInTable(TABLE_NAME);
         Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
         Assert.assertEquals(totalIndexInTable, 3, "Indices creation failed");
         siddhiAppRuntime.shutdown();

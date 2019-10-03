@@ -193,22 +193,26 @@ public class RDBMSTableTestUtils {
 
         String indexCountQuery;
         switch (testDatabaseType) {
+            case H2:
+                indexCountQuery = "SELECT count(distinct(INDEX_NAME)) as indexCount " +
+                        "FROM information_schema.INDEXES where TABLE_NAME = '" + tableName.toUpperCase() + "'";
+                break;
             case MySQL:
                 indexCountQuery = "select count(distinct(INDEX_NAME)) as indexCount " +
                         "from information_schema.statistics where TABLE_NAME='" + tableName + "';";
                 break;
+            case MSSQL:
+                indexCountQuery = "select count(distinct(name)) as indexCount " +
+                        "from sys.indexes where object_id= OBJECT_ID('dbo." + tableName + "');";
+                break;
             case POSTGRES:
                 indexCountQuery = "select count(distinct(indexname)) as indexCount " +
-                        "from pg_indexes where TABLE_NAME='" + tableName + "';";
+                        "from pg_indexes where TABLENAME='" + tableName.toLowerCase() + "';";
                 break;
             case ORACLE:
-
-            case MSSQL:
-                indexCountQuery = "select count(distinct(IndexName)) as indexCount " +
-                        "from sys.indexes where TABLE_NAME='" + tableName + "';";
+                indexCountQuery = "select count(distinct(index_name)) as indexCount " +
+                        "from SYS.ALL_INDEXES where TABLE_NAME ='" + tableName.toUpperCase() + "'";
                 break;
-            case H2:
-            case DB2:
             default:
                 indexCountQuery = "SELECT count(distinct(INDEX_NAME)) as indexCount " +
                         "FROM information_schema.INDEXES where TABLE_NAME = '" + tableName + "'";
