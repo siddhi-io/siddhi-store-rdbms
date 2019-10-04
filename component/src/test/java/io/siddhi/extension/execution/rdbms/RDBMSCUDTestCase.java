@@ -64,12 +64,13 @@ public class RDBMSCUDTestCase {
 
     @BeforeMethod
     public void init() {
+        isEventArrived = false;
+        eventCount = new AtomicInteger();
+        actualData = new ArrayList<>();
+
         try {
             RDBMSTableTestUtils.initDatabaseTable(TABLE_NAME);
             log.info("Test init with url: " + url + " and driverClass: " + driverClassName);
-            isEventArrived = false;
-            eventCount = new AtomicInteger();
-            actualData = new ArrayList<>();
         } catch (SQLException e) {
             log.info("Test case ignored due to " + e.getMessage());
         }
