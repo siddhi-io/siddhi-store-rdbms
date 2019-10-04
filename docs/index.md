@@ -14,18 +14,18 @@ For information on <a target="_blank" href="https://siddhi.io/">Siddhi</a> and i
 
 ## Download
 
-* Versions 6.x and above with group id `io.siddhi.extension.*` from <a target="_blank" href="https://mvnrepository.com/artifact/io.siddhi.extension.store.rdbms/siddhi-store-rdbms/">here</a>.
+* Versions 7.x & 6.x and above with group id `io.siddhi.extension.*` from <a target="_blank" href="https://mvnrepository.com/artifact/io.siddhi.extension.store.rdbms/siddhi-store-rdbms/">here</a>.
 * Versions 5.x and lower with group id `org.wso2.extension.siddhi.*` from <a target="_blank" href="https://mvnrepository.com/artifact/org.wso2.extension.siddhi.store.rdbms/siddhi-store-rdbms">here</a>.
 
 ## Latest API Docs 
 
-Latest API Docs is <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.4">6.0.4</a>.
+Latest API Docs is <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/7.0.0">7.0.0</a>.
 
 ## Features
 
-* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.4/#cud-stream-processor">cud</a> *(<a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#stream-processor">Stream Processor</a>)*<br> <div style="padding-left: 1em;"><p><p style="word-wrap: break-word;margin: 0;">This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.<br></p></p></div>
-* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.4/#query-stream-processor">query</a> *(<a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#stream-processor">Stream Processor</a>)*<br> <div style="padding-left: 1em;"><p><p style="word-wrap: break-word;margin: 0;">This function performs SQL retrieval queries on WSO2 datasources. <br>Note: This function is only available when running Siddhi with WSO2 SP.</p></p></div>
-* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/6.0.4/#rdbms-store">rdbms</a> *(<a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#store">Store</a>)*<br> <div style="padding-left: 1em;"><p><p style="word-wrap: break-word;margin: 0;">This extension assigns data sources and connection instructions to event tables. It also implements read-write operations on connected datasources.</p></p></div>
+* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/7.0.0/#cud-stream-processor">cud</a> *(<a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#stream-processor">Stream Processor</a>)*<br> <div style="padding-left: 1em;"><p><p style="word-wrap: break-word;margin: 0;">This function performs SQL CUD (INSERT, UPDATE, DELETE) queries on data sources. <br>Note: This function to work data sources should be set at the Siddhi Manager level.<br></p></p></div>
+* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/7.0.0/#query-stream-processor">query</a> *(<a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#stream-processor">Stream Processor</a>)*<br> <div style="padding-left: 1em;"><p><p style="word-wrap: break-word;margin: 0;">This function performs SQL retrieval queries on data sources. <br>Note: This function to work data sources should be set at the Siddhi Manager level.</p></p></div>
+* <a target="_blank" href="https://siddhi-io.github.io/siddhi-store-rdbms/api/7.0.0/#rdbms-store">rdbms</a> *(<a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#store">Store</a>)*<br> <div style="padding-left: 1em;"><p><p style="word-wrap: break-word;margin: 0;">This extension assigns data sources and connection instructions to event tables. It also implements read-write operations on connected data sources.</p></p></div>
 
 ## Dependencies 
 
