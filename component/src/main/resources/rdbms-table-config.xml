@@ -68,6 +68,7 @@
             <longType>BIGINT</longType>
             <stringType>VARCHAR</stringType>
         </typeMapping>
+        <collation>latin1_bin</collation>
     </database>
     <database name="oracle" maxVersion = "12.0">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
@@ -177,6 +178,7 @@
             <longType>BIGINT</longType>
             <stringType>VARCHAR</stringType>
         </typeMapping>
+        <collation>SQL_Latin1_General_CP1_CS_AS</collation>
     </database>
     <database name="PostgreSQL">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>

@@ -47,6 +47,7 @@ public class RDBMSQueryConfigurationEntry {
     private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate;
     private int batchSize;
     private boolean batchEnable = false;
+    private String collation;
     private boolean transactionSupported = true;
     private String recordContainsCondition;
 
@@ -89,6 +90,15 @@ public class RDBMSQueryConfigurationEntry {
 
     public void setBatchEnable(boolean batchEnable) {
         this.batchEnable = batchEnable;
+    }
+
+    @XmlElement(name = "collation")
+    public String getCollation() {
+        return collation;
+    }
+
+    public void setCollation(String collation) {
+        this.collation = collation;
     }
 
     public void setCategory(String category) {
