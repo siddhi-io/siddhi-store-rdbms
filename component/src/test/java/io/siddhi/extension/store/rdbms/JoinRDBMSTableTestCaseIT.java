@@ -1180,8 +1180,8 @@ public class JoinRDBMSTableTestCaseIT {
                 "@info(name = 'query2') " +
                 "from CheckStockStream left outer join StockTable " +
                 "on StockTable.symbol == CheckStockStream.symbol " +
-                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol " +
-                "having symbol is null " +
+                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as nullableSymbol " +
+                "having nullableSymbol is null " +
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
@@ -1192,10 +1192,15 @@ public class JoinRDBMSTableTestCaseIT {
                 if (inEvents != null) {
                     for (Event event : inEvents) {
                         inEventCount++;
-                        if (inEventCount == 1) {
-                            Assert.assertEquals(event.getData(), new Object[]{"WSO2", null});
-                        } else {
-                            Assert.fail();
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO2", null});
+                                break;
+                            case 2:
+                                Assert.assertEquals(event.getData(), new Object[]{"WSO22", null});
+                                break;
+                            default:
+                                Assert.assertSame(inEventCount, 2);
                         }
                     }
                     eventArrived = true;
@@ -1215,10 +1220,11 @@ public class JoinRDBMSTableTestCaseIT {
         checkStockStream.send(new Object[]{"WSO2", 50L});
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         checkStockStream.send(new Object[]{"WSO2", 50L});
+        checkStockStream.send(new Object[]{"WSO22", 50L});
         Thread.sleep(1000);
 
         Assert.assertTrue(eventArrived, "Event arrived");
-        Assert.assertEquals(inEventCount, 1, "Number of success events");
+        Assert.assertEquals(inEventCount, 2, "Number of success events");
         Assert.assertEquals(removeEventCount, 0, "Number of remove events");
         siddhiAppRuntime.shutdown();
     }
