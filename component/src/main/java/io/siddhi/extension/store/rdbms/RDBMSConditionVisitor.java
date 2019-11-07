@@ -246,6 +246,10 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void endVisitIsNull(String streamId) {
+        if (!this.isAfterSelectClause) {
+           throw new OperationNotSupportedException("The RDBMS Event table does not support 'IS NULL' functions " +
+                   "in having clause.");
+        }
         condition.append(RDBMSTableConstants.SQL_IS_NULL).append(WHITESPACE);
     }
 
