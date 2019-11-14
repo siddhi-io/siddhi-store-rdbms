@@ -17,8 +17,8 @@
   -->
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>wso2das-${project.version}</baseDirectory>
-    <id>WSO2 Stream Processor Distribution</id>
+    <baseDirectory>siddhi-runner-${project.version}</baseDirectory>
+    <id>Siddhi IO Runner Distribution</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -63,18 +63,8 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>carbon-home/conf/editor</directory>
-            <outputDirectory>conf/editor</outputDirectory>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
             <directory>carbon-home/conf/transports</directory>
             <outputDirectory>wso2/default/conf/transports</outputDirectory>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>carbon-home/conf/transports</directory>
-            <outputDirectory>wso2/editor/conf/transports</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
@@ -105,71 +95,12 @@
             <fileMode>444</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../samples</directory>
-            <outputDirectory>samples</outputDirectory>
-            <excludes>
-                <exclude>target/**</exclude>
-                <exclude>scripts/**</exclude>
-                <exclude>pom.xml</exclude>
-                <exclude>LICENSE.txt</exclude>
-                <exclude>release-notes.html</exclude>
-                <exclude>**/*.ipr</exclude>
-                <exclude>**/*.iwr</exclude>
-                <exclude>**/*.eclipse</exclude>
-                <exclude>**/*.iml</exclude>
-                <exclude>**/*.releaseBackup</exclude>
-                <exclude>%regex[(?!.*utils/).*pom.xml]</exclude>
-                <exclude>**/target/**</exclude>
-            </excludes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
             <directory>carbon-home/deployment/siddhi-files</directory>
             <outputDirectory>deployment/siddhi-files</outputDirectory>
             <fileMode>644</fileMode>
             <excludes>
                 <exclude>*.gitkeep</exclude>
             </excludes>
-        </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>wso2/default/deployment/csv-files</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>wso2/default/deployment/simulation-configs</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>wso2/editor/deployment/workspace</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>wso2/editor/deployment/csv-files</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>wso2/editor/deployment/simulation-configs</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
-            <fileMode>644</fileMode>
         </fileSet>
     </fileSets>
     <files>

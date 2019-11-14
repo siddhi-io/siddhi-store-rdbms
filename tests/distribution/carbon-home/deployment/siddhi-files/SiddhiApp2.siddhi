@@ -4,7 +4,7 @@
 define stream FooStream (symbol string, price float, volume float);
 
 @Store(type='rdbms', datasource='WSO2_CARBON_DS_2')
-define table FooTable2 (symbol string, price float, volume float);
+define table FooTable(symbol string, price float, volume float);
 
 from FooStream
-insert into FooTable2;
+insert into FooTable;

@@ -47,11 +47,11 @@
     </profiles>
 
     <properties>
-        <io.siddhi.runner.version>1.0.0-m2</io.siddhi.runner.version>
+        <io.siddhi.runner.version>5.1.0</io.siddhi.runner.version>
         <siddhi.version>5.1.5</siddhi.version>
         <siddhi.bundle.version>5.1.5</siddhi.bundle.version>
         <siddhi.version.range>[5.0.0, 6.0.0)</siddhi.version.range>
-        <carbon.analytics.common.version>6.0.73</carbon.analytics.common.version>
+        <carbon.analytics.common.version>6.1.32</carbon.analytics.common.version>
         <siddhi.execution.string.version>5.0.5</siddhi.execution.string.version>
 
         <carbon.feature.plugin.version>3.1.3</carbon.feature.plugin.version>
@@ -66,35 +66,34 @@
         <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
 
         <!-- Dependencies -->
-        <carbon.kernel.version>5.2.8</carbon.kernel.version>
+        <carbon.kernel.version>5.2.11</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[5.2.6, 6.0.0)</carbon.kernel.package.import.version.range>
 
-        <carbon.deployment.version>5.2.0</carbon.deployment.version>
-        <carbon.deployment.export.version>5.2.0</carbon.deployment.export.version>
+        <carbon.deployment.version>5.2.2</carbon.deployment.version>
+        <carbon.deployment.export.version>5.2.2</carbon.deployment.export.version>
 
-        <carbon.datasources.version>1.1.4</carbon.datasources.version>
-        <carbon.metrics.version>2.3.9</carbon.metrics.version>
-        <carbon.jndi.version>1.0.5</carbon.jndi.version>
+        <carbon.datasources.version>1.1.8</carbon.datasources.version>
+        <carbon.metrics.version>2.3.11</carbon.metrics.version>
+        <carbon.jndi.version>1.0.6</carbon.jndi.version>
 
         <carbon.cache.version>1.1.3</carbon.cache.version>
         <carbon.touchpoint.version>1.1.1</carbon.touchpoint.version>
-        <carbon.utils.version>2.0.8</carbon.utils.version>
-        <carbon.config.version>2.1.5</carbon.config.version>
+        <carbon.utils.version>2.0.10</carbon.utils.version>
+        <carbon.config.version>2.1.14</carbon.config.version>
         <carbon.config.version.range>[2.1.5, 3.0.0)</carbon.config.version.range>
-        <carbon.securevault.version>5.0.11</carbon.securevault.version>
+        <carbon.securevault.version>5.0.15</carbon.securevault.version>
 
         <slf4j.version>1.7.12</slf4j.version>
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
         </slf4j.logging.package.import.version.range>
 
-        <!--<antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>-->
         <hikari.version>2.6.1</hikari.version>
 
         <jaxen.import.version.range>[1.1.6,1.2.0)</jaxen.import.version.range>
         <commons.logging.version>1.2</commons.logging.version>
 
         <!--MSF4J related-->
-        <msf4j.version>2.6.4</msf4j.version>
+        <msf4j.version>2.8.1</msf4j.version>
         <msf4j.import.version.range>[2.6.2, 3.0.0)</msf4j.import.version.range>
         <com.fasterxml.jackson.core.version>2.9.6</com.fasterxml.jackson.core.version>
         <com.fasterxml.jackson.core.version.range>[2.9.0, 2.10.0)</com.fasterxml.jackson.core.version.range>
@@ -352,6 +351,12 @@
                 <version>${io.siddhi.runner.version}</version>
                 <type>zip</type>
             </dependency>
+            <dependency>
+                <groupId>io.siddhi</groupId>
+                <artifactId>io.siddhi.feature</artifactId>
+                <version>${siddhi.version}</version>
+                <type>zip</type>
+            </dependency>
 
             <!-- MSF4J Features-->
             <dependency>
@@ -376,12 +381,6 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.pax.exam.feature</artifactId>
                 <version>${carbon.kernel.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>io.siddhi.distribution</groupId>
-                <artifactId>io.siddhi.distribution.editor.core.feature</artifactId>
-                <version>${io.siddhi.runner.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
@@ -498,12 +497,6 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.analytics-common</groupId>
-                <artifactId>org.wso2.carbon.databridge.feature</artifactId>
-                <version>${carbon.analytics.common.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.analytics-common</groupId>
                 <artifactId>org.wso2.carbon.databridge.agent.feature</artifactId>
                 <version>${carbon.analytics.common.version}</version>
                 <type>zip</type>
@@ -553,21 +546,14 @@
             </dependency>
             <dependency>
                 <groupId>io.siddhi.distribution</groupId>
-                <artifactId>io.siddhi.distribution.event.simulator.core.feature</artifactId>
-                <version>${io.siddhi.runner.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>io.siddhi.distribution</groupId>
                 <artifactId>io.siddhi.distribution.store.api.rest.feature</artifactId>
                 <version>${io.siddhi.runner.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
-                <groupId>io.siddhi.distribution</groupId>
-                <artifactId>io.siddhi.distribution.siddhi.feature</artifactId>
-                <version>${io.siddhi.runner.version}</version>
-                <type>zip</type>
+                <groupId>io.siddhi.extension.store.rdbms</groupId>
+                <artifactId>siddhi-store-rdbms</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
