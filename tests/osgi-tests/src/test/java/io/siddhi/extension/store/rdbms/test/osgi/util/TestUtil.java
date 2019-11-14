@@ -16,7 +16,6 @@
 
 package io.siddhi.extension.store.rdbms.test.osgi.util;
 
-import io.netty.handler.codec.http.HttpMethod;
 import io.siddhi.extension.store.rdbms.RDBMSEventTable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,14 +33,15 @@ public class TestUtil {
     private static final Log logger = LogFactory.getLog(RDBMSEventTable.class);
 
     public static HTTPResponseMessage sendHRequest(String body, URI baseURI, String path, String contentType,
-                                                   String methodType, Boolean auth, String userName, String password) {
+                                                   Boolean auth, String userName, String password) {
         try {
             HttpURLConnection urlConn = null;
             try {
-                urlConn = TestUtil.generateRequest(baseURI, path, methodType, false);
+                urlConn = TestUtil.generateRequest(baseURI, path);
             } catch (IOException e) {
-                TestUtil.handleException("IOException occurred while running the HttpsSourceTestCaseForSSL", e);
+                logger.error("IOException occurred while running the HttpsSourceTestCaseForSSL", e);
             }
+            assert urlConn != null;
             if (auth) {
                 TestUtil.setHeader(urlConn, "Authorization",
                         "Basic " + java.util.Base64.getEncoder().
@@ -50,17 +50,14 @@ public class TestUtil {
             if (contentType != null) {
                 TestUtil.setHeader(urlConn, "Content-Type", contentType);
             }
-            TestUtil.setHeader(urlConn, "HTTP_METHOD", methodType);
-            if (methodType.equals(HttpMethod.POST.name()) || methodType.equals(HttpMethod.PUT.name())) {
-                TestUtil.writeContent(urlConn, body);
-            }
-            assert urlConn != null;
+            TestUtil.setHeader(urlConn, "HTTP_METHOD", "POST");
+            TestUtil.writeContent(urlConn, body);
             HTTPResponseMessage httpResponseMessage = new HTTPResponseMessage(urlConn.getResponseCode(),
                     urlConn.getContentType(), urlConn.getResponseMessage());
             urlConn.disconnect();
             return httpResponseMessage;
         } catch (IOException e) {
-            TestUtil.handleException("IOException occurred while running the HttpsSourceTestCaseForSSL", e);
+            logger.error("IOException occurred while running the HttpsSourceTestCaseForSSL", e);
         }
         return new HTTPResponseMessage();
     }
@@ -72,26 +69,18 @@ public class TestUtil {
         out.close();
     }
 
-    private static HttpURLConnection generateRequest(URI baseURI, String path, String method, boolean keepAlive)
+    private static HttpURLConnection generateRequest(URI baseURI, String path)
             throws IOException {
         URL url = baseURI.resolve(path).toURL();
         HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-        urlConn.setRequestMethod(method);
-        if (method.equals(HttpMethod.POST.name()) || method.equals(HttpMethod.PUT.name())) {
-            urlConn.setDoOutput(true);
-        }
-        if (keepAlive) {
-            urlConn.setRequestProperty("Connection", "Keep-Alive");
-        }
+        urlConn.setRequestMethod("POST");
+        urlConn.setDoOutput(true);
+        urlConn.setRequestProperty("Connection", "Keep-Alive");
         return urlConn;
     }
 
     private static void setHeader(HttpURLConnection urlConnection, String key, String value) {
         urlConnection.setRequestProperty(key, value);
-    }
-
-    private static void handleException(String msg, Exception ex) {
-        logger.error(msg, ex);
     }
 
 }

@@ -104,8 +104,11 @@
         <dependency>
             <groupId>io.siddhi.extension.store.rdbms</groupId>
             <artifactId>siddhi-store-rdbms-tests-distribution</artifactId>
-            <version>${project.version}</version>
             <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>io.siddhi.extension.store.rdbms</groupId>
+            <artifactId>siddhi-store-rdbms</artifactId>
         </dependency>
     </dependencies>
 
@@ -170,6 +173,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <argLine>-Xmx1024m</argLine>
                     <systemPropertyVariables>
                         <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}
                         </org.ops4j.pax.url.mvn.localRepository>
