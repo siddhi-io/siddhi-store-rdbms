@@ -17,9 +17,7 @@ limitations under the License.
 <suite name="Siddhi-store-rdbms-Test-Suite">
     <test name="siddhi-store-rdbms-tests" preserve-order="true">
         <classes>
-            <!-- Disabling OSGi tests temporarily as they need to be updated after Siddhi bump 5.1.5 -->
-         <!--   <class name="io.siddhi.extension.store.rdbms.test.osgi.CarbonDSReferenceTest"/>
-            <class name="io.siddhi.extension.store.rdbms.test.osgi.InvalidCarbonDSReferenceTest"/>-->
+            <class name="io.siddhi.extension.store.rdbms.test.osgi.CarbonDSReferenceTest"/>
         </classes>
     </test>
 </suite>
