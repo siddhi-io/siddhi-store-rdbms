@@ -1064,26 +1064,22 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         try {
             if (dataSource == null) {
                 if (!RDBMSTableUtils.isEmpty(dataSourceName)) {
-                    try {
-                        BundleContext bundleContext = FrameworkUtil.getBundle(DataSourceService.class)
-                                .getBundleContext();
-                        ServiceReference serviceRef = bundleContext.getServiceReference(DataSourceService.class
-                                .getName());
-                        if (serviceRef == null) {
-                            throw new RDBMSTableException("DatasourceService : '" +
-                                    DataSourceService.class.getCanonicalName() + "' cannot be found.");
-                        } else {
-                            DataSourceService dataSourceService = (DataSourceService) bundleContext
-                                    .getService(serviceRef);
-                            this.dataSource = (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
-                            this.isLocalDatasource = false;
-                            if (log.isDebugEnabled()) {
-                                log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
-                                        "DataSource Service lookup.");
-                            }
+                    BundleContext bundleContext = FrameworkUtil.getBundle(DataSourceService.class)
+                            .getBundleContext();
+                    ServiceReference serviceRef = bundleContext.getServiceReference(DataSourceService.class
+                            .getName());
+                    if (serviceRef == null) {
+                        throw new DataSourceException("DatasourceService : '" +
+                                DataSourceService.class.getCanonicalName() + "' cannot be found.");
+                    } else {
+                        DataSourceService dataSourceService = (DataSourceService) bundleContext
+                                .getService(serviceRef);
+                        this.dataSource = (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
+                        this.isLocalDatasource = false;
+                        if (log.isDebugEnabled()) {
+                            log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
+                                    "DataSource Service lookup.");
                         }
-                    } catch (DataSourceException e) {
-                        throw new RDBMSTableException("Datasource '" + dataSourceName + "' cannot be connected.", e);
                     }
                 } else {
                     if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
@@ -1239,6 +1235,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         } catch (CannotLoadConfigurationException | NamingException | RDBMSTableException e) {
             this.destroy();
             throw new ConnectionUnavailableException("Failed to initialize store for table name '" +
+                    this.tableName + "'", e);
+        } catch (DataSourceException e) {
+            this.destroy();
+            throw new RDBMSTableException("Failed to initialize store for table name '" +
                     this.tableName + "'", e);
         }
     }
