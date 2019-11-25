@@ -1516,7 +1516,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         List<String> attributeNames = new ArrayList<>();
         this.attributes.forEach(attribute -> attributeNames.add(attribute.getName()));
         fieldLengths.keySet().forEach(field -> {
-            if (!attributeNames.contains(field)) {
+            if (!field.equals(SiddhiConstants.AGG_SHARD_ID_COL) && !attributeNames.contains(field)) {
                 throw new RDBMSTableException("Field '" + field + "' (for which a size of " + fieldLengths.get(field)
                         + " has been specified) does not exist in the table's list of fields.");
             }
