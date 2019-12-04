@@ -21,6 +21,7 @@ import io.siddhi.core.executor.ExpressionExecutor;
 import io.siddhi.core.table.record.UpdateOrInsertReducer;
 import io.siddhi.core.util.collection.operator.CompiledCondition;
 
+import java.util.List;
 import java.util.SortedMap;
 
 /**
@@ -37,10 +38,10 @@ public class RDBMSCompiledCondition implements CompiledCondition {
     private ExpressionExecutor inMemorySetExpressionExecutor;
     private SortedMap<Integer, Object> parameters;
     private boolean isContainsConditionExist;
-    private int ordinalOfContainPattern;
+    private List<Integer> ordinalOfContainPattern;
 
     public RDBMSCompiledCondition(String compiledQuery, SortedMap<Integer, Object> parameters,
-                                  boolean isContainsConditionExist, int ordinalOfContainPattern,
+                                  boolean isContainsConditionExist, List<Integer> ordinalOfContainPattern,
                                   boolean useSubSelect, String subSelectQuerySelectors,
                                   String outerCompiledCondition, UpdateOrInsertReducer updateOrInsertReducer,
                                   ExpressionExecutor inMemorySetExpressionExecutor) {
@@ -87,7 +88,7 @@ public class RDBMSCompiledCondition implements CompiledCondition {
         return parameters;
     }
 
-    public int getOrdinalOfContainPattern() {
+    public List<Integer> getOrdinalOfContainPattern() {
         return ordinalOfContainPattern;
     }
 

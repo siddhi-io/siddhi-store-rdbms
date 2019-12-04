@@ -73,7 +73,7 @@ public class RDBMSTableConstants {
     public static final String CLOSE_PARENTHESIS = ")";
     public static final String SUB_SELECT_QUERY_REF = "t2";
 
-    public static final String CONTAINS_CONDITION_REGEX = "(CONTAINS\\()([a-zA-z.]*)(\\s\\?\\s\\))";
+    public static final String CONTAINS_CONDITION_REGEX = "(CONTAINS\\()([a-zA-z0-9_.]*)(\\s\\?\\s\\))";
 
     //Annotation field names
     public static final String ANNOTATION_ELEMENT_URL = "jdbc.url";

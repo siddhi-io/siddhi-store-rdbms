@@ -234,7 +234,7 @@ public class RDBMSTableUtils {
             }
             if (parameter instanceof Constant) {
                 Constant constant = (Constant) parameter;
-                if (entry.getKey().equals(compiledCondition.getOrdinalOfContainPattern())) {
+                if (compiledCondition.getOrdinalOfContainPattern().contains(entry.getKey())) {
                     populateStatementWithSingleElement(stmt, seed + entry.getKey(), constant.getType(),
                             "%" + constant.getValue() + "%");
                 } else {
@@ -243,7 +243,7 @@ public class RDBMSTableUtils {
                 }
             } else {
                 Attribute variable = (Attribute) parameter;
-                if (entry.getKey().equals(compiledCondition.getOrdinalOfContainPattern())) {
+                if (compiledCondition.getOrdinalOfContainPattern().contains(entry.getKey())) {
                     populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
                             "%" + conditionParameterMap.get(variable.getName()) + "%");
                 } else {
@@ -475,10 +475,11 @@ public class RDBMSTableUtils {
         Matcher matcher = CONTAINS_CONDITION_REGEX_PATTERN.matcher(findCondition);
         while (matcher.find()) {
             String tableColumnId = matcher.group(2);
-            String recordContainsCondition = recordContainsConditionTemplate.replace(PLACEHOLDER_COLUMNS,
-                    tableColumnId).
-                    replace(PLACEHOLDER_VALUES, QUESTION_MARK);
-            return matcher.replaceAll(recordContainsCondition);
+            String recordContainsCondition = recordContainsConditionTemplate
+                    .replace(PLACEHOLDER_COLUMNS, tableColumnId).
+                            replace(PLACEHOLDER_VALUES, QUESTION_MARK);
+            findCondition = matcher.replaceFirst(recordContainsCondition);
+            matcher = CONTAINS_CONDITION_REGEX_PATTERN.matcher(findCondition);
         }
         return findCondition;
     }

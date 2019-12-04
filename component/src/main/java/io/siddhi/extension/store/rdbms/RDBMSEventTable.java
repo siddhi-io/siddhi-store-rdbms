@@ -2076,8 +2076,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             compiledOuterOnCondition.setLength(compiledOuterOnCondition.length() - 4);
         }
 
-        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0, containsLastFunction,
-                compiledSubSelectQuerySelection.toString(), compiledOuterOnCondition.toString(), null, null);
+        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, new ArrayList<>(),
+                containsLastFunction, compiledSubSelectQuerySelection.toString(), compiledOuterOnCondition.toString(),
+                null, null);
     }
 
     private RDBMSCompiledCondition compileClause(List<ExpressionBuilder> expressionBuilders, boolean isHavingClause) {
@@ -2108,7 +2109,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             compiledSelectionList.setLength(compiledSelectionList.length() - 2); // Removing the last comma separator.
         }
         return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false,
-                0, false, null, null, null, null);
+                new ArrayList<>(), false, null, null, null, null);
     }
 
     private RDBMSCompiledCondition compileOrderByClause(List<OrderByAttributeBuilder> orderByAttributeBuilders) {
@@ -2145,7 +2146,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             compiledSelectionList.setLength(compiledSelectionList.length() - 2); // Removing the last comma separator.
         }
         return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false,
-                0, false, null, null, null, null);
+                new ArrayList<>(), false, null, null, null, null);
     }
 
     private static class DefaultConfigReader implements ConfigReader {
