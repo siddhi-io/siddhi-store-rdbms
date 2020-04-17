@@ -115,19 +115,16 @@
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc6</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.siddhi.extension.execution.string</groupId>
             <artifactId>siddhi-execution-string</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc7</artifactId>
-            <scope>test</scope>
-            <version>12.1.0.2</version>
-        </dependency>-->
+        <dependency>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>com.ibm.db2</groupId>-->
             <!--<artifactId>db2jcc</artifactId>-->

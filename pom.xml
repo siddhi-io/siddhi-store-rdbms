@@ -127,6 +127,7 @@
         <tomcat.catalina.version>8.0.15</tomcat.catalina.version>
         <commons.lang3.version>3.3.2</commons.lang3.version>
         <ojdbc6.version>12.1.0.1-atlassian-hosted</ojdbc6.version>
+        <ojdbc8.version>19.3.0.0</ojdbc8.version>
         <sqljdbc4.version>4.0</sqljdbc4.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <io.fabric8.version>0.20.0</io.fabric8.version>
@@ -232,7 +233,11 @@
                 <groupId>com.oracle</groupId>
                 <artifactId>ojdbc6</artifactId>
                 <version>${ojdbc6.version}</version>
-                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.ojdbc</groupId>
+                <artifactId>ojdbc8</artifactId>
+                <version>${ojdbc8.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
