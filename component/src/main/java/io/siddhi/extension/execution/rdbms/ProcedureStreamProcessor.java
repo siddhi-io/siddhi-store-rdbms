@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,6 +22,7 @@ import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
 import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
+import io.siddhi.annotation.SystemParameter;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiContext;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -41,18 +42,17 @@ import io.siddhi.core.query.processor.stream.StreamProcessor;
 import io.siddhi.core.util.config.ConfigReader;
 import io.siddhi.core.util.snapshot.state.State;
 import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.extension.execution.rdbms.procedure.FunctionStreamProcessor;
+import io.siddhi.extension.execution.rdbms.procedure.OracleFunctionStreamProcessor;
 import io.siddhi.extension.execution.rdbms.util.RDBMSStreamProcessorUtil;
 import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
-import oracle.jdbc.OracleCallableStatement;
-import oracle.jdbc.OracleTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +63,8 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 /**
- * This extension function can be used to perform SQL retrieval queries on a datasource.
+ * This extension function can be used to perform stored procedures and function execution which returns a result
+ * on a datasource.
  */
 @Extension(
         name = "procedure",
@@ -107,12 +108,12 @@ import javax.sql.DataSource;
                 @Parameter(
                         name = "input.parameters",
                         description = "This is provided as a comma-separated list in the \" +\n" +
-                                "'<AttributeName AttributeType>' format. \" +\n" +
-                                "The SQL query is expected to return the attributes in the given order. e.g., If one \" +\n" +
-                                "attribute is defined here, the SQL query should return one column result set. \" +\n" +
-                                "If more than one column is returned, then the first column is processed. The \" +\n" +
-                                "Siddhi data types supported are 'STRING', 'INT', 'LONG', 'DOUBLE', 'FLOAT', and \" +\n" +
-                                "'BOOL'. \n Mapping of the Siddhi data type to the database data type can be done as \" +\n" +
+                                "'<AttributeName AttributeType>' format.+\n" +
+                                "The SQL query is expected to return the attributes in the given order. e.g., " +
+                                "If one attribute is defined here, the SQL query should return one column result set." +
+                                "+\n If more than one column is returned, then the first column is processed. The " +
+                                "Siddhi data types supported are 'STRING', 'INT', 'LONG', 'DOUBLE', 'FLOAT', and " +
+                                "'BOOL'. \n Mapping of the Siddhi data type to the database data type can be done as " +
                                 "follows, \n\" +\n" +
                                 "*Siddhi Datatype* -> *Datasource Datatype*\n" +
                                 "`STRING` -> `CHAR`,`VARCHAR`,`LONGVARCHAR`\n" +
@@ -159,6 +160,14 @@ import javax.sql.DataSource;
                         dynamic = true
                 )
         },
+        systemParameter = {
+                @SystemParameter(
+                        name = "database_type",
+                        description = "This parameter should be set in deployment yaml file inorder to initialize " +
+                                "the procedure function.",
+                        defaultValue = "WSO2_CARBON_DB:oracle"
+                )
+        },
         parameterOverloads = {
                 @ParameterOverload(
                         parameterNames = {"datasource.name", "attribute.definition.list", "query"}
@@ -190,8 +199,8 @@ import javax.sql.DataSource;
         },
         examples = {
                 @Example(
-                        syntax = "from TriggerStream#rdbms:procedure('SAMPLE_DB', 'creditcardno string, country string, " +
-                                "transaction string, amount int', 'select * from Transactions_Table') \n" +
+                        syntax = "from TriggerStream#rdbms:procedure('SAMPLE_DB', 'creditcardno string, " +
+                                "country string, transaction string, amount int', 'select * from Transactions_Table')" +
                                 "select creditcardno, country, transaction, amount \n" +
                                 "insert into recordStream;",
                         description = "Events inserted into recordStream includes all records matched for the query " +
@@ -223,27 +232,31 @@ public class ProcedureStreamProcessor extends StreamProcessor<State> {
     private Map<String, Attribute.Type> inputParameterMap = new HashMap<>();
     private boolean isQueryParameterised = false;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
-    private List<Integer> outputParameters = new ArrayList<>();
+    private Integer outputParameter;
     private List<Attribute> attributeList;
-    private boolean isInputParamsExists = false;
     private boolean isOutputParamsExists = false;
     private long numOfParameterizedPositionsInQuery = 0;
-
+    private FunctionStreamProcessor functionStreamProcessor;
 
     @Override
     protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
                                        ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                       StreamEventClonerHolder streamEventClonerHolder, boolean outputExpectsExpiredEvents,
-                                       boolean findToBeExecuted, SiddhiQueryContext siddhiQueryContext) {
-
+                                       StreamEventClonerHolder streamEventClonerHolder,
+                                       boolean outputExpectsExpiredEvents, boolean findToBeExecuted,
+                                       SiddhiQueryContext siddhiQueryContext) {
         int attributesLength = attributeExpressionExecutors.length;
         this.dataSourceName = RDBMSStreamProcessorUtil.validateDatasourceName(attributeExpressionExecutors[0]);
         this.siddhiContext = siddhiQueryContext.getSiddhiAppContext().getSiddhiContext();
-
         this.query = ((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue().toString();
-
         this.numOfParameterizedPositionsInQuery = query.chars().filter(ch -> ch == '?').count();
+        String databaseType = configReader.getAllConfigs().get(this.dataSourceName);
 
+        if ("oracle".equals(databaseType)) {
+            functionStreamProcessor = new OracleFunctionStreamProcessor();
+        } else {
+            throw new SiddhiAppValidationException("Currently Siddhi store procedure function only supports" +
+                    " Oracle database");
+        }
         if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
             String attributeDefinition = ((ConstantExpressionExecutor) attributeExpressionExecutors[1])
                     .getValue().toString();
@@ -289,59 +302,13 @@ public class ProcedureStreamProcessor extends StreamProcessor<State> {
         }
 
         if (attributesLength > 4 && attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
-            String inputParameters = ((ConstantExpressionExecutor) attributeExpressionExecutors[3]).
-                    getValue().toString();
-            String[] inputParamPairs = inputParameters.split(",");
-            for (String inputParamPair : inputParamPairs) {
-                String[] splitAttributeDef = inputParamPair.trim().split("\\s");
-                if (splitAttributeDef.length != 2) {
-                    throw new SiddhiAppValidationException("The parameter 'attribute.definition.list' is " +
-                            "invalid, it should be comma separated list of <AttributeName AttributeType>, " +
-                            "but found '" + inputParameters);
-                }
-                Attribute.Type attributeType;
-                switch (splitAttributeDef[1].toLowerCase()) {
-                    case "number":
-                    case "num":
-                        attributeType = Attribute.Type.INT;
-                        break;
-                    case "varchar":
-                    case "varchar2":
-                        attributeType = Attribute.Type.STRING;
-                        break;
-                    case "bool":
-                    case "boolean":
-                        attributeType = Attribute.Type.BOOL;
-                        break;
-                    case "long":
-                        attributeType = Attribute.Type.LONG;
-                        break;
-                    case "double":
-                        attributeType = Attribute.Type.DOUBLE;
-                        break;
-                    default:
-                        throw new SiddhiAppValidationException("The provided input attribute type " +
-                                splitAttributeDef[1] + "does not supported");
-                }
-                this.inputParameterMap.put(splitAttributeDef[0], attributeType);
-                this.isInputParamsExists = true;
-            }
+            inputParameterMap = functionStreamProcessor.processInputParameters((ConstantExpressionExecutor)
+                    attributeExpressionExecutors[3]);
         }
 
-        if (attributesLength > 4 && attributeExpressionExecutors[4]
-                instanceof ConstantExpressionExecutor) {
-            String[] outParameterTypes = ((ConstantExpressionExecutor) attributeExpressionExecutors[4]).getValue().
-                    toString().split(",");
-            for (String outParameterType : outParameterTypes) {
-                switch (outParameterType.trim().toLowerCase()) {
-                    case "varchar":
-                        outputParameters.add(OracleTypes.VARCHAR);
-                        break;
-                    case "cursor":
-                        outputParameters.add(OracleTypes.CURSOR);
-                        break;
-                }
-            }
+        if (attributesLength > 4 && attributeExpressionExecutors[4] instanceof ConstantExpressionExecutor) {
+            outputParameter = functionStreamProcessor.processOutputParameters((ConstantExpressionExecutor)
+                    attributeExpressionExecutors[4]);
             this.isOutputParamsExists = true;
         }
         if (attributesLength > 5) {
@@ -365,7 +332,7 @@ public class ProcedureStreamProcessor extends StreamProcessor<State> {
             }
 
         }
-        if (numOfParameterizedPositionsInQuery != inputParameterMap.size() + outputParameters.size()) {
+        if (numOfParameterizedPositionsInQuery != inputParameterMap.size() + 1) {
             throw new SiddhiAppValidationException("Input and Output Parameter count does not match, " +
                     numOfParameterizedPositionsInQuery + "parameters required to execute the function or the " +
                     "procedure");
@@ -379,7 +346,6 @@ public class ProcedureStreamProcessor extends StreamProcessor<State> {
                            State state) {
         Connection conn = this.getConnection();
         CallableStatement stmt = null;
-        ResultSet resultSet = null;
         int noOfParameterizedPositions = 0;
         try {
             while (streamEventChunk.hasNext()) {
@@ -397,32 +363,24 @@ public class ProcedureStreamProcessor extends StreamProcessor<State> {
                 }
                 if (isOutputParamsExists) {
                     while (numOfParameterizedPositionsInQuery > noOfParameterizedPositions) {
-                        stmt.registerOutParameter(noOfParameterizedPositions + 1, outputParameters.get(0));
+                        stmt.registerOutParameter(noOfParameterizedPositions + 1, outputParameter);
                         noOfParameterizedPositions++;
                     }
+                } else {
+                    throw new SiddhiAppRuntimeException("Error occurred while executing the procedure call, " +
+                            "output parameter should be defined inorder to use ");
                 }
                 stmt.execute();
-                if (stmt.isWrapperFor(OracleCallableStatement.class)) {
-                    OracleCallableStatement cstmt = stmt.unwrap(OracleCallableStatement.class);
-                    resultSet = cstmt.getCursor(noOfParameterizedPositions);
-                } else {
-                    log.error("Error");
-                }
-                while (resultSet.next()) {
-                    StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(event);
-                    Object[] data = RDBMSStreamProcessorUtil.processRecord(this.attributeList, resultSet);
-                    complexEventPopulater.populateComplexEvent(clonedEvent, data);
-                    streamEventChunk.insertBeforeCurrent(clonedEvent);
-                }
+                streamEventChunk = functionStreamProcessor.getResults(stmt, noOfParameterizedPositions, outputParameter,
+                        streamEventCloner, this.attributeList, event, complexEventPopulater, streamEventChunk);
                 streamEventChunk.remove();
-                RDBMSStreamProcessorUtil.cleanupConnection(resultSet, stmt, null);
             }
             nextProcessor.process(streamEventChunk);
         } catch (SQLException e) {
             throw new SiddhiAppRuntimeException("Error in retrieving records from  datasource '"
                     + this.dataSourceName + "': " + e.getMessage(), e);
         } finally {
-            RDBMSStreamProcessorUtil.cleanupConnection(resultSet, stmt, conn);
+            RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, conn);
         }
     }
 
