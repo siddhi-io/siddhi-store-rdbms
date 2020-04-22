@@ -32,9 +32,7 @@ import oracle.jdbc.OracleTypes;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This is the implementation for OracleFunctionStreamProcessor
@@ -68,47 +66,6 @@ public class OracleFunctionStreamProcessor implements FunctionStreamProcessor {
             }
         }
         return outputParameter;
-    }
-
-    @Override
-    public Map<String, Attribute.Type> processInputParameters(ConstantExpressionExecutor constantExpressionExecutor) {
-        Map<String, Attribute.Type> inputParameterMap = new HashMap<>();
-        String inputParameters = constantExpressionExecutor.getValue().toString();
-        String[] inputParamPairs = inputParameters.split(",");
-        for (String inputParamPair : inputParamPairs) {
-            String[] splitAttributeDef = inputParamPair.trim().split("\\s");
-            if (splitAttributeDef.length != 2) {
-                throw new SiddhiAppValidationException("The parameter 'attribute.definition.list' is " +
-                        "invalid, it should be comma separated list of <AttributeName AttributeType>, " +
-                        "but found '" + inputParameters);
-            }
-            Attribute.Type attributeType;
-            switch (splitAttributeDef[1].toLowerCase()) {
-                case "number":
-                case "num":
-                    attributeType = Attribute.Type.INT;
-                    break;
-                case "varchar":
-                case "varchar2":
-                    attributeType = Attribute.Type.STRING;
-                    break;
-                case "bool":
-                case "boolean":
-                    attributeType = Attribute.Type.BOOL;
-                    break;
-                case "long":
-                    attributeType = Attribute.Type.LONG;
-                    break;
-                case "double":
-                    attributeType = Attribute.Type.DOUBLE;
-                    break;
-                default:
-                    throw new SiddhiAppValidationException("The provided input attribute type " +
-                            splitAttributeDef[1] + "does not supported");
-            }
-            inputParameterMap.put(splitAttributeDef[0], attributeType);
-        }
-        return inputParameterMap;
     }
 
     @Override

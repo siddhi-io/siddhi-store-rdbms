@@ -56,9 +56,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
@@ -106,44 +104,10 @@ import javax.sql.DataSource;
                         dynamic = true
                 ),
                 @Parameter(
-                        name = "input.parameters",
-                        description = "This is provided as a comma-separated list in the \" +\n" +
-                                "'<AttributeName AttributeType>' format.+\n" +
-                                "The SQL query is expected to return the attributes in the given order. e.g., " +
-                                "If one attribute is defined here, the SQL query should return one column result set." +
-                                "+\n If more than one column is returned, then the first column is processed. The " +
-                                "Siddhi data types supported are 'STRING', 'INT', 'LONG', 'DOUBLE', 'FLOAT', and " +
-                                "'BOOL'. \n Mapping of the Siddhi data type to the database data type can be done as " +
-                                "follows, \n\" +\n" +
-                                "*Siddhi Datatype* -> *Datasource Datatype*\n" +
-                                "`STRING` -> `CHAR`,`VARCHAR`,`LONGVARCHAR`\n" +
-                                "`INT`\t-> `INTEGER`\n" +
-                                "`LONG`\t-> `BIGINT`\n" +
-                                "`DOUBLE`\t-> `DOUBLE`\n" +
-                                "`FLOAT`\t-> `REAL`\n" +
-                                "`BOOL`\t-> `BIT`\n\"",
-                        type = DataType.STRING,
-                        optional = true,
-                        defaultValue = "<Empty_String>",
-                        dynamic = true
-                ),
-                @Parameter(
                         name = "output.parameter",
                         description = "This is provided as a comma-separated list in the " +
-                                "'<AttributeName AttributeType>' format. " +
-                                "The SQL query is expected to return the attributes in the given order. e.g., If one " +
-                                "attribute is defined here, the SQL query should return one column result set. " +
-                                "If more than one column is returned, then the first column is processed. The " +
-                                "Siddhi data types supported are 'STRING', 'INT', 'LONG', 'DOUBLE', 'FLOAT', and " +
-                                "'BOOL'. \n Mapping of the Siddhi data type to the database data type can be done as " +
-                                "follows, \n" +
-                                "*Siddhi Datatype* -> *Datasource Datatype*\n" +
-                                "`STRING` -> `CHAR`,`VARCHAR`,`LONGVARCHAR`\n" +
-                                "`INT`\t-> `INTEGER`\n" +
-                                "`LONG`\t-> `BIGINT`\n" +
-                                "`DOUBLE`-> `DOUBLE`\n" +
-                                "`FLOAT`\t-> `REAL`\n" +
-                                "`BOOL`\t-> `BIT`\n\"\"",
+                                "'<AttributeType>' format. This AttributeType should be supported by the Database data " +
+                                "type",
                         type = DataType.STRING,
                         optional = true,
                         defaultValue = "<Empty_String>",
@@ -160,32 +124,29 @@ import javax.sql.DataSource;
                         dynamic = true
                 )
         },
-        systemParameter = {
-                @SystemParameter(
-                        name = "database_type",
-                        description = "This parameter should be set in deployment yaml file inorder to initialize " +
-                                "the procedure function.",
-                        defaultValue = "WSO2_CARBON_DB:oracle"
-                )
-        },
         parameterOverloads = {
                 @ParameterOverload(
                         parameterNames = {"datasource.name", "attribute.definition.list", "query"}
                 ),
                 @ParameterOverload(
-                        parameterNames = {"datasource.name", "attribute.definition.list", "query", "input.parameters"}
+                        parameterNames = {"datasource.name", "attribute.definition.list", "query", "output.parameter"}
                 ),
                 @ParameterOverload(
-                        parameterNames = {"datasource.name", "attribute.definition.list", "query", "input.parameters",
-                                "output.parameter"}
+                        parameterNames = {"datasource.name", "attribute.definition.list", "query", "output.parameter",
+                                "parameter"}
                 ),
                 @ParameterOverload(
-                        parameterNames = {"datasource.name", "attribute.definition.list", "query", "input.parameters",
-                                "output.parameter", "parameter"}
-                ),
-                @ParameterOverload(
-                        parameterNames = {"datasource.name", "attribute.definition.list", "query", "input.parameters",
-                                "output.parameter", "parameter", "..."}
+                        parameterNames = {"datasource.name", "attribute.definition.list", "query", "output.parameter",
+                                "parameter", "..."}
+                )
+        },
+        systemParameter = {
+                @SystemParameter(
+                        name = "database_type",
+                        description = "This parameter should be set in deployment yaml file inorder to initialize " +
+                                "the procedure function.",
+                        defaultValue = "WSO2_CARBON_DB:oracle",
+                        possibleParameters = "WSO2_CARBON_DB:oracle"
                 )
         },
         returnAttributes = {
@@ -199,27 +160,26 @@ import javax.sql.DataSource;
         },
         examples = {
                 @Example(
-                        syntax = "from TriggerStream#rdbms:procedure('SAMPLE_DB', 'creditcardno string, " +
-                                "country string, transaction string, amount int', 'select * from Transactions_Table')" +
-                                "select creditcardno, country, transaction, amount \n" +
-                                "insert into recordStream;",
-                        description = "Events inserted into recordStream includes all records matched for the query " +
-                                "i.e an event will be generated for each record retrieved from the datasource. " +
-                                "The event will include as additional attributes, the attributes defined in the " +
-                                "`attribute.definition.list`(creditcardno, country, transaction, amount)."
+                        syntax = "from IntrimStream#rdbms:procedure('ORACLE_DB', 'Name String, Age int,Date_Time " +
+                                "String', 'begin RETURNCON(?,?); end;','cursor', NoOfYears)\n" +
+                                "select Name, Age, Date_Time\n" +
+                                "insert into tempStream1;",
+                        description = "This will execute the stored procedure RETURNCON() which is defined in the " +
+                                "database and return the attributes Name, Age and Date_Time as the output. Above " +
+                                "RETURNCON() Stored Procedure accepts two parameters, one is a input parameter and " +
+                                "the other one is an output parameter, in this case it's a 'cursor'. input parameter" +
+                                " value will provided from the IntrimStream and the parameter is NoOfYears"
                 ),
                 @Example(
-                        syntax = "from TriggerStream#rdbms:query('SAMPLE_DB', 'creditcardno string, country string," +
-                                "transaction string, amount int', 'select * from where country=?', " +
-                                "countrySearchWord) " +
-                                "select creditcardno, country, transaction, amount \n" +
-                                "insert into recordStream;",
-                        description = "Events inserted into recordStream includes all records matched for the query " +
-                                "i.e an event will be generated for each record retrieved from the datasource. " +
-                                "The event will include as additional attributes, the attributes defined in the " +
-                                "`attribute.definition.list`(creditcardno, country, transaction, amount). " +
-                                "countrySearchWord value from the event will be set in the query when querying the " +
-                                "datasource."
+                        syntax = "from IntrimStream#rdbms:procedure('ORACLE_DB', 'Name String, Age int,Date_Time " +
+                                "String', 'begin RETURNCON(9,?); end;','cursor')\n" +
+                                "select Name, Age, Date_Time\n" +
+                                "insert into tempStream1;",
+                        description = "This will execute the stored procedure RETURNCON() which is defined in the " +
+                                "database and return the attributes Name, Age and Date_Time as the output. Above " +
+                                "RETURNCON() Stored Procedure accepts two parameters, one is a input parameter and " +
+                                "the other one is an output parameter, in this case it's a 'cursor'. input parameter" +
+                                " is provided in the query itself in this example"
                 )
         }
 )
@@ -229,7 +189,6 @@ public class ProcedureStreamProcessor extends StreamProcessor<State> {
     private String dataSourceName;
     private DataSource dataSource;
     private String query;
-    private Map<String, Attribute.Type> inputParameterMap = new HashMap<>();
     private boolean isQueryParameterised = false;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
     private Integer outputParameter;
@@ -301,29 +260,24 @@ public class ProcedureStreamProcessor extends StreamProcessor<State> {
                     attributeExpressionExecutors[1].getClass().getCanonicalName() + "'.");
         }
 
-        if (attributesLength > 4 && attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
-            inputParameterMap = functionStreamProcessor.processInputParameters((ConstantExpressionExecutor)
-                    attributeExpressionExecutors[3]);
-        }
-
-        if (attributesLength > 4 && attributeExpressionExecutors[4] instanceof ConstantExpressionExecutor) {
+        if (attributesLength > 3 && attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
             outputParameter = functionStreamProcessor.processOutputParameters((ConstantExpressionExecutor)
-                    attributeExpressionExecutors[4]);
+                    attributeExpressionExecutors[3]);
             this.isOutputParamsExists = true;
         }
-        if (attributesLength > 5) {
+        if (attributesLength > 4) {
             this.isQueryParameterised = true;
-            this.expressionExecutors.addAll(Arrays.asList(attributeExpressionExecutors).subList(5,
+            this.expressionExecutors.addAll(Arrays.asList(attributeExpressionExecutors).subList(4,
                     attributesLength));
 
             long attributeCount;
             if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
-                String query = ((ConstantExpressionExecutor) attributeExpressionExecutors[3]).getValue().toString();
+                String query = ((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue().toString();
                 attributeCount = query.chars().filter(ch -> ch == '?').count();
-                if (attributeCount != attributesLength - 5) {
+                if (attributeCount != attributesLength - 3) {
                     throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function contains '" +
                             attributeCount + "' ordinals, but found siddhi attributes of count '" +
-                            (attributesLength - 5) + "'.");
+                            (attributesLength - 3) + "'.");
                 }
             } else {
                 throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
@@ -332,9 +286,9 @@ public class ProcedureStreamProcessor extends StreamProcessor<State> {
             }
 
         }
-        if (numOfParameterizedPositionsInQuery != inputParameterMap.size() + 1) {
+        if (numOfParameterizedPositionsInQuery != attributesLength - 4 + 1) {
             throw new SiddhiAppValidationException("Input and Output Parameter count does not match, " +
-                    numOfParameterizedPositionsInQuery + "parameters required to execute the function or the " +
+                    numOfParameterizedPositionsInQuery + " parameters required to execute the function or the " +
                     "procedure");
         }
         return null;

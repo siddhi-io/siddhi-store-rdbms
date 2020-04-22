@@ -27,15 +27,12 @@ import io.siddhi.query.api.definition.Attribute;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This is the interface for ProcedureStream function
  */
 public interface FunctionStreamProcessor {
     Integer processOutputParameters(ConstantExpressionExecutor constantExpressionExecutor);
-
-    Map<String, Attribute.Type> processInputParameters(ConstantExpressionExecutor constantExpressionExecutor);
 
     ComplexEventChunk<StreamEvent> getResults(CallableStatement stmt, int noOfParameterizedPositions,
                                               Integer outputParameters, StreamEventCloner streamEventCloner,
