@@ -106,8 +106,8 @@ import javax.sql.DataSource;
                 @Parameter(
                         name = "output.parameter",
                         description = "This is provided as a comma-separated list in the " +
-                                "'<AttributeType>' format. This AttributeType should be supported by the Database data " +
-                                "type",
+                                "'<AttributeType>' format. This AttributeType should be supported by the Database " +
+                                "data type",
                         type = DataType.STRING,
                         optional = true,
                         defaultValue = "<Empty_String>",
