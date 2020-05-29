@@ -131,6 +131,11 @@
             <!--<scope>test</scope>-->
             <!--<version>4.19.26</version>-->
         <!--</dependency>-->
+
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.si.metrics.core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

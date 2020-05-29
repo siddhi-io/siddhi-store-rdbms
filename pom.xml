@@ -83,6 +83,8 @@
         <carbon.config.version.range>[2.1.5, 3.0.0)</carbon.config.version.range>
         <carbon.securevault.version>5.0.15</carbon.securevault.version>
 
+        <carbon.analytics.version>3.0.36</carbon.analytics.version>
+
         <slf4j.version>1.7.12</slf4j.version>
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
         </slf4j.logging.package.import.version.range>
@@ -559,6 +561,12 @@
                 <groupId>io.siddhi.extension.store.rdbms</groupId>
                 <artifactId>siddhi-store-rdbms</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.analytics</groupId>
+                <artifactId>org.wso2.carbon.si.metrics.core</artifactId>
+                <version>${carbon.analytics.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
