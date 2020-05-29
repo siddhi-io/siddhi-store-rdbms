@@ -40,6 +40,8 @@ import io.siddhi.extension.store.rdbms.config.RDBMSQueryConfigurationEntry;
 import io.siddhi.extension.store.rdbms.config.RDBMSSelectQueryTemplate;
 import io.siddhi.extension.store.rdbms.config.RDBMSTypeMapping;
 import io.siddhi.extension.store.rdbms.exception.RDBMSTableException;
+import io.siddhi.extension.store.rdbms.metrics.RDBMSMetrics;
+import io.siddhi.extension.store.rdbms.metrics.RDBMSStatus;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableConstants;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableUtils;
 import io.siddhi.query.api.annotation.Annotation;
@@ -55,6 +57,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
+import org.wso2.carbon.si.metrics.core.internal.MetricsDataHolder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -598,6 +601,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate;
     private boolean useCollation = false;
     private String collation;
+    private RDBMSMetrics metrics;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -679,7 +683,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             }
             rs = stmt.executeQuery();
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
-            return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
+            return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName, metrics);
         } catch (SQLException e) {
             try {
                 boolean isConnValid = conn.isValid(0);
@@ -711,9 +715,17 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
                     containsConditionParameterMap, 0);
             rs = stmt.executeQuery();
-            return rs.next();
+            boolean result = rs.next();
+            if (result && metrics != null) {
+                metrics.getTotalReadsCountMetric().inc();
+                metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
+            }
+            return result;
         } catch (SQLException e) {
             try {
+                if (metrics != null) {
+                    metrics.setRDBMSStatus(RDBMSStatus.ERROR);
+                }
                 if (!conn.isValid(0)) {
                     throw new ConnectionUnavailableException("Error performing contains check. Connection is closed " +
                             "for store: '" + tableName + "'", e);
@@ -751,15 +763,34 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 stmt.addBatch();
                 counter++;
                 if (counter == batchSize) {
-                    stmt.executeBatch();
+                    int[] results = stmt.executeBatch();
                     stmt.clearBatch();
                     counter = 0;
+                    if (metrics != null) {
+                        int count = executedRowsCount(results);
+                        if (count > 0) {
+                            metrics.getDeleteCountMetric().inc(count);
+                            metrics.getTotalWritesCountMetrics().inc(count);
+                        }
+                        metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
+                    }
                 }
             }
             if (counter > 0) {
-                stmt.executeBatch();
+                int[] results = stmt.executeBatch();
+                if (metrics != null) {
+                    int count = executedRowsCount(results);
+                    if (count > 0) {
+                        metrics.getDeleteCountMetric().inc(count);
+                        metrics.getTotalWritesCountMetrics().inc(count);
+                    }
+                    metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
+                }
             }
         } catch (SQLException e) {
+            if (metrics != null) {
+                metrics.setRDBMSStatus(RDBMSStatus.ERROR);
+            }
             try {
                 if (!conn.isValid(0)) {
                     throw new ConnectionUnavailableException("Error performing record deletion. Connection is closed " +
@@ -818,15 +849,34 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 stmt.addBatch();
                 counter++;
                 if (counter == batchSize) {
-                    stmt.executeBatch();
+                    int[] updateResultIndex = stmt.executeBatch();
                     stmt.clearBatch();
                     counter = 0;
+                    if (metrics != null) {
+                        int count = executedRowsCount(updateResultIndex);
+                        if (count > 0) {
+                            metrics.getUpdateCountMetric().inc(count);
+                            metrics.getTotalWritesCountMetrics().inc(count);
+                        }
+                        metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
+                    }
                 }
             }
             if (counter > 0) {
-                stmt.executeBatch();
+                int[] updateResultIndex = stmt.executeBatch();
+                if (metrics != null) {
+                    int count = executedRowsCount(updateResultIndex);
+                    if (count > 0) {
+                        metrics.getUpdateCountMetric().inc(count);
+                        metrics.getTotalWritesCountMetrics().inc(count);
+                    }
+                    metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
+                }
             }
         } catch (SQLException e) {
+            if (metrics != null) {
+                metrics.setRDBMSStatus(RDBMSStatus.ERROR);
+            }
             try {
                 if (!conn.isValid(0)) {
                     throw new ConnectionUnavailableException("Error performing record update operations. " +
@@ -955,11 +1005,20 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 conn.commit();
                 if (isUpdate < 1) {
                     updateResultList.add(counter);
+                } else {
+                    if (metrics != null) {
+                        metrics.getUpdateCountMetric().inc();
+                        metrics.getTotalWritesCountMetrics().inc();
+                        metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
+                    }
                 }
                 counter++;
             }
             return updateResultList;
         } catch (SQLException e) {
+            if (metrics != null) {
+                metrics.setRDBMSStatus(RDBMSStatus.ERROR);
+            }
             try {
                 if (!conn.isValid(0)) {
                     throw new ConnectionUnavailableException("Could not execute update/insert operation (update). " +
@@ -989,10 +1048,19 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 try {
                     insertStmt.addBatch();
                     if (counter % batchSize == (batchSize - 1)) {
-                        insertStmt.executeBatch();
+                        int[] result = insertStmt.executeBatch();
                         conn.commit();
                         insertStmt.clearBatch();
+                        if (metrics != null) {
+                            int count = executedRowsCount(result);
+                            if (count > 0) {
+                                metrics.getInsertCountMetric().inc(count);
+                                metrics.getTotalWritesCountMetrics().inc(count);
+                            }
+                            metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
+                        }
                     }
+
                 } catch (SQLException e) {
                     try {
                         boolean isConnInvalid = conn.isValid(0);
@@ -1011,11 +1079,22 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 }
                 counter++;
                 if (counter % batchSize > 0) {
-                    insertStmt.executeBatch();
+                    int[] result = insertStmt.executeBatch();
                     conn.commit();
+                    if (metrics != null) {
+                        int count = executedRowsCount(result);
+                        if (count > 0) {
+                            metrics.getInsertCountMetric().inc(count);
+                            metrics.getTotalWritesCountMetrics().inc(count);
+                        }
+                        metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
+                    }
                 }
             }
         } catch (SQLException e) {
+            if (metrics != null) {
+                metrics.setRDBMSStatus(RDBMSStatus.ERROR);
+            }
             try {
                 if (!conn.isValid(0)) {
                     throw new ConnectionUnavailableException("Could not execute insert operation. " +
@@ -1039,10 +1118,26 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             //Filter update result index and adding to list.
             if (updateResultIndex[i] < 1) {
                 insertIndexList.add(lastUpdatedRecordIndex + i);
+            } else if (metrics != null) {
+                int count = updateResultIndex[i];
+                metrics.getUpdateCountMetric().inc(count);
+                metrics.getTotalWritesCountMetrics().inc(count);
+                metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
             }
         }
         return insertIndexList;
     }
+
+    private int executedRowsCount(int[] updateResultIndex) {
+        int count = 0;
+        for (int resultIndex : updateResultIndex) {
+            if (resultIndex >= 1) {
+                count += resultIndex;
+            }
+        }
+        return count;
+    }
+
 
     @Override
     protected CompiledCondition compileCondition(ExpressionBuilder expressionBuilder) {
@@ -1241,6 +1336,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             throw new RDBMSTableException("Failed to initialize store for table name '" +
                     this.tableName + "'", e);
         }
+        if (metrics != null) {
+            metrics.updateTableStatus(siddhiAppContext.getExecutorService(), siddhiAppContext.getName());
+        }
     }
 
     @Override
@@ -1365,6 +1463,17 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             log.debug("Database connection for '" + this.tableName + "' created through connection" +
                     " parameters specified in the query.");
         }
+        if (MetricsDataHolder.getInstance().getMetricService() != null &&
+                MetricsDataHolder.getInstance().getMetricManagementService().isEnabled()) {
+            try {
+                if (MetricsDataHolder.getInstance().getMetricManagementService().isReporterRunning(
+                        "prometheus")) {
+                    this.metrics = new RDBMSMetrics(siddhiAppContext.getName(), url, tableName);
+                }
+            } catch (IllegalArgumentException e) {
+                log.debug("Prometheus server is not running. Hence metrics will not be initialise.");
+            }
+        }
     }
 
     /**
@@ -1387,7 +1496,14 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         try {
             conn = this.dataSource.getConnection();
             conn.setAutoCommit(autoCommit);
+            if (metrics != null) {
+                metrics.setDatabaseParams(conn.getMetaData().getURL(), conn.getCatalog(), conn.getMetaData()
+                        .getDatabaseProductName());
+            }
         } catch (SQLException e) {
+            if (metrics != null) {
+                metrics.setRDBMSStatus(RDBMSStatus.ERROR);
+            }
             throw new ConnectionUnavailableException("Error initializing connection for store: " + tableName, e);
         }
         return conn;
@@ -1589,20 +1705,36 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 this.populateStatement(record, stmt);
                 stmt.addBatch();
             }
-            stmt.executeBatch();
+            int[] result = stmt.executeBatch();
             if (!autocommit) {
                 conn.commit();
                 committed = true;
+            }
+            if (metrics != null) {
+                int count = executedRowsCount(result);
+                if (count > 0) {
+                    metrics.getInsertCountMetric().inc(count);
+                    metrics.getTotalWritesCountMetrics().inc(count);
+                }
+                metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
             }
         } catch (SQLException e) {
             if (e.getMessage().contains("try restarting transaction") && stmt != null) {
                 log.warn("SQL Exception received instructing to restart the transaction. Hence retrying the query ["
                         + query + "]. " + e.getMessage());
                 try {
-                    stmt.executeBatch();
+                    int[] result = stmt.executeBatch();
                     if (!autocommit) {
                         conn.commit();
                         committed = true;
+                    }
+                    if (metrics != null) {
+                        int count = executedRowsCount(result);
+                        if (count > 0) {
+                            metrics.getInsertCountMetric().inc(count);
+                            metrics.getTotalWritesCountMetrics().inc(count);
+                        }
+                        metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
                     }
                 } catch (SQLException e1) {
                     if (log.isDebugEnabled()) {
@@ -1615,6 +1747,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             RDBMSTableUtils.rollbackConnection(conn);
                         }
                         if (!isConnValid) {
+                            if (metrics != null) {
+                                metrics.setRDBMSStatus(RDBMSStatus.ERROR);
+                            }
                             throw new ConnectionUnavailableException("Failed to execute query for store: " + tableName,
                                     e);
                         } else {
@@ -1634,6 +1769,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 if (log.isDebugEnabled()) {
                     log.debug("Attempted execution of query [" + query + "] produced an exception: "
                             + e.getMessage());
+                }
+                if (metrics != null) {
+                    metrics.setRDBMSStatus(RDBMSStatus.ERROR);
                 }
                 throw new RDBMSTableException(e);
             }
@@ -1720,6 +1858,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         Connection conn = this.getConnection();
         PreparedStatement stmt;
         String query = getSelectQuery(rdbmsCompiledCondition, rdbmsCompiledSelection);
+//            String query = "SELECT * FROM " + this.tableName;
         if (log.isDebugEnabled()) {
             log.debug("Store Query SQL Syntax: '" + query + "'");
         }
@@ -1749,9 +1888,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             // If the outputAttributes are null, it is assumed that all the attributes from the table definition
             // are being selected in the query.
             if (outputAttributes == null) {
-                return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
+                return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName, metrics);
             }
-            return new RDBMSIterator(conn, stmt, rs, Arrays.asList(outputAttributes), this.tableName);
+            return new RDBMSIterator(conn, stmt, rs, Arrays.asList(outputAttributes), this.tableName, metrics);
         } catch (SQLException e) {
             try {
                 boolean isConnValid = conn.isValid(0);

@@ -19,6 +19,8 @@ package io.siddhi.extension.store.rdbms;
 
 import io.siddhi.core.table.record.RecordIterator;
 import io.siddhi.extension.store.rdbms.exception.RDBMSTableException;
+import io.siddhi.extension.store.rdbms.metrics.RDBMSMetrics;
+import io.siddhi.extension.store.rdbms.metrics.RDBMSStatus;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableUtils;
 import io.siddhi.query.api.definition.Attribute;
 
@@ -44,14 +46,26 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
     private Object[] nextValue;
     private List<Attribute> attributes;
     private String tableName;
+    private RDBMSMetrics metrics;
 
-    public RDBMSIterator(Connection conn, PreparedStatement stmt, ResultSet rs, List<Attribute> attributes,
+
+    /*public RDBMSIterator(Connection conn, PreparedStatement stmt, ResultSet rs, List<Attribute> attributes,
                          String tableName) {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
         this.attributes = attributes;
         this.tableName = tableName;
+    }*/
+
+    public RDBMSIterator(Connection conn, PreparedStatement stmt, ResultSet rs, List<Attribute> attributes,
+                         String tableName, RDBMSMetrics metrics) {
+        this.conn = conn;
+        this.stmt = stmt;
+        this.rs = rs;
+        this.attributes = attributes;
+        this.tableName = tableName;
+        this.metrics = metrics;
     }
 
     @Override
@@ -69,6 +83,11 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
             this.preFetched = false;
             Object[] result = this.nextValue;
             this.nextValue = null;
+            if (metrics != null) {
+                metrics.getTotalReadsCountMetric().inc();
+//                metrics.getTotalWritesCountMetrics().inc();
+                metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
+            }
             return result;
         }
         try {
