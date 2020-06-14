@@ -19,8 +19,6 @@ package io.siddhi.extension.store.rdbms;
 
 import io.siddhi.core.table.record.RecordIterator;
 import io.siddhi.extension.store.rdbms.exception.RDBMSTableException;
-import io.siddhi.extension.store.rdbms.metrics.RDBMSMetrics;
-import io.siddhi.extension.store.rdbms.metrics.RDBMSStatus;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableUtils;
 import io.siddhi.query.api.definition.Attribute;
 

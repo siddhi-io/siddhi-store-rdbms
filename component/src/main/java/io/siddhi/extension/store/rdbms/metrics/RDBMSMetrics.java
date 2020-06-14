@@ -30,7 +30,6 @@ public class RDBMSMetrics {
     private long lastInsertTime;
     private long lastUpdateTime;
     private long lastDeleteTime;
-    private long lastSearchTime;
     private boolean isInitialised;
     private long lastChangeTime;
 
@@ -72,7 +71,13 @@ public class RDBMSMetrics {
         }
     }
 
-    public Counter getTotalWritesCountMetrics() {
+    public Counter getTotalWriteMetrics() { //to count the total writes from siddhi app level.
+        return MetricsDataHolder.getInstance().getMetricService()
+                .counter(String.format("io.siddhi.SiddhiApps.%s.Siddhi.Total.Writes.%s", siddhiAppName, "rdbms"),
+                        Level.INFO);
+    }
+
+    public Counter getWritesCountMetrics() { //to get the total writes count in extension level.
         return MetricsDataHolder.getInstance().getMetricService()
                 .counter(String.format("io.siddhi.SiddhiApps.%s.Siddhi.Store.RDBMS.Write.Count.%s.%s.host.%s.%s.%s",
                         siddhiAppName, dbType, shortenJdbcUrl, databaseName, tableName, getDatabaseURL()), Level.INFO);
@@ -127,13 +132,6 @@ public class RDBMSMetrics {
                 .gauge(String.format("io.siddhi.SiddhiApps.%s.Siddhi.Store.RDBMS.%s.%s",
                         siddhiAppName, "last_delete_time", getDatabaseURL()),
                         Level.INFO, () -> lastDeleteTime);
-    }
-
-    public Counter getTotalReadsCountMetric() {
-        lastSearchTime = System.currentTimeMillis();
-        return MetricsDataHolder.getInstance().getMetricService()
-                .counter(String.format("io.siddhi.SiddhiApps.%s.Siddhi.Store.RDBMS.%s.%s",
-                        siddhiAppName, "total_reads", getDatabaseURL()), Level.INFO);
     }
 
     private void setLastChangeTime() {
@@ -231,8 +229,8 @@ public class RDBMSMetrics {
             getInsertCountMetric().inc(0); //register metrics before perform any changes to table.
             getDeleteCountMetric().inc(0);
             getUpdateCountMetric().inc(0);
-            getTotalReadsCountMetric().inc(0);
-            getTotalWritesCountMetrics().inc(0);
+            getWritesCountMetrics().inc(0);
+            getTotalWriteMetrics().inc(0);
             isInitialised = true;
         }
 

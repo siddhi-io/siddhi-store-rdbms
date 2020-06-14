@@ -683,7 +683,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             }
             rs = stmt.executeQuery();
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
-            return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName, metrics);
+            return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
         } catch (SQLException e) {
             try {
                 boolean isConnValid = conn.isValid(0);
@@ -715,17 +715,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
                     containsConditionParameterMap, 0);
             rs = stmt.executeQuery();
-            boolean result = rs.next();
-            if (result && metrics != null) {
-                metrics.getTotalReadsCountMetric().inc();
-                metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
-            }
-            return result;
+                return rs.next();
         } catch (SQLException e) {
             try {
-                if (metrics != null) {
-                    metrics.setRDBMSStatus(RDBMSStatus.ERROR);
-                }
                 if (!conn.isValid(0)) {
                     throw new ConnectionUnavailableException("Error performing contains check. Connection is closed " +
                             "for store: '" + tableName + "'", e);
@@ -769,8 +761,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     if (metrics != null) {
                         int count = executedRowsCount(results);
                         if (count > 0) {
+                            metrics.getTotalWriteMetrics().inc(count);
                             metrics.getDeleteCountMetric().inc(count);
-                            metrics.getTotalWritesCountMetrics().inc(count);
+                            metrics.getWritesCountMetrics().inc(count);
                         }
                         metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
                     }
@@ -782,7 +775,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     int count = executedRowsCount(results);
                     if (count > 0) {
                         metrics.getDeleteCountMetric().inc(count);
-                        metrics.getTotalWritesCountMetrics().inc(count);
+                        metrics.getWritesCountMetrics().inc(count);
+                        metrics.getTotalWriteMetrics().inc(count);
                     }
                     metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
                 }
@@ -856,7 +850,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         int count = executedRowsCount(updateResultIndex);
                         if (count > 0) {
                             metrics.getUpdateCountMetric().inc(count);
-                            metrics.getTotalWritesCountMetrics().inc(count);
+                            metrics.getWritesCountMetrics().inc(count);
+                            metrics.getTotalWriteMetrics().inc(count);
                         }
                         metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
                     }
@@ -868,7 +863,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     int count = executedRowsCount(updateResultIndex);
                     if (count > 0) {
                         metrics.getUpdateCountMetric().inc(count);
-                        metrics.getTotalWritesCountMetrics().inc(count);
+                        metrics.getWritesCountMetrics().inc(count);
+                        metrics.getTotalWriteMetrics().inc(count);
                     }
                     metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
                 }
@@ -1008,7 +1004,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 } else {
                     if (metrics != null) {
                         metrics.getUpdateCountMetric().inc();
-                        metrics.getTotalWritesCountMetrics().inc();
+                        metrics.getWritesCountMetrics().inc();
+                        metrics.getTotalWriteMetrics().inc();
                         metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
                     }
                 }
@@ -1055,7 +1052,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             int count = executedRowsCount(result);
                             if (count > 0) {
                                 metrics.getInsertCountMetric().inc(count);
-                                metrics.getTotalWritesCountMetrics().inc(count);
+                                metrics.getWritesCountMetrics().inc(count);
+                                metrics.getTotalWriteMetrics().inc(count);
                             }
                             metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
                         }
@@ -1085,7 +1083,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         int count = executedRowsCount(result);
                         if (count > 0) {
                             metrics.getInsertCountMetric().inc(count);
-                            metrics.getTotalWritesCountMetrics().inc(count);
+                            metrics.getWritesCountMetrics().inc(count);
+                            metrics.getTotalWriteMetrics().inc(count);
                         }
                         metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
                     }
@@ -1121,7 +1120,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             } else if (metrics != null) {
                 int count = updateResultIndex[i];
                 metrics.getUpdateCountMetric().inc(count);
-                metrics.getTotalWritesCountMetrics().inc(count);
+                metrics.getWritesCountMetrics().inc(count);
+                metrics.getTotalWriteMetrics().inc(count);
                 metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
             }
         }
@@ -1471,7 +1471,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     this.metrics = new RDBMSMetrics(siddhiAppContext.getName(), url, tableName);
                 }
             } catch (IllegalArgumentException e) {
-                log.debug("Prometheus server is not running. Hence metrics will not be initialise.");
+                log.debug("Prometheus reporter is not running. Hence store-rdbms metrics will not be initialized.");
             }
         }
     }
@@ -1714,7 +1714,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 int count = executedRowsCount(result);
                 if (count > 0) {
                     metrics.getInsertCountMetric().inc(count);
-                    metrics.getTotalWritesCountMetrics().inc(count);
+                    metrics.getWritesCountMetrics().inc(count);
+                    metrics.getTotalWriteMetrics().inc(count);
                 }
                 metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
             }
@@ -1732,7 +1733,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         int count = executedRowsCount(result);
                         if (count > 0) {
                             metrics.getInsertCountMetric().inc(count);
-                            metrics.getTotalWritesCountMetrics().inc(count);
+                            metrics.getWritesCountMetrics().inc(count);
+                            metrics.getTotalWriteMetrics().inc(count);
                         }
                         metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
                     }
@@ -1858,7 +1860,6 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         Connection conn = this.getConnection();
         PreparedStatement stmt;
         String query = getSelectQuery(rdbmsCompiledCondition, rdbmsCompiledSelection);
-//            String query = "SELECT * FROM " + this.tableName;
         if (log.isDebugEnabled()) {
             log.debug("Store Query SQL Syntax: '" + query + "'");
         }
@@ -1888,9 +1889,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             // If the outputAttributes are null, it is assumed that all the attributes from the table definition
             // are being selected in the query.
             if (outputAttributes == null) {
-                return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName, metrics);
+                return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
             }
-            return new RDBMSIterator(conn, stmt, rs, Arrays.asList(outputAttributes), this.tableName, metrics);
+            return new RDBMSIterator(conn, stmt, rs, Arrays.asList(outputAttributes), this.tableName);
         } catch (SQLException e) {
             try {
                 boolean isConnValid = conn.isValid(0);
