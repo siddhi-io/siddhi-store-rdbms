@@ -54,9 +54,7 @@ public class RDBMSMetrics {
                             if (rdbmsDatabase.siddhiAppName.equals(siddhiAppName)) {
                                 long idleTime = System.currentTimeMillis() - lastReceivedTime;
                                 if (idleTime / 1000 > 8) {
-                                    if (RDBMS_STATUS_MAP.get(rdbmsDatabase) != RDBMSStatus.ERROR) {
-                                        RDBMS_STATUS_MAP.replace(rdbmsDatabase, RDBMSStatus.IDLE);
-                                    }
+                                    RDBMS_STATUS_MAP.replace(rdbmsDatabase, RDBMSStatus.IDLE);
                                 }
                             }
                         });
@@ -145,6 +143,12 @@ public class RDBMSMetrics {
                         });
     }
 
+    private Counter getTotalErrorCountMetric() {
+        return MetricsDataHolder.getInstance().getMetricService().counter(
+                String.format("io.siddhi.SiddhiApps.%s.Siddhi.Store.RDBMS.%s.%s",
+                        siddhiAppName, "total_error_count",  getDatabaseURL()), Level.INFO);
+    }
+
     private void getProcessingTime() {
         MetricsDataHolder.getInstance().getMetricService()
                 .gauge(String.format("io.siddhi.SiddhiApps.%s.Siddhi.Store.RDBMS.%s.%s",
@@ -206,6 +210,9 @@ public class RDBMSMetrics {
         if (!processingTime.isRunning()) { //starts the processing_time stopwatch
             processingTime.reset().start();
         }
+        if (rdbmsStatus == RDBMSStatus.ERROR) {
+            getTotalErrorCountMetric().inc();
+        }
         if (RDBMS_STATUS_MAP.containsKey(rdbmsDatabase)) {
             RDBMS_STATUS_MAP.replace(rdbmsDatabase, rdbmsStatus);
         } else {
@@ -226,14 +233,14 @@ public class RDBMSMetrics {
             this.databaseName = databaseName;
             this.dbType = dbType;
             setRDBMSDBStatusMetric();
-            getInsertCountMetric().inc(0); //register metrics before perform any changes to table.
-            getDeleteCountMetric().inc(0);
-            getUpdateCountMetric().inc(0);
-            getWritesCountMetrics().inc(0);
-            getTotalWriteMetrics().inc(0);
+            getInsertCountMetric(); //register metrics before perform any changes to table.
+            getDeleteCountMetric();
+            getUpdateCountMetric();
+            getWritesCountMetrics();
+            getTotalWriteMetrics();
+            getTotalErrorCountMetric();
             isInitialised = true;
         }
-
     }
 
     /**

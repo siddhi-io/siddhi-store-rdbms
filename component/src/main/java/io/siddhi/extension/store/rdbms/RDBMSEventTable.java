@@ -715,7 +715,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
                     containsConditionParameterMap, 0);
             rs = stmt.executeQuery();
-                return rs.next();
+            return rs.next();
         } catch (SQLException e) {
             try {
                 if (!conn.isValid(0)) {
@@ -959,6 +959,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             }
             return recordInsertIndexList;
         } catch (SQLException e) {
+            if (metrics != null) {
+                metrics.setRDBMSStatus(RDBMSStatus.ERROR);
+            }
             try {
                 if (!conn.isValid(0)) {
                     throw new ConnectionUnavailableException("Could not execute batch update/insert operation " +
@@ -1060,6 +1063,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     }
 
                 } catch (SQLException e) {
+                    if (metrics != null) {
+                        metrics.setRDBMSStatus(RDBMSStatus.ERROR);
+                    }
                     try {
                         boolean isConnInvalid = conn.isValid(0);
                         RDBMSTableUtils.rollbackConnection(conn);

@@ -5,5 +5,5 @@ package io.siddhi.extension.store.rdbms.metrics;
  */
 public enum RDBMSStatus {
 
-    PROCESSING, IDLE, ERROR, SUCCESS
+    PROCESSING, IDLE, ERROR
 }
