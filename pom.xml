@@ -83,7 +83,7 @@
         <carbon.config.version.range>[2.1.5, 3.0.0)</carbon.config.version.range>
         <carbon.securevault.version>5.0.15</carbon.securevault.version>
 
-        <carbon.analytics.version>3.0.36</carbon.analytics.version>
+        <carbon.analytics.version>3.0.37</carbon.analytics.version>
 
         <slf4j.version>1.7.12</slf4j.version>
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
