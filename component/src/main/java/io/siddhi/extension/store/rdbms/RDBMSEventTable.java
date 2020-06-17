@@ -1061,7 +1061,6 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             metrics.setRDBMSStatus(RDBMSStatus.PROCESSING);
                         }
                     }
-
                 } catch (SQLException e) {
                     if (metrics != null) {
                         metrics.setRDBMSStatus(RDBMSStatus.ERROR);
@@ -1143,7 +1142,6 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         }
         return count;
     }
-
 
     @Override
     protected CompiledCondition compileCondition(ExpressionBuilder expressionBuilder) {
