@@ -30,6 +30,7 @@ import java.util.SortedMap;
  */
 public class RDBMSCompiledCondition implements CompiledCondition {
 
+    private static final long serialVersionUID = 3241035343135825212L;
     private String compiledQuery;
     private boolean useSubSelect;
     private String subSelectQuerySelectors;
