@@ -60,7 +60,6 @@ import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.si.metrics.core.internal.MetricsDataHolder;
 
-import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -639,12 +638,21 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         } catch (ConnectionUnavailableException e) {
             throw new ConnectionUnavailableException("Failed to add records to store: '" + this.tableName + "'", e);
         } catch (RDBMSTableException e) {
-                if (e.getCause() instanceof BatchUpdateException) {
-                        throw new DatabaseConstraintViolationException("Failed to add records to store: '"
-                                + this.tableName + "'", e);
-                }
+            if (e.getCause() instanceof SQLException && isConstraintViolation(e)) {
+                throw new DatabaseConstraintViolationException("Failed to add records to store: '"
+                    + this.tableName + "'", e);
+            }
             throw new RDBMSTableException("Failed to add records to store: '" + this.tableName + "'", e);
         }
+    }
+
+    private boolean isConstraintViolation(Throwable e) {
+        if (e.toString().contains("MySQLIntegrityConstraintViolationException")) {
+            return true;
+        } else if (e.getCause() != null) {
+            return isConstraintViolation(e.getCause());
+        }
+        return false;
     }
 
     @Override
