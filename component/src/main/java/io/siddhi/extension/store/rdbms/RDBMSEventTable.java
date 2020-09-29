@@ -26,7 +26,7 @@ import io.siddhi.annotation.SystemParameter;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.exception.CannotLoadConfigurationException;
 import io.siddhi.core.exception.ConnectionUnavailableException;
-import io.siddhi.core.exception.DatabaseConstraintViolationException;
+import io.siddhi.core.exception.DatabaseRuntimeException;
 import io.siddhi.core.exception.QueryableRecordTableException;
 import io.siddhi.core.executor.ExpressionExecutor;
 import io.siddhi.core.table.record.AbstractQueryableRecordTable;
@@ -638,21 +638,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         } catch (ConnectionUnavailableException e) {
             throw new ConnectionUnavailableException("Failed to add records to store: '" + this.tableName + "'", e);
         } catch (RDBMSTableException e) {
-            if (e.getCause() instanceof SQLException && isConstraintViolation(e)) {
-                throw new DatabaseConstraintViolationException("Failed to add records to store: '"
-                    + this.tableName + "'", e);
-            }
-            throw new RDBMSTableException("Failed to add records to store: '" + this.tableName + "'", e);
+            throw new DatabaseRuntimeException("Failed to add records to store: '" + this.tableName + "'", e);
         }
-    }
-
-    private boolean isConstraintViolation(Throwable e) {
-        if (e.toString().contains("MySQLIntegrityConstraintViolationException")) {
-            return true;
-        } else if (e.getCause() != null) {
-            return isConstraintViolation(e.getCause());
-        }
-        return false;
     }
 
     @Override
@@ -804,7 +791,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     throw new ConnectionUnavailableException("Error performing record deletion. Connection is closed " +
                             "for store: '" + tableName + "'", e);
                 } else {
-                    throw new RDBMSTableException("Error performing record deletion for store '"
+                    throw new DatabaseRuntimeException("Error performing record deletion for store '"
                             + this.tableName + "'", e);
                 }
             } catch (SQLException e1) {
@@ -892,11 +879,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     throw new ConnectionUnavailableException("Error performing record update operations. " +
                             "Connection is closed for store: '" + tableName + "'", e);
                 } else {
-                    throw new RDBMSTableException("Error performing record update operations for store '"
+                    throw new DatabaseRuntimeException("Error performing record update operations for store '"
                             + this.tableName + "'", e);
                 }
             } catch (SQLException e1) {
-                throw new RDBMSTableException("Error performing record update operations for store: '" +
+                throw new DatabaseRuntimeException("Error performing record update operations for store: '" +
                         tableName + "'", e1);
             }
         } finally {
@@ -981,11 +968,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     throw new ConnectionUnavailableException("Could not execute batch update/insert operation " +
                             "(update). Connection is closed for store: '" + tableName + "'", e);
                 } else {
-                    throw new RDBMSTableException("Could not execute batch update/insert operation (update) for store '"
-                            + this.tableName + "'", e);
+                    throw new DatabaseRuntimeException("Could not execute batch update/insert operation (update) for " +
+                            "store '" + this.tableName + "'", e);
                 }
             } catch (SQLException e1) {
-                throw new RDBMSTableException("Could not execute batch update/insert operation (update) " +
+                throw new DatabaseRuntimeException("Could not execute batch update/insert operation (update) " +
                         "for store: '" + tableName + "'", e1);
             }
         } finally {
@@ -1038,11 +1025,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     throw new ConnectionUnavailableException("Could not execute update/insert operation (update). " +
                             "Connection is closed for store: '" + tableName + "'", e);
                 } else {
-                    throw new RDBMSTableException("Could not execute update/insert operation (update) for store '"
+                    throw new DatabaseRuntimeException("Could not execute update/insert operation (update) for store '"
                             + this.tableName + "'", e);
                 }
             } catch (SQLException e1) {
-                throw new RDBMSTableException("Could not execute update/insert operation (update) " +
+                throw new DatabaseRuntimeException("Could not execute update/insert operation (update) " +
                         "for store: '" + tableName + "'", e1);
             }
         } finally {
