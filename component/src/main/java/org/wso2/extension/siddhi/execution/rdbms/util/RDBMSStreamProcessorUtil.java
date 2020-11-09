@@ -141,7 +141,7 @@ public class RDBMSStreamProcessorUtil {
      */
     public static boolean queryContainsCheck(String query) {
         return Arrays.stream(RDBMSStreamProcessorUtil.OPERATIONS)
-                    .parallel().anyMatch(query.toUpperCase(Locale.getDefault())::contains);
+                .parallel().anyMatch(query.toUpperCase(Locale.getDefault())::contains);
     }
 
     /**
