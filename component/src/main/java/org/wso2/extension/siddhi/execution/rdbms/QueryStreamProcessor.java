@@ -245,10 +245,6 @@ public class QueryStreamProcessor extends StreamProcessor {
             while (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
-                if (RDBMSStreamProcessorUtil.queryContainsCheck(true, query)) {
-                    throw new SiddhiAppRuntimeException("Dropping event since the query has unauthorised operations, " +
-                            "'" + query + "'. Event: '" + event + "'.");
-                }
                 stmt = conn.prepareStatement(query);
                 if (isVaryingQuery) {
                     for (int i = 0; i < this.expressionExecutors.size(); i++) {
