@@ -188,7 +188,7 @@ public class CUDStreamProcessor extends StreamProcessor {
                 if (!streamEventChunk.hasNext() && !isVaryingQuery) {
                     stmt.addBatch();
                 }
-                if (RDBMSStreamProcessorUtil.queryContainsCheck(false, query)) {
+                if (RDBMSStreamProcessorUtil.queryContainsCheck(query)) {
                     throw new SiddhiAppRuntimeException("Dropping event since the query has " +
                             "unauthorised operations, '" + query + "'. Event: '" + event + "'.");
                 }
