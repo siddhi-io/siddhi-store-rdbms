@@ -340,7 +340,7 @@
                 <typeValue>16</typeValue>
             </booleanType>
             <doubleType>
-                <typeName>DOUBLE</typeName>
+                <typeName>DOUBLE PRECISION</typeName>
                 <typeValue>8</typeValue>
             </doubleType>
             <floatType>
