@@ -222,10 +222,16 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
                         defaultValue = "The tableCheckQuery which define in store rdbms configs"
                 ),
                 @Parameter(name = "use.collation",
-                        description = "This property allows users to use collation for string attirbutes. By " +
+                        description = "This property allows users to use collation for string attributes. By " +
                                 "default it's false and binary collation is not used. Currently 'latin1_bin' and " +
                                 "'SQL_Latin1_General_CP1_CS_AS' are used as collations for MySQL and " +
                                 "Microsoft SQL database types respectively.",
+                        type = {DataType.BOOL},
+                        optional = true,
+                        defaultValue = "false"
+                ),
+                @Parameter(name = "allow.null.values",
+                        description = "This property allows users to insert null values to the numeric columns. ",
                         type = {DataType.BOOL},
                         optional = true,
                         defaultValue = "false")
@@ -600,8 +606,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String recordContainsConditionTemplate;
     private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate;
     private boolean useCollation = false;
+    private boolean allowNullValues = false;
     private String collation;
     private RDBMSMetrics metrics;
+    private RDBMSTypeMapping typeMapping;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -609,6 +617,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
         useCollation = Boolean.parseBoolean(storeAnnotation.getElement(RDBMSTableConstants
                 .USE_COLLATION));
+        allowNullValues = Boolean.parseBoolean(storeAnnotation.getElement(RDBMSTableConstants.ALLOW_NULL));
         primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
         indices = AnnotationHelper.getAnnotations(SiddhiConstants.ANNOTATION_INDEX,
@@ -675,10 +684,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 if (rdbmsCompiledCondition.isContainsConditionExist()) {
 
                     RDBMSTableUtils.resolveConditionForContainsCheck(stmt, (RDBMSCompiledCondition) compiledCondition,
-                            findConditionParameterMap, 0);
+                            findConditionParameterMap, 0, typeMapping);
                 } else {
                     RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
-                            findConditionParameterMap, 0);
+                            findConditionParameterMap, 0, typeMapping);
                 }
             }
             rs = stmt.executeQuery();
@@ -713,7 +722,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     conn.prepareStatement(containsQuery.replace(PLACEHOLDER_CONDITION, "")) :
                     conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(containsQuery, condition));
             RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
-                    containsConditionParameterMap, 0);
+                    containsConditionParameterMap, 0, typeMapping);
             rs = stmt.executeQuery();
             return rs.next();
         } catch (SQLException e) {
@@ -751,7 +760,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             int counter = 0;
             for (Map<String, Object> deleteConditionParameterMap : deleteConditionParameterMaps) {
                 RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
-                        deleteConditionParameterMap, 0);
+                        deleteConditionParameterMap, 0, typeMapping);
                 stmt.addBatch();
                 counter++;
                 if (counter == batchSize) {
@@ -836,10 +845,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             while (conditionParamIterator.hasNext() && updateSetParameterMapsIterator.hasNext()) {
                 Map<String, Object> conditionParameters = conditionParamIterator.next();
                 Map<String, Object> updateSetMap = updateSetParameterMapsIterator.next();
-                int ordinal = RDBMSTableUtils.enumerateUpdateSetEntries(updateSetExpressions, stmt, updateSetMap);
+                int ordinal = RDBMSTableUtils.enumerateUpdateSetEntries(updateSetExpressions, stmt, updateSetMap,
+                        typeMapping);
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
                 RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
-                        conditionParameters, ordinal - 1);
+                        conditionParameters, ordinal - 1, typeMapping);
                 stmt.addBatch();
                 counter++;
                 if (counter == batchSize) {
@@ -941,10 +951,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             while (conditionParamIterator.hasNext() && updateSetMapIterator.hasNext()) {
                 Map<String, Object> conditionParameters = conditionParamIterator.next();
                 Map<String, Object> updateSetMap = updateSetMapIterator.next();
-                int ordinal = RDBMSTableUtils.enumerateUpdateSetEntries(updateSetExpressions, updateStmt, updateSetMap);
+                int ordinal = RDBMSTableUtils.enumerateUpdateSetEntries(updateSetExpressions, updateStmt, updateSetMap,
+                        typeMapping);
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
                 RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
-                        conditionParameters, ordinal - 1);
+                        conditionParameters, ordinal - 1, typeMapping);
                 updateStmt.addBatch();
                 if (counter % batchSize == batchSize - 1) {
                     recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
@@ -996,10 +1007,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
                 Map<String, Object> updateSetParameterMap = updateSetParameterMaps.get(counter);
                 int ordinal = RDBMSTableUtils.enumerateUpdateSetEntries(
-                        updateSetExpressions, updateStmt, updateSetParameterMap);
+                        updateSetExpressions, updateStmt, updateSetParameterMap, typeMapping);
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
                 RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
-                        conditionParameters, ordinal - 1);
+                        conditionParameters, ordinal - 1, typeMapping);
                 int isUpdate = updateStmt.executeUpdate();
                 conn.commit();
                 if (isUpdate < 1) {
@@ -1234,31 +1245,31 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 collation = configReader.readConfig(
                         this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
                                 COLLATION, String.valueOf(this.queryConfigurationEntry.getCollation()));
-                RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRdbmsTypeMapping();
+                typeMapping = this.queryConfigurationEntry.getRdbmsTypeMapping();
                 booleanType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BOOLEAN_TYPE,
-                        typeMapping.getBooleanType());
+                        typeMapping.getBooleanType().getTypeName());
                 doubleType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + DOUBLE_TYPE,
-                        typeMapping.getDoubleType());
+                        typeMapping.getDoubleType().getTypeName());
                 floatType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + FLOAT_TYPE,
-                        typeMapping.getFloatType());
+                        typeMapping.getFloatType().getTypeName());
                 integerType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + INTEGER_TYPE,
-                        typeMapping.getIntegerType());
+                        typeMapping.getIntegerType().getTypeName());
                 longType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + LONG_TYPE,
-                        typeMapping.getLongType());
+                        typeMapping.getLongType().getTypeName());
                 binaryType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BINARY_TYPE,
-                        typeMapping.getBinaryType());
+                        typeMapping.getBinaryType().getTypeName());
                 stringType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + STRING_TYPE,
-                        typeMapping.getStringType());
+                        typeMapping.getStringType().getTypeName());
                 bigStringType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BIG_STRING_TYPE,
-                        typeMapping.getBigStringType());
+                        typeMapping.getBigStringType() != null ? typeMapping.getBigStringType().getTypeName() : null);
                 stringSize = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + STRING_SIZE,
                         this.queryConfigurationEntry.getStringSize());
@@ -1648,7 +1659,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      *
      * @param queries    the list of queries to be executed.
      * @param autocommit whether or not the transactions should automatically be committed.
-     * @throws SQLException if the query execution fails.
+     * @throws ConnectionUnavailableException if the query execution fails.
      */
     private void executeDDQueries(List<String> queries, boolean autocommit)
             throws ConnectionUnavailableException {
@@ -1696,7 +1707,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      * @param query      the query to be executed.
      * @param records    the records to use.
      * @param autocommit whether or not the transactions should automatically be committed.
-     * @throws SQLException if the query execution fails.
+     * @throws ConnectionUnavailableException if the query execution fails.
      */
     private void batchExecuteQueriesWithRecords(String query, List<Object[]> records, boolean autocommit)
             throws ConnectionUnavailableException {
@@ -1825,8 +1836,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             for (int i = 0; i < this.attributes.size(); i++) {
                 attribute = this.attributes.get(i);
                 Object value = record[i];
-                if (value != null || attribute.getType() == Attribute.Type.STRING) {
-                    RDBMSTableUtils.populateStatementWithSingleElement(stmt, i + 1, attribute.getType(), value);
+                if (allowNullValues || value != null || attribute.getType() == Attribute.Type.STRING) {
+                    RDBMSTableUtils.populateStatementWithSingleElement(stmt, i + 1, attribute.getType(), value,
+                            typeMapping);
                 } else {
                     throw new RDBMSTableException("Cannot Execute Insert/Update: null value detected for " +
                             "attribute '" + attribute.getName() + "'");
@@ -1870,7 +1882,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         try {
             stmt = conn.prepareStatement(query);
             RDBMSTableUtils.resolveQuery(stmt, rdbmsCompiledSelection, rdbmsCompiledCondition, parameterMap, 0,
-                    containsConditionExist);
+                    containsConditionExist, typeMapping);
         } catch (SQLException e) {
             try {
                 if (!conn.isValid(0)) {

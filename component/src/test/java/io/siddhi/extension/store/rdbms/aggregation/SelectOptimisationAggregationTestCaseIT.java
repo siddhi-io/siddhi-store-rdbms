@@ -81,7 +81,7 @@ public class SelectOptimisationAggregationTestCaseIT {
                 "define aggregation stockAggregation " +
                 "from stockStream " +
                 "select count() as count " +
-                "aggregate every sec, min ;" +
+                "aggregate by timestamp every sec, min ;" +
 
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +

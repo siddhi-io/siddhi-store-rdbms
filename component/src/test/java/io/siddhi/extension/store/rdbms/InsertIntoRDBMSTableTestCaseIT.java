@@ -235,6 +235,80 @@ public class InsertIntoRDBMSTableTestCaseIT {
         siddhiAppRuntime.shutdown();
     }
 
+    @Test
+    public void insertIntoRDBMSTableTest5() throws InterruptedException, SQLException {
+        //Testing data insertion with null values to numeric columns
+        log.info("insertIntoRDBMSTableTest5");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long);\n";
+
+        String table = "" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", table.name=\"StockTable\"," +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\")\n" +
+                "@PrimaryKey(\"symbol\")" +
+                "define table MyTable (symbol string, price float, volume long);\n";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "select symbol, price, volume " +
+                "insert into MyTable ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + table + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, null});
+        stockStream.send(new Object[]{"WSO2", 55.6F, 100L});
+        stockStream.send(new Object[]{"IBM", null, 80L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 50L});
+        stockStream.send(new Object[]{"BMS", 58.6F, 60L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 3, "Definition/Insertion failed");
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test
+    public void insertIntoRDBMSTableTest6() throws InterruptedException, SQLException {
+        //Testing data insertion with null values to numeric columns with allow.null.values = true
+        log.info("insertIntoRDBMSTableTest6");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long);\n";
+
+        String table = "" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", table.name=\"StockTable\"," +
+                "username=\"" + user + "\", password=\"" + password + "\", jdbc.driver.name=\"" + driverClassName +
+                "\", field.length=\"symbol:100\", allow.null.values =\"true\")\n" +
+                "@PrimaryKey(\"symbol\")" +
+                "define table MyTable (symbol string, price float, volume long);\n";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream   " +
+                "select symbol, price, volume " +
+                "insert into MyTable ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + table + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6F, null});
+        stockStream.send(new Object[]{"BMS", 56.6F, 100L});
+        stockStream.send(new Object[]{"IBM", null, 80L});
+        stockStream.send(new Object[]{"MSFT", 57.6F, 50L});
+        stockStream.send(new Object[]{"LSF", 58.6F, 60L});
+        Thread.sleep(1000);
+
+        long totalRowsInTable = RDBMSTableTestUtils.getRowsInTable(TABLE_NAME);
+        Assert.assertEquals(totalRowsInTable, 5, "Definition/Insertion failed");
+        siddhiAppRuntime.shutdown();
+    }
+
     private static void waitTillVariableCountMatches(long expected, Duration duration) {
         Awaitility.await().atMost(duration).until(() -> {
             return actualEventCount.get() == expected;

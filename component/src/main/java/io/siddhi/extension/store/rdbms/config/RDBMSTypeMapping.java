@@ -23,76 +23,76 @@ package io.siddhi.extension.store.rdbms.config;
 public class RDBMSTypeMapping {
 
     // -- Type mapping -- //
-    private String binaryType;
-    private String booleanType;
-    private String doubleType;
-    private String floatType;
-    private String integerType;
-    private String longType;
-    private String stringType;
-    private String bigStringType;
+    private RDBMSDataType binaryType;
+    private RDBMSDataType booleanType;
+    private RDBMSDataType doubleType;
+    private RDBMSDataType floatType;
+    private RDBMSDataType integerType;
+    private RDBMSDataType longType;
+    private RDBMSDataType stringType;
+    private RDBMSDataType bigStringType;
 
-    public String getBinaryType() {
+    public RDBMSDataType getBinaryType() {
         return binaryType;
     }
 
-    public void setBinaryType(String binaryType) {
+    public void setBinaryType(RDBMSDataType binaryType) {
         this.binaryType = binaryType;
     }
 
-    public String getBooleanType() {
+    public RDBMSDataType getBooleanType() {
         return booleanType;
     }
 
-    public void setBooleanType(String booleanType) {
+    public void setBooleanType(RDBMSDataType booleanType) {
         this.booleanType = booleanType;
     }
 
-    public String getDoubleType() {
+    public RDBMSDataType getDoubleType() {
         return doubleType;
     }
 
-    public void setDoubleType(String doubleType) {
+    public void setDoubleType(RDBMSDataType doubleType) {
         this.doubleType = doubleType;
     }
 
-    public String getFloatType() {
+    public RDBMSDataType getFloatType() {
         return floatType;
     }
 
-    public void setFloatType(String floatType) {
+    public void setFloatType(RDBMSDataType floatType) {
         this.floatType = floatType;
     }
 
-    public String getIntegerType() {
+    public RDBMSDataType getIntegerType() {
         return integerType;
     }
 
-    public void setIntegerType(String integerType) {
+    public void setIntegerType(RDBMSDataType integerType) {
         this.integerType = integerType;
     }
 
-    public String getLongType() {
+    public RDBMSDataType getLongType() {
         return longType;
     }
 
-    public void setLongType(String longType) {
+    public void setLongType(RDBMSDataType longType) {
         this.longType = longType;
     }
 
-    public String getStringType() {
+    public RDBMSDataType getStringType() {
         return stringType;
     }
 
-    public void setStringType(String stringType) {
+    public void setStringType(RDBMSDataType stringType) {
         this.stringType = stringType;
     }
 
-    public String getBigStringType() {
+    public RDBMSDataType getBigStringType() {
         return bigStringType;
     }
 
-    public void setBigStringType(String bigStringType) {
+    public void setBigStringType(RDBMSDataType bigStringType) {
         this.bigStringType = bigStringType;
     }
 }
