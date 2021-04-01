@@ -23,7 +23,6 @@ import io.siddhi.core.event.Event;
 import io.siddhi.core.query.output.callback.QueryCallback;
 import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.EventPrinter;
-import io.siddhi.extension.store.rdbms.exception.RDBMSTableException;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
 import org.apache.log4j.Logger;
 import org.awaitility.Awaitility;

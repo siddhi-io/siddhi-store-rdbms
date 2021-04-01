@@ -228,6 +228,12 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
                                 "Microsoft SQL database types respectively.",
                         type = {DataType.BOOL},
                         optional = true,
+                        defaultValue = "false"
+                ),
+                @Parameter(name = "allow.null.values",
+                        description = "This property allows users to insert null values to the numeric columns. ",
+                        type = {DataType.BOOL},
+                        optional = true,
                         defaultValue = "false")
         },
         examples = {
