@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package io.siddhi.extension.store.rdbms;
 
 import io.siddhi.core.table.record.RecordIterator;
@@ -44,14 +44,16 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
     private Object[] nextValue;
     private List<Attribute> attributes;
     private String tableName;
+    private boolean allowNullValues;
 
     public RDBMSIterator(Connection conn, PreparedStatement stmt, ResultSet rs, List<Attribute> attributes,
-                         String tableName) {
+                         String tableName, boolean allowNullValues) {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
         this.attributes = attributes;
         this.tableName = tableName;
+        this.allowNullValues = allowNullValues;
     }
 
     @Override
@@ -73,7 +75,7 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
         }
         try {
             if (this.rs.next()) {
-                return this.extractRecord(this.rs);
+                return this.extractRecord(this.rs, allowNullValues);
             } else {
                 // end of the result set, cleaning up.
                 RDBMSTableUtils.cleanupConnection(this.rs, this.stmt, this.conn);
@@ -94,35 +96,42 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
      * according to the table's field type order.
      *
      * @param rs the {@link ResultSet} from which the values should be retrieved.
+     * @param allowNullValues check if the null has to allow
      * @return an array of extracted values, all cast to {@link Object} type for portability.
      * @throws SQLException if there are errors in extracring the values from the {@link ResultSet} instance according
      *                      to the table definition
      */
-    private Object[] extractRecord(ResultSet rs) throws SQLException {
+    private Object[] extractRecord(ResultSet rs, boolean allowNullValues) throws SQLException {
         List<Object> result = new ArrayList<>();
         for (Attribute attribute : this.attributes) {
+            Object value = null;
             switch (attribute.getType()) {
                 case BOOL:
-                    result.add(rs.getBoolean(attribute.getName()));
+                    value = rs.getBoolean(attribute.getName());
                     break;
                 case DOUBLE:
-                    result.add(rs.getDouble(attribute.getName()));
+                    value = rs.getDouble(attribute.getName());
                     break;
                 case FLOAT:
-                    result.add(rs.getFloat(attribute.getName()));
+                    value = rs.getFloat(attribute.getName());
                     break;
                 case INT:
-                    result.add(rs.getInt(attribute.getName()));
+                    value = rs.getInt(attribute.getName());
                     break;
                 case LONG:
-                    result.add(rs.getLong(attribute.getName()));
+                    value = rs.getLong(attribute.getName());
                     break;
                 case OBJECT:
-                    result.add(rs.getObject(attribute.getName()));
+                    value = rs.getObject(attribute.getName());
                     break;
                 case STRING:
-                    result.add(rs.getString(attribute.getName()));
+                    value = rs.getString(attribute.getName());
                     break;
+            }
+            if (allowNullValues && rs.wasNull()) {
+                result.add(null);
+            } else {
+                result.add(value);
             }
         }
         return result.toArray();
