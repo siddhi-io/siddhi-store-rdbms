@@ -692,7 +692,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             }
             rs = stmt.executeQuery();
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
-            return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
+            return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName, allowNullValues);
         } catch (SQLException e) {
             try {
                 boolean isConnValid = conn.isValid(0);
@@ -1905,9 +1905,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             // If the outputAttributes are null, it is assumed that all the attributes from the table definition
             // are being selected in the query.
             if (outputAttributes == null) {
-                return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
+                return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName, allowNullValues);
             }
-            return new RDBMSIterator(conn, stmt, rs, Arrays.asList(outputAttributes), this.tableName);
+            return new RDBMSIterator(conn, stmt, rs, Arrays.asList(outputAttributes), this.tableName, allowNullValues);
         } catch (SQLException e) {
             try {
                 boolean isConnValid = conn.isValid(0);
