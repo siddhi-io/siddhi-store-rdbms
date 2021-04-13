@@ -280,4 +280,172 @@ public class RDBMSQueryTestCase {
         Assert.assertTrue(SiddhiTestHelper.isEventsMatch(actualData, expected), "Event output does not match.");
     }
 
+    @Test(dependsOnMethods = "rdbmsQuery4")
+    public void rdbmsQuery5() throws InterruptedException {
+        //Testing table query
+        log.info("rdbmsQuery1 - Test Select parameterised query with ack.empty.result.set=true without a match");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        DataSource dataSource = RDBMSTableTestUtils.initDataSource();
+        siddhiManager.setDataSource("TEST_DATASOURCE", dataSource);
+
+        String streams = "" +
+                "define stream StockStream (checkSymbol string); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream#rdbms:query(\"TEST_DATASOURCE\", \"symbol string, price float, volume long\", " +
+                "\"select * from " + TABLE_NAME + " where symbol=?\", checkSymbol, true) " +
+                "select symbol " +
+                "insert into OutputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
+
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    actualData.add(event.getData());
+                    isEventArrived = true;
+                    eventCount.incrementAndGet();
+                }
+            }
+        });
+
+        stockStream.send(new Object[]{"WSO22"});
+        SiddhiTestHelper.waitForEvents(2000, 1, eventCount, 60000);
+        siddhiAppRuntime.shutdown();
+        ((HikariDataSource) dataSource).close();
+
+        List<Object[]> expected = new ArrayList<>();
+        expected.add(new Object[]{null});
+
+        Assert.assertTrue(isEventArrived, "Event Not Arrived");
+        Assert.assertTrue(SiddhiTestHelper.isEventsMatch(actualData, expected), "Event output does not match.");
+    }
+
+    @Test(dependsOnMethods = "rdbmsQuery5")
+    public void rdbmsQuery6() throws InterruptedException {
+        //Testing table query
+        log.info(
+                "rdbmsQuery1 - Test Select parameterised query with ack.empty.result.set set to false without a match");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        DataSource dataSource = RDBMSTableTestUtils.initDataSource();
+        siddhiManager.setDataSource("TEST_DATASOURCE", dataSource);
+
+        String streams = "" +
+                "define stream StockStream (checkSymbol string); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream#rdbms:query(\"TEST_DATASOURCE\", \"symbol string, price float, volume long\", " +
+                "\"select * from " + TABLE_NAME + " where symbol=?\", checkSymbol, false) " +
+                "select symbol " +
+                "insert into OutputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
+
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                isEventArrived = true;
+            }
+        });
+
+        stockStream.send(new Object[]{"WSO22"});
+        SiddhiTestHelper.waitForEvents(2000, 1, eventCount, 5000);
+        siddhiAppRuntime.shutdown();
+        ((HikariDataSource) dataSource).close();
+
+        Assert.assertFalse(isEventArrived, "Event Not Arrived");
+    }
+
+    @Test(dependsOnMethods = "rdbmsQuery6")
+    public void rdbmsQuery7() throws InterruptedException {
+        //Testing table query
+        log.info("rdbmsQuery1 - Test Select multi parameterised query with ack.empty.result.set=true without a match");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        DataSource dataSource = RDBMSTableTestUtils.initDataSource();
+        siddhiManager.setDataSource("TEST_DATASOURCE", dataSource);
+
+        String streams = "" +
+                "define stream StockStream (checkSymbol string, checkVolume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream#rdbms:query(\"TEST_DATASOURCE\", \"symbol string, price float, volume long\", " +
+                "\"select * from " + TABLE_NAME + " where symbol=? and volume=?\", checkSymbol, checkVolume, true) " +
+                "select symbol " +
+                "insert into OutputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
+
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    actualData.add(event.getData());
+                    isEventArrived = true;
+                    eventCount.incrementAndGet();
+                }
+            }
+        });
+
+        stockStream.send(new Object[]{"WSO22", 200L});
+        SiddhiTestHelper.waitForEvents(2000, 1, eventCount, 60000);
+        siddhiAppRuntime.shutdown();
+        ((HikariDataSource) dataSource).close();
+
+        List<Object[]> expected = new ArrayList<>();
+        expected.add(new Object[]{null});
+
+        Assert.assertTrue(isEventArrived, "Event Not Arrived");
+        Assert.assertTrue(SiddhiTestHelper.isEventsMatch(actualData, expected), "Event output does not match.");
+    }
+
+    @Test(dependsOnMethods = "rdbmsQuery7")
+    public void rdbmsQuery8() throws InterruptedException {
+        //Testing table query
+        log.info("rdbmsQuery1 - Test Select multi parameterised query with ack.empty.result.set=false without a match");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        DataSource dataSource = RDBMSTableTestUtils.initDataSource();
+        siddhiManager.setDataSource("TEST_DATASOURCE", dataSource);
+
+        String streams = "" +
+                "define stream StockStream (checkSymbol string, checkVolume long); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream#rdbms:query(\"TEST_DATASOURCE\", \"symbol string, price float, volume long\", " +
+                "\"select * from " + TABLE_NAME + " where symbol=? and volume=?\", checkSymbol, checkVolume, false) " +
+                "select symbol " +
+                "insert into OutputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
+
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                isEventArrived = true;
+            }
+        });
+
+        stockStream.send(new Object[]{"WSO22", 123L});
+        SiddhiTestHelper.waitForEvents(2000, 1, eventCount, 60000);
+        siddhiAppRuntime.shutdown();
+        ((HikariDataSource) dataSource).close();
+
+        Assert.assertFalse(isEventArrived, "Event Not Arrived");
+    }
 }

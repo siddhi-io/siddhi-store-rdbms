@@ -107,6 +107,15 @@ import javax.sql.DataSource;
                         optional = true,
                         defaultValue = "<Empty_String>",
                         dynamic = true
+                ),
+                @Parameter(
+                        name = "ack.empty.result.set",
+                        description = "When the parameter is set to `true`, the return attributes will contain " +
+                                "`null` values if the result set is empty. \n" +
+                                "If the parameter is set to `false`, the function wont return any attributes.",
+                        type = DataType.BOOL,
+                        defaultValue = "false",
+                        optional = true
                 )
         },
         parameterOverloads = {
@@ -117,7 +126,15 @@ import javax.sql.DataSource;
                         parameterNames = {"datasource.name", "attribute.definition.list", "query", "parameter"}
                 ),
                 @ParameterOverload(
+                        parameterNames = {"datasource.name", "attribute.definition.list", "query",
+                                "ack.empty.result.set"}
+                ),
+                @ParameterOverload(
                         parameterNames = {"datasource.name", "attribute.definition.list", "query", "parameter", "..."}
+                ),
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "attribute.definition.list", "query", "parameter", "...",
+                                "ack.empty.result.set"}
                 )
         },
         returnAttributes = {
@@ -163,18 +180,17 @@ public class QueryStreamProcessor extends StreamProcessor<State> {
     private List<Attribute> attributeList = new ArrayList<>();
     private boolean isQueryParameterised = false;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
-
+    private boolean ackEmptyResultSet = false;
 
     @Override
     protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
-                                ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                StreamEventClonerHolder streamEventClonerHolder, boolean outputExpectsExpiredEvents,
-                                boolean findToBeExecuted, SiddhiQueryContext siddhiQueryContext) {
-
+                                       ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                                       StreamEventClonerHolder streamEventClonerHolder,
+                                       boolean outputExpectsExpiredEvents,
+                                       boolean findToBeExecuted, SiddhiQueryContext siddhiQueryContext) {
         int attributesLength = attributeExpressionExecutors.length;
         this.dataSourceName = RDBMSStreamProcessorUtil.validateDatasourceName(attributeExpressionExecutors[0]);
         this.siddhiContext = siddhiQueryContext.getSiddhiAppContext().getSiddhiContext();
-
         if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
             String attributeDefinition = ((ConstantExpressionExecutor) attributeExpressionExecutors[1])
                     .getValue().toString();
@@ -218,18 +234,34 @@ public class QueryStreamProcessor extends StreamProcessor<State> {
                     "function should be a constant, but found a dynamic attribute of type '" +
                     queryExpressionExecutor.getClass().getCanonicalName() + "'.");
         }
-
         this.queryExpressionExecutor = attributeExpressionExecutors[2];
-
-        if (attributesLength > 3) {
+        ExpressionExecutor ackEmptyResultSetAttributeExpressionExecutor =
+                attributeExpressionExecutors[attributesLength - 1];
+        int parameterListEndLength;
+        int attributeLengthCheckValue;
+        if ((ackEmptyResultSetAttributeExpressionExecutor instanceof ConstantExpressionExecutor)) {
+            try {
+                ackEmptyResultSet =
+                        (Boolean) ((ConstantExpressionExecutor) ackEmptyResultSetAttributeExpressionExecutor)
+                                .getValue();
+                attributeLengthCheckValue = 4;
+                parameterListEndLength = attributeExpressionExecutors.length - 1;
+            } catch (ClassCastException e) {
+                attributeLengthCheckValue = 3;
+                parameterListEndLength = attributeExpressionExecutors.length;
+            }
+        } else {
+            attributeLengthCheckValue = 3;
+            parameterListEndLength = attributeExpressionExecutors.length;
+        }
+        if (attributesLength > attributeLengthCheckValue) {
             this.isQueryParameterised = true;
             this.expressionExecutors.addAll(
-                    Arrays.asList(attributeExpressionExecutors).subList(3, attributeExpressionExecutors.length));
-
+                    Arrays.asList(attributeExpressionExecutors).subList(3, parameterListEndLength));
             if (queryExpressionExecutor instanceof ConstantExpressionExecutor) {
                 String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
                 long attributeCount = query.chars().filter(ch -> ch == '?').count();
-                if (attributeCount != attributesLength - 3) {
+                if (attributeCount != attributesLength - attributeLengthCheckValue) {
                     throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function " +
                             "contains '" + attributeCount + "' ordinals, but found siddhi attributes of count '" +
                             (attributesLength - 3) + "'.");
@@ -265,9 +297,17 @@ public class QueryStreamProcessor extends StreamProcessor<State> {
                     }
                 }
                 resultSet = stmt.executeQuery();
+                boolean eventsSent = false;
                 while (resultSet.next()) {
                     StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(event);
                     Object[] data = RDBMSStreamProcessorUtil.processRecord(this.attributeList, resultSet);
+                    complexEventPopulater.populateComplexEvent(clonedEvent, data);
+                    streamEventChunk.insertBeforeCurrent(clonedEvent);
+                    eventsSent = true;
+                }
+                if (ackEmptyResultSet && !eventsSent) {
+                    StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(event);
+                    Object[] data = RDBMSStreamProcessorUtil.processNullRecord(this.attributeList);
                     complexEventPopulater.populateComplexEvent(clonedEvent, data);
                     streamEventChunk.insertBeforeCurrent(clonedEvent);
                 }
