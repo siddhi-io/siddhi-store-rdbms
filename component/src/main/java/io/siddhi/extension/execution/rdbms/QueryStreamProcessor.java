@@ -169,6 +169,16 @@ import javax.sql.DataSource;
                                 "`attribute.definition.list`(creditcardno, country, transaction, amount). " +
                                 "countrySearchWord value from the event will be set in the query when querying the " +
                                 "datasource."
+                ),
+                @Example(
+                        syntax = "from TriggerStream#rdbms:query('SAMPLE_DB', 'creditcardno string, country string," +
+                                "transaction string, amount int', 'select * from where country=?', " +
+                                "countrySearchWord, true) " +
+                                "select creditcardno, country, transaction, amount \n" +
+                                "insert into recordStream;",
+                        description = "If there are no events in the table which satisfies the given query with " +
+                                "`creditcardno` parameter, the event which gets selected by creditcardno, country, " +
+                                "transaction and amount will contain NULL values."
                 )
         }
 )
