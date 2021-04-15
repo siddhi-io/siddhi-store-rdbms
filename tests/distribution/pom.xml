@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.siddhi.extension.store.rdbms</groupId>
         <artifactId>siddhi-store-rdbms-tests</artifactId>
-        <version>7.0.11</version>
+        <version>7.0.12-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
