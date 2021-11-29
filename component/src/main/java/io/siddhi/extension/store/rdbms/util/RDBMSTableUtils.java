@@ -32,9 +32,15 @@ import io.siddhi.query.api.annotation.Element;
 import io.siddhi.query.api.definition.Attribute;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.utils.Utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -78,6 +84,9 @@ public class RDBMSTableUtils {
     private static final Log log = LogFactory.getLog(RDBMSTableUtils.class);
     private static final Pattern CONTAINS_CONDITION_REGEX_PATTERN = Pattern.compile(CONTAINS_CONDITION_REGEX);
     private static RDBMSConfigurationMapper mapper;
+    public static final String DIRECTORY_CONF = "conf";
+    public static final String DIRECTORY_SIDDHI = "siddhi";
+    public static final String DIRECTORY_RDBMS = "rdbms";
 
     private RDBMSTableUtils() {
         //preventing initialization
@@ -544,8 +553,25 @@ public class RDBMSTableUtils {
             try {
                 JAXBContext ctx = JAXBContext.newInstance(RDBMSQueryConfiguration.class);
                 Unmarshaller unmarshaller = ctx.createUnmarshaller();
-                ClassLoader classLoader = getClass().getClassLoader();
-                inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
+                boolean externalConfigExist = false;
+                if (null != getCarbonHome()) {
+                    File externalConfigFile = new File(Paths.get(Utils.getCarbonHome().normalize().toString(),
+                            DIRECTORY_CONF, DIRECTORY_SIDDHI, DIRECTORY_RDBMS, RDBMS_QUERY_CONFIG_FILE).toUri());
+                    if (externalConfigFile.isFile()) {
+                        externalConfigExist = true;
+                        try {
+                            inputStream = new FileInputStream(externalConfigFile);
+                        } catch (FileNotFoundException e) {
+                            throw new CannotLoadConfigurationException("Error occurred while reading the file " +
+                                    RDBMS_QUERY_CONFIG_FILE + " in the path " +
+                                    externalConfigFile.getPath() + " due to " + e.getMessage(), e);
+                        }
+                    }
+                }
+                if (!externalConfigExist) {
+                    ClassLoader classLoader = getClass().getClassLoader();
+                    inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
+                }
                 if (inputStream == null) {
                     throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE
                             + " is not found in the classpath");
@@ -619,5 +645,18 @@ public class RDBMSTableUtils {
             }
             return versionResults;
         }
+    }
+
+    public static Path getCarbonHome() {
+        String carbonHome = System.getProperty("carbon.home");
+        if (carbonHome == null) {
+            carbonHome = System.getenv("CARBON_HOME");
+            if (carbonHome != null) {
+                System.setProperty("carbon.home", carbonHome);
+            } else {
+                return null;
+            }
+        }
+        return Paths.get(carbonHome);
     }
 }
