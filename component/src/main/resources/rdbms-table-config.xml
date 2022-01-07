@@ -476,4 +476,59 @@
             </stringType>
         </typeMapping>
     </database>
+    <database name="Teradata">
+        <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
+        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} SAMPLE 1</tableCheckQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ({{INDEX_COLUMNS}}) ON {{TABLE_NAME}}
+        </indexCreateQuery>
+        <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} SAMPLE 1</recordExistsQuery>
+        <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
+        <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
+        <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
+        <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
+        <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
+        <selectQueryTemplate>
+            <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2
+            </selectQueryWithSubSelect>
+            <whereClause>WHERE {{CONDITION}}</whereClause>
+            <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
+            <havingClause>HAVING {{CONDITION}}</havingClause>
+            <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+            <limitClause>SAMPLE {{Q}}</limitClause>
+        </selectQueryTemplate>
+        <stringSize>254</stringSize>
+        <batchEnable>true</batchEnable>
+        <batchSize>1000</batchSize>
+        <typeMapping>
+            <binaryType>
+                <typeName>BLOB</typeName>
+                <typeValue>2004</typeValue>
+            </binaryType>
+            <booleanType>
+                <typeName>SMALLINT</typeName>
+                <typeValue>5</typeValue>
+            </booleanType>
+            <doubleType>
+                <typeName>FLOAT</typeName>
+                <typeValue>8</typeValue>
+            </doubleType>
+            <floatType>
+                <typeName>FLOAT</typeName>
+                <typeValue>6</typeValue>
+            </floatType>
+            <integerType>
+                <typeName>INTEGER</typeName>
+                <typeValue>4</typeValue>
+            </integerType>
+            <longType>
+                <typeName>BIGINT</typeName>
+                <typeValue>-5</typeValue>
+            </longType>
+            <stringType>
+                <typeName>VARCHAR</typeName>
+                <typeValue>12</typeValue>
+            </stringType>
+        </typeMapping>
+    </database>
 </rdbms-table-configuration>

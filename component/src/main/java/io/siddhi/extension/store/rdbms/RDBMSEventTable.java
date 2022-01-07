@@ -295,6 +295,8 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
                                 "NOT, str:contains(Table<Column>, Stream<Attribute> or Search.String)]"
                 )
         },
+        //system parameter is used to override any existing default values(eg:- tableCheckQuery , tableCreateQuery etc)
+        // of a particular RDBMS type
         systemParameter = {
                 @SystemParameter(
                         name = "{{RDBMS-Name}}.maxVersion",
@@ -1598,6 +1600,13 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             }
             if (this.queryConfigurationEntry.isKeyExplicitNotNull()) {
                 builder.append(WHITESPACE).append(SQL_NOT_NULL);
+            } else {
+                for (Element key : primaryKeyList) {
+                    if (attribute.getName().equals(key.getValue())) {
+                        builder.append(WHITESPACE).append(SQL_NOT_NULL);
+                        break;
+                    }
+                }
             }
             if (this.attributes.indexOf(attribute) != this.attributes.size() - 1 || !primaryKeyList.isEmpty()) {
                 builder.append(SEPARATOR);
