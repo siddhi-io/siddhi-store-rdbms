@@ -27,6 +27,7 @@ import java.util.SortedMap;
  */
 public class RDBMSCompiledClause implements CompiledCondition {
 
+    private static final long serialVersionUID = 6106269976155338045L;
     /**
      * compiledQuery is a portion of a prepared SQL statement. For example, '?,?' is a compiledQuery
      * where '?' is a placeholder for a expression.
