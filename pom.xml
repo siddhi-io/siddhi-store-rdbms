@@ -123,7 +123,7 @@
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <testng.version>6.9.10</testng.version>
         <mysql.connector.version>5.1.38</mysql.connector.version>
-        <h2.connector.version>2.0.206</h2.connector.version>
+        <h2.connector.version>1.4.187</h2.connector.version>
         <postgresql.version>RELEASE</postgresql.version>
         <tomcat.catalina.version>8.0.15</tomcat.catalina.version>
         <commons.lang3.version>3.3.2</commons.lang3.version>

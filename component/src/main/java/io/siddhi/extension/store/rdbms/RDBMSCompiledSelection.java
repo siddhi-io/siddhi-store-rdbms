@@ -32,6 +32,7 @@ public class RDBMSCompiledSelection implements CompiledSelection {
     private RDBMSCompiledCondition compiledOrderByClause;
     private Long limit;
     private Long offset;
+    private static final long serialVersionUID = 6106269076155338045L;
 
     public RDBMSCompiledSelection (RDBMSCompiledCondition compiledSelectClause,
                                    RDBMSCompiledCondition compiledGroupByClause,
