@@ -26,7 +26,8 @@ import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.SiddhiTestHelper;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
@@ -45,7 +46,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class SelectOptimisationAggregationTestCaseIT {
 
-    private static final Logger LOG = Logger.getLogger(SelectOptimisationAggregationTestCaseIT.class);
+    private static final Logger LOG = LogManager.getLogger(SelectOptimisationAggregationTestCaseIT.class);
     private boolean eventArrived;
     private AtomicInteger inEventCount;
     private List<Object[]> inEventsList;

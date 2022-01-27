@@ -25,7 +25,8 @@ import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
 import io.siddhi.query.compiler.exception.SiddhiParserException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,7 +42,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.url;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class ReadEventRDBMSTableTestCaseIT {
-    private static final Logger log = Logger.getLogger(ReadEventRDBMSTableTestCaseIT.class);
+    private static final Logger log = LogManager.getLogger(ReadEventRDBMSTableTestCaseIT.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;

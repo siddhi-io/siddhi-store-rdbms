@@ -26,7 +26,8 @@ import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
 import io.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
 import org.testng.Assert;
@@ -46,7 +47,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.url;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class UpdateOrInsertRDBMSTableTestCaseIT {
-    private static final Logger log = Logger.getLogger(UpdateOrInsertRDBMSTableTestCaseIT.class);
+    private static final Logger log = LogManager.getLogger(UpdateOrInsertRDBMSTableTestCaseIT.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;

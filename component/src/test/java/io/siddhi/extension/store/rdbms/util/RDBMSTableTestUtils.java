@@ -21,7 +21,8 @@ package io.siddhi.extension.store.rdbms.util;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -41,7 +42,7 @@ import javax.sql.DataSource;
 public class RDBMSTableTestUtils {
 
     public static final String TABLE_NAME = "StockTable";
-    private static final Logger log = Logger.getLogger(RDBMSTableTestUtils.class);
+    private static final Logger log = LogManager.getLogger(RDBMSTableTestUtils.class);
     private static String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/testdb?useSSL=false";
     private static String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:{{container.port}}/testdb";
     private static String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:{{container.port}}/XE";

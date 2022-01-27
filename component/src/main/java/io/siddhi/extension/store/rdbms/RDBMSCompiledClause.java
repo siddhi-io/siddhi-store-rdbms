@@ -26,6 +26,7 @@ import java.util.SortedMap;
  * Implementation class of {@link CompiledCondition} corresponding to the RDBMS Event Table.
  */
 public class RDBMSCompiledClause implements CompiledCondition {
+    private static final long serialVersionUID = 1L;
 
     /**
      * compiledQuery is a portion of a prepared SQL statement. For example, '?,?' is a compiledQuery

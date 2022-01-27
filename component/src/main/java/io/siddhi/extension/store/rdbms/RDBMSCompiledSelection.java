@@ -26,6 +26,7 @@ import io.siddhi.core.util.collection.operator.CompiledSelection;
  */
 public class RDBMSCompiledSelection implements CompiledSelection {
 
+    private static final long serialVersionUID = 1L;
     private RDBMSCompiledCondition compiledSelectClause;
     private RDBMSCompiledCondition compiledGroupByClause;
     private RDBMSCompiledCondition compiledHavingClause;

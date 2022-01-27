@@ -29,6 +29,7 @@ import java.util.SortedMap;
  * Maintains the condition string returned by the ConditionVisitor as well as a map of parameters to be used at runtime.
  */
 public class RDBMSCompiledCondition implements CompiledCondition {
+    private static final long serialVersionUID = 1L;
 
     private String compiledQuery;
     private boolean useSubSelect;
