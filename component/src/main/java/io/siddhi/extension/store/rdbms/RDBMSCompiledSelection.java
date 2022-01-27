@@ -25,8 +25,6 @@ import io.siddhi.core.util.collection.operator.CompiledSelection;
  * Maintains the compiled select, group by, having etc. clauses.
  */
 public class RDBMSCompiledSelection implements CompiledSelection {
-
-    private static final long serialVersionUID = 1L;
     private RDBMSCompiledCondition compiledSelectClause;
     private RDBMSCompiledCondition compiledGroupByClause;
     private RDBMSCompiledCondition compiledHavingClause;
