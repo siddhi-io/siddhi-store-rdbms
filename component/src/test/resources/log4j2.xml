@@ -22,9 +22,9 @@
 <Configuration status="WARN" packages="io.siddhi.extension.execution" >
     <Appenders>
         <Console name="ConsoleAppender" target="SYSTEM_OUT"/>
-        <UnitTestAppender name="LoggerAppender">
+        <LoggerAppender name="LoggerAppender">
             <PatternLayout pattern="%d{ABSOLUTE} %5p %c{1}:%L - %m%"/>
-        </UnitTestAppender>
+        </LoggerAppender>
     </Appenders>
     <Loggers>
         <Root level="DEBUG">
