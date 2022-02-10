@@ -160,7 +160,73 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
         name = "rdbms",
         namespace = "store",
         description = "This extension assigns data sources and connection instructions to event tables. It also " +
-                "implements read-write operations on connected data sources.",
+                "implements read-write operations on connected data sources. A new improvement is added when running " +
+                "with SI / SI Tooling 1.1.0 or higher product pack, where an external configuration file can be " +
+                "provided to read supported RDBMS databases. " +
+                "Prerequisites - Configuration file needed to be added to [Product_Home]/conf/siddhi/rdbms path with " +
+                "the configuration file name as rdbms-table-config.xml , <database name=”[Database_Name]”> for each " +
+                "database name should be the equivalent database product name returned from java sql " +
+                "Connection.getMetaData().getDatabaseProductName() as shown in API documentation  " +
+                "https://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getDatabaseProductName())." +
+                "Sample Configuration for one of the databases can be as follows," +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+                "<rdbms-table-configuration>\n" +
+                "<database name=\"Teradata\">\n" +
+                "        <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>\n" +
+                "        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} SAMPLE 1</tableCheckQuery>\n" +
+                "        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ({{INDEX_COLUMNS}}) ON {{TABLE_NAME}}\n" +
+                "        </indexCreateQuery>\n" +
+                "        <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} SAMPLE 1</recordExistsQuery>\n" +
+                "        <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>\n" +
+                "        <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>\n" +
+                "        <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>\n" +
+                "        <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>\n" +
+                "        <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>\n" +
+                "        <selectQueryTemplate>\n" +
+                "            <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>\n" +
+                "            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2\n" +
+                "            </selectQueryWithSubSelect>\n" +
+                "            <whereClause>WHERE {{CONDITION}}</whereClause>\n" +
+                "            <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>\n" +
+                "            <havingClause>HAVING {{CONDITION}}</havingClause>\n" +
+                "            <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>\n" +
+                "            <limitClause>SAMPLE {{Q}}</limitClause>\n" +
+                "        </selectQueryTemplate>\n" +
+                "        <stringSize>254</stringSize>\n" +
+                "        <batchEnable>true</batchEnable>\n" +
+                "        <batchSize>1000</batchSize>\n" +
+                "        <typeMapping>\n" +
+                "            <binaryType>\n" +
+                "                <typeName>BLOB</typeName>\n" +
+                "                <typeValue>2004</typeValue>\n" +
+                "            </binaryType>\n" +
+                "            <booleanType>\n" +
+                "                <typeName>SMALLINT</typeName>\n" +
+                "                <typeValue>5</typeValue>\n" +
+                "            </booleanType>\n" +
+                "            <doubleType>\n" +
+                "                <typeName>FLOAT</typeName>\n" +
+                "                <typeValue>8</typeValue>\n" +
+                "            </doubleType>\n" +
+                "            <floatType>\n" +
+                "                <typeName>FLOAT</typeName>\n" +
+                "                <typeValue>6</typeValue>\n" +
+                "            </floatType>\n" +
+                "            <integerType>\n" +
+                "                <typeName>INTEGER</typeName>\n" +
+                "                <typeValue>4</typeValue>\n" +
+                "            </integerType>\n" +
+                "            <longType>\n" +
+                "                <typeName>BIGINT</typeName>\n" +
+                "                <typeValue>-5</typeValue>\n" +
+                "            </longType>\n" +
+                "            <stringType>\n" +
+                "                <typeName>VARCHAR</typeName>\n" +
+                "                <typeValue>12</typeValue>\n" +
+                "            </stringType>\n" +
+                "        </typeMapping>\n" +
+                "    </database>\n" +
+                "</rdbms-table-configuration>",
         parameters = {
                 @Parameter(name = "jdbc.url",
                         description = "The JDBC URL via which the RDBMS data store is accessed.",
