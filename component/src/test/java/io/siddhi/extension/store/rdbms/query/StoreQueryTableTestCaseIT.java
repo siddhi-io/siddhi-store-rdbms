@@ -28,7 +28,8 @@ import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.compiler.SiddhiCompiler;
 import io.siddhi.query.compiler.exception.SiddhiParserException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
@@ -46,7 +47,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class StoreQueryTableTestCaseIT {
 
-    private static final Logger log = Logger.getLogger(StoreQueryTableTestCaseIT.class);
+    private static final Logger log = LogManager.getLogger(StoreQueryTableTestCaseIT.class);
 
     @BeforeClass
     public static void startTest() {
