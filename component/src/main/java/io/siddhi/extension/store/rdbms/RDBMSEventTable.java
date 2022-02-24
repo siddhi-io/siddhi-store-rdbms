@@ -172,19 +172,24 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                 "<rdbms-table-configuration>\n" +
                 "<database name=\"Teradata\">\n" +
-                "        <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>\n" +
+                "        <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})" +
+                "</tableCreateQuery>\n" +
                 "        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} SAMPLE 1</tableCheckQuery>\n" +
-                "        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ({{INDEX_COLUMNS}}) ON {{TABLE_NAME}}\n" +
+                "        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ({{INDEX_COLUMNS}}) ON " +
+                "{{TABLE_NAME}}\n" +
                 "        </indexCreateQuery>\n" +
                 "        <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} SAMPLE 1</recordExistsQuery>\n" +
                 "        <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>\n" +
-                "        <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>\n" +
-                "        <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>\n" +
+                "        <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})" +
+                "</recordInsertQuery>\n" +
+                "        <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}" +
+                "</recordUpdateQuery>\n" +
                 "        <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>\n" +
                 "        <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>\n" +
                 "        <selectQueryTemplate>\n" +
                 "            <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>\n" +
-                "            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2\n" +
+                "            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) " +
+                "AS t2\n" +
                 "            </selectQueryWithSubSelect>\n" +
                 "            <whereClause>WHERE {{CONDITION}}</whereClause>\n" +
                 "            <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>\n" +
