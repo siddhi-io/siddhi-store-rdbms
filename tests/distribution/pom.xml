@@ -201,6 +201,11 @@
             <artifactId>org.wso2.carbon.pax.exam.feature</artifactId>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <type>zip</type>
+        </dependency>
     </dependencies>
 
     <build>
