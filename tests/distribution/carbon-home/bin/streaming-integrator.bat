@@ -1,7 +1,7 @@
 @echo off
 
 REM ---------------------------------------------------------------------------
-REM   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+REM   Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 REM
 REM   Licensed under the Apache License, Version 2.0 (the "License");
 REM   you may not use this file except in compliance with the License.
@@ -53,9 +53,6 @@ rem find CARBON_HOME if it does not exist due to either an invalid value passed
 rem by the user or the %0 problem on Windows 9x
 if not exist "%CARBON_HOME%\bin\version.txt" goto noServerHome
 
-REM Installing jars
-java -cp ".\*;%CARBON_HOME%\bin\tools\*" -Dwso2.carbon.tool="install-jars" org.wso2.carbon.tools.CarbonToolExecutor "%CURRENT_DIR%"
-
 goto startServer
 
 :noServerHome
@@ -64,7 +61,7 @@ echo %CARBON_HOME%
 goto end
 
 :startServer
-%CARBON_HOME%\wso2\default\bin\carbon.bat %*
+%CARBON_HOME%\wso2\server\bin\carbon.bat %*
 
 :end
 goto endlocal
