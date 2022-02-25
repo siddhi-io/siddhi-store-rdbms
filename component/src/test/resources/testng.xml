@@ -20,29 +20,29 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="Generic Integration test suite">
-<!--    <test name="siddhi-store-rdbms">-->
-<!--        <classes>-->
-<!--            <class name="io.siddhi.extension.store.rdbms.DefineRDBMSTableTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.DeleteFromRDBMSTableTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.InsertIntoRDBMSTableTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.JoinRDBMSTableTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.ReadEventRDBMSTableTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.UpdateOrInsertRDBMSTableTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.UpdateRDBMSTableTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.set.SetUpdateOrInsertRDBMSTableTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.set.SetUpdateRDBMSTableTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.query.StoreQueryTableTestCaseIT"/>-->
-<!--        </classes>-->
-<!--    </test>-->
-<!--    <test name="Aggregation test cases">-->
-<!--        <classes>-->
-<!--            <class name="io.siddhi.extension.store.rdbms.aggregation.InitialiseExecutorsAggregationTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.aggregation.AggregationFilterTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.aggregation.LatestAggregationTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.aggregation.DistributedAggregationTestCaseIT" />-->
-<!--            <class name="io.siddhi.extension.store.rdbms.aggregation.SelectOptimisationAggregationTestCaseIT" />-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="siddhi-store-rdbms">
+        <classes>
+            <class name="io.siddhi.extension.store.rdbms.DefineRDBMSTableTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.DeleteFromRDBMSTableTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.InsertIntoRDBMSTableTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.JoinRDBMSTableTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.ReadEventRDBMSTableTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.UpdateOrInsertRDBMSTableTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.UpdateRDBMSTableTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.set.SetUpdateOrInsertRDBMSTableTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.set.SetUpdateRDBMSTableTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.query.StoreQueryTableTestCaseIT"/>
+        </classes>
+    </test>
+    <test name="Aggregation test cases">
+        <classes>
+            <class name="io.siddhi.extension.store.rdbms.aggregation.InitialiseExecutorsAggregationTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.aggregation.AggregationFilterTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.aggregation.LatestAggregationTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.aggregation.DistributedAggregationTestCaseIT" />
+            <class name="io.siddhi.extension.store.rdbms.aggregation.SelectOptimisationAggregationTestCaseIT" />
+        </classes>
+    </test>
 
     <test name="rdbms-query-test-cases" parallel="false">
         <classes>
