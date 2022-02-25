@@ -53,17 +53,20 @@ PRGDIR=`dirname "$PRG"`
 # Only set CARBON_HOME if not already set
 [ -z "$CARBON_HOME" ] && CARBON_HOME=`cd "$PRGDIR/.." ; pwd`
 
-[ -z "$RUNTIME_HOME" ] && RUNTIME_HOME=`cd "$PRGDIR/../wso2/default" ; pwd`
-
-# Installing jars
-java -cp "$CARBON_HOME/bin/tools/*" -Dwso2.carbon.tool="install-jars" org.wso2.carbon.tools.CarbonToolExecutor "$CARBON_HOME"
+[ -z "$RUNTIME_HOME" ] && RUNTIME_HOME=`cd "$PRGDIR/../wso2/server" ; pwd`
 
 ###########################################################################
-NAME=start-default
+NAME=start-worker
 # Daemon name, where is the actual executable
 
-RUNNER_INIT_SCRIPT="$CARBON_HOME/wso2/default/bin/carbon.sh"
+WORKER_INIT_SCRIPT="$CARBON_HOME/wso2/server/bin/carbon.sh"
 
 # If the daemon is not there, then exit.
-$RUNNER_INIT_SCRIPT $*
-exit;
+
+. "${WORKER_INIT_SCRIPT}"
+
+trap "sh ${WORKER_INIT_SCRIPT} stop; exit;" INT TERM
+while :
+do
+        sleep 60
+done

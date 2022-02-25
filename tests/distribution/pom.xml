@@ -39,10 +39,6 @@
             <artifactId>org.osgi.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.launcher</artifactId>
         </dependency>
@@ -87,6 +83,16 @@
             <type>zip</type>
         </dependency>
         <dependency>
+            <groupId>org.wso2.transport.http</groupId>
+            <artifactId>org.wso2.transport.http.netty.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.messaging</groupId>
+            <artifactId>org.wso2.carbon.messaging.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon.datasources</groupId>
             <artifactId>org.wso2.carbon.datasource.core.feature</artifactId>
             <type>zip</type>
@@ -113,11 +119,6 @@
             <artifactId>org.wso2.carbon.metrics.jdbc.core.feature</artifactId>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.metrics</groupId>
-            <artifactId>org.wso2.carbon.metrics.das.core.feature</artifactId>
-            <type>zip</type>
-        </dependency>
 
         <!-- MSF4J Features-->
         <dependency>
@@ -135,24 +136,53 @@
             <artifactId>org.wso2.carbon.deployment.notifier.feature</artifactId>
             <type>zip</type>
         </dependency>
+
+        <!-- Streaming Integrator related Features-->
         <dependency>
-            <groupId>io.siddhi.distribution</groupId>
-            <artifactId>io.siddhi.distribution.core.feature</artifactId>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.streaming.integrator.core.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>io.siddhi.distribution</groupId>
-            <artifactId>io.siddhi.distribution.common.feature</artifactId>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.streaming.integrator.common.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+
+        <!-- Extension Installer -->
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.siddhi.extensions.installer.core.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+
+        <!-- Siddhi Error Handler -->
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.siddhi.error.handler.core.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.siddhi.store.api.rest.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+
+        <!-- Distributed Resource/Manager features -->
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.siddhi.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>io.siddhi.distribution</groupId>
-            <artifactId>io.siddhi.distribution.store.api.rest.feature</artifactId>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.pax.exam.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>io.siddhi</groupId>
-            <artifactId>io.siddhi.feature</artifactId>
+            <groupId>org.wso2.carbon.analytics-common</groupId>
+            <artifactId>org.wso2.carbon.databridge.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -171,8 +201,8 @@
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>io.siddhi.distribution</groupId>
-            <artifactId>io.siddhi.distribution.msf4j.interceptor.common.feature</artifactId>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.analytics.msf4j.interceptor.common.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -180,30 +210,76 @@
             <artifactId>org.wso2.carbon.analytics.idp.client.feature</artifactId>
             <type>zip</type>
         </dependency>
+
         <dependency>
-            <groupId>io.siddhi.distribution</groupId>
-            <artifactId>io.siddhi.distribution.metrics.core.feature</artifactId>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.analytics.auth.rest.api.feature</artifactId>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.coordination</groupId>
+            <artifactId>org.wso2.carbon.cluster.coordinator.service.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.coordination</groupId>
+            <artifactId>org.wso2.carbon.cluster.coordinator.commons.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.coordination</groupId>
+            <artifactId>org.wso2.carbon.cluster.coordinator.rdbms.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+
         <!-- Permission module -->
         <dependency>
             <groupId>org.wso2.carbon.analytics-common</groupId>
             <artifactId>org.wso2.carbon.analytics.permissions.feature</artifactId>
             <type>zip</type>
         </dependency>
+
+        <!--Dashboard-->
+        <!--Carbon UI Server-->
         <dependency>
-            <groupId>io.siddhi.extension.store.rdbms</groupId>
-            <artifactId>siddhi-store-rdbms</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.wso2.carbon.uiserver</groupId>
+            <artifactId>org.wso2.carbon.uiserver.feature</artifactId>
+            <type>zip</type>
         </dependency>
+
+        <!--Status Dashboard-->
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.pax.exam.feature</artifactId>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.si.metrics.core.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.streaming.integrator.statistics.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <!--Data Provider-->
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.data.provider.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+
+        <!-- Heakth Check API -->
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.health.check.core.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.carbon.metrics</groupId>
+            <artifactId>org.wso2.carbon.metrics.das.core.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.siddhi.parser.service.feature</artifactId>
             <type>zip</type>
         </dependency>
     </dependencies>
@@ -263,12 +339,26 @@
                         <configuration>
                             <artifactItems>
                                 <!--Execution Extensions-->
+
                                 <artifactItem>
-                                    <groupId>io.siddhi.extension.store.rdbms</groupId>
-                                    <artifactId>siddhi-store-rdbms</artifactId>
-                                    <version>${project.version}</version>
+                                    <groupId>io.siddhi.extension.io.tcp</groupId>
+                                    <artifactId>siddhi-io-tcp</artifactId>
+                                    <version>${siddhi.io.tcp.version}</version>
                                     <type>jar</type>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.siddhi.extension.map.binary</groupId>
+                                    <artifactId>siddhi-map-binary</artifactId>
+                                    <version>${siddhi.map.binary.version}</version>
+                                    <type>jar</type>
+                                </artifactItem>
+
+                                <dependency>
+                                    <groupId>org.awaitility</groupId>
+                                    <artifactId>awaitility</artifactId>
+                                    <version>${awaitility.version}</version>
+                                    <type>jar</type>
+                                </dependency>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/extensions</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
@@ -294,6 +384,10 @@
                                 <feature>
                                     <id>org.wso2.carbon.utils.feature</id>
                                     <version>${carbon.utils.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.pax.exam.feature</id>
+                                    <version>${carbon.kernel.version}</version>
                                 </feature>
                                 <feature>
                                     <id>org.wso2.carbon.touchpoint.feature</id>
@@ -324,6 +418,14 @@
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                                 <feature>
+                                    <id>org.wso2.transport.http.netty.feature</id>
+                                    <version>${org.wso2.transport.http.netty.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.messaging.feature</id>
+                                    <version>${carbon.messaging.version}</version>
+                                </feature>
+                                <feature>
                                     <id>org.wso2.carbon.caching.feature</id>
                                     <version>${carbon.cache.version}</version>
                                 </feature>
@@ -345,13 +447,14 @@
                                     <id>org.wso2.carbon.metrics.jdbc.core.feature</id>
                                     <version>${carbon.metrics.version}</version>
                                 </feature>
+
                                 <feature>
-                                    <id>org.wso2.carbon.metrics.das.core.feature</id>
-                                    <version>${carbon.metrics.version}</version>
+                                    <id>org.wso2.carbon.streaming.integrator.statistics.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>io.siddhi.distribution.metrics.core.feature</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.si.metrics.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
 
                                 <!-- MSF4J Features -->
@@ -368,36 +471,49 @@
                                     <version>${carbon.deployment.version}</version>
                                 </feature>
 
-                                <!-- Stream Processor Features -->
+                                <!-- Streaming Integrator Features -->
                                 <feature>
-                                    <id>io.siddhi.distribution.core.feature</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.streaming.integrator.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>io.siddhi.distribution.common.feature</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.streaming.integrator.common.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>io.siddhi.feature</id>
-                                    <version>${siddhi.version}</version>
+                                    <id>org.wso2.siddhi.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>io.siddhi.distribution.msf4j.interceptor.common.feature</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.siddhi.store.api.rest.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
+
+                                <!-- Extension Installer -->
                                 <feature>
-                                    <id>io.siddhi.distribution.store.api.rest.feature</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.siddhi.extensions.installer.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+
+                                <!-- Siddhi Error Handler -->
+                                <feature>
+                                    <id>org.wso2.carbon.siddhi.error.handler.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
 
                                 <!-- Authentication feature -->
                                 <feature>
-                                    <id>io.siddhi.distribution.common.feature</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.analytics.msf4j.interceptor.common.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
                                     <id>org.wso2.carbon.analytics.idp.client.feature</id>
                                     <version>${carbon.analytics.common.version}</version>
+                                </feature>
+
+                                <feature>
+                                    <id>org.wso2.carbon.analytics.auth.rest.api.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
 
                                 <!-- Permission module -->
@@ -407,6 +523,10 @@
                                 </feature>
 
                                 <!-- Databridge feature -->
+                                <feature>
+                                    <id>org.wso2.carbon.databridge.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
+                                </feature>
                                 <feature>
                                     <id>org.wso2.carbon.databridge.agent.feature</id>
                                     <version>${carbon.analytics.common.version}</version>
@@ -420,9 +540,45 @@
                                     <version>${carbon.analytics.common.version}</version>
                                 </feature>
 
+                                <!--Carbon UI Server-->
                                 <feature>
-                                    <id>org.wso2.carbon.pax.exam.feature</id>
-                                    <version>${carbon.kernel.version}</version>
+                                    <id>org.wso2.carbon.uiserver.feature</id>
+                                    <version>${carbon.uiserver.version}</version>
+                                </feature>
+
+                                <!-- Clustering -->
+                                <feature>
+                                    <id>org.wso2.carbon.cluster.coordinator.service.feature</id>
+                                    <version>${carbon.coordination.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.cluster.coordinator.commons.feature</id>
+                                    <version>${carbon.coordination.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.cluster.coordinator.rdbms.feature</id>
+                                    <version>${carbon.coordination.version}</version>
+                                </feature>
+
+                                <!-- Data Provider -->
+                                <feature>
+                                    <id>org.wso2.carbon.data.provider.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+
+                                <!-- Heath Check API -->
+                                <feature>
+                                    <id>org.wso2.carbon.health.check.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+
+                                <feature>
+                                    <id>org.wso2.carbon.metrics.das.core.feature</id>
+                                    <version>${carbon.metrics.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.siddhi.parser.service.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                             </features>
                         </configuration>
@@ -441,7 +597,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>materialize-default</id>
+                        <id>materialize-worker</id>
                         <phase>package</phase>
                         <goals>
                             <goal>generate-runtime</goal>
@@ -451,17 +607,17 @@
                             <targetPath>
                                 file:${basedir}/target/carbon-analytics/wso2
                             </targetPath>
-                            <runtime>default</runtime>
+                            <runtime>server</runtime>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>feature-installation-default</id>
+                        <id>feature-installation-worker</id>
                         <phase>package</phase>
                         <goals>
                             <goal>install</goal>
                         </goals>
                         <configuration>
-                            <runtime>default</runtime>
+                            <runtime>server</runtime>
                             <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
                             <destination>
                                 ${basedir}/target/carbon-analytics/wso2
@@ -471,6 +627,10 @@
                                 <feature>
                                     <id>org.wso2.carbon.touchpoint.feature.group</id>
                                     <version>${carbon.touchpoint.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.pax.exam.feature</id>
+                                    <version>${carbon.kernel.version}</version>
                                 </feature>
                                 <feature>
                                     <id>org.wso2.carbon.config.feature.group</id>
@@ -505,6 +665,14 @@
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
                                 <feature>
+                                    <id>org.wso2.transport.http.netty.feature.group</id>
+                                    <version>${org.wso2.transport.http.netty.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.messaging.feature.group</id>
+                                    <version>${carbon.messaging.version}</version>
+                                </feature>
+                                <feature>
                                     <id>org.wso2.carbon.jndi.feature.group</id>
                                     <version>${carbon.jndi.version}</version>
                                 </feature>
@@ -523,65 +691,104 @@
                                     <version>${carbon.metrics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.metrics.das.core.feature.group</id>
-                                    <version>${carbon.metrics.version}</version>
+                                    <id>org.wso2.carbon.streaming.integrator.statistics.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>io.siddhi.distribution.metrics.core.feature.group</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.si.metrics.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <!-- MSF4J Features -->
                                 <feature>
                                     <id>org.wso2.msf4j.feature.group</id>
                                     <version>${msf4j.version}</version>
                                 </feature>
+
+                                <!-- Streaming Integrator Features -->
                                 <feature>
-                                    <id>io.siddhi.distribution.core.feature.group</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.streaming.integrator.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>io.siddhi.distribution.common.feature.group</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.streaming.integrator.common.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>io.siddhi.feature</id>
-                                    <version>${siddhi.version}</version>
+                                    <id>org.wso2.siddhi.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>io.siddhi.distribution.store.api.rest.feature.group</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.siddhi.store.api.rest.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+
+                                <!-- Extension Installer -->
+                                <feature>
+                                    <id>org.wso2.carbon.siddhi.extensions.installer.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+
+                                <!-- Siddhi Error Handler -->
+                                <feature>
+                                    <id>org.wso2.carbon.siddhi.error.handler.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
 
                                 <!-- Authentication feature -->
                                 <feature>
-                                    <id>io.siddhi.distribution.msf4j.interceptor.common.feature.group</id>
-                                    <version>${io.siddhi.runner.version}</version>
+                                    <id>org.wso2.carbon.analytics.msf4j.interceptor.common.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.analytics.idp.client.feature.group</id>
-                                    <version>${carbon.analytics.common.version}</version>
-                                </feature>
-                                <!-- Databridge feature -->
-                                <feature>
-                                    <id>org.wso2.carbon.databridge.agent.feature.group</id>
-                                    <version>${carbon.analytics.common.version}</version>
-                                </feature>
-                                <feature>
-                                    <id>org.wso2.carbon.databridge.commons.thrift.feature.group</id>
-                                    <version>${carbon.analytics.common.version}</version>
-                                </feature>
-                                <feature>
-                                    <id>org.wso2.carbon.databridge.commons.feature.group</id>
-                                    <version>${carbon.analytics.common.version}</version>
-                                </feature>
-                                <feature>
-                                    <id>org.wso2.carbon.analytics.permissions.feature.group</id>
+                                    <id>org.wso2.carbon.analytics.idp.client.feature</id>
                                     <version>${carbon.analytics.common.version}</version>
                                 </feature>
 
+                                <!-- Databridge feature -->
                                 <feature>
-                                    <id>org.wso2.carbon.pax.exam.feature.group</id>
-                                    <version>${carbon.kernel.version}</version>
+                                    <id>org.wso2.carbon.databridge.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.databridge.agent.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.databridge.commons.thrift.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.databridge.commons.feature</id>
+                                    <version>${carbon.analytics.common.version}</version>
+                                </feature>
+
+                                <!-- Clustering -->
+                                <feature>
+                                    <id>org.wso2.carbon.cluster.coordinator.service.feature.group</id>
+                                    <version>${carbon.coordination.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.cluster.coordinator.commons.feature.group</id>
+                                    <version>${carbon.coordination.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.cluster.coordinator.rdbms.feature.group</id>
+                                    <version>${carbon.coordination.version}</version>
+                                </feature>
+
+                                <!-- Heath Check API -->
+                                <feature>
+                                    <id>org.wso2.carbon.health.check.core.feature</id>
+                                    <version>${carbon.analytics.version}</version>
+                                </feature>
+
+                                <feature>
+                                    <id>org.wso2.carbon.metrics.das.core.feature.group</id>
+                                    <version>${carbon.metrics.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.siddhi.parser.service.feature</id>
+                                    <version>${carbon.analytics.version}</version>
                                 </feature>
                             </features>
                         </configuration>
@@ -645,6 +852,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
         <resources>
             <resource>
