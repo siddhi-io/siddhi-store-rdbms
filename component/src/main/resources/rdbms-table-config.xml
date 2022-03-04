@@ -34,7 +34,7 @@
                 <typeValue>2004</typeValue>
             </binaryType>
             <booleanType>
-                <typeName>TINYINT(1)</typeName>
+                <typeName>TINYINT</typeName>
                 <typeValue>-6</typeValue>
             </booleanType>
             <doubleType>
