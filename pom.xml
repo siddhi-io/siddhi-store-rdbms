@@ -47,7 +47,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>5.1.21</siddhi.version>
+        <siddhi.version>5.1.23</siddhi.version>
         <siddhi.version.range>[5.0.0, 6.0.0)</siddhi.version.range>
         <carbon.analytics.common.version>6.1.57</carbon.analytics.common.version>
         <siddhi.execution.string.version>5.0.12</siddhi.execution.string.version>
