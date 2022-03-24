@@ -23,7 +23,8 @@ import io.siddhi.core.event.Event;
 import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.SiddhiTestHelper;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +43,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.url;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class InitialiseExecutorsAggregationTestCaseIT {
-    private static final Logger log = Logger.getLogger(InitialiseExecutorsAggregationTestCaseIT.class);
+    private static final Logger log = LogManager.getLogger(InitialiseExecutorsAggregationTestCaseIT.class);
 
     @BeforeClass
     public static void startTest() {

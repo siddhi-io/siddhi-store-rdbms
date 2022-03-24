@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package io.siddhi.extension.store.rdbms.util;
 
 import com.google.common.collect.Maps;
@@ -25,15 +25,22 @@ import io.siddhi.extension.store.rdbms.RDBMSCompiledCondition;
 import io.siddhi.extension.store.rdbms.RDBMSCompiledSelection;
 import io.siddhi.extension.store.rdbms.config.RDBMSQueryConfiguration;
 import io.siddhi.extension.store.rdbms.config.RDBMSQueryConfigurationEntry;
+import io.siddhi.extension.store.rdbms.config.RDBMSTypeMapping;
 import io.siddhi.extension.store.rdbms.exception.RDBMSTableException;
 import io.siddhi.query.api.annotation.Annotation;
 import io.siddhi.query.api.annotation.Element;
 import io.siddhi.query.api.definition.Attribute;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.utils.Utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -74,9 +81,12 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHITESPAC
  */
 public class RDBMSTableUtils {
 
-    private static RDBMSConfigurationMapper mapper;
     private static final Log log = LogFactory.getLog(RDBMSTableUtils.class);
     private static final Pattern CONTAINS_CONDITION_REGEX_PATTERN = Pattern.compile(CONTAINS_CONDITION_REGEX);
+    private static RDBMSConfigurationMapper mapper;
+    public static final String DIRECTORY_CONF = "conf";
+    public static final String DIRECTORY_SIDDHI = "siddhi";
+    public static final String DIRECTORY_RDBMS = "rdbms";
 
     private RDBMSTableUtils() {
         //preventing initialization
@@ -166,7 +176,8 @@ public class RDBMSTableUtils {
      *                      (e.g. type mismatches)
      */
     public static int resolveCondition(PreparedStatement stmt, RDBMSCompiledCondition compiledCondition,
-                                        Map<String, Object> conditionParameterMap, int seed) throws SQLException {
+                                       Map<String, Object> conditionParameterMap, int seed,
+                                       RDBMSTypeMapping typeMapping) throws SQLException {
         int maxOrdinal = 0;
         SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
         for (Map.Entry<Integer, Object> entry : parameters.entrySet()) {
@@ -178,11 +189,11 @@ public class RDBMSTableUtils {
             if (parameter instanceof Constant) {
                 Constant constant = (Constant) parameter;
                 populateStatementWithSingleElement(stmt, seed + ordinal, constant.getType(),
-                        constant.getValue());
+                        constant.getValue(), typeMapping);
             } else {
                 Attribute variable = (Attribute) parameter;
                 populateStatementWithSingleElement(stmt, seed + ordinal, variable.getType(),
-                        conditionParameterMap.get(variable.getName()));
+                        conditionParameterMap.get(variable.getName()), typeMapping);
             }
         }
         return maxOrdinal;
@@ -191,38 +202,40 @@ public class RDBMSTableUtils {
     public static void resolveQuery(PreparedStatement stmt, RDBMSCompiledSelection rdbmsCompiledSelection,
                                     RDBMSCompiledCondition rdbmsCompiledCondition,
                                     Map<String, Object> conditionParameterMap, int seed,
-                                    boolean isContainsConditionExist) throws SQLException {
+                                    boolean isContainsConditionExist, RDBMSTypeMapping typeMapping)
+            throws SQLException {
         seed = seed + resolveCondition(stmt, rdbmsCompiledSelection.getCompiledSelectClause(),
-                conditionParameterMap, seed);
+                conditionParameterMap, seed, typeMapping);
 
         if (rdbmsCompiledCondition != null) {
             if (isContainsConditionExist) {
                 seed = seed + resolveConditionForContainsCheck(stmt, rdbmsCompiledCondition, conditionParameterMap,
-                                                                seed);
+                        seed, typeMapping);
             } else {
-                seed = seed + resolveCondition(stmt, rdbmsCompiledCondition, conditionParameterMap, seed);
+                seed = seed + resolveCondition(stmt, rdbmsCompiledCondition, conditionParameterMap, seed, typeMapping);
             }
         }
 
         RDBMSCompiledCondition groupByClause = rdbmsCompiledSelection.getCompiledGroupByClause();
         if (groupByClause != null) {
-            seed = seed + resolveCondition(stmt, groupByClause, conditionParameterMap, seed);
+            seed = seed + resolveCondition(stmt, groupByClause, conditionParameterMap, seed, typeMapping);
         }
 
         RDBMSCompiledCondition havingClause = rdbmsCompiledSelection.getCompiledHavingClause();
         if (havingClause != null) {
-            seed = seed + resolveCondition(stmt, havingClause, conditionParameterMap, seed);
+            seed = seed + resolveCondition(stmt, havingClause, conditionParameterMap, seed, typeMapping);
         }
 
         RDBMSCompiledCondition orderByClause = rdbmsCompiledSelection.getCompiledOrderByClause();
         if (orderByClause != null) {
-            resolveCondition(stmt, orderByClause, conditionParameterMap, seed);
+            resolveCondition(stmt, orderByClause, conditionParameterMap, seed, typeMapping);
         }
     }
 
     public static int resolveConditionForContainsCheck(PreparedStatement stmt,
-                                                        RDBMSCompiledCondition compiledCondition,
-                                                        Map<String, Object> conditionParameterMap, int seed)
+                                                       RDBMSCompiledCondition compiledCondition,
+                                                       Map<String, Object> conditionParameterMap, int seed,
+                                                       RDBMSTypeMapping typeMapping)
             throws SQLException {
         int maxOrdinal = 0;
         SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
@@ -236,19 +249,19 @@ public class RDBMSTableUtils {
                 Constant constant = (Constant) parameter;
                 if (compiledCondition.getOrdinalOfContainPattern().contains(entry.getKey())) {
                     populateStatementWithSingleElement(stmt, seed + entry.getKey(), constant.getType(),
-                            "%" + constant.getValue() + "%");
+                            "%" + constant.getValue() + "%", typeMapping);
                 } else {
                     populateStatementWithSingleElement(stmt, seed + entry.getKey(), constant.getType(),
-                            constant.getValue());
+                            constant.getValue(), typeMapping);
                 }
             } else {
                 Attribute variable = (Attribute) parameter;
                 if (compiledCondition.getOrdinalOfContainPattern().contains(entry.getKey())) {
                     populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
-                            "%" + conditionParameterMap.get(variable.getName()) + "%");
+                            "%" + conditionParameterMap.get(variable.getName()) + "%", typeMapping);
                 } else {
                     populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
-                            conditionParameterMap.get(variable.getName()));
+                            conditionParameterMap.get(variable.getName()), typeMapping);
                 }
 
             }
@@ -257,7 +270,8 @@ public class RDBMSTableUtils {
     }
 
     public static int enumerateUpdateSetEntries(Map<String, CompiledExpression> updateSetExpressions,
-                                                PreparedStatement stmt, Map<String, Object> updateSetMap)
+                                                PreparedStatement stmt, Map<String, Object> updateSetMap,
+                                                RDBMSTypeMapping typeMapping)
             throws SQLException {
         Object parameter;
         int ordinal = 1;
@@ -268,11 +282,11 @@ public class RDBMSTableUtils {
                 if (parameter instanceof Constant) {
                     Constant constant = (Constant) parameter;
                     RDBMSTableUtils.populateStatementWithSingleElement(stmt, ordinal, constant.getType(),
-                            constant.getValue());
+                            constant.getValue(), typeMapping);
                 } else {
                     Attribute variable = (Attribute) parameter;
                     RDBMSTableUtils.populateStatementWithSingleElement(stmt, ordinal, variable.getType(),
-                            updateSetMap.get(variable.getName()));
+                            updateSetMap.get(variable.getName()), typeMapping);
                 }
                 ordinal++;
             }
@@ -291,28 +305,57 @@ public class RDBMSTableUtils {
      * @throws SQLException if there are issues when the element is being set.
      */
     public static void populateStatementWithSingleElement(PreparedStatement stmt, int ordinal, Attribute.Type type,
-                                                          Object value) throws SQLException {
+                                                          Object value, RDBMSTypeMapping typeMapping)
+            throws SQLException {
         switch (type) {
             case BOOL:
-                stmt.setBoolean(ordinal, (Boolean) value);
+                if (value != null) {
+                    stmt.setBoolean(ordinal, (Boolean) value);
+                } else {
+                    stmt.setNull(ordinal, typeMapping.getBooleanType().getTypeValue());
+                }
                 break;
             case DOUBLE:
-                stmt.setDouble(ordinal, (Double) value);
+                if (value != null) {
+                    stmt.setDouble(ordinal, (Double) value);
+                } else {
+                    stmt.setNull(ordinal, typeMapping.getDoubleType().getTypeValue());
+                }
                 break;
             case FLOAT:
-                stmt.setFloat(ordinal, (Float) value);
+                if (value != null) {
+                    stmt.setFloat(ordinal, (Float) value);
+                } else {
+                    stmt.setNull(ordinal, typeMapping.getFloatType().getTypeValue());
+                }
                 break;
             case INT:
-                stmt.setInt(ordinal, (Integer) value);
+                if (value != null) {
+                    stmt.setInt(ordinal, (Integer) value);
+                } else {
+                    stmt.setNull(ordinal, typeMapping.getIntegerType().getTypeValue());
+                }
                 break;
             case LONG:
-                stmt.setLong(ordinal, (Long) value);
+                if (value != null) {
+                    stmt.setLong(ordinal, (Long) value);
+                } else {
+                    stmt.setNull(ordinal, typeMapping.getLongType().getTypeValue());
+                }
                 break;
             case OBJECT:
-                stmt.setObject(ordinal, value);
+                if (value != null) {
+                    stmt.setObject(ordinal, value);
+                } else {
+                    stmt.setNull(ordinal, typeMapping.getBinaryType().getTypeValue());
+                }
                 break;
             case STRING:
-                stmt.setString(ordinal, (String) value);
+                if (value != null) {
+                    stmt.setString(ordinal, (String) value);
+                } else {
+                    stmt.setNull(ordinal, typeMapping.getStringType().getTypeValue());
+                }
                 break;
         }
     }
@@ -510,8 +553,25 @@ public class RDBMSTableUtils {
             try {
                 JAXBContext ctx = JAXBContext.newInstance(RDBMSQueryConfiguration.class);
                 Unmarshaller unmarshaller = ctx.createUnmarshaller();
-                ClassLoader classLoader = getClass().getClassLoader();
-                inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
+                boolean externalConfigExist = false;
+                if (null != getCarbonHome()) {
+                    File externalConfigFile = new File(Paths.get(Utils.getCarbonHome().normalize().toString(),
+                            DIRECTORY_CONF, DIRECTORY_SIDDHI, DIRECTORY_RDBMS, RDBMS_QUERY_CONFIG_FILE).toUri());
+                    if (externalConfigFile.isFile()) {
+                        externalConfigExist = true;
+                        try {
+                            inputStream = new FileInputStream(externalConfigFile);
+                        } catch (FileNotFoundException e) {
+                            throw new CannotLoadConfigurationException("Error occurred while reading the file " +
+                                    RDBMS_QUERY_CONFIG_FILE + " in the path " +
+                                    externalConfigFile.getPath() + " due to " + e.getMessage(), e);
+                        }
+                    }
+                }
+                if (!externalConfigExist) {
+                    ClassLoader classLoader = getClass().getClassLoader();
+                    inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
+                }
                 if (inputStream == null) {
                     throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE
                             + " is not found in the classpath");
@@ -585,5 +645,18 @@ public class RDBMSTableUtils {
             }
             return versionResults;
         }
+    }
+
+    public static Path getCarbonHome() {
+        String carbonHome = System.getProperty("carbon.home");
+        if (carbonHome == null) {
+            carbonHome = System.getenv("CARBON_HOME");
+            if (carbonHome != null) {
+                System.setProperty("carbon.home", carbonHome);
+            } else {
+                return null;
+            }
+        }
+        return Paths.get(carbonHome);
     }
 }

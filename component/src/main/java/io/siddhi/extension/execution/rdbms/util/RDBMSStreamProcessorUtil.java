@@ -133,6 +133,14 @@ public class RDBMSStreamProcessorUtil {
         return result.toArray();
     }
 
+    public static Object[] processNullRecord(List<Attribute> attributeList) {
+        List<Object> result = new ArrayList<>();
+        for (int i = 0; i < attributeList.size(); i++) {
+            result.add(null);
+        }
+        return result.toArray();
+    }
+
     /**
      * Utility function for validating the query.
      *

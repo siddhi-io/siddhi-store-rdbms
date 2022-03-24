@@ -131,6 +131,7 @@ public class RDBMSTableConstants {
     public static final String MICROSOFT_SQL_SERVER_NAME = "Microsoft SQL Server";
 
     public static final String USE_COLLATION = "use.collation";
+    public static final String ALLOW_NULL = "allow.null.values";
 
     private RDBMSTableConstants() {
         //preventing initialization

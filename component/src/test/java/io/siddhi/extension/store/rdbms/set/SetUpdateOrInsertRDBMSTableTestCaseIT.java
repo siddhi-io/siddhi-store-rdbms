@@ -25,7 +25,8 @@ import io.siddhi.core.query.output.callback.QueryCallback;
 import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
 import org.testng.Assert;
@@ -44,7 +45,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.url;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.user;
 
 public class SetUpdateOrInsertRDBMSTableTestCaseIT {
-    private static final Logger log = Logger.getLogger(SetUpdateOrInsertRDBMSTableTestCaseIT.class);
+    private static final Logger log = LogManager.getLogger(SetUpdateOrInsertRDBMSTableTestCaseIT.class);
     private static AtomicInteger actualEventCount = new AtomicInteger(0);
 
     @BeforeMethod

@@ -18,7 +18,8 @@
 package io.siddhi.extension.store.rdbms.metrics;
 
 import com.google.common.base.Stopwatch;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.wso2.carbon.metrics.core.Counter;
 import org.wso2.carbon.metrics.core.Level;
 import org.wso2.carbon.si.metrics.core.internal.MetricsDataHolder;
@@ -36,7 +37,7 @@ public class RDBMSMetrics {
     private static final Map<RDBMSDatabase, Long> RDBMS_LAST_RECEIVED_TIME_MAP = new HashMap<>();
     private static final Map<RDBMSDatabase, RDBMSStatus> RDBMS_STATUS_MAP = new HashMap<>();
     private static final Map<String, Boolean> RDBMS_STATUS_SERVICE_STARTED_MAP = new ConcurrentHashMap<>();
-    private static final Logger log = Logger.getLogger(RDBMSMetrics.class);
+    private static final Logger log = LogManager.getLogger(RDBMSMetrics.class);
     private final String siddhiAppName;
     private final String tableName;
     private final RDBMSDatabase rdbmsDatabase;

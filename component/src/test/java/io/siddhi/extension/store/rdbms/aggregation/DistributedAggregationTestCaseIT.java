@@ -9,7 +9,8 @@ import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.SiddhiTestHelper;
 import io.siddhi.core.util.config.InMemoryConfigManager;
 import io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,7 +35,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableTestUtils.user;
 // should be analyzed in Partial Aggregation context.
 public class DistributedAggregationTestCaseIT {
 
-    private static final Logger log = Logger.getLogger(DistributedAggregationTestCaseIT.class);
+    private static final Logger log = LogManager.getLogger(DistributedAggregationTestCaseIT.class);
 
     @BeforeMethod
     public void init() {

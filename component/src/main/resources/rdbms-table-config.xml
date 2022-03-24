@@ -3,17 +3,20 @@
     <database name="h2">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
-        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})
+        </indexCreateQuery>
         <recordExistsQuery>SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}}
-            {{CONDITION}}</recordUpdateQuery>
+            {{CONDITION}}
+        </recordUpdateQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <recordContainsCondition>{{COLUMNS}} LIKE {{VALUES}}</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
-            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2
+            </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -26,19 +29,41 @@
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
         <typeMapping>
-            <binaryType>BLOB</binaryType>
-            <booleanType>TINYINT(1)</booleanType>
-            <doubleType>DOUBLE</doubleType>
-            <floatType>FLOAT</floatType>
-            <integerType>INTEGER</integerType>
-            <longType>BIGINT</longType>
-            <stringType>VARCHAR</stringType>
+            <binaryType>
+                <typeName>BLOB</typeName>
+                <typeValue>2004</typeValue>
+            </binaryType>
+            <booleanType>
+                <typeName>TINYINT</typeName>
+                <typeValue>-6</typeValue>
+            </booleanType>
+            <doubleType>
+                <typeName>DOUBLE</typeName>
+                <typeValue>8</typeValue>
+            </doubleType>
+            <floatType>
+                <typeName>FLOAT</typeName>
+                <typeValue>6</typeValue>
+            </floatType>
+            <integerType>
+                <typeName>INTEGER</typeName>
+                <typeValue>4</typeValue>
+            </integerType>
+            <longType>
+                <typeName>BIGINT</typeName>
+                <typeValue>-5</typeValue>
+            </longType>
+            <stringType>
+                <typeName>VARCHAR</typeName>
+                <typeValue>12</typeValue>
+            </stringType>
         </typeMapping>
     </database>
     <database name="mysql">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
-        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})
+        </indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
@@ -47,7 +72,8 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
-            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2
+            </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -60,20 +86,42 @@
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
         <typeMapping>
-            <binaryType>BLOB</binaryType>
-            <booleanType>TINYINT(1)</booleanType>
-            <doubleType>DOUBLE</doubleType>
-            <floatType>FLOAT</floatType>
-            <integerType>INTEGER</integerType>
-            <longType>BIGINT</longType>
-            <stringType>VARCHAR</stringType>
+            <binaryType>
+                <typeName>BLOB</typeName>
+                <typeValue>2004</typeValue>
+            </binaryType>
+            <booleanType>
+                <typeName>TINYINT(1)</typeName>
+                <typeValue>-6</typeValue>
+            </booleanType>
+            <doubleType>
+                <typeName>DOUBLE</typeName>
+                <typeValue>8</typeValue>
+            </doubleType>
+            <floatType>
+                <typeName>FLOAT</typeName>
+                <typeValue>6</typeValue>
+            </floatType>
+            <integerType>
+                <typeName>INTEGER</typeName>
+                <typeValue>4</typeValue>
+            </integerType>
+            <longType>
+                <typeName>BIGINT</typeName>
+                <typeValue>-5</typeValue>
+            </longType>
+            <stringType>
+                <typeName>VARCHAR</typeName>
+                <typeValue>12</typeValue>
+            </stringType>
         </typeMapping>
         <collation>latin1_bin</collation>
     </database>
-    <database name="oracle" maxVersion = "12.0">
+    <database name="oracle" maxVersion="12.0">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1</tableCheckQuery>
-        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})
+        </indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
@@ -82,12 +130,15 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
-            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) t2 </selectQueryWithSubSelect>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) t2
+            </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
             <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
-            <queryWrapperClause>SELECT * FROM (SELECT A.*, ROWNUM rn FROM ({{INNER_QUERY}}) A {{LIMIT_WRAPPER}}) {{OFFSET_WRAPPER}}</queryWrapperClause>
+            <queryWrapperClause>SELECT * FROM (SELECT A.*, ROWNUM rn FROM ({{INNER_QUERY}}) A {{LIMIT_WRAPPER}})
+                {{OFFSET_WRAPPER}}
+            </queryWrapperClause>
             <limitWrapperClause>WHERE ROWNUM &lt;= {{Q}}</limitWrapperClause>
             <offsetWrapperClause>WHERE rn &gt; {{Q}}</offsetWrapperClause>
             <limitClause>FETCH NEXT {{Q}} ROWS ONLY</limitClause>
@@ -99,20 +150,45 @@
         <batchEnable>false</batchEnable>
         <batchSize>1000</batchSize>
         <typeMapping>
-            <binaryType>BLOB</binaryType>
-            <booleanType>NUMBER(1)</booleanType>
-            <doubleType>NUMBER(19,4)</doubleType>
-            <floatType>NUMBER(19,4)</floatType>
-            <integerType>NUMBER(10)</integerType>
-            <longType>NUMBER(19)</longType>
-            <stringType>VARCHAR</stringType>
-            <bigStringType>CLOB</bigStringType>
+            <binaryType>
+                <typeName>BLOB</typeName>
+                <typeValue>2004</typeValue>
+            </binaryType>
+            <booleanType>
+                <typeName>NUMBER(1)</typeName>
+                <typeValue>2</typeValue>
+            </booleanType>
+            <doubleType>
+                <typeName>NUMBER(19,4)</typeName>
+                <typeValue>2</typeValue>
+            </doubleType>
+            <floatType>
+                <typeName>NUMBER(19,4)</typeName>
+                <typeValue>2</typeValue>
+            </floatType>
+            <integerType>
+                <typeName>NUMBER(10)</typeName>
+                <typeValue>2</typeValue>
+            </integerType>
+            <longType>
+                <typeName>NUMBER(19)</typeName>
+                <typeValue>2</typeValue>
+            </longType>
+            <stringType>
+                <typeName>VARCHAR</typeName>
+                <typeValue>12</typeValue>
+            </stringType>
+            <bigStringType>
+                <typeName>CLOB</typeName>
+                <typeValue>2005</typeValue>
+            </bigStringType>
         </typeMapping>
     </database>
-    <database name="oracle" minVersion = "12.1">
+    <database name="oracle" minVersion="12.1">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1</tableCheckQuery>
-        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})
+        </indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
@@ -121,7 +197,8 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
-            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) t2 </selectQueryWithSubSelect>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) t2
+            </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -135,20 +212,45 @@
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
         <typeMapping>
-            <binaryType>BLOB</binaryType>
-            <booleanType>NUMBER(1)</booleanType>
-            <doubleType>NUMBER(19,4)</doubleType>
-            <floatType>NUMBER(19,4)</floatType>
-            <integerType>NUMBER(10)</integerType>
-            <longType>NUMBER(19)</longType>
-            <stringType>VARCHAR</stringType>
-            <bigStringType>CLOB</bigStringType>
+            <binaryType>
+                <typeName>BLOB</typeName>
+                <typeValue>2004</typeValue>
+            </binaryType>
+            <booleanType>
+                <typeName>NUMBER(1)</typeName>
+                <typeValue>2</typeValue>
+            </booleanType>
+            <doubleType>
+                <typeName>NUMBER(19,4)</typeName>
+                <typeValue>2</typeValue>
+            </doubleType>
+            <floatType>
+                <typeName>NUMBER(19,4)</typeName>
+                <typeValue>2</typeValue>
+            </floatType>
+            <integerType>
+                <typeName>NUMBER(10)</typeName>
+                <typeValue>2</typeValue>
+            </integerType>
+            <longType>
+                <typeName>NUMBER(19)</typeName>
+                <typeValue>2</typeValue>
+            </longType>
+            <stringType>
+                <typeName>VARCHAR</typeName>
+                <typeValue>12</typeValue>
+            </stringType>
+            <bigStringType>
+                <typeName>CLOB</typeName>
+                <typeValue>2005</typeValue>
+            </bigStringType>
         </typeMapping>
     </database>
     <database name="Microsoft SQL Server">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT TOP 1 1 from {{TABLE_NAME}}</tableCheckQuery>
-        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})
+        </indexCreateQuery>
         <recordExistsQuery>SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
@@ -157,7 +259,8 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
-            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2
+            </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -170,20 +273,42 @@
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
         <typeMapping>
-            <binaryType>VARBINARY(max)</binaryType>
-            <booleanType>BIT</booleanType>
-            <doubleType>FLOAT(32)</doubleType>
-            <floatType>REAL</floatType>
-            <integerType>INTEGER</integerType>
-            <longType>BIGINT</longType>
-            <stringType>VARCHAR</stringType>
+            <binaryType>VARBINARY(max)
+                <typeName>VARBINARY(max)</typeName>
+                <typeValue>-3</typeValue>
+            </binaryType>
+            <booleanType>
+                <typeName>BIT</typeName>
+                <typeValue>-7</typeValue>
+            </booleanType>
+            <doubleType>
+                <typeName>FLOAT(32)</typeName>
+                <typeValue>6</typeValue>
+            </doubleType>
+            <floatType>
+                <typeName>REAL</typeName>
+                <typeValue>7</typeValue>
+            </floatType>
+            <integerType>
+                <typeName>INTEGER</typeName>
+                <typeValue>4</typeValue>
+            </integerType>
+            <longType>
+                <typeName>BIGINT</typeName>
+                <typeValue>-5</typeValue>
+            </longType>
+            <stringType>
+                <typeName>VARCHAR</typeName>
+                <typeValue>12</typeValue>
+            </stringType>
         </typeMapping>
         <collation>SQL_Latin1_General_CP1_CS_AS</collation>
     </database>
     <database name="PostgreSQL">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
-        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})
+        </indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
@@ -192,7 +317,8 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
-            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2
+            </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -205,19 +331,41 @@
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
         <typeMapping>
-            <binaryType>BYTEA</binaryType>
-            <booleanType>BOOLEAN</booleanType>
-            <doubleType>DOUBLE PRECISION</doubleType>
-            <floatType>REAL</floatType>
-            <integerType>INTEGER</integerType>
-            <longType>BIGINT</longType>
-            <stringType>VARCHAR</stringType>
+            <binaryType>
+                <typeName>BYTEA</typeName>
+                <typeValue>17</typeValue>
+            </binaryType>
+            <booleanType>BOOLEAN
+                <typeName>BOOLEAN</typeName>
+                <typeValue>16</typeValue>
+            </booleanType>
+            <doubleType>
+                <typeName>DOUBLE PRECISION</typeName>
+                <typeValue>8</typeValue>
+            </doubleType>
+            <floatType>
+                <typeName>REAL</typeName>
+                <typeValue>7</typeValue>
+            </floatType>
+            <integerType>
+                <typeName>INTEGER</typeName>
+                <typeValue>4</typeValue>
+            </integerType>
+            <longType>
+                <typeName>BIGINT</typeName>
+                <typeValue>-5</typeValue>
+            </longType>
+            <stringType>
+                <typeName>VARCHAR</typeName>
+                <typeValue>12</typeValue>
+            </stringType>
         </typeMapping>
     </database>
     <database name="DB2.*">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} FETCH FIRST 1 ROWS ONLY</tableCheckQuery>
-        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})
+        </indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} FETCH FIRST 1 ROWS ONLY</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
@@ -226,7 +374,8 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
-            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2
+            </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -240,19 +389,41 @@
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
         <typeMapping>
-            <binaryType>BLOB(64000)</binaryType>
-            <booleanType>SMALLINT</booleanType>
-            <doubleType>DOUBLE</doubleType>
-            <floatType>REAL</floatType>
-            <integerType>INTEGER</integerType>
-            <longType>BIGINT</longType>
-            <stringType>VARCHAR</stringType>
+            <binaryType>
+                <typeName>BLOB(64000)</typeName>
+                <typeValue>2004</typeValue>
+            </binaryType>
+            <booleanType>
+                <typeName>SMALLINT</typeName>
+                <typeValue>5</typeValue>
+            </booleanType>
+            <doubleType>
+                <typeName>DOUBLE</typeName>
+                <typeValue>8</typeValue>
+            </doubleType>
+            <floatType>
+                <typeName>REAL</typeName>
+                <typeValue>7</typeValue>
+            </floatType>
+            <integerType>
+                <typeName>INTEGER</typeName>
+                <typeValue>4</typeValue>
+            </integerType>
+            <longType>
+                <typeName>BIGINT</typeName>
+                <typeValue>-5</typeValue>
+            </longType>
+            <stringType>
+                <typeName>VARCHAR</typeName>
+                <typeValue>12</typeValue>
+            </stringType>
         </typeMapping>
     </database>
     <database name="Apache Derby">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
-        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})
+        </indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
@@ -261,7 +432,8 @@
         <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
         <selectQueryTemplate>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
-            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2 </selectQueryWithSubSelect>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2
+            </selectQueryWithSubSelect>
             <whereClause>WHERE {{CONDITION}}</whereClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
             <havingClause>HAVING {{CONDITION}}</havingClause>
@@ -274,13 +446,89 @@
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
         <typeMapping>
-            <binaryType>BLOB</binaryType>
-            <booleanType>TINYINT(1)</booleanType>
-            <doubleType>DOUBLE</doubleType>
-            <floatType>FLOAT</floatType>
-            <integerType>INTEGER</integerType>
-            <longType>BIGINT</longType>
-            <stringType>VARCHAR</stringType>
+            <binaryType>
+                <typeName>BLOB</typeName>
+                <typeValue>2004</typeValue>
+            </binaryType>
+            <booleanType>
+                <typeName>TINYINT(1)</typeName>
+                <typeValue>-6</typeValue>
+            </booleanType>
+            <doubleType>
+                <typeName>DOUBLE</typeName>
+                <typeValue>8</typeValue>
+            </doubleType>
+            <floatType>
+                <typeName>FLOAT</typeName>
+                <typeValue>6</typeValue>
+            </floatType>
+            <integerType>
+                <typeName>INTEGER</typeName>
+                <typeValue>4</typeValue>
+            </integerType>
+            <longType>
+                <typeName>BIGINT</typeName>
+                <typeValue>-5</typeValue>
+            </longType>
+            <stringType>
+                <typeName>VARCHAR</typeName>
+                <typeValue>12</typeValue>
+            </stringType>
+        </typeMapping>
+    </database>
+    <database name="Teradata">
+        <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
+        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} SAMPLE 1</tableCheckQuery>
+        <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ({{INDEX_COLUMNS}}) ON {{TABLE_NAME}}
+        </indexCreateQuery>
+        <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} SAMPLE 1</recordExistsQuery>
+        <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
+        <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}}) VALUES ({{Q}})</recordInsertQuery>
+        <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
+        <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
+        <recordContainsCondition>({{COLUMNS}} LIKE {{VALUES}})</recordContainsCondition>
+        <selectQueryTemplate>
+            <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
+            <selectQueryWithSubSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}, ( {{INNER_QUERY}} ) AS t2
+            </selectQueryWithSubSelect>
+            <whereClause>WHERE {{CONDITION}}</whereClause>
+            <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
+            <havingClause>HAVING {{CONDITION}}</havingClause>
+            <orderByClause>ORDER BY {{COLUMNS}}</orderByClause>
+            <limitClause>SAMPLE {{Q}}</limitClause>
+        </selectQueryTemplate>
+        <stringSize>254</stringSize>
+        <batchEnable>true</batchEnable>
+        <batchSize>1000</batchSize>
+        <typeMapping>
+            <binaryType>
+                <typeName>BLOB</typeName>
+                <typeValue>2004</typeValue>
+            </binaryType>
+            <booleanType>
+                <typeName>SMALLINT</typeName>
+                <typeValue>5</typeValue>
+            </booleanType>
+            <doubleType>
+                <typeName>FLOAT</typeName>
+                <typeValue>8</typeValue>
+            </doubleType>
+            <floatType>
+                <typeName>FLOAT</typeName>
+                <typeValue>6</typeValue>
+            </floatType>
+            <integerType>
+                <typeName>INTEGER</typeName>
+                <typeValue>4</typeValue>
+            </integerType>
+            <longType>
+                <typeName>BIGINT</typeName>
+                <typeValue>-5</typeValue>
+            </longType>
+            <stringType>
+                <typeName>VARCHAR</typeName>
+                <typeValue>12</typeValue>
+            </stringType>
         </typeMapping>
     </database>
 </rdbms-table-configuration>
