@@ -40,7 +40,6 @@ public class RDBMSCompiledCondition implements CompiledCondition {
     private SortedMap<Integer, Object> parameters;
     private boolean isContainsConditionExist;
     private List<Integer> ordinalOfContainPattern;
-    private static final long serialVersionUID = 6106269089155338045L;
 
     public RDBMSCompiledCondition(String compiledQuery, SortedMap<Integer, Object> parameters,
                                   boolean isContainsConditionExist, List<Integer> ordinalOfContainPattern,
