@@ -47,7 +47,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>5.1.23</siddhi.version>
+        <siddhi.version>5.1.24</siddhi.version>
         <siddhi.version.range>[5.0.0, 6.0.0)</siddhi.version.range>
         <carbon.analytics.common.version>6.1.57</carbon.analytics.common.version>
         <siddhi.execution.string.version>5.0.12</siddhi.execution.string.version>
@@ -81,7 +81,7 @@
         <carbon.config.version.range>[2.1.5, 3.0.0)</carbon.config.version.range>
         <carbon.securevault.version>5.0.15</carbon.securevault.version>
 
-        <carbon.analytics.version>3.0.57</carbon.analytics.version>
+        <carbon.analytics.version>3.0.60</carbon.analytics.version>
 
         <slf4j.version>1.7.12</slf4j.version>
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
