@@ -324,6 +324,7 @@ public class QueryStreamProcessor extends StreamProcessor<State> {
                 streamEventChunk.remove();
                 RDBMSStreamProcessorUtil.cleanupConnection(resultSet, stmt, null);
             }
+            RDBMSStreamProcessorUtil.cleanupConnection(resultSet, stmt, conn);
             nextProcessor.process(streamEventChunk);
         } catch (SQLException e) {
             throw new SiddhiAppRuntimeException("Error in retrieving records from  datasource '"

@@ -329,6 +329,7 @@ public class ProcedureStreamProcessor extends StreamProcessor<State> {
                         streamEventCloner, this.attributeList, event, complexEventPopulater, streamEventChunk);
                 streamEventChunk.remove();
             }
+            RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, conn);
             nextProcessor.process(streamEventChunk);
         } catch (SQLException e) {
             throw new SiddhiAppRuntimeException("Error in retrieving records from  datasource '"
