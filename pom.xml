@@ -27,7 +27,7 @@
 
     <groupId>io.siddhi.extension.store.rdbms</groupId>
     <artifactId>siddhi-store-rdbms-parent</artifactId>
-    <version>7.0.17</version>
+    <version>7.0.18-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Siddhi Store Extension - RDBMS Aggregator Pom</name>
     <url>http://wso2.org</url>
@@ -157,7 +157,7 @@
         <url>https://github.com/siddhi-io/siddhi-store-rdbms.git</url>
         <developerConnection>scm:git:https://github.com/siddhi-io/siddhi-store-rdbms.git
         </developerConnection>
-        <tag>v7.0.17</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencyManagement>
