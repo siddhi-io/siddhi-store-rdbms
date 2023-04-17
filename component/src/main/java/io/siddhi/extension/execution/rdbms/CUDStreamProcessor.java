@@ -149,6 +149,8 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
     private List<Attribute> attributeList = new ArrayList<>();
 
+    private static Connection conn = null;
+
 
     @Override
     protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
@@ -233,7 +235,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             if (stmt != null) {
                 int[] numRecords = stmt.executeBatch();
                 if (!conn.getAutoCommit()) {
-                    conn.commit();
+//                    conn.commit(); // TODO suspect
                 }
                 streamEventChunk.reset();
                 while (streamEventChunk.hasNext()) {
@@ -246,21 +248,24 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
         } catch (SQLException e) {
             throw new SiddhiAppRuntimeException("Error in manipulating records from " +
                     "datasource '" + this.dataSourceName + "': " + e.getMessage(), e);
-        } finally {
-            RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, conn);
         }
         nextProcessor.process(streamEventChunk);
-
     }
 
-    private Connection getConnection() {
-        Connection conn;
+    private Connection getConnection() { // TODO: Make this behaviour customizable via a param
         try {
-            conn = this.dataSource.getConnection();
+            if (conn == null || conn.isClosed()) {
+                try {
+                    conn = this.dataSource.getConnection();
+                } catch (SQLException e) {
+                    throw new SiddhiAppRuntimeException("Error initializing datasource connection: "
+                            + e.getMessage(), e);
+                }
+            }
         } catch (SQLException e) {
-            throw new SiddhiAppRuntimeException("Error initializing datasource connection: "
-                    + e.getMessage(), e);
+            throw new SiddhiAppRuntimeException("Error while checking whether the datasource connection is closed", e);
         }
+
         return conn;
     }
 
