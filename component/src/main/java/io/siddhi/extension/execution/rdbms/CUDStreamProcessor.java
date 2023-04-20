@@ -53,6 +53,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 
 /**
@@ -141,6 +143,18 @@ import javax.sql.DataSource;
         }
 )
 public class CUDStreamProcessor extends StreamProcessor<State> {
+    private static final String PERFORM_CUD_OPERATIONS = "perform.CUD.operations";
+    private static final String ENABLE_CUD_OPERATIONS_AUTOCOMMIT = "enable.CUD.operations.autocommit";
+    private static final String COMMIT = "commit";
+    private static final String ROLLBACK = "rollback";
+
+    /**
+     * Stores connections mapped against connectionCorrelationIds.
+     * This helps multiple CUD processors to share the same connection by referring to the same connectionCorrelationId.
+     * Sharing the same connection can be useful in committing or rolling back queries after a series of events.
+     */
+    private static Map<String, Connection> correlatedConnections = new ConcurrentHashMap<>();
+
     private SiddhiContext siddhiContext;
     private String dataSourceName;
     private DataSource dataSource;
@@ -148,9 +162,8 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
     private boolean isQueryParameterised;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
     private List<Attribute> attributeList = new ArrayList<>();
-
-    private static Connection conn = null;
-
+    private String connectionCorrelationId;
+    private boolean enableCudOperationsAutocommit = true;
 
     @Override
     protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
@@ -158,7 +171,9 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                                 StreamEventClonerHolder streamEventClonerHolder, boolean outputExpectsExpiredEvents,
                                 boolean findToBeExecuted, SiddhiQueryContext siddhiQueryContext) {
         boolean performCUDOps = Boolean.parseBoolean(
-                configReader.readConfig("perform.CUD.operations", "false"));
+                configReader.readConfig(PERFORM_CUD_OPERATIONS, "false"));
+        enableCudOperationsAutocommit = Boolean.parseBoolean(
+                configReader.readConfig(ENABLE_CUD_OPERATIONS_AUTOCOMMIT, "true"));
         if (!performCUDOps) {
             throw new SiddhiAppValidationException("Performing CUD operations through " +
                     "rdbms cud function is disabled. This is configured through system parameter, " +
@@ -167,32 +182,58 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
 
         this.dataSourceName = RDBMSStreamProcessorUtil.validateDatasourceName(attributeExpressionExecutors[0]);
         this.siddhiContext = siddhiQueryContext.getSiddhiAppContext().getSiddhiContext();
-
-        this.queryExpressionExecutor = attributeExpressionExecutors[1];
-        if (attributeExpressionExecutors.length > 2) {
-            this.isQueryParameterised = true;
-            this.expressionExecutors.addAll(
-                    Arrays.asList(attributeExpressionExecutors).subList(2, attributeExpressionExecutors.length));
-
-            //Process the query conditions through stream attributes
-            long attributeCount;
-            if (queryExpressionExecutor instanceof ConstantExpressionExecutor) {
-                String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
-                attributeCount = query.chars().filter(ch -> ch == '?').count();
-                if (attributeCount != attributeExpressionExecutors.length - 2) {
-                    throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function contains '" +
-                            attributeCount + "' ordinals, but found siddhi attributes of count '" +
-                            (attributeExpressionExecutors.length - 2) + "'.");
-                }
-            } else {
-                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
-                        "function should be a constant, but found a parameter of instance '" +
-                        attributeExpressionExecutors[1].getClass().getName() + "'.");
-            }
-        }
-
+        processAttributeExpressionExecutors(attributeExpressionExecutors);
         attributeList = Collections.singletonList(new Attribute("numRecords", Attribute.Type.INT));
         return null;
+    }
+
+    private void processAttributeExpressionExecutors(ExpressionExecutor[] attributeExpressionExecutors) {
+        this.queryExpressionExecutor = attributeExpressionExecutors[1];
+        if (!(queryExpressionExecutor instanceof ConstantExpressionExecutor)) {
+            throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
+                    "function should be a constant, but found a parameter of instance '" +
+                    attributeExpressionExecutors[1].getClass().getName() + "'.");
+        }
+
+        String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
+        long parameterizedAttributeCount = query.chars().filter(ch -> ch == '?').count();
+        long givenAttributeCount = attributeExpressionExecutors.length - 2;
+
+        if (parameterizedAttributeCount == 0) {
+            // Query is not parameterized
+            if (givenAttributeCount == 1) {
+                // Take the given attribute as Correlation ID
+                connectionCorrelationId = ((ConstantExpressionExecutor) attributeExpressionExecutors[2])
+                        .getValue().toString();
+            } else if (givenAttributeCount > 1) {
+                throw new SiddhiAppValidationException("Siddhi attribute count should be either 0, " +
+                        "or 1 which is the connection correlation ID, but found " + givenAttributeCount);
+            }
+        } else {
+            // Query is parameterized
+            this.isQueryParameterised = true;
+
+            int endIndex;
+            if (givenAttributeCount == parameterizedAttributeCount) {
+                // All the given attributes are parameterized attribute replacements
+                endIndex = attributeExpressionExecutors.length;
+            } else if (givenAttributeCount == parameterizedAttributeCount + 1) {
+                // The last given attribute is the connectionCorrelationId
+                connectionCorrelationId =
+                        ((ConstantExpressionExecutor)
+                                attributeExpressionExecutors[attributeExpressionExecutors.length - 1])
+                                .getValue().toString();
+                // Former ones are parameterized attribute replacements
+                endIndex = attributeExpressionExecutors.length - 1;
+            } else {
+                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function contains " +
+                        parameterizedAttributeCount + " ordinals. Siddhi attribute count should be either " +
+                        parameterizedAttributeCount + ", or " + (parameterizedAttributeCount + 1) +
+                        " where the last attribute is the connection correlation ID, but found " +
+                        givenAttributeCount);
+            }
+            this.expressionExecutors.addAll(Arrays.asList(attributeExpressionExecutors).subList(2, endIndex));
+        }
     }
 
     @Override
@@ -201,6 +242,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                            State state) {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
+        boolean shouldCleanupConnection = enableCudOperationsAutocommit;
         try {
             if (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
@@ -234,8 +276,9 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             int counter = 0;
             if (stmt != null) {
                 int[] numRecords = stmt.executeBatch();
-                if (!conn.getAutoCommit()) {
-//                    conn.commit(); // TODO suspect
+                if (!conn.getAutoCommit() && enableCudOperationsAutocommit) {
+                    conn.commit(); // TODO suspect
+                    shouldCleanupConnection = true;
                 }
                 streamEventChunk.reset();
                 while (streamEventChunk.hasNext()) {
@@ -248,24 +291,53 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
         } catch (SQLException e) {
             throw new SiddhiAppRuntimeException("Error in manipulating records from " +
                     "datasource '" + this.dataSourceName + "': " + e.getMessage(), e);
+        } finally {
+            if (!shouldCleanupConnection) {
+                // Connection should be cleaned up if the performed query is "commit" or "rollback".
+                String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
+                if (query.equalsIgnoreCase(COMMIT) || query.equalsIgnoreCase(ROLLBACK)) {
+                    shouldCleanupConnection = true;
+                }
+            }
+
+            if (shouldCleanupConnection) {
+                RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, conn);
+                if (connectionCorrelationId != null) {
+                    // Connection is no more needed since it has done a commit or a rollback.
+                    // A CUD expression with the same connectionCorrelationId can create a new connection and use that.
+                    correlatedConnections.remove(connectionCorrelationId);
+                }
+            }
         }
         nextProcessor.process(streamEventChunk);
     }
 
-    private Connection getConnection() { // TODO: Make this behaviour customizable via a param
-        try {
-            if (conn == null || conn.isClosed()) {
-                try {
-                    conn = this.dataSource.getConnection();
-                } catch (SQLException e) {
-                    throw new SiddhiAppRuntimeException("Error initializing datasource connection: "
-                            + e.getMessage(), e);
+    private Connection getConnection() {
+        if (connectionCorrelationId == null) {
+            return createNewConnection();
+        } else {
+            Connection conn = correlatedConnections.get(connectionCorrelationId);
+            try {
+                if (conn != null && !conn.isClosed()) {
+                    return conn;
                 }
+            } catch (SQLException e) {
+                // Proceed with creating a new connection below
             }
-        } catch (SQLException e) {
-            throw new SiddhiAppRuntimeException("Error while checking whether the datasource connection is closed", e);
-        }
 
+            conn = createNewConnection();
+            correlatedConnections.put(connectionCorrelationId, conn);
+            return conn;
+        }
+    }
+
+    private Connection createNewConnection() {
+        Connection conn;
+        try {
+            conn = this.dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new SiddhiAppRuntimeException("Error initializing datasource connection: " + e.getMessage(), e);
+        }
         return conn;
     }
 
