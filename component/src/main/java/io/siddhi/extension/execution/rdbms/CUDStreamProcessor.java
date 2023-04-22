@@ -45,6 +45,8 @@ import io.siddhi.extension.execution.rdbms.util.RDBMSStreamProcessorUtil;
 import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -143,15 +145,15 @@ import javax.sql.DataSource;
         }
 )
 public class CUDStreamProcessor extends StreamProcessor<State> {
-    private static final String PERFORM_CUD_OPERATIONS = "perform.CUD.operations";
-    private static final String ENABLE_CUD_OPERATIONS_AUTOCOMMIT = "enable.CUD.operations.autocommit";
+    private static final Logger log = LoggerFactory.getLogger(CUDStreamProcessor.class);
     private static final String COMMIT = "commit";
     private static final String ROLLBACK = "rollback";
 
     /**
-     * Stores connections mapped against connectionCorrelationIds.
-     * This helps multiple CUD processors to share the same connection by referring to the same connectionCorrelationId.
-     * Sharing the same connection can be useful in committing or rolling back queries after a series of events.
+     * Stores connections mapped against transactionCorrelationIds.
+     * This helps multiple CUD processors to use the same connection, referred by a transactionCorrelationId.
+     * Using the same connection can be useful in performing transactions via CUD processors
+     * (eg: committing or rolling back queries after a series of insertions).
      */
     private static Map<String, Connection> correlatedConnections = new ConcurrentHashMap<>();
 
@@ -162,8 +164,8 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
     private boolean isQueryParameterised;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
     private List<Attribute> attributeList = new ArrayList<>();
-    private String connectionCorrelationId;
-    private boolean enableCudOperationsAutocommit = true;
+    private String transactionCorrelationId;
+    private boolean enableCudOperationAutocommit = true;
 
     @Override
     protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
@@ -171,9 +173,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                                 StreamEventClonerHolder streamEventClonerHolder, boolean outputExpectsExpiredEvents,
                                 boolean findToBeExecuted, SiddhiQueryContext siddhiQueryContext) {
         boolean performCUDOps = Boolean.parseBoolean(
-                configReader.readConfig(PERFORM_CUD_OPERATIONS, "false"));
-        enableCudOperationsAutocommit = Boolean.parseBoolean(
-                configReader.readConfig(ENABLE_CUD_OPERATIONS_AUTOCOMMIT, "true"));
+                configReader.readConfig("perform.CUD.operations", "false"));
         if (!performCUDOps) {
             throw new SiddhiAppValidationException("Performing CUD operations through " +
                     "rdbms cud function is disabled. This is configured through system parameter, " +
@@ -202,12 +202,12 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
         if (parameterizedAttributeCount == 0) {
             // Query is not parameterized
             if (givenAttributeCount == 1) {
-                // Take the given attribute as Correlation ID
-                connectionCorrelationId = ((ConstantExpressionExecutor) attributeExpressionExecutors[2])
+                // Take the given attribute as transactionCorrelationId
+                transactionCorrelationId = ((ConstantExpressionExecutor) attributeExpressionExecutors[2])
                         .getValue().toString();
             } else if (givenAttributeCount > 1) {
                 throw new SiddhiAppValidationException("Siddhi attribute count should be either 0, " +
-                        "or 1 which is the connection correlation ID, but found " + givenAttributeCount);
+                        "or 1 which is the transaction correlation ID, but found " + givenAttributeCount);
             }
         } else {
             // Query is parameterized
@@ -218,8 +218,8 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                 // All the given attributes are parameterized attribute replacements
                 endIndex = attributeExpressionExecutors.length;
             } else if (givenAttributeCount == parameterizedAttributeCount + 1) {
-                // The last given attribute is the connectionCorrelationId
-                connectionCorrelationId =
+                // The last given attribute is the transactionCorrelationId
+                transactionCorrelationId =
                         ((ConstantExpressionExecutor)
                                 attributeExpressionExecutors[attributeExpressionExecutors.length - 1])
                                 .getValue().toString();
@@ -229,10 +229,23 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                 throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function contains " +
                         parameterizedAttributeCount + " ordinals. Siddhi attribute count should be either " +
                         parameterizedAttributeCount + ", or " + (parameterizedAttributeCount + 1) +
-                        " where the last attribute is the connection correlation ID, but found " +
+                        " where the last attribute is the transaction correlation ID, but found " +
                         givenAttributeCount);
             }
             this.expressionExecutors.addAll(Arrays.asList(attributeExpressionExecutors).subList(2, endIndex));
+        }
+
+        if (transactionCorrelationId != null) {
+            // Providing transactionCorrelationId disables autocommit for this RDBMS query function
+            enableCudOperationAutocommit = false;
+            log.info("Autocommit has been disabled for RDBMS query function, since transaction correlation ID: '" +
+                    transactionCorrelationId + "' has been given. A 'COMMIT' or 'ROLLBACK' query should be " +
+                    "explicitly executed with transaction correlation ID: '" + transactionCorrelationId +
+                    "' in an RDBMS query function.");
+        } else if (query.equalsIgnoreCase(COMMIT) || query.equalsIgnoreCase(ROLLBACK)) {
+            log.warn("'" + query + "' operation is present without a transaction correlation ID. Therefore autocommit" +
+                    " has NOT been disabled for the RDBMS query function. Please recheck this operation, since" +
+                    " it will NOT be effective.");
         }
     }
 
@@ -242,7 +255,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                            State state) {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
-        boolean shouldCleanupConnection = enableCudOperationsAutocommit;
+        boolean shouldCleanupConnection = enableCudOperationAutocommit;
         try {
             if (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
@@ -276,7 +289,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             int counter = 0;
             if (stmt != null) {
                 int[] numRecords = stmt.executeBatch();
-                if (!conn.getAutoCommit() && enableCudOperationsAutocommit) {
+                if (!conn.getAutoCommit() && enableCudOperationAutocommit) {
                     conn.commit(); // TODO suspect
                     shouldCleanupConnection = true;
                 }
@@ -292,6 +305,9 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             throw new SiddhiAppRuntimeException("Error in manipulating records from " +
                     "datasource '" + this.dataSourceName + "': " + e.getMessage(), e);
         } finally {
+            // Always cleanup the prepared statement
+            RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, null);
+
             if (!shouldCleanupConnection) {
                 // Connection should be cleaned up if the performed query is "commit" or "rollback".
                 String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
@@ -301,11 +317,11 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             }
 
             if (shouldCleanupConnection) {
-                RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, conn);
-                if (connectionCorrelationId != null) {
+                RDBMSStreamProcessorUtil.cleanupConnection(null, null, conn);
+                if (transactionCorrelationId != null) {
                     // Connection is no more needed since it has done a commit or a rollback.
-                    // A CUD expression with the same connectionCorrelationId can create a new connection and use that.
-                    correlatedConnections.remove(connectionCorrelationId);
+                    // A CUD expression with the same transactionCorrelationId can create a new connection and use that.
+                    correlatedConnections.remove(transactionCorrelationId);
                 }
             }
         }
@@ -313,10 +329,10 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
     }
 
     private Connection getConnection() {
-        if (connectionCorrelationId == null) {
+        if (transactionCorrelationId == null) {
             return createNewConnection();
         } else {
-            Connection conn = correlatedConnections.get(connectionCorrelationId);
+            Connection conn = correlatedConnections.get(transactionCorrelationId);
             try {
                 if (conn != null && !conn.isClosed()) {
                     return conn;
@@ -326,7 +342,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             }
 
             conn = createNewConnection();
-            correlatedConnections.put(connectionCorrelationId, conn);
+            correlatedConnections.put(transactionCorrelationId, conn);
             return conn;
         }
     }
