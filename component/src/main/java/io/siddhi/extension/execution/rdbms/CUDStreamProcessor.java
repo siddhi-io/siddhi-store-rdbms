@@ -203,7 +203,13 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             // Query is not parameterized
             if (givenAttributeCount == 1) {
                 // Take the given attribute as transactionCorrelationId
-                transactionCorrelationId = ((ConstantExpressionExecutor) attributeExpressionExecutors[2])
+                ExpressionExecutor transactionCorrelationIdExecutor = attributeExpressionExecutors[2];
+                if (!(transactionCorrelationIdExecutor instanceof ConstantExpressionExecutor)) {
+                    throw new SiddhiAppValidationException("The parameter 'transactionCorrelationId' in rdbms query " +
+                            "function should be a constant, but found a parameter of instance '" +
+                            transactionCorrelationIdExecutor.getClass().getName() + "'.");
+                }
+                transactionCorrelationId = ((ConstantExpressionExecutor) transactionCorrelationIdExecutor)
                         .getValue().toString();
             } else if (givenAttributeCount > 1) {
                 throw new SiddhiAppValidationException("Siddhi attribute count should be either 0, " +
@@ -219,10 +225,16 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                 endIndex = attributeExpressionExecutors.length;
             } else if (givenAttributeCount == parameterizedAttributeCount + 1) {
                 // The last given attribute is the transactionCorrelationId
+                ExpressionExecutor transactionCorrelationIdExecutor =
+                        attributeExpressionExecutors[attributeExpressionExecutors.length - 1];
+                if (!(transactionCorrelationIdExecutor instanceof ConstantExpressionExecutor)) {
+                    throw new SiddhiAppValidationException("The parameter 'transactionCorrelationId' in rdbms query " +
+                            "function should be a constant, but found a parameter of instance '" +
+                            transactionCorrelationIdExecutor.getClass().getName() + "'.");
+                }
                 transactionCorrelationId =
-                        ((ConstantExpressionExecutor)
-                                attributeExpressionExecutors[attributeExpressionExecutors.length - 1])
-                                .getValue().toString();
+                        ((ConstantExpressionExecutor) transactionCorrelationIdExecutor).getValue().toString();
+
                 // Former ones are parameterized attribute replacements
                 endIndex = attributeExpressionExecutors.length - 1;
             } else {
@@ -239,9 +251,9 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             // Providing transactionCorrelationId disables autocommit for this RDBMS query function
             enableCudOperationAutocommit = false;
             log.info("Autocommit has been disabled for RDBMS query function, since transaction correlation ID: '" +
-                    transactionCorrelationId + "' has been given. A 'COMMIT' or 'ROLLBACK' query should be " +
+                    transactionCorrelationId + "' has been given. Make sure that, a 'COMMIT' or 'ROLLBACK' query is " +
                     "explicitly executed with transaction correlation ID: '" + transactionCorrelationId +
-                    "' in an RDBMS query function.");
+                    "' in a RDBMS query function (Ignore this message if it has been already done).");
         } else if (query.equalsIgnoreCase(COMMIT) || query.equalsIgnoreCase(ROLLBACK)) {
             log.warn("'" + query + "' operation is present without a transaction correlation ID. Therefore autocommit" +
                     " has NOT been disabled for the RDBMS query function. Please recheck this operation, since" +
@@ -290,7 +302,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             if (stmt != null) {
                 int[] numRecords = stmt.executeBatch();
                 if (!conn.getAutoCommit() && enableCudOperationAutocommit) {
-                    conn.commit(); // TODO suspect
+                    conn.commit();
                     shouldCleanupConnection = true;
                 }
                 streamEventChunk.reset();
@@ -335,10 +347,10 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             Connection conn = correlatedConnections.get(transactionCorrelationId);
             try {
                 if (conn != null && !conn.isClosed()) {
-                    return conn;
+                    return conn; // Re-use the connection
                 }
             } catch (SQLException e) {
-                // Proceed with creating a new connection below
+                // Absorb and proceed with creating a new connection below
             }
 
             conn = createNewConnection();
