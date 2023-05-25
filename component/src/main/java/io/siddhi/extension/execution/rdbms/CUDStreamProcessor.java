@@ -100,9 +100,11 @@ import javax.sql.DataSource;
                                 "explicitly performed via a CUD function. " +
                                 "This is useful when performing transactions with commit and rollback. " +
                                 "CUD functions without a `transactionCorrelationId` will use their own connection " +
-                                "object, which will be closed at the end of the operation.",
-                        type = {DataType.STRING, DataType.BOOL, DataType.INT, DataType.DOUBLE, DataType.FLOAT,
-                                DataType.LONG},
+                                "object, which will be closed at the end of the operation. Note that, " +
+                                "when using `transactionCorrelationId`, the developer should make sure that, a " +
+                                "`commit` or `rollback` operation is performed via a CUD operation, after all the " +
+                                "events are added to the batch - that are supposed to be committed/rolled back.",
+                        type = {DataType.STRING},
                         optional = true
                 )
         },
