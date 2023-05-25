@@ -103,7 +103,7 @@ import javax.sql.DataSource;
                                 "object, which will be closed at the end of the operation. Note that, " +
                                 "when using `transactionCorrelationId`, the developer should make sure that, a " +
                                 "`commit` or `rollback` operation is performed via a CUD operation, after all the " +
-                                "events are added to the batch - that are supposed to be committed/rolled back.",
+                                "events - that are supposed to be committed/rolled back are added to the batch .",
                         type = DataType.STRING,
                         optional = true
                 )
