@@ -91,6 +91,19 @@ import javax.sql.DataSource;
                         optional = true,
                         defaultValue = "<Empty_String>",
                         dynamic = true
+                ),
+                @Parameter(
+                        name = "transactionCorrelationId",
+                        description = "If provided, CUD functions having the same `transactionCorrelationId` will " +
+                                "use the same connection object when interacting with the database. " +
+                                "The connection object will not be closed until a `commit` or `rollback` query is " +
+                                "explicitly performed via a CUD function. " +
+                                "This is useful when performing transactions with commit and rollback. " +
+                                "CUD functions without a `transactionCorrelationId` will use their own connection " +
+                                "object, which will be closed at the end of the operation.",
+                        type = {DataType.STRING, DataType.BOOL, DataType.INT, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.LONG},
+                        optional = true
                 )
         },
         parameterOverloads = {
@@ -98,10 +111,16 @@ import javax.sql.DataSource;
                         parameterNames = {"datasource.name", "query"}
                 ),
                 @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "transactionCorrelationId"}
+                ),
+                @ParameterOverload(
                         parameterNames = {"datasource.name", "query", "parameter"}
                 ),
                 @ParameterOverload(
                         parameterNames = {"datasource.name", "query", "parameter", "..."}
+                ),
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "parameter", "...", "transactionCorrelationId"}
                 )
         },
         systemParameter = {
@@ -141,6 +160,26 @@ import javax.sql.DataSource;
                                 " number of records manipulated. The updated events are inserted into an output " +
                                 "stream named 'RecordStream'. Here the values of attributes changedName and " +
                                 "previousName in the event will be set to the query."
+                ),
+                @Example(
+                        syntax = "from InsertStream#rdbms:cud(\"SAMPLE_DB\", \"INSERT INTO Names(name) " +
+                                "VALUES (?);\", name, \"t1\")\n" +
+                                "select name\n" +
+                                "insert into ignoreStream;\n" +
+                                "\n" +
+                                "from CommitStream#rdbms:cud(\"SAMPLE_DB\", \"COMMIT\",  \"t1\")\n" +
+                                "select *\n" +
+                                "insert into ignoreStream2;\n" +
+                                "\n" +
+                                "from RollbackStream#rdbms:cud(\"SAMPLE_DB\", \"ROLLBACK\",  \"t1\")\n" +
+                                "select *\n" +
+                                "insert into ignoreStream3;\n",
+                        description = "`t1` is the `transactionCorrelationId`. Assume the following series of events " +
+                                "arriving at `InsertStream`: `{\"name\": \"A\"}`, `{\"name\": \"B\"}`. `A` and `B` " +
+                                "will not be immediately committed to the `Names` table. After these, if an event " +
+                                "arrives at `CommitStream`, `A` and `B` will be committed, since the `CommitStream` " +
+                                "performs a `COMMIT`. Instead of that, if an event arrives at `RollbackStream`, " +
+                                "`A` and `B` will be rolled back, since the `RollbackStream` performs a `ROLLBACK`."
                 )
         }
 )
