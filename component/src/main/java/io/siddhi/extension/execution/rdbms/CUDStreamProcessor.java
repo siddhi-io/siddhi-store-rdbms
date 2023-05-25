@@ -93,19 +93,20 @@ import javax.sql.DataSource;
                         dynamic = true
                 ),
                 @Parameter(
-                        name = "transactionCorrelationId",
-                        description = "If provided, CUD functions having the same `transactionCorrelationId` will " +
+                        name = "transaction.correlation.id",
+                        description = "If provided, CUD functions having the same `transaction.correlation.id` will " +
                                 "use the same connection object when interacting with the database. " +
                                 "The connection object will not be closed until a `commit` or `rollback` query is " +
                                 "explicitly performed via a CUD function. " +
                                 "This is useful when performing transactions with commit and rollback. " +
-                                "CUD functions without a `transactionCorrelationId` will use their own connection " +
+                                "CUD functions without a `transaction.correlation.id` will use their own connection " +
                                 "object, which will be closed at the end of the operation. Note that, " +
-                                "when using `transactionCorrelationId`, the developer should make sure that, a " +
+                                "when using `transaction.correlation.id`, the developer should make sure that, a " +
                                 "`commit` or `rollback` operation is performed via a CUD operation, after all the " +
                                 "events - that are supposed to be committed/rolled back are added to the batch .",
                         type = DataType.STRING,
-                        optional = true
+                        optional = true,
+                        defaultValue = "<Empty_String>"
                 )
         },
         parameterOverloads = {
@@ -113,7 +114,7 @@ import javax.sql.DataSource;
                         parameterNames = {"datasource.name", "query"}
                 ),
                 @ParameterOverload(
-                        parameterNames = {"datasource.name", "query", "transactionCorrelationId"}
+                        parameterNames = {"datasource.name", "query", "transaction.correlation.id"}
                 ),
                 @ParameterOverload(
                         parameterNames = {"datasource.name", "query", "parameter"}
@@ -122,7 +123,7 @@ import javax.sql.DataSource;
                         parameterNames = {"datasource.name", "query", "parameter", "..."}
                 ),
                 @ParameterOverload(
-                        parameterNames = {"datasource.name", "query", "parameter", "...", "transactionCorrelationId"}
+                        parameterNames = {"datasource.name", "query", "parameter", "...", "transaction.correlation.id"}
                 )
         },
         systemParameter = {
