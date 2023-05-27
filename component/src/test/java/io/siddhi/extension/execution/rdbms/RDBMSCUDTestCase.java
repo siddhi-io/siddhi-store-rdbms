@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.siddhi.core.SiddhiAppRuntime;
 import io.siddhi.core.SiddhiManager;
 import io.siddhi.core.event.Event;
+import io.siddhi.core.exception.SiddhiAppCreationException;
 import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.stream.output.StreamCallback;
 import io.siddhi.core.util.EventPrinter;
@@ -33,10 +34,12 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.sql.DataSource;
@@ -61,6 +64,152 @@ public class RDBMSCUDTestCase {
     @AfterClass
     public static void shutdown() {
         log.info("== RDBMS CUD completed ==");
+    }
+
+    @BeforeTest
+    public void validateParameters() {
+        log.info("validateParameters - Validate RDBMS CUD parameters");
+
+        String databaseType = System.getenv("DATABASE_TYPE");
+        if (databaseType == null) {
+            databaseType = RDBMSTableTestUtils.TestType.H2.toString();
+        }
+        RDBMSTableTestUtils.TestType type = RDBMSTableTestUtils.TestType.valueOf(databaseType);
+
+        YAMLConfigManager yamlConfigManager = new YAMLConfigManager(
+                "extensions: \n" +
+                        "  - extension: \n" +
+                        "      namespace: rdbms\n" +
+                        "      name: cud\n" +
+                        "      properties:\n" +
+                        "        perform.CUD.operations: true");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(yamlConfigManager);
+
+        DataSource dataSource = RDBMSTableTestUtils.initDataSource();
+        siddhiManager.setDataSource("TEST_DATASOURCE", dataSource);
+
+        String definitions = "" +
+                "define stream InsertStream(symbol string, price float, volume long);\n" +
+                "\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
+                "username=\"" + user + "\", password=\"" + password + "\", pool.properties=\"maximumPoolSize:1\")" +
+                "define table " + TABLE_NAME + " (symbol string, price float, volume long); " +
+                "\n";
+
+        String parameterizedSqlQuery = "INSERT INTO " + TABLE_NAME + "(symbol, price, volume) VALUES (?,?,?)";
+        String nonParameterizedSqlQuery = "INSERT INTO " + TABLE_NAME + "(symbol, price, volume) VALUES ('a',10.0,1)";
+        if (!type.equals(RDBMSTableTestUtils.TestType.ORACLE)) {
+            parameterizedSqlQuery = parameterizedSqlQuery.concat(";");
+            nonParameterizedSqlQuery = nonParameterizedSqlQuery.concat(";");
+        }
+
+        // Test non-parameterized queries in CUD operations [BEGIN]
+
+        String invalidNonParameterizedCud =
+                "from InsertStream#rdbms:cud(\"TEST_DATASOURCE\", \"" + nonParameterizedSqlQuery +
+                        "\", volume, 't1') " +
+                        "select numRecords " +
+                        "insert into ignoreStream ;" +
+                        "\n";
+        String validNonParameterizedCud1 =
+                "from InsertStream#rdbms:cud(\"TEST_DATASOURCE\", \"" + nonParameterizedSqlQuery + "\", 't1') " +
+                        "select numRecords " +
+                        "insert into ignoreStream ;" +
+                        "\n";
+        String validNonParameterizedCud2 =
+                "from InsertStream#rdbms:cud(\"TEST_DATASOURCE\", \"" + nonParameterizedSqlQuery + "\") " +
+                        "select numRecords " +
+                        "insert into ignoreStream ;" +
+                        "\n";
+
+        boolean isCreationSuccessful;
+        try {
+            siddhiManager.createSiddhiAppRuntime(definitions + invalidNonParameterizedCud);
+            isCreationSuccessful = true;
+        } catch (SiddhiAppCreationException e) {
+            isCreationSuccessful = false;
+        }
+        Assert.assertFalse(isCreationSuccessful,
+                "Creating a Siddhi app with the following INVALID CUD operation did NOT fail:\n" +
+                        invalidNonParameterizedCud);
+
+        try {
+            siddhiManager.createSiddhiAppRuntime(definitions + validNonParameterizedCud1);
+            isCreationSuccessful = true;
+        } catch (SiddhiAppCreationException e) {
+            isCreationSuccessful = false;
+        }
+        Assert.assertTrue(isCreationSuccessful,
+                "Creating a Siddhi app with the following valid CUD operation failed:\n" +
+                        validNonParameterizedCud1);
+
+        try {
+            siddhiManager.createSiddhiAppRuntime(definitions + validNonParameterizedCud2);
+            isCreationSuccessful = true;
+        } catch (SiddhiAppCreationException e) {
+            isCreationSuccessful = false;
+        }
+        Assert.assertTrue(isCreationSuccessful,
+                "Creating a Siddhi app with the following valid CUD operation failed:\n" +
+                        validNonParameterizedCud2);
+
+        // Test non-parameterized queries in CUD operations [END]
+
+        // Test parameterized queries in CUD operations [BEGIN]
+
+        String invalidParameterizedCud = "" +
+                "from InsertStream#rdbms:cud(\"TEST_DATASOURCE\", \"" + parameterizedSqlQuery + "\", 't1') " +
+                "select numRecords " +
+                "insert into ignoreStream ;" +
+                "\n";
+
+        String validParameterizedCud1 = "" +
+                "from InsertStream#rdbms:cud(\"TEST_DATASOURCE\", \"" + parameterizedSqlQuery +
+                "\", symbol, price, volume) " +
+                "select numRecords " +
+                "insert into ignoreStream ;" +
+                "\n";
+
+        String validParameterizedCud2 = "" +
+                "from InsertStream#rdbms:cud(\"TEST_DATASOURCE\", \"" + parameterizedSqlQuery +
+                "\", symbol, price, volume, 't1') " +
+                "select numRecords " +
+                "insert into ignoreStream ;" +
+                "\n";
+
+        try {
+            siddhiManager.createSiddhiAppRuntime(definitions + invalidParameterizedCud);
+            isCreationSuccessful = true;
+        } catch (SiddhiAppCreationException e) {
+            isCreationSuccessful = false;
+        }
+        Assert.assertFalse(isCreationSuccessful,
+                "Creating a Siddhi app with the following INVALID CUD operation did NOT fail:\n" +
+                        invalidParameterizedCud);
+
+        try {
+            siddhiManager.createSiddhiAppRuntime(definitions + validParameterizedCud1);
+            isCreationSuccessful = true;
+        } catch (SiddhiAppCreationException e) {
+            isCreationSuccessful = false;
+        }
+        Assert.assertTrue(isCreationSuccessful,
+                "Creating a Siddhi app with the following valid CUD operation failed:\n" +
+                        validParameterizedCud1);
+
+        try {
+            siddhiManager.createSiddhiAppRuntime(definitions + validParameterizedCud2);
+            isCreationSuccessful = true;
+        } catch (SiddhiAppCreationException e) {
+            isCreationSuccessful = false;
+        }
+        Assert.assertTrue(isCreationSuccessful,
+                "Creating a Siddhi app with the following valid CUD operation failed:\n" +
+                        validParameterizedCud2);
+
+        // Test parameterized queries in CUD operations [BEGIN]
     }
 
     @BeforeMethod
@@ -162,5 +311,118 @@ public class RDBMSCUDTestCase {
         } else {
             Assert.assertEquals(1, actualData.get(0)[0]);
         }
+    }
+
+    @Test()
+    public void rdbmsCudTransactionTest1() throws InterruptedException {
+        log.info("rdbmsCudTransactionTest1 - Test insert, commit and rollback");
+
+        String databaseType = System.getenv("DATABASE_TYPE");
+        if (databaseType == null) {
+            databaseType = RDBMSTableTestUtils.TestType.H2.toString();
+        }
+        RDBMSTableTestUtils.TestType type = RDBMSTableTestUtils.TestType.valueOf(databaseType);
+
+        String sqlQuery = "INSERT INTO " + TABLE_NAME + "(symbol, price, volume) VALUES (?,?,?)";
+        if (!type.equals(RDBMSTableTestUtils.TestType.ORACLE)) {
+            sqlQuery = sqlQuery.concat(";");
+        }
+
+        YAMLConfigManager yamlConfigManager = new YAMLConfigManager(
+                "extensions: \n" +
+                        "  - extension: \n" +
+                        "      namespace: rdbms\n" +
+                        "      name: cud\n" +
+                        "      properties:\n" +
+                        "        perform.CUD.operations: true");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(yamlConfigManager);
+
+        DataSource dataSource = RDBMSTableTestUtils.initDataSource();
+        siddhiManager.setDataSource("TEST_DATASOURCE", dataSource);
+
+        String streams = "" +
+                "define stream InsertStream(symbol string, price float, volume long);\n" +
+                "define stream CommitStream(name string);\n" +
+                "define stream RollbackStream(name string);\n" +
+                "define stream ListTableContentStream(dummy string);\n" +
+                "define stream TableContentOutputStream(dummy string, symbol string, price float, volume long);\n" +
+                "\n";
+
+        String table =
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
+                "username=\"" + user + "\", password=\"" + password + "\", pool.properties=\"maximumPoolSize:1\")" +
+                "define table " + TABLE_NAME + " (symbol string, price float, volume long); " +
+                "\n";
+
+        String queries = "" +
+                "from InsertStream#rdbms:cud(\"TEST_DATASOURCE\", \"" + sqlQuery + "\", symbol, price, volume, 't1') " +
+                "select numRecords " +
+                "insert into ignoreStream ;" +
+                "\n" +
+                "from CommitStream#rdbms:cud(\"TEST_DATASOURCE\", \"COMMIT\", 't1')\n" +
+                "select numRecords\n" +
+                "insert into ignoreStream;" +
+                "\n" +
+                "from RollbackStream#rdbms:cud(\"TEST_DATASOURCE\", \"ROLLBACK\", 't1')\n" +
+                "select numRecords\n" +
+                "insert into ignoreStream;" +
+                "\n" +
+                "from ListTableContentStream left outer join " + TABLE_NAME + "\n" +
+                "select ListTableContentStream.dummy as dummy, " + TABLE_NAME + ".symbol as symbol, " +
+                TABLE_NAME + ".price as price, " + TABLE_NAME + ".volume as volume\n" +
+                "insert into TableContentOutputStream;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + table + queries);
+        InputHandler insertStream = siddhiAppRuntime.getInputHandler("InsertStream");
+        InputHandler commitStream = siddhiAppRuntime.getInputHandler("CommitStream");
+        InputHandler rollbackStream = siddhiAppRuntime.getInputHandler("RollbackStream");
+        InputHandler listTableContentStream = siddhiAppRuntime.getInputHandler("ListTableContentStream");
+        siddhiAppRuntime.start();
+
+        siddhiAppRuntime.addCallback("TableContentOutputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    isEventArrived = true;
+                    eventCount.incrementAndGet();
+                    actualData.add(event.getData());
+                }
+            }
+        });
+
+        insertStream.send(new Object[]{"A", 1.0f, 1L});
+        insertStream.send(new Object[]{"B", 2.0f, 2L});
+        commitStream.send(new Object[]{"commit"});
+
+        insertStream.send(new Object[]{"C", 3.0f, 3L});
+        insertStream.send(new Object[]{"D", 4.0f, 4L});
+        rollbackStream.send(new Object[]{"rollback"});
+
+        insertStream.send(new Object[]{"E", 5.0f, 5L});
+        insertStream.send(new Object[]{"F", 6.0f, 6L});
+        commitStream.send(new Object[]{"commit"});
+
+        listTableContentStream.send(new Object[]{"dummy"});
+
+        SiddhiTestHelper.waitForEvents(2000, 1, eventCount, 60000);
+        siddhiAppRuntime.shutdown();
+        ((HikariDataSource) dataSource).close();
+
+        Assert.assertTrue(isEventArrived, "No events arrived");
+        Assert.assertEquals(eventCount.get(), 6, "Event count did not match");
+
+        List<Object[]> expected = Arrays.asList(
+                new Object[]{"dummy", "WSO2", 80.0f, 100L},
+                new Object[]{"dummy", "IBM", 180.0f, 200L},
+                new Object[]{"dummy", "A", 1.0f, 1L},
+                new Object[]{"dummy", "B", 2.0f, 2L},
+                new Object[]{"dummy", "E", 5.0f, 5L},
+                new Object[]{"dummy", "F", 6.0f, 6L}
+        );
+        Assert.assertTrue(SiddhiTestHelper.isEventsMatch(actualData, expected),
+                "Received events do not match with the expected ones");
     }
 }

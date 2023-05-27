@@ -45,6 +45,8 @@ import io.siddhi.extension.execution.rdbms.util.RDBMSStreamProcessorUtil;
 import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -53,6 +55,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 
 /**
@@ -87,6 +91,22 @@ import javax.sql.DataSource;
                         optional = true,
                         defaultValue = "<Empty_String>",
                         dynamic = true
+                ),
+                @Parameter(
+                        name = "transaction.correlation.id",
+                        description = "If provided, CUD functions having the same `transaction.correlation.id` will " +
+                                "use the same connection object when interacting with the database. " +
+                                "The connection object will not be closed until a `commit` or `rollback` query is " +
+                                "explicitly performed via a CUD function. " +
+                                "This is useful when performing transactions with commit and rollback. " +
+                                "CUD functions without a `transaction.correlation.id` will use their own connection " +
+                                "object, which will be closed at the end of the operation. Note that, " +
+                                "when using `transaction.correlation.id`, the developer should make sure that, a " +
+                                "`commit` or `rollback` operation is performed via a CUD operation, after all the " +
+                                "events - that are supposed to be committed/rolled back are added to the batch .",
+                        type = DataType.STRING,
+                        optional = true,
+                        defaultValue = "<Empty_String>"
                 )
         },
         parameterOverloads = {
@@ -94,10 +114,16 @@ import javax.sql.DataSource;
                         parameterNames = {"datasource.name", "query"}
                 ),
                 @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "transaction.correlation.id"}
+                ),
+                @ParameterOverload(
                         parameterNames = {"datasource.name", "query", "parameter"}
                 ),
                 @ParameterOverload(
                         parameterNames = {"datasource.name", "query", "parameter", "..."}
+                ),
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "parameter", "...", "transaction.correlation.id"}
                 )
         },
         systemParameter = {
@@ -137,10 +163,42 @@ import javax.sql.DataSource;
                                 " number of records manipulated. The updated events are inserted into an output " +
                                 "stream named 'RecordStream'. Here the values of attributes changedName and " +
                                 "previousName in the event will be set to the query."
+                ),
+                @Example(
+                        syntax = "from InsertStream#rdbms:cud(\"SAMPLE_DB\", \"INSERT INTO Names(name) " +
+                                "VALUES (?);\", name, \"t1\")\n" +
+                                "select name\n" +
+                                "insert into ignoreStream;\n" +
+                                "\n" +
+                                "from CommitStream#rdbms:cud(\"SAMPLE_DB\", \"COMMIT\",  \"t1\")\n" +
+                                "select *\n" +
+                                "insert into ignoreStream2;\n" +
+                                "\n" +
+                                "from RollbackStream#rdbms:cud(\"SAMPLE_DB\", \"ROLLBACK\",  \"t1\")\n" +
+                                "select *\n" +
+                                "insert into ignoreStream3;\n",
+                        description = "`t1` is the `transactionCorrelationId`. Assume the following series of events " +
+                                "arriving at `InsertStream`: `{\"name\": \"A\"}`, `{\"name\": \"B\"}`. `A` and `B` " +
+                                "will not be immediately committed to the `Names` table. After these, if an event " +
+                                "arrives at `CommitStream`, `A` and `B` will be committed, since the `CommitStream` " +
+                                "performs a `COMMIT`. Instead of that, if an event arrives at `RollbackStream`, " +
+                                "`A` and `B` will be rolled back, since the `RollbackStream` performs a `ROLLBACK`."
                 )
         }
 )
 public class CUDStreamProcessor extends StreamProcessor<State> {
+    private static final Logger log = LoggerFactory.getLogger(CUDStreamProcessor.class);
+    private static final String COMMIT = "commit";
+    private static final String ROLLBACK = "rollback";
+
+    /**
+     * Stores connections mapped against transactionCorrelationIds.
+     * This helps multiple CUD processors to use the same connection, referred by a transactionCorrelationId.
+     * Using the same connection can be useful in performing transactions via CUD processors
+     * (eg: committing or rolling back queries after a series of insertions).
+     */
+    private static Map<String, Connection> correlatedConnections = new ConcurrentHashMap<>();
+
     private SiddhiContext siddhiContext;
     private String dataSourceName;
     private DataSource dataSource;
@@ -148,7 +206,8 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
     private boolean isQueryParameterised;
     private List<ExpressionExecutor> expressionExecutors = new ArrayList<>();
     private List<Attribute> attributeList = new ArrayList<>();
-
+    private String transactionCorrelationId;
+    private boolean enableCudOperationAutocommit = true;
 
     @Override
     protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
@@ -165,32 +224,83 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
 
         this.dataSourceName = RDBMSStreamProcessorUtil.validateDatasourceName(attributeExpressionExecutors[0]);
         this.siddhiContext = siddhiQueryContext.getSiddhiAppContext().getSiddhiContext();
-
-        this.queryExpressionExecutor = attributeExpressionExecutors[1];
-        if (attributeExpressionExecutors.length > 2) {
-            this.isQueryParameterised = true;
-            this.expressionExecutors.addAll(
-                    Arrays.asList(attributeExpressionExecutors).subList(2, attributeExpressionExecutors.length));
-
-            //Process the query conditions through stream attributes
-            long attributeCount;
-            if (queryExpressionExecutor instanceof ConstantExpressionExecutor) {
-                String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
-                attributeCount = query.chars().filter(ch -> ch == '?').count();
-                if (attributeCount != attributeExpressionExecutors.length - 2) {
-                    throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function contains '" +
-                            attributeCount + "' ordinals, but found siddhi attributes of count '" +
-                            (attributeExpressionExecutors.length - 2) + "'.");
-                }
-            } else {
-                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
-                        "function should be a constant, but found a parameter of instance '" +
-                        attributeExpressionExecutors[1].getClass().getName() + "'.");
-            }
-        }
-
+        processAttributeExpressionExecutors(attributeExpressionExecutors);
         attributeList = Collections.singletonList(new Attribute("numRecords", Attribute.Type.INT));
         return null;
+    }
+
+    private void processAttributeExpressionExecutors(ExpressionExecutor[] attributeExpressionExecutors) {
+        this.queryExpressionExecutor = attributeExpressionExecutors[1];
+        if (!(queryExpressionExecutor instanceof ConstantExpressionExecutor)) {
+            throw new SiddhiAppValidationException("The parameter 'query' in rdbms query " +
+                    "function should be a constant, but found a parameter of instance '" +
+                    attributeExpressionExecutors[1].getClass().getName() + "'.");
+        }
+
+        String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
+        long parameterizedAttributeCount = query.chars().filter(ch -> ch == '?').count();
+        long givenAttributeCount = attributeExpressionExecutors.length - 2;
+
+        if (parameterizedAttributeCount == 0) {
+            // Query is not parameterized
+            if (givenAttributeCount == 1) {
+                // Take the given attribute as transactionCorrelationId
+                ExpressionExecutor transactionCorrelationIdExecutor = attributeExpressionExecutors[2];
+                if (!(transactionCorrelationIdExecutor instanceof ConstantExpressionExecutor)) {
+                    throw new SiddhiAppValidationException("The parameter 'transactionCorrelationId' in rdbms query " +
+                            "function should be a constant, but found a parameter of instance '" +
+                            transactionCorrelationIdExecutor.getClass().getName() + "'.");
+                }
+                transactionCorrelationId = ((ConstantExpressionExecutor) transactionCorrelationIdExecutor)
+                        .getValue().toString();
+            } else if (givenAttributeCount > 1) {
+                throw new SiddhiAppValidationException("Siddhi attribute count should be either 0, " +
+                        "or 1 which is the transaction correlation ID, but found " + givenAttributeCount);
+            }
+        } else {
+            // Query is parameterized
+            this.isQueryParameterised = true;
+
+            int endIndex;
+            if (givenAttributeCount == parameterizedAttributeCount) {
+                // All the given attributes are parameterized attribute replacements
+                endIndex = attributeExpressionExecutors.length;
+            } else if (givenAttributeCount == parameterizedAttributeCount + 1) {
+                // The last given attribute is the transactionCorrelationId
+                ExpressionExecutor transactionCorrelationIdExecutor =
+                        attributeExpressionExecutors[attributeExpressionExecutors.length - 1];
+                if (!(transactionCorrelationIdExecutor instanceof ConstantExpressionExecutor)) {
+                    throw new SiddhiAppValidationException("The parameter 'transactionCorrelationId' in rdbms query " +
+                            "function should be a constant, but found a parameter of instance '" +
+                            transactionCorrelationIdExecutor.getClass().getName() + "'.");
+                }
+                transactionCorrelationId =
+                        ((ConstantExpressionExecutor) transactionCorrelationIdExecutor).getValue().toString();
+
+                // Former ones are parameterized attribute replacements
+                endIndex = attributeExpressionExecutors.length - 1;
+            } else {
+                throw new SiddhiAppValidationException("The parameter 'query' in rdbms query function contains " +
+                        parameterizedAttributeCount + " ordinals. Siddhi attribute count should be either " +
+                        parameterizedAttributeCount + ", or " + (parameterizedAttributeCount + 1) +
+                        " where the last attribute is the transaction correlation ID, but found " +
+                        givenAttributeCount);
+            }
+            this.expressionExecutors.addAll(Arrays.asList(attributeExpressionExecutors).subList(2, endIndex));
+        }
+
+        if (transactionCorrelationId != null) {
+            // Providing transactionCorrelationId disables autocommit for this RDBMS query function
+            enableCudOperationAutocommit = false;
+            log.info("Autocommit has been disabled for RDBMS query function, since transaction correlation ID: '" +
+                    transactionCorrelationId + "' has been given. Make sure that, a 'COMMIT' or 'ROLLBACK' query is " +
+                    "explicitly executed with transaction correlation ID: '" + transactionCorrelationId +
+                    "' in a RDBMS query function (Ignore this message if it has been already done).");
+        } else if (query.equalsIgnoreCase(COMMIT) || query.equalsIgnoreCase(ROLLBACK)) {
+            log.warn("'" + query + "' operation is present without a transaction correlation ID. Therefore autocommit" +
+                    " has NOT been disabled for the RDBMS query function. Please recheck this operation, since" +
+                    " it will NOT be effective.");
+        }
     }
 
     @Override
@@ -199,6 +309,7 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                            State state) {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
+        boolean shouldCleanupConnection = enableCudOperationAutocommit;
         try {
             if (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
@@ -232,8 +343,9 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             int counter = 0;
             if (stmt != null) {
                 int[] numRecords = stmt.executeBatch();
-                if (!conn.getAutoCommit()) {
+                if (!conn.getAutoCommit() && enableCudOperationAutocommit) {
                     conn.commit();
+                    shouldCleanupConnection = true;
                 }
                 streamEventChunk.reset();
                 while (streamEventChunk.hasNext()) {
@@ -247,19 +359,54 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             throw new SiddhiAppRuntimeException("Error in manipulating records from " +
                     "datasource '" + this.dataSourceName + "': " + e.getMessage(), e);
         } finally {
-            RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, conn);
+            // Always cleanup the prepared statement
+            RDBMSStreamProcessorUtil.cleanupConnection(null, stmt, null);
+
+            if (!shouldCleanupConnection) {
+                // Connection should be cleaned up if the performed query is "commit" or "rollback".
+                String query = ((ConstantExpressionExecutor) queryExpressionExecutor).getValue().toString();
+                if (query.equalsIgnoreCase(COMMIT) || query.equalsIgnoreCase(ROLLBACK)) {
+                    shouldCleanupConnection = true;
+                }
+            }
+
+            if (shouldCleanupConnection) {
+                RDBMSStreamProcessorUtil.cleanupConnection(null, null, conn);
+                if (transactionCorrelationId != null) {
+                    // Connection is no more needed since it has done a commit or a rollback.
+                    // A CUD expression with the same transactionCorrelationId can create a new connection and use that.
+                    correlatedConnections.remove(transactionCorrelationId);
+                }
+            }
         }
         nextProcessor.process(streamEventChunk);
-
     }
 
     private Connection getConnection() {
+        if (transactionCorrelationId == null) {
+            return createNewConnection();
+        } else {
+            Connection conn = correlatedConnections.get(transactionCorrelationId);
+            try {
+                if (conn != null && !conn.isClosed()) {
+                    return conn; // Re-use the connection
+                }
+            } catch (SQLException e) {
+                // Absorb and proceed with creating a new connection below
+            }
+
+            conn = createNewConnection();
+            correlatedConnections.put(transactionCorrelationId, conn);
+            return conn;
+        }
+    }
+
+    private Connection createNewConnection() {
         Connection conn;
         try {
             conn = this.dataSource.getConnection();
         } catch (SQLException e) {
-            throw new SiddhiAppRuntimeException("Error initializing datasource connection: "
-                    + e.getMessage(), e);
+            throw new SiddhiAppRuntimeException("Error initializing datasource connection: " + e.getMessage(), e);
         }
         return conn;
     }
