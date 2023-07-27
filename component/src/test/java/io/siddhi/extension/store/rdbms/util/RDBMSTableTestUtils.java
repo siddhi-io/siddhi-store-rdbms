@@ -89,6 +89,10 @@ public class RDBMSTableTestUtils {
     }
 
     public static DataSource initDataSource() {
+        return initDataSource(true);
+    }
+
+    public static DataSource initDataSource(boolean isAutoCommit) {
         String databaseType = System.getenv("DATABASE_TYPE");
         if (databaseType == null) {
             databaseType = TestType.H2.toString();
@@ -151,6 +155,7 @@ public class RDBMSTableTestUtils {
         connectionProperties.setProperty("poolName", "Test_Pool");
         connectionProperties.setProperty("maximumPoolSize", "4");
         HikariConfig config = new HikariConfig(connectionProperties);
+        config.setAutoCommit(isAutoCommit);
         return new HikariDataSource(config);
     }
 
