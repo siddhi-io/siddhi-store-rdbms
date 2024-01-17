@@ -314,14 +314,11 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
             if (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
                 String query = ((String) queryExpressionExecutor.execute(event));
-                stmt = conn.prepareStatement(query);
-                if (!streamEventChunk.hasNext() && !isQueryParameterised) {
-                    stmt.addBatch();
-                }
                 if (RDBMSStreamProcessorUtil.queryContainsCheck(query)) {
                     throw new SiddhiAppRuntimeException("Dropping event since the query has " +
                             "unauthorised operations, '" + query + "'. Event: '" + event + "'.");
                 }
+                stmt = conn.prepareStatement(query);
             }
             streamEventChunk.reset();
             while (streamEventChunk.hasNext()) {
@@ -337,8 +334,8 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
                                 attributeExpressionExecutor.getReturnType(),
                                 attributeExpressionExecutor.execute(event));
                     }
-                    stmt.addBatch();
                 }
+                stmt.addBatch();
             }
             int counter = 0;
             if (stmt != null) {

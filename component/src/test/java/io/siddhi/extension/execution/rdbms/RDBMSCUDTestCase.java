@@ -425,4 +425,130 @@ public class RDBMSCUDTestCase {
         Assert.assertTrue(SiddhiTestHelper.isEventsMatch(actualData, expected),
                 "Received events do not match with the expected ones");
     }
+
+    @Test
+    public void rdbmsBatchCudTest1() throws InterruptedException {
+        log.info("rdbmsBatchCudTest1 - Test batch insert via rdbms:cud() operation");
+
+        String srcTableName = TABLE_NAME + "Src";
+        String dstTableName = TABLE_NAME + "Dst";
+
+        String databaseType = System.getenv("DATABASE_TYPE");
+        if (databaseType == null) {
+            databaseType = RDBMSTableTestUtils.TestType.H2.toString();
+        }
+        RDBMSTableTestUtils.TestType type = RDBMSTableTestUtils.TestType.valueOf(databaseType);
+        String selectQuery = "SELECT * FROM " + srcTableName;
+        String insertQuery = "INSERT INTO " + dstTableName + "(symbol, price, volume) VALUES(?, ?, ?)";
+        if (!type.equals(RDBMSTableTestUtils.TestType.ORACLE)) {
+            selectQuery = selectQuery.concat(";");
+            insertQuery = insertQuery.concat(";");
+        }
+
+        YAMLConfigManager yamlConfigManager = new YAMLConfigManager(
+                "extensions: \n" +
+                        "  - extension: \n" +
+                        "      namespace: rdbms\n" +
+                        "      name: cud\n" +
+                        "      properties:\n" +
+                        "        perform.CUD.operations: true");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(yamlConfigManager);
+
+        DataSource dataSource = RDBMSTableTestUtils.initDataSource(false);
+        siddhiManager.setDataSource("TEST_DATASOURCE", dataSource);
+
+        String streams = "define stream addSrcTableRecordsStream(symbol string, price float, volume long);\n" +
+                "define stream listSrcTableRecordsStream(dummy int);\n" +
+                "define stream copyTableDataStream(dummy int);\n" +
+                "define stream listDstTableRecordsStream(dummy int);";
+
+        String tables =
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
+                "username=\"" + user + "\", password=\"" + password + "\", pool.properties=\"maximumPoolSize:1\")" +
+                "define table " + srcTableName + " (symbol string, price float, volume long); " +
+                "\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
+                "username=\"" + user + "\", password=\"" + password + "\", pool.properties=\"maximumPoolSize:1\")" +
+                "define table " + dstTableName + " (symbol string, price float, volume long); " +
+                "\n";
+
+        String queries = "from addSrcTableRecordsStream\n" +
+                "select symbol, price, volume \n" +
+                "insert into " + srcTableName + ";\n" +
+                "\n" +
+                "from listSrcTableRecordsStream left outer join " + srcTableName + "\n" +
+                "select " + srcTableName + ".symbol as symbol, " + srcTableName + ".price as price, " + srcTableName +
+                ".volume as volume\n" +
+                "insert into outputSrcTableRecordsStream;\n" +
+                "\n" +
+                "from copyTableDataStream#rdbms:query('TEST_DATASOURCE', 'symbol string, price float, volume long', '"
+                + selectQuery + "')\n" +
+                "select symbol, price, volume\n" +
+                "insert into insertRecordStream;\n" +
+                "\n" +
+                "from insertRecordStream#rdbms:cud('TEST_DATASOURCE', '" + insertQuery +
+                "', symbol, price, volume, '1')\n" +
+                "select 'REC_INSERTED' as status\n" +
+                "insert into commitRecordsStream;\n" +
+                "\n" +
+                "from commitRecordsStream#rdbms:cud('TEST_DATASOURCE', 'commit', '1')\n" +
+                "insert into finalizeStream;\n" +
+                "\n" +
+                "from listDstTableRecordsStream left outer join " + dstTableName + "\n" +
+                "select " + dstTableName + ".symbol as symbol, " + dstTableName + ".price as price, " + dstTableName +
+                ".volume as volume\n" +
+                "insert into outputDstTableRecordsStream;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + tables + queries);
+        InputHandler addSrcTableRecordsStream = siddhiAppRuntime.getInputHandler("addSrcTableRecordsStream");
+        InputHandler listSrcTableRecordsStream = siddhiAppRuntime.getInputHandler("listSrcTableRecordsStream");
+        InputHandler copyTableDataStream = siddhiAppRuntime.getInputHandler("copyTableDataStream");
+        InputHandler listDstTableRecordsStream = siddhiAppRuntime.getInputHandler("listDstTableRecordsStream");
+        siddhiAppRuntime.start();
+
+        siddhiAppRuntime.addCallback("outputSrcTableRecordsStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    isEventArrived = true;
+                    eventCount.incrementAndGet();
+                }
+            }
+        });
+
+        siddhiAppRuntime.addCallback("outputDstTableRecordsStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    isEventArrived = true;
+                    eventCount.incrementAndGet();
+                }
+            }
+        });
+        // Add records to the source table
+        addSrcTableRecordsStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        addSrcTableRecordsStream.send(new Object[]{"IBM", 75.6f, 100L});
+        listSrcTableRecordsStream.send(new Object[]{1});
+        SiddhiTestHelper.waitForEvents(2000, 2, eventCount, 60000);
+
+        Assert.assertTrue(isEventArrived, "No events arrived");
+        Assert.assertEquals(eventCount.get(), 2, "Event count did not match");
+
+        // Copy records to the destination table
+        eventCount.set(0);
+        isEventArrived = false;
+        copyTableDataStream.send(new Object[]{1});
+        listDstTableRecordsStream.send(new Object[]{1});
+        SiddhiTestHelper.waitForEvents(2000, 2, eventCount, 60000);
+
+        Assert.assertTrue(isEventArrived, "No events arrived");
+        Assert.assertEquals(eventCount.get(), 2, "Event count did not match");
+
+        siddhiAppRuntime.shutdown();
+        ((HikariDataSource) dataSource).close();
+    }
 }
