@@ -217,6 +217,11 @@ public class RDBMSStreamProcessorUtil {
      */
     public static void populateStatementWithSingleElement(PreparedStatement stmt, int ordinal, Attribute.Type type,
                                                           Object value) throws SQLException {
+        // Handle 'null' valued params separately
+        if (value == null) {
+            stmt.setObject(ordinal, null);
+            return;
+        }
         switch (type) {
             case BOOL:
                 stmt.setBoolean(ordinal, (Boolean) value);

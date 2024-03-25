@@ -551,4 +551,168 @@ public class RDBMSCUDTestCase {
         siddhiAppRuntime.shutdown();
         ((HikariDataSource) dataSource).close();
     }
+
+
+    @Test()
+    public void rdbmsCUDNullParamTest1() throws InterruptedException {
+        log.info("rdbmsCUDNullParamTest1 - Test allow.null.params.with.CUD property behavior. " +
+                "When property is 'true', parametrized cud function with " +
+                "null value should be accepted");
+
+        String databaseType = System.getenv("DATABASE_TYPE");
+        if (databaseType == null) {
+            databaseType = RDBMSTableTestUtils.TestType.H2.toString();
+        }
+        RDBMSTableTestUtils.TestType type = RDBMSTableTestUtils.TestType.valueOf(databaseType);
+
+        YAMLConfigManager yamlConfigManager = new YAMLConfigManager(
+                "extensions: \n" +
+                        "  - extension: \n" +
+                        "      namespace: rdbms\n" +
+                        "      name: cud\n" +
+                        "      properties:\n" +
+                        "        allow.null.params.with.CUD: true\n" +
+                        "        perform.CUD.operations: true");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(yamlConfigManager);
+
+        DataSource dataSource = RDBMSTableTestUtils.initDataSource();
+        siddhiManager.setDataSource("TEST_DATASOURCE", dataSource);
+
+        String definitions = "" +
+                "define stream InsertStream(symbol string, price float, volume long);\n" +
+                "\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
+                "username=\"" + user + "\", password=\"" + password + "\", pool.properties=\"maximumPoolSize:1\")" +
+                "define table " + TABLE_NAME + " (symbol string, price float, volume long); " +
+                "\n";
+
+        String parameterizedSqlQuery;
+        boolean isOracle11 = false;
+        if (type.equals(RDBMSTableTestUtils.TestType.ORACLE)) {
+            parameterizedSqlQuery = "INSERT INTO " + TABLE_NAME + "(symbol, price, volume) VALUES (?,?,?)";
+            isOracle11 = Boolean.parseBoolean(System.getenv("IS_ORACLE_11"));
+        } else {
+            parameterizedSqlQuery = "INSERT INTO " + TABLE_NAME + "(symbol, price, volume) VALUES (?,?,?);";
+        }
+        if (!type.equals(RDBMSTableTestUtils.TestType.ORACLE)) {
+            parameterizedSqlQuery = parameterizedSqlQuery.concat(";");
+        }
+
+        String parameterizedCud = "" +
+                "from InsertStream#rdbms:cud(\"TEST_DATASOURCE\", \"" + parameterizedSqlQuery +
+                "\", symbol, price, volume) " +
+                "select numRecords " +
+                "insert into OutputStream ;" +
+                "\n";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(definitions + parameterizedCud);
+        InputHandler insertStream = siddhiAppRuntime.getInputHandler("InsertStream");
+        siddhiAppRuntime.start();
+
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    isEventArrived = true;
+                    eventCount.incrementAndGet();
+                    actualData.add(event.getData());
+                }
+            }
+        });
+
+        insertStream.send(new Object[]{"X", 1.0f, 30L});
+        SiddhiTestHelper.waitForEvents(2000, 1, eventCount, 60000);
+        siddhiAppRuntime.shutdown();
+        ((HikariDataSource) dataSource).close();
+
+        Assert.assertTrue(isEventArrived, "Event Not Arrived");
+        Assert.assertEquals(eventCount.get(), 1, "Event count did not match");
+
+        if (isOracle11) {
+            Assert.assertEquals(actualData.get(0)[0], -2);
+        } else {
+            Assert.assertEquals(actualData.get(0)[0], 1);
+        }
+    }
+
+    @Test()
+    public void rdbmsCUDNullParamTest2() throws InterruptedException {
+        log.info("rdbmsCUDNullParamTest2 - Test allow.null.params.with.CUD property behavior. " +
+                "When property is 'false', parametrized cud functions with " +
+                "null value should be rejected");
+
+        String databaseType = System.getenv("DATABASE_TYPE");
+        if (databaseType == null) {
+            databaseType = RDBMSTableTestUtils.TestType.H2.toString();
+        }
+        RDBMSTableTestUtils.TestType type = RDBMSTableTestUtils.TestType.valueOf(databaseType);
+
+        YAMLConfigManager yamlConfigManager = new YAMLConfigManager(
+                "extensions: \n" +
+                        "  - extension: \n" +
+                        "      namespace: rdbms\n" +
+                        "      name: cud\n" +
+                        "      properties:\n" +
+                        "        perform.CUD.operations: true");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setConfigManager(yamlConfigManager);
+
+        DataSource dataSource = RDBMSTableTestUtils.initDataSource();
+        siddhiManager.setDataSource("TEST_DATASOURCE", dataSource);
+
+        String definitions = "" +
+                "define stream InsertStream(symbol string, price float, volume long);\n" +
+                "\n" +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", jdbc.driver.name=\"" + driverClassName + "\"," +
+                "username=\"" + user + "\", password=\"" + password + "\", pool.properties=\"maximumPoolSize:1\")" +
+                "define table " + TABLE_NAME + " (symbol string, price float, volume long); " +
+                "\n";
+
+        String parameterizedSqlQuery;
+        if (type.equals(RDBMSTableTestUtils.TestType.ORACLE)) {
+            parameterizedSqlQuery = "INSERT INTO " + TABLE_NAME + "(symbol, price, volume) VALUES (?,?,?)";
+        } else {
+            parameterizedSqlQuery = "INSERT INTO " + TABLE_NAME + "(symbol, price, volume) VALUES (?,?,?);";
+        }
+        if (!type.equals(RDBMSTableTestUtils.TestType.ORACLE)) {
+            parameterizedSqlQuery = parameterizedSqlQuery.concat(";");
+        }
+
+        String parameterizedCud = "" +
+                "from InsertStream#rdbms:cud(\"TEST_DATASOURCE\", \"" + parameterizedSqlQuery +
+                "\", symbol, price, volume) " +
+                "select numRecords " +
+                "insert into OutputStream ;" +
+                "\n";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(definitions + parameterizedCud);
+        InputHandler insertStream = siddhiAppRuntime.getInputHandler("InsertStream");
+        siddhiAppRuntime.start();
+
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    isEventArrived = true;
+                    eventCount.incrementAndGet();
+                    actualData.add(event.getData());
+                }
+            }
+        });
+
+        insertStream.send(new Object[]{"Y", 1.0f, null});
+        SiddhiTestHelper.waitForEvents(2000, 1, eventCount, 6000);
+        siddhiAppRuntime.shutdown();
+        ((HikariDataSource) dataSource).close();
+
+        // Event should not arrive and 0 events should be received
+        Assert.assertFalse(isEventArrived, "Event Arrived");
+        Assert.assertEquals(eventCount.get(), 0, "Event count did not match");
+    }
+
 }
