@@ -1730,7 +1730,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         fieldLengths.keySet().forEach(field -> {
             if (!field.equals(SiddhiConstants.AGG_SHARD_ID_COL) && !attributeNames.contains(field)) {
                 throw new RDBMSTableException("Field '" + field + "' (for which a size of " + fieldLengths.get(field)
-                        + " has been specified) does not exist in the table's list of fields.");
+                        + " has been specified) does not exist in the" + this.tableName + "table's list of fields.");
             }
         });
     }
@@ -1851,12 +1851,13 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             throw new ConnectionUnavailableException("Failed to execute query for store: " + tableName,
                                     e);
                         } else {
-                            log.error("Failed to execute query '" + query + "' for store: " + tableName);
+                            String errMessage = "Failed to execute query '" + query + "' for store: " + tableName;
+                            log.error(errMessage);
                             log.error("Dropped " + records.size() + " records, ");
                             for (int i = 0; i < records.size(); i++) {
                                 log.error("Record #" + (i + 1) + " : " + Arrays.toString(records.get(i)));
                             }
-                            throw new RDBMSTableException(e);
+                            throw new RDBMSTableException(errMessage, e);
                         }
                     } catch (SQLException e2) {
                         throw new ConnectionUnavailableException("Error occurred when attempting to check whether " +
@@ -1864,14 +1865,15 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     }
                 }
             } else {
+                String errMessage = "Attempted execution of query [" + query + "] on the table" + tableName +
+                        "produced an exception: ";
                 if (log.isDebugEnabled()) {
-                    log.debug("Attempted execution of query [" + query + "] produced an exception: "
-                            + e.getMessage());
+                    log.debug(errMessage + e.getMessage());
                 }
                 if (metrics != null) {
                     metrics.setRDBMSStatus(RDBMSStatus.ERROR);
                 }
-                throw new RDBMSTableException(e);
+                throw new RDBMSTableException(errMessage, e);
             }
         } finally {
             if (!committed) {
@@ -1921,8 +1923,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     RDBMSTableUtils.populateStatementWithSingleElement(stmt, i + 1, attribute.getType(), value,
                             typeMapping);
                 } else {
-                    throw new RDBMSTableException("Cannot Execute Insert/Update: null value detected for " +
-                            "attribute '" + attribute.getName() + "'");
+                    throw new RDBMSTableException("Cannot Execute Insert/Update on the table" + this.tableName +
+                            ": null value detected for attribute '" + attribute.getName() + "'");
                 }
             }
         } catch (SQLException e) {
