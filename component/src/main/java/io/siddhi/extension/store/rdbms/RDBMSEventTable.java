@@ -1163,7 +1163,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                     "Connection is closed for store: '" + tableName + "'", e);
                         } else {
                             throw new RDBMSTableException("Could not execute insert operation " +
-                                    "for store '" + this.tableName + "' in the datasource: '" + this.dataSourceName
+                                    "for store: '" + this.tableName + "' in the datasource: '" + this.dataSourceName
                                     + "'", e);
                         }
                     } catch (SQLException e1) {
@@ -1196,7 +1196,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             "Connection is closed for store: '" + tableName + "'", e);
                 } else {
                     throw new RDBMSTableException("Could not execute insert operation " +
-                            "for store '" + this.tableName + "' in the datasource: '" + this.dataSourceName + "'", e);
+                            "for store: '" + this.tableName + "' in the datasource: '" + this.dataSourceName + "'", e);
                 }
             } catch (SQLException e1) {
                 throw new RDBMSTableException("Could not execute insert operation  " +
@@ -1720,7 +1720,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     log.debug("Table exist with the name " + tableName + ". Existing table will be used ");
                 }
             } else {
-                throw new RDBMSTableException("Unable to initialize table '" + this.tableName
+                throw new RDBMSTableException("Unable to initialize table: '" + this.tableName
                         + "' in the datasource: '" + this.dataSourceName + "'", e);
             }
         }
