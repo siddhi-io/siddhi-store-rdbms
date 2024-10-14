@@ -719,10 +719,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             this.batchExecuteQueriesWithRecords(sql, records, !this.transactionSupported);
         } catch (ConnectionUnavailableException e) {
             throw new ConnectionUnavailableException("Failed to add records to store: '" + this.tableName
-                    + "' in the database: " + this.dataSourceName, e);
+                    + "' in the datasource: " + this.dataSourceName, e);
         } catch (RDBMSTableException e) {
             throw new DatabaseRuntimeException("Failed to add records to the store: '" + this.tableName
-                    + "' in the database: " + this.dataSourceName, e);
+                    + "' in the datasource: " + this.dataSourceName, e);
         }
     }
 
@@ -778,11 +778,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             + this.tableName + "'", e);
                 } else {
                     throw new RDBMSTableException("Error retrieving records from store '" + this.tableName
-                            + "' in the database:" + this.dataSourceName, e);
+                            + "' in the datasource:" + this.dataSourceName, e);
                 }
             } catch (SQLException e1) {
                 throw new RDBMSTableException("Error retrieving records " + "from store '" + this.tableName +
-                        "' in the database:" + this.dataSourceName + ". Failed to close the connection.", e1);
+                        "' in the datasource:" + this.dataSourceName + ". Failed to close the connection.", e1);
             }
         }
     }
@@ -809,11 +809,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             "for store: '" + tableName + "'", e);
                 } else {
                     throw new RDBMSTableException("Error performing contains check for store '" +
-                            this.tableName + "' in the database: " + this.dataSourceName, e);
+                            this.tableName + "' in the datasource: " + this.dataSourceName, e);
                 }
             } catch (SQLException e1) {
                 throw new RDBMSTableException("Error performing contains check for store: '" + tableName
-                        + "' in the database: " + this.dataSourceName, e1);
+                        + "' in the datasource: " + this.dataSourceName, e1);
             }
         } finally {
             RDBMSTableUtils.cleanupConnection(rs, stmt, conn);
@@ -882,7 +882,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 }
             } catch (SQLException e1) {
                 throw new RDBMSTableException("Error performing record deletion for store: '" + tableName
-                        + "' in the database: " + this.dataSourceName, e1);
+                        + "' in the datasource: " + this.dataSourceName, e1);
             }
         } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
@@ -1163,11 +1163,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                     "Connection is closed for store: '" + tableName + "'", e);
                         } else {
                             throw new RDBMSTableException("Could not execute insert operation " +
-                                    "for store '" + this.tableName + "' in the database: " + this.dataSourceName, e);
+                                    "for store '" + this.tableName + "' in the datasource: " + this.dataSourceName, e);
                         }
                     } catch (SQLException e1) {
                         throw new RDBMSTableException("Could not execute insert operation  " +
-                                "for store: '" + tableName + "' in the database: " + this.dataSourceName, e1);
+                                "for store: '" + tableName + "' in the datasource: " + this.dataSourceName, e1);
                     }
                 }
                 counter++;
@@ -1195,11 +1195,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             "Connection is closed for store: '" + tableName + "'", e);
                 } else {
                     throw new RDBMSTableException("Could not execute insert operation " +
-                            "for store '" + this.tableName + "' in the database: " + this.dataSourceName, e);
+                            "for store '" + this.tableName + "' in the datasource: " + this.dataSourceName, e);
                 }
             } catch (SQLException e1) {
                 throw new RDBMSTableException("Could not execute insert operation  " +
-                        "for store: '" + tableName + "' in the database: " + this.dataSourceName, e1);
+                        "for store: '" + tableName + "' in the datasource: " + this.dataSourceName, e1);
             }
         } finally {
             RDBMSTableUtils.cleanupConnection(null, insertStmt, conn);
@@ -1428,7 +1428,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         } catch (DataSourceException e) {
             this.destroy();
             throw new RDBMSTableException("Failed to initialize store for table name '" +
-                    this.tableName + "' in the database: " + this.dataSourceName, e);
+                    this.tableName + "' in the datasource: " + this.dataSourceName, e);
         }
         if (metrics != null) {
             metrics.updateTableStatus(siddhiAppContext.getExecutorService(), siddhiAppContext.getName());
@@ -1720,7 +1720,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 }
             } else {
                 throw new RDBMSTableException("Unable to initialize table '" + this.tableName
-                        + "' in the database: " + this.dataSourceName, e);
+                        + "' in the datasource: " + this.dataSourceName, e);
             }
         }
     }
@@ -1737,7 +1737,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             if (!field.equals(SiddhiConstants.AGG_SHARD_ID_COL) && !attributeNames.contains(field)) {
                 throw new RDBMSTableException("Field '" + field + "' (for which a size of " + fieldLengths.get(field)
                         + " has been specified) does not exist in the '" + tableName
-                        + "' table's list of fields  in the database: " + this.dataSourceName);
+                        + "' table's list of fields  in the datasource: " + this.dataSourceName);
             }
         });
     }
@@ -1775,11 +1775,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             "Connection is closed for store: '" + tableName + "'", e);
                 } else {
                     throw new RDBMSTableException("Could not execute data definition queries for store '"
-                            + this.tableName + "' in the database: " + this.dataSourceName, e);
+                            + this.tableName + "' in the datasource: " + this.dataSourceName, e);
                 }
             } catch (SQLException e1) {
                 throw new RDBMSTableException("Could not execute data definition queries for store: '" +
-                        tableName + "' in the database: " + this.dataSourceName, e1);
+                        tableName + "' in the datasource: " + this.dataSourceName, e1);
             }
         } finally {
             if (!committed) {
@@ -1858,7 +1858,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             throw new ConnectionUnavailableException("Failed to execute query for store: " + tableName,
                                     e);
                         } else {
-                            String errMessage = "Failed to execute query '" + query + "' for store: '" + tableName +  "' in the database: " + this.dataSourceName;
+                            String errMessage = "Failed to execute query '" + query + "' for store: '" + tableName +  "' in the datasource: " + this.dataSourceName;
                             log.error(errMessage);
                             log.error("Dropped " + records.size() + " records, ");
                             for (int i = 0; i < records.size(); i++) {
@@ -1873,7 +1873,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 }
             } else {
                 String errMessage = "Attempted execution of query [" + query + "] on the table: " + tableName
-                        + " in the database: " + this.dataSourceName + " produced an exception: ";
+                        + " in the datasource: " + this.dataSourceName + " produced an exception: ";
                 if (log.isDebugEnabled()) {
                     log.debug(errMessage + e.getMessage());
                 }
@@ -1931,7 +1931,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             typeMapping);
                 } else {
                     throw new RDBMSTableException("Cannot Execute Insert/Update on the table: '" + tableName
-                            + "' in the database: " + this.dataSourceName + ". A null value detected for the attribute '"
+                            + "' in the datasource: " + this.dataSourceName + ". A null value detected for the attribute '"
                             + attribute.getName() + "'");
                 }
             }
@@ -1943,11 +1943,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 } else {
                     throw new RDBMSTableException("Dropping event since value for attribute name " +
                             attribute.getName() + " cannot be set for store: '" + tableName
-                            + "' in the database: " + this.dataSourceName, e);
+                            + "' in the datasource: " + this.dataSourceName, e);
                 }
             } catch (SQLException e1) {
                 throw new RDBMSTableException("Could not execute Insert/Update for store: '" + tableName
-                        + "' in the database: " + this.dataSourceName, e1);
+                        + "' in the datasource: " + this.dataSourceName, e1);
             }
         }
     }
@@ -1983,11 +1983,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             "query: '" + query + "' for store: '" + tableName + "'", e);
                 } else {
                     throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                            + "' on store: '" + this.tableName + "' in the database: " + this.dataSourceName, e);
+                            + "' on store: '" + this.tableName + "' in the datasource: " + this.dataSourceName, e);
                 }
             } catch (SQLException e1) {
                 throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                        + "' on store: '" + this.tableName + "' in the database: " + this.dataSourceName, e1);
+                        + "' on store: '" + this.tableName + "' in the datasource: " + this.dataSourceName, e1);
             }
         }
         ResultSet rs;
@@ -2010,11 +2010,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             "query: '" + query + "' for store: '" + tableName + "'", e);
                 } else {
                     throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                            + "' on '" + this.tableName + "' in the database: " + this.dataSourceName, e);
+                            + "' on '" + this.tableName + "' in the datasource: " + this.dataSourceName, e);
                 }
             } catch (SQLException e1) {
                 throw new RDBMSTableException("Error when preparing to execute query: '" + query
-                        + "' on store: '" + this.tableName + "' in the database: " + this.dataSourceName, e1);
+                        + "' on store: '" + this.tableName + "' in the datasource: " + this.dataSourceName, e1);
             }
         }
     }
