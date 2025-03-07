@@ -118,7 +118,7 @@ public class RDBMSTableUtils {
                 }
             } catch (SQLException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Error closing ResultSet: " + e.getMessage(), e);
+                    log.debug("Error closing ResultSet: ", e);
                 }
             }
         }
@@ -130,7 +130,7 @@ public class RDBMSTableUtils {
                 }
             } catch (SQLException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Error closing PreparedStatement: " + e.getMessage(), e);
+                    log.debug("Error closing PreparedStatement: ", e);
                 }
             }
         }
@@ -142,7 +142,7 @@ public class RDBMSTableUtils {
                 }
             } catch (SQLException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Error closing Connection: " + e.getMessage(), e);
+                    log.debug("Error closing Connection: ", e);
                 }
             }
         }

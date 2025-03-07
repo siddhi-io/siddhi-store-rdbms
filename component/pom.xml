@@ -204,10 +204,6 @@
         </plugins>
     </build>
 
-    <properties>
-        <mavan.findbugsplugin.exclude.file>../findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
-    </properties>
-
     <profiles>
         <profile>
             <id>documentation-deploy</id>

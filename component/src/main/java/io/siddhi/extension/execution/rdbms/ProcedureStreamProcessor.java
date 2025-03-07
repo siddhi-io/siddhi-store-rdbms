@@ -57,6 +57,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
@@ -228,7 +229,7 @@ public class ProcedureStreamProcessor extends StreamProcessor<State> {
                                     "but found '" + attributeDefinition);
                         }
                         Attribute.Type attributeType;
-                        switch (splitAttributeDef[1].toLowerCase()) {
+                        switch (splitAttributeDef[1].toLowerCase(Locale.ENGLISH)) {
                             case "bool":
                                 attributeType = Attribute.Type.BOOL;
                                 break;

@@ -303,14 +303,14 @@ public class CUDStreamProcessor extends StreamProcessor<State> {
         if (transactionCorrelationId != null) {
             // Providing transactionCorrelationId disables autocommit for this RDBMS query function
             enableCudOperationAutocommit = false;
-            log.info("Autocommit has been disabled for RDBMS query function, since transaction correlation ID: '" +
-                    transactionCorrelationId + "' has been given. Make sure that, a 'COMMIT' or 'ROLLBACK' query is " +
-                    "explicitly executed with transaction correlation ID: '" + transactionCorrelationId +
-                    "' in a RDBMS query function (Ignore this message if it has been already done).");
+            log.info("Autocommit has been disabled for RDBMS query function, since transaction correlation ID: '{}' " +
+                     "has been given. Make sure that, a 'COMMIT' or 'ROLLBACK' query is explicitly executed " +
+                     "with transaction correlation ID: '{}' in a RDBMS query function (Ignore this message if " +
+                     "it has been already done).", transactionCorrelationId, transactionCorrelationId);
         } else if (query.equalsIgnoreCase(COMMIT) || query.equalsIgnoreCase(ROLLBACK)) {
-            log.warn("'" + query + "' operation is present without a transaction correlation ID. Therefore autocommit" +
-                    " has NOT been disabled for the RDBMS query function. Please recheck this operation, since" +
-                    " it will NOT be effective.");
+            log.warn("'{}' operation is present without a transaction correlation ID. Therefore autocommit has NOT " +
+                            "been disabled for the RDBMS query function. Please recheck this operation, since it will" +
+                            " NOT be effective.", query);
         }
     }
 
