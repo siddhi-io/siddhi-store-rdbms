@@ -114,7 +114,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#api-docs-v7017" tabindex="1" class="md-skip">
+      <a href="#api-docs-v7018" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -372,6 +372,18 @@
   
 </nav>
     
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../7.0.18/" title="7.0.18" class="md-nav__link">
+      7.0.18
+    </a>
   </li>
 
         
@@ -1469,7 +1481,7 @@
                   <a href="https://github.com/siddhi-io/siddhi-store-rdbms/blob/master/api/latest.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="api-docs-v7017">API Docs - v7.0.17</h1>
+                <h1 id="api-docs-v7018">API Docs - v7.0.18</h1>
 <div class="admonition info">
 <p class="admonition-title">Tested Siddhi Core version: <em><a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/">5.1.24</a></em></p>
 <p>It could also support other Siddhi Core minor versions.</p>
@@ -1481,8 +1493,10 @@
 <p></p>
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
 <pre><code>rdbms:cud(&lt;STRING&gt; datasource.name, &lt;STRING&gt; query)
+rdbms:cud(&lt;STRING&gt; datasource.name, &lt;STRING&gt; query, &lt;STRING&gt; transaction.correlation.id)
 rdbms:cud(&lt;STRING&gt; datasource.name, &lt;STRING&gt; query, &lt;STRING|BOOL|INT|DOUBLE|FLOAT|LONG&gt; parameter)
 rdbms:cud(&lt;STRING&gt; datasource.name, &lt;STRING&gt; query, &lt;STRING|BOOL|INT|DOUBLE|FLOAT|LONG&gt; parameter, &lt;STRING|BOOL|INT|DOUBLE|FLOAT|LONG&gt; ...)
+rdbms:cud(&lt;STRING&gt; datasource.name, &lt;STRING&gt; query, &lt;STRING|BOOL|INT|DOUBLE|FLOAT|LONG&gt; parameter, &lt;STRING|BOOL|INT|DOUBLE|FLOAT|LONG&gt; ..., &lt;STRING&gt; transaction.correlation.id)
 </code></pre>
 
 <p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -1519,6 +1533,14 @@ rdbms:cud(&lt;STRING&gt; datasource.name, &lt;STRING&gt; query, &lt;STRING|BOOL|
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">Yes</td>
     </tr>
+    <tr>
+        <td style="vertical-align: top">transaction.correlation.id</td>
+        <td style="vertical-align: top; word-wrap: break-word"><p style="word-wrap: break-word;margin: 0;">If provided, CUD functions having the same <code>transaction.correlation.id</code> will use the same connection object when interacting with the database. The connection object will not be closed until a <code>commit</code> or <code>rollback</code> query is explicitly performed via a CUD function. This is useful when performing transactions with commit and rollback. CUD functions without a <code>transaction.correlation.id</code> will use their own connection object, which will be closed at the end of the operation. Note that, when using <code>transaction.correlation.id</code>, the developer should make sure that, a <code>commit</code> or <code>rollback</code> operation is performed via a CUD operation, after all the events - that are supposed to be committed/rolled back are added to the batch .</p></td>
+        <td style="vertical-align: top"><Empty_String></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
 </table></p>
 <p><span id="system-parameters" class="md-typeset" style="display: block; font-weight: bold;">System Parameters</span>
 <table>
@@ -1531,6 +1553,12 @@ rdbms:cud(&lt;STRING&gt; datasource.name, &lt;STRING&gt; query, &lt;STRING|BOOL|
     <tr>
         <td style="vertical-align: top">perform.CUD.operations</td>
         <td style="vertical-align: top;"><p style="word-wrap: break-word;margin: 0;">If this parameter is set to 'true', the RDBMS CUD function is enabled to perform CUD operations.</p></td>
+        <td style="vertical-align: top">false</td>
+        <td style="vertical-align: top">true<br>false</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">allow.null.params.with.CUD</td>
+        <td style="vertical-align: top;"><p style="word-wrap: break-word;margin: 0;">When set to 'true', this parameter allows the RDBMS CUD function to acceptparameters with NULL values. When set to 'false', NULL parameters will not be allowed with CUD functions.</p></td>
         <td style="vertical-align: top">false</td>
         <td style="vertical-align: top">true<br>false</td>
     </tr>
@@ -1570,6 +1598,27 @@ insert into  RecordStream;
 <p></p>
 
 <p style="word-wrap: break-word;margin: 0;">This query updates the events from the input stream named 'TriggerStream' with an additional attribute named 'numRecords', of which the value indicates the number of records manipulated. The updated events are inserted into an output stream named 'RecordStream'. Here the values of attributes changedName and previousName in the event will be set to the query.</p>
+
+<p></p>
+
+<p><span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span></p>
+<pre><code>from InsertStream#rdbms:cud(&quot;SAMPLE_DB&quot;, &quot;INSERT INTO Names(name) VALUES (?);&quot;, name, &quot;t1&quot;)
+select name
+insert into ignoreStream;
+
+from CommitStream#rdbms:cud(&quot;SAMPLE_DB&quot;, &quot;COMMIT&quot;,  &quot;t1&quot;)
+select *
+insert into ignoreStream2;
+
+from RollbackStream#rdbms:cud(&quot;SAMPLE_DB&quot;, &quot;ROLLBACK&quot;,  &quot;t1&quot;)
+select *
+insert into ignoreStream3;
+
+</code></pre>
+
+<p></p>
+
+<p style="word-wrap: break-word;margin: 0;"><code>t1</code> is the <code>transactionCorrelationId</code>. Assume the following series of events arriving at <code>InsertStream</code>: <code>{"name": "A"}</code>, <code>{"name": "B"}</code>. <code>A</code> and <code>B</code> will not be immediately committed to the <code>Names</code> table. After these, if an event arrives at <code>CommitStream</code>, <code>A</code> and <code>B</code> will be committed, since the <code>CommitStream</code> performs a <code>COMMIT</code>. Instead of that, if an event arrives at <code>RollbackStream</code>, <code>A</code> and <code>B</code> will be rolled back, since the <code>RollbackStream</code> performs a <code>ROLLBACK</code>.</p>
 
 <p></p>
 
@@ -2146,13 +2195,13 @@ insert into FooStream;
           </a>
         
         
-          <a href="../7.0.17/" title="7.0.17" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../7.0.18/" title="7.0.18" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                7.0.17
+                7.0.18
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
