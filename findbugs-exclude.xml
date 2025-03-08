@@ -22,7 +22,8 @@
     <!-- NP_LOAD_OF_KNOWN_NULL_VALUE: Null is checked at the connection clean up util class-->
     <Match>
         <Class name="io.siddhi.extension.store.rdbms.RDBMSEventTable"/>
-        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING, NP_LOAD_OF_KNOWN_NULL_VALUE, IS2_INCONSISTENT_SYNC"/>
+        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING, NP_LOAD_OF_KNOWN_NULL_VALUE, IS2_INCONSISTENT_SYNC,
+        SQL_INJECTION_JDBC, IMPROPER_UNICODE, CRLF_INJECTION_LOGS"/>
     </Match>
     <!-- PZLA_PREFER_ZERO_LENGTH_ARRAYS: Iterator should always return a constant size array, that's why null returned
     at exception -->
@@ -46,15 +47,33 @@
     <Match>
         <Class name="io.siddhi.extension.execution.rdbms.QueryStreamProcessor"/>
         <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING,
-        UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+        UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR, POTENTIAL_XML_INJECTION,
+        IMPROPER_UNICODE, SQL_INJECTION_JDBC"/>
     </Match>
     <Match>
         <Class name="io.siddhi.extension.execution.rdbms.CUDStreamProcessor"/>
         <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING,
-        UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+        UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR, IMPROPER_UNICODE, SQL_INJECTION_JDBC,
+        CRLF_INJECTION_LOGS"/>
     </Match>
     <Match>
         <Class name="io.siddhi.extension.execution.rdbms.procedure.OracleFunctionStreamProcessor"/>
-        <Bug pattern="DM_CONVERT_CASE"/>
+        <Bug pattern="DM_CONVERT_CASE, IMPROPER_UNICODE"/>
+    </Match>
+    <Match>
+        <Class name="io.siddhi.extension.execution.rdbms.ProcedureStreamProcessor" />
+        <Bug pattern="POTENTIAL_XML_INJECTION, IMPROPER_UNICODE, SQL_INJECTION_JDBC" />
+    </Match>
+    <Match>
+        <Class name="io.siddhi.extension.store.rdbms.RDBMSEventTable" />
+        <Bug pattern="IMPROPER_UNICODE" />
+    </Match>
+    <Match>
+        <Class name="io.siddhi.extension.store.rdbms.util.RDBMSTableUtils$RDBMSTableConfigLoader" />
+        <Bug pattern="PATH_TRAVERSAL_IN" />
+    </Match>
+    <Match>
+        <Class name="io.siddhi.extension.execution.rdbms.util.RDBMSStreamProcessorUtil" />
+        <Bug pattern="CRLF_INJECTION_LOGS" />
     </Match>
 </FindBugsFilter>

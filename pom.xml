@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>5</version>
+        <version>5.3</version>
     </parent>
 
     <groupId>io.siddhi.extension.store.rdbms</groupId>
@@ -142,14 +142,15 @@
         <carbon.uiserver.version>1.0.6</carbon.uiserver.version>
 
         <siddhi.io.tcp.version>3.0.6</siddhi.io.tcp.version>
-        <siddhi.io.email.version>2.0.7</siddhi.io.email.version>
-        <siddhi.io.http.version>2.2.0</siddhi.io.http.version>
+        <siddhi.io.email.version>2.0.8</siddhi.io.email.version>
+        <siddhi.io.http.version>2.3.6</siddhi.io.http.version>
 
-        <siddhi.map.json.version>5.2.2</siddhi.map.json.version>
+        <siddhi.map.json.version>5.2.5</siddhi.map.json.version>
         <siddhi.map.binary.version>2.1.1</siddhi.map.binary.version>
         <siddhi.map.xml.version>5.2.2</siddhi.map.xml.version>
 
         <siddhi.store.solr.version>2.0.0</siddhi.store.solr.version>
+        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
     </properties>
 
     <scm>
@@ -718,6 +719,13 @@
                 <configuration>
                     <preparationGoals>clean install -Pdocumentation-deploy</preparationGoals>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <configuration>
+                    <excludeFilterFile>${maven.findbugsplugin.version.exclude}</excludeFilterFile>
                 </configuration>
             </plugin>
         </plugins>

@@ -64,7 +64,7 @@ public class RDBMSStreamProcessorUtil {
                 }
             } catch (SQLException e) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Error in closing ResultSet: " + e.getMessage(), e);
+                    LOG.debug("Error in closing ResultSet: ", e);
                 }
             }
         }
@@ -76,7 +76,7 @@ public class RDBMSStreamProcessorUtil {
                 }
             } catch (SQLException e) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Error in closing PreparedStatement: " + e.getMessage(), e);
+                    LOG.debug("Error in closing PreparedStatement: ", e);
                 }
             }
         }
@@ -88,7 +88,7 @@ public class RDBMSStreamProcessorUtil {
                 }
             } catch (SQLException e) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Error in closing Connection: " + e.getMessage(), e);
+                    LOG.debug("Error in closing Connection: ", e);
                 }
             }
         }
@@ -194,8 +194,8 @@ public class RDBMSStreamProcessorUtil {
                 DataSourceService dataSourceService = (DataSourceService) bundleContext
                         .getService(serviceRef);
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
-                            "DataSource Service lookup.");
+                    LOG.debug("Lookup for datasource '{}' completed through DataSource Service lookup.",
+                            dataSourceName);
                 }
                 return (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
             }
