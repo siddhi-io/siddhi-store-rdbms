@@ -114,13 +114,16 @@ import javax.sql.DataSource;
                         parameterNames = {"datasource.name", "query"}
                 ),
                 @ParameterOverload(
-                        parameterNames = {"datasource.name", "query", "transaction.correlation.id"}
-                ),
-                @ParameterOverload(
                         parameterNames = {"datasource.name", "query", "parameter"}
                 ),
                 @ParameterOverload(
                         parameterNames = {"datasource.name", "query", "parameter", "..."}
+                ),
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "transaction.correlation.id"}
+                ),
+                @ParameterOverload(
+                        parameterNames = {"datasource.name", "query", "parameter", "transaction.correlation.id"}
                 ),
                 @ParameterOverload(
                         parameterNames = {"datasource.name", "query", "parameter", "...", "transaction.correlation.id"}
